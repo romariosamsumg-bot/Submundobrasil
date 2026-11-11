@@ -3,7 +3,7 @@
 'use strict';
 const { chromium } = require('playwright');
 const path = require('path');
-const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.5.html');
+const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.6.html');
 const V04 = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.4.html');
 let failures = 0;
 const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg); if (!cond) failures++; };
@@ -22,8 +22,21 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   console.log('1. Novo jogo e navegação (360×780)');
   await page.goto(FILE); await page.evaluate(() => localStorage.clear()); await page.reload();
   check(await page.isVisible('#welcome'), 'tela de boas-vindas aparece sem save');
+  await page.selectOption('#homeCity', 'Salvador');
+  check((await page.textContent('#cityTrait')).includes('Terra da festa'), 'vantagem da cidade aparece na capa');
+  await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-capa.png') });
   await page.fill('#playerName', 'Malandro'); await page.click('#newGameForm button[type=submit]');
   check(!(await page.isVisible('#welcome')), 'jogo iniciado');
+  check(await page.isVisible('#help'), 'introdução "Como jogar" abre no primeiro jogo');
+  await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-ajuda.png') });
+  for (let i = 0; i < 3; i++) await page.click('[data-action=help-next]');
+  check((await page.textContent('#helpBox')).includes('Largo das Ladeiras'), 'ajuda mostra os bairros da cidade escolhida');
+  await page.click('#helpBox .btn.primary');
+  check(!(await page.isVisible('#help')), 'introdução fecha');
+  check((await page.textContent('.guide')).includes('1/8'), 'guia de primeiros passos no passo 1');
+  check((await page.textContent('.plate')).includes('Largo das Ladeiras'), 'placa do bairro com nome de Salvador');
+  check(await page.isVisible('.rumo'), 'cartão "Seu rumo" visível');
+  await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-inicio.png'), fullPage: true });
   for (const v of ['painel', 'acoes', 'cidade', 'gestao', 'gangue', 'temporada']) {
     await page.click(`.mobileNav [data-view=${v}]`);
     check(await overflow() <= 0, `sem rolagem horizontal em "${v}"`);
@@ -34,11 +47,15 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   await page.click('.mobileNav [data-view=painel]');
   await page.click('[data-action=career][data-id=operador]');
   check((await st()).career === 'operador', 'carreira escolhida (com confirmação)');
+  check((await st()).tutorial.step === 1, 'guia avançou para o passo 2');
+  check(await page.isVisible('.mobileNav [data-view=acoes].hint'), 'aba do próximo passo fica destacada');
   await page.click('.mobileNav [data-view=acoes]');
   const before = await st();
   await page.click('[data-action=mission][data-id=correria]');
   const after = await st();
   check(after.energy === before.energy - 16, 'missão consome 16 de energia');
+  check(after.tutorial.step === 2, 'primeiro serviço conclui o passo 2');
+  await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-servicos-guia.png') });
   check(await page.isVisible('.resultCard'), 'cartão de resultado exibido');
   await page.screenshot({ path: path.join(__dirname, 'screens', '360-resultado.png') });
   // a missão acima pode falhar e prender o personagem (sem confirmação nesse caso): normaliza antes de testar
@@ -88,7 +105,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   const s04 = await p4.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.respect = 60; s.cash = 6000; s.gangName = 'Velha Guarda'; s.gangLevel = 2; s.crewSize = 4; s.crewMorale = 55; s.businesses = ['bar']; s.factions.esquina.truceUntil = s.day + 2; s.factions.esquina.relation = 40; s.rivals.cais = 47; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); return s; });
   await p4.close();
   await page.reload();
-  check(!(await page.isVisible('#welcome')), 'save da 0.4 abre direto na 0.5');
+  check(!(await page.isVisible('#welcome')), 'save da 0.4 abre direto na 0.6');
   const m = await st();
   check(m.schema === 2 && m.name === 'Veterano' && m.day === s04.day && m.cash === 6000, 'nome, dia e dinheiro preservados');
   check(m.crew.length === 4 && m.gangName === 'Velha Guarda', '4 integrantes gerados a partir do crewSize');
@@ -117,7 +134,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-action=export]')]);
   const fpath = await dl.path();
   const payload = JSON.parse(require('fs').readFileSync(fpath, 'utf8'));
-  check(payload.game === 'Submundo Brasil' && payload.version === '0.5' && payload.checksum, 'arquivo exportado com versão e checksum');
+  check(payload.game === 'Submundo Brasil' && payload.version === '0.6' && payload.checksum, 'arquivo exportado com versão e checksum');
   await page.evaluate(() => localStorage.clear()); await page.reload();
   await page.setInputFiles('#welcomeImportFile', fpath);
   await page.waitForTimeout(300);

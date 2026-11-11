@@ -4,7 +4,7 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 
 ## Regras obrigatórias
 
-1. **Nunca edite `Submundo-Brasil-v0.5.html` à mão.** Edite `src/` e rode `node build.js`.
+1. **Nunca edite `Submundo-Brasil-v0.6.html` à mão.** Edite `src/` e rode `node build.js`.
 2. **Regras só em `src/engine.js`; nada de DOM lá.** A interface (`src/ui.js`) só chama `SB.perform(...)` e lê funções derivadas.
 3. **Toda ação recusada não pode alterar o estado.** Valide tudo antes da primeira mutação. Existe teste para isso.
 4. **Compatibilidade de saves é sagrada.**
@@ -15,7 +15,7 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 5. **Escape todo texto vindo do estado** com `esc()` (ou `num()`/`fmt()` para números) ao montar HTML.
 6. **Não invente resultados.** Rode `npm test` antes de commitar; para mudanças de números, rode `npm run simulate` e `npm run careers` e atualize as tabelas em `VALIDATION.md`.
 7. **Atualize `GAME_DESIGN.md`** quando mudar uma regra ou um número exibido ao jogador.
-8. **Conteúdo fictício e abstrato**: nenhuma instrução aplicável a crimes reais; nada de bairros, facções ou pessoas reais.
+8. **Conteúdo fictício e abstrato**: nenhuma instrução aplicável a crimes reais. As **cidades são reais** (tabela `CITIES`), mas bairros, grupos e pessoas são **inventados**, inspirados na paisagem de cada cidade. Nunca use nomes de comunidades, facções ou pessoas reais. Cidade nova → entrada completa em `CITIES` (5 bairros, 3 grupos, 5 negócios, festas, vantagem) e silhueta em `LANDMARK` (`ui.js`); textos de eventos usam marcadores (`{centro}`, `{bar}`) em vez de nomes fixos.
 9. **Sem pay-to-win, sem dependência externa para jogar, sem simular multiplayer.**
 10. **Siga a direção de arte "rua brasileira"** (GAME_DESIGN.md §11): HUD fixo do personagem, cena SVG do bairro com placa esmaltada, lambe-lambe para notícias/eventos, cupom com carimbo para resultados, fita zebrada para detenção, dossiês para facções e títulos em caixa alta condensada. Só CSS e SVG inline (nada externo), fundo escuro com âmbar, sem neon e sem cara de dashboard. Não apague os ganchos usados pelos testes (`data-action`, `data-view`, ids e `.resultCard`). Animações precisam respeitar `prefers-reduced-motion`. Teste em 360×780 sem rolagem horizontal e olhe as capturas.
 
@@ -35,3 +35,9 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 - Valores monetários inteiros (`Math.round`); faixas sempre com `clamp`.
 - Funções derivadas puras (`missionChance(s, m)`); efeitos colaterais apenas em `do*`.
 - Aleatoriedade somente por `rand`/`roll`/`pick`/`weighted` do motor (para testes determinísticos).
+
+## Primeiros passos e ajuda
+
+- A trilha fica em `TUTORIAL` (`engine.js`). Passo novo → `check(s)` puro, recompensa pequena e a `view` onde acontece.
+- Quem já jogou nunca é forçado ao guia: saves anteriores e novas temporadas entram com `tutorial.done = true`.
+- Mecânica nova que o jogador precisa entender → uma frase em "Como jogar" (`helpPages` em `ui.js`).

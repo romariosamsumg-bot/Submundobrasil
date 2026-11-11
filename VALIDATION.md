@@ -1,4 +1,4 @@
-# Validação — Submundo Brasil v0.5
+# Validação — Submundo Brasil v0.6
 
 Tudo abaixo foi **executado** neste ambiente (Node.js + Chromium/Playwright).
 Para reproduzir: `npm test` (build + motor + fuzz + interface), `npm run simulate`
@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**56 de 56 passaram.** Cenários cobertos:
+**68 de 68 passaram** (v0.6; 12 novos sobre cidades e primeiros passos). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**42 de 42 verificações passaram**, com **0 erros de console**:
+**52 de 52 verificações passaram** (v0.6: capa com cidade, introdução, guia e destaque de aba), com **0 erros de console**:
 
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
 - A missão consome energia e mostra o cartão de resultado com as variações.
@@ -59,38 +59,44 @@ ausência de cortes).
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 
-Bots com estratégias fixas jogam temporadas completas. Resultado de
-`node tests/simulate.js 300 2` (300 temporadas por estratégia, médias):
+Bots com estratégias fixas jogam temporadas completas. Resultado da **v0.6** em
+`node tests/simulate.js 300 2` (300 temporadas por estratégia, médias, em Recife):
 
-| Estratégia | Patrimônio | Respeito | Pontos | Meta | Detenções | Destaque |
-|---|---|---|---|---|---|---|
-| Operador farmando missões | 15.652 | 130 | 196 | 40% | 2,7 | Fortuna e fama |
-| Empreendedor com negócios | 18.588 | 119 | 201 | 50% | 2,7 | Fortuna (1,7 medalha) |
-| Articulador territorial | 603 | 132 | 206 | 100% | 1,6 | Território (prata, 28 dias) |
-| Articulador diplomata | 1.647 | 107 | 224 | 90% | 2,7 | Diplomacia |
-| Bonde (gangue) | 543 | 95 | 174 | 40% | 1,0 | Gangue (1,6 medalha) |
-| **Exploit: repetir a melhor e depositar tudo** | 1.949 | 46 | **27** | 0% | **11,1** | — |
-| Aleatório | 541 | 46 | 49 | 0% | 1,0 | — |
+| Estratégia | Patrimônio | Respeito | Pontos | Meta | Detenções |
+|---|---|---|---|---|---|
+| Operador farmando missões | 16.092 | 131 | 199 | 40% | 2,8 |
+| Empreendedor com negócios | 18.872 | 120 | 207 | 60% | 2,8 |
+| Articulador territorial | 602 | 132 | 206 | 100% | 1,7 |
+| Articulador diplomata | 1.534 | 105 | 219 | 100% | 2,8 |
+| Bonde (gangue) | 638 | 96 | 166 | 40% | 1,0 |
+| **Exploit: repetir a melhor e depositar tudo** | 2.089 | 46 | **28** | 0% | **11,1** |
+| Aleatório | 571 | 50 | 56 | 0% | 1,0 |
 
 Leitura:
-- As cinco estratégias focadas ficam entre 174 e 224 pontos: há **vários caminhos de vitória**.
-- O exploit E1 + E6 da 0.4 agora é a pior estratégia: a fadiga, a vigilância local e a taxa bancária fecham a brecha.
-- Durante a calibração, a diplomacia chegou a 287 pontos (ouro em todas as temporadas). Isso foi corrigido com custo crescente das tréguas, carência, desgaste da relação e trégua como compromisso.
+- As cinco estratégias focadas ficam entre 166 e 219 pontos: há **vários caminhos de vitória**.
+- O exploit da 0.4 (repetir a melhor missão e depositar tudo) continua a pior estratégia.
+- Na calibração da 0.5, a diplomacia chegou a 287 pontos (ouro sempre); foi corrigida com regras (custo crescente das tréguas, carência, desgaste da relação).
 
-### Especializações — `tests/careers.js` (200 temporadas por célula)
+### Especializações — `tests/careers.js` (200 temporadas por célula, v0.6)
 
 | Estratégia | Operador | Articulador | Empreendedor |
 |---|---|---|---|
-| Missões | 188 | **194** | 171 |
-| Negócios | 199 | 174 | **206** |
-| Território | 202 | **206** | 198 |
-| Diplomacia | 194 | **225** | 170 |
-| Gangue | **178** | **178** | 151 |
+| Missões | **203** | 192 | 169 |
+| Negócios | **201** | 184 | **201** |
+| Território | 203 | **206** | 199 |
+| Diplomacia | 195 | **219** | 174 |
+| Gangue | 172 | **191** | 164 |
+
+### Cidades (v0.6)
+
+Média das cinco estratégias focadas, 120 temporadas cada (600 por cidade):
+Rio de Janeiro 200 · São Paulo 203 · Belo Horizonte 209 · Salvador 206 · Recife 202 · Porto Alegre 202.
+Nenhuma cidade é obrigatória nem ruim; a diferença máxima é de 4,5%.
 
 ## 5. Limitações conhecidas (honestas)
 
-1. **O Articulador é um generalista um pouco forte**: vence por pouco no farm de missões (194 contra 188 do Operador), porque ganha dias de território "de graça" com notícias. O Operador não tem uma estratégia em que vença com folga. Ajuste sugerido em NEXT_STEPS.
-2. O Empreendedor é fraco fora da estratégia de negócios (151–171).
+1. **O Articulador é forte na estratégia de gangue** (191 contra 172 do Operador) e bom generalista. O Operador passou a vencer no farm de missões (203 contra 192) depois do bônus de +8% em serviços grandes.
+2. O Empreendedor é fraco fora da estratégia de negócios (164–174).
 3. Os bots são heurísticos. Um humano otimizando pode encontrar linhas melhores, especialmente combinando território com negócios no mesmo bairro. [H]
 4. A estratégia de gangue termina com pouco dinheiro (cerca de R$ 540): a manutenção consome a renda. É intencional como custo, mas pode desanimar. [H] Precisa de teste com pessoas.
 5. Não houve teste com jogadores reais, nem em Safari/iOS ou Firefox; só Chromium.

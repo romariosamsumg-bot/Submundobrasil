@@ -1,5 +1,5 @@
 /* =====================================================================
- * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.5
+ * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.6
  * ---------------------------------------------------------------------
  * Este módulo NÃO acessa o DOM. Ele contém:
  *   1. Utilitários e gerador aleatório (substituível nos testes).
@@ -19,7 +19,7 @@
 (function (root) {
   'use strict';
 
-  const VERSION = '0.5';
+  const VERSION = '0.6';
   const SCHEMA = 2;
   const MAXDAY = 30;
   const MAX_LOG = 60;
@@ -88,8 +88,8 @@
     { id: 'comboio', name: 'Comboio misterioso', desc: 'Uma operação de alto risco que exige gente de confiança.', stat: 'forca', difficulty: 46, cost: 40, low: 1050, high: 1750, heat: 19, vigil: 12, respect: 8, unlock: 75, req: { gang: true }, arrest: 50, loss: .14, tension: 5 },
     { id: 'cofre', name: 'O grande cofre', desc: 'A missão mais difícil da temporada. Uma vez por dia.', stat: 'astucia', difficulty: 58, cost: 52, low: 1900, high: 3100, heat: 26, vigil: 18, respect: 13, unlock: 120, req: { stat: ['astucia', 22], oncePerDay: true }, arrest: 55, loss: .15, tension: 6 },
     // Oportunidades exclusivas de bairro
-    { id: 'camelodromo', district: 'centro', name: 'Esquema do camelódromo', desc: 'Organizar a revenda de um lote sem nota no centro comercial.', stat: 'labia', difficulty: 23, cost: 22, low: 330, high: 560, heat: 7, vigil: 8, respect: 3, unlock: 10, arrest: 30, loss: .08, tension: 2 },
-    { id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Um contêiner esquecido nos galpões do porto. Os Armazéns não vão gostar.', stat: 'forca', difficulty: 29, cost: 28, low: 560, high: 900, heat: 12, vigil: 10, respect: 4, unlock: 15, arrest: 40, loss: .12, tension: 5 },
+    { id: 'camelodromo', district: 'centro', name: 'Esquema do camelódromo', desc: 'Organizar a revenda de um lote sem nota no comércio popular.', stat: 'labia', difficulty: 23, cost: 22, low: 330, high: 560, heat: 7, vigil: 8, respect: 3, unlock: 10, arrest: 30, loss: .08, tension: 2 },
+    { id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Uma carga esquecida nos galpões. O grupo que manda ali não vai gostar.', stat: 'forca', difficulty: 29, cost: 28, low: 560, high: 900, heat: 12, vigil: 10, respect: 4, unlock: 15, arrest: 40, loss: .12, tension: 5 },
     { id: 'favor', district: 'jardim', name: 'Favor de vizinhança', desc: 'Resolver um problema de moradores e ganhar contatos. Pouco dinheiro.', stat: 'influencia', difficulty: 12, cost: 18, low: 90, high: 170, heat: 1, vigil: 2, respect: 3, unlock: 0, arrest: 10, loss: .04, tension: 0, influence: 4 },
     { id: 'galpao', district: 'industrial', name: 'Galpão desativado', desc: 'Material valioso parado num galpão sob patrulha reforçada.', stat: 'astucia', difficulty: 41, cost: 36, low: 900, high: 1500, heat: 18, vigil: 16, respect: 6, unlock: 40, arrest: 50, loss: .14, tension: 3 },
     { id: 'baile', district: 'vila', name: 'Bastidores do baile', desc: 'Cuidar da “organização paralela” de um baile de rua.', stat: 'labia', difficulty: 22, cost: 22, low: 300, high: 520, heat: 6, vigil: 6, respect: 4, unlock: 12, arrest: 26, loss: .08, tension: 2, festive: true }
@@ -114,7 +114,7 @@
   const RESALE = 0.6;
 
   const CAREERS = [
-    { id: 'operador', name: 'Operador', desc: '+6 de chance nas missões e as falhas custam 30% menos caixa. Vigilância gerada +10% e negócios rendem -10%.',
+    { id: 'operador', name: 'Operador', desc: '+6 de chance nas missões, +8% de recompensa nos serviços grandes e falhas custam 30% menos caixa. Vigilância gerada +10% e negócios rendem -10%.',
       xpDesc: 'Ganha experiência concluindo missões (mais nas difíceis).',
       perks: ['Rota de fuga: -15 pontos na chance de detenção.', 'Ritmo de rua: penalidade por repetir missões cai pela metade.', 'Sangue frio: a vigilância pesa metade nas chances; o cofre exige Astúcia 18.'] },
     { id: 'articulador', name: 'Articulador', desc: '+30% de influência, +8 nos diálogos e +5 em disputas e confrontos. Recompensas de missões -10%.',
@@ -156,6 +156,73 @@
   /* Inimizades entre facções (usadas na IA e no apoio de aliados). */
   const FACTION_ENEMY = { esquina: 'docas', docas: 'esquina', aurora: 'docas' };
 
+  /* ------------------------------------------------------------------
+   * Cidades. A cidade de origem define nomes de bairros, grupos, negócios
+   * e festas, além de uma vantagem própria. As cidades são reais; bairros
+   * e grupos são INVENTADOS (inspirados na paisagem de cada cidade) para
+   * não associar comunidades reais ao crime. Os ids dos bairros são fixos
+   * (centro, cais, jardim, industrial, vila) e valem para todas as cidades.
+   * ------------------------------------------------------------------ */
+  const CITIES = [
+    { id: 'rio', name: 'Rio de Janeiro', trait: 'Cidade Maravilhosa', traitDesc: 'Carnaval dura 4 dias e serviços na orla rendem +10%.',
+      districts: { centro: ['Largo dos Arcos', 'Sobrados, camelôs e samba na calçada debaixo dos arcos brancos.'], cais: ['Cais da Guanabara', 'Armazéns e guindastes de frente para a baía.'], jardim: ['Parada do Subúrbio', 'Casas simples, trem lotado e churrasquinho na esquina.'], industrial: ['Galpões da Avenida', 'Fábricas e depósitos à beira da via expressa, com patrulha pesada.'], vila: ['Praia do Posto 13', 'Quiosques, calçadão e movimento até de madrugada.'] },
+      factions: { esquina: ['Velha Guarda do Largo', 'Velha Guarda'], docas: ['Turma do Cais', 'Turma do Cais'], aurora: ['Rede do Calçadão', 'Calçadão'] },
+      biz: { bar: 'Boteco Pé-Sujo', oficina: 'Oficina de Motos', mercado: 'Banca do Camelódromo', logistica: 'Depósito da Avenida', show: 'Casa de Samba' },
+      carnaval: 'Carnaval dos blocos', classico: 'Clássico carioca', baile: 'Bastidores do baile' },
+    { id: 'sp', name: 'São Paulo', trait: 'Terra do trabalho', traitDesc: 'Todos os negócios rendem +8%.',
+      districts: { centro: ['Ladeira dos Camelôs', 'Lojas de galeria, vendedores e multidão o dia inteiro.'], cais: ['Terminal de Cargas', 'Pátio de contêineres e trilhos no meio da cidade.'], jardim: ['Vila dos Sobradinhos', 'Ruas estreitas, sobrados geminados e feira de domingo.'], industrial: ['Galpões da Marginal', 'Fábricas e transportadoras à beira do rio, sob vigilância.'], vila: ['Quadra da Garoa', 'Bares, lanchonetes e casas de show sob a garoa fina.'] },
+      factions: { esquina: ['Irmandade da Ladeira', 'Irmandade'], docas: ['Consórcio dos Galpões', 'Consórcio'], aurora: ['Rede Garoa', 'Garoa'] },
+      biz: { bar: 'Boteco do Chope', oficina: 'Oficina de Motos', mercado: 'Loja de Galeria', logistica: 'Transportadora', show: 'Casa de Shows' },
+      carnaval: 'Carnaval de rua', classico: 'Clássico paulista', baile: 'Bastidores da balada' },
+    { id: 'bh', name: 'Belo Horizonte', trait: 'Capital dos botecos', traitDesc: 'O boteco rende +40% e diálogos têm +4 de chance.',
+      districts: { centro: ['Mercado Velho', 'Bancas de queijo, cachaça e conversa fiada entre corredores apertados.'], cais: ['Pátio Ferroviário', 'Vagões, minério e galpões ao longo da linha do trem.'], jardim: ['Alto da Serra', 'Ladeiras, casas com varanda e vista para a serra.'], industrial: ['Polo do Minério', 'Siderúrgicas e pátios de carga com patrulha reforçada.'], vila: ['Rua dos Botecos', 'Mesa na calçada, tira-gosto e música ao vivo.'] },
+      factions: { esquina: ['Confraria do Mercado', 'Confraria'], docas: ['Turma do Trilho', 'Trilho'], aurora: ['Rede das Gerais', 'Gerais'] },
+      biz: { bar: 'Buteco de Esquina', oficina: 'Oficina de Motos', mercado: 'Banca do Mercado', logistica: 'Pátio de Cargas', show: 'Casa de Shows' },
+      carnaval: 'Carnaval de rua', classico: 'Clássico mineiro', baile: 'Bastidores do forró' },
+    { id: 'salvador', name: 'Salvador', trait: 'Terra da festa', traitDesc: 'Carnaval dura 5 dias e a equipe ganha +1 de ânimo por dia.',
+      districts: { centro: ['Largo das Ladeiras', 'Casarões coloridos, tambores e turistas subindo e descendo.'], cais: ['Cais da Baía', 'Saveiros, armazéns e o movimento do porto na baía.'], jardim: ['Alto das Mangueiras', 'Bairro de moradores antigos, quintais e terreiros de festa.'], industrial: ['Polo do Recôncavo', 'Indústrias e tanques com segurança reforçada.'], vila: ['Orla do Dendê', 'Barracas de praia, tabuleiros e som alto na areia.'] },
+      factions: { esquina: ['Irmandade das Ladeiras', 'Irmandade'], docas: ['Estiva da Baía', 'Estiva'], aurora: ['Rede do Dendê', 'Dendê'] },
+      biz: { bar: 'Barraca da Orla', oficina: 'Oficina de Motos', mercado: 'Mercadinho do Largo', logistica: 'Armazém do Polo', show: 'Casa de Axé' },
+      carnaval: 'Carnaval dos trios', classico: 'Clássico baiano', baile: 'Bastidores do pagodão' },
+    { id: 'recife', name: 'Recife', trait: 'Cidade das pontes', traitDesc: 'Viajar entre bairros custa metade do dinheiro e nenhuma energia.',
+      districts: { centro: ['Pátio dos Sobrados', 'Sobrados antigos, mascates e orquestra de frevo ensaiando.'], cais: ['Cais das Pontes', 'Armazéns entre rios e pontes, com barcos atracados.'], jardim: ['Beira do Mangue', 'Palafitas, pescadores e ruas que alagam na maré cheia.'], industrial: ['Galpões da BR', 'Depósitos e fábricas à beira da rodovia, bem vigiados.'], vila: ['Ladeira dos Bonecos', 'Ateliês, bonecos gigantes e bares na ladeira.'] },
+      factions: { esquina: ['Clube do Pátio', 'Clube'], docas: ['Frente das Pontes', 'Pontes'], aurora: ['Maré Mansa', 'Maré'] },
+      biz: { bar: 'Bar do Caldinho', oficina: 'Oficina de Motos', mercado: 'Mercadinho do Pátio', logistica: 'Galpão da BR', show: 'Casa de Frevo' },
+      carnaval: 'Carnaval do frevo', classico: 'Clássico pernambucano', baile: 'Bastidores do brega' },
+    { id: 'poa', name: 'Porto Alegre', trait: 'Disciplina gaúcha', traitDesc: 'Treinos custam 10% menos.',
+      districts: { centro: ['Largo do Mercado', 'Bancas, erva-mate e gente apressada em volta do mercado.'], cais: ['Cais do Guaíba', 'Armazéns antigos e o pôr do sol sobre a água.'], jardim: ['Vila dos Plátanos', 'Ruas arborizadas, casas baixas e armazém de esquina.'], industrial: ['Distrito das Chaminés', 'Fábricas antigas e galpões com vigilância constante.'], vila: ['Rua da Boemia', 'Bares, churrasquinho e música até tarde.'] },
+      factions: { esquina: ['Velhos do Mercado', 'Mercado'], docas: ['Turma do Guaíba', 'Guaíba'], aurora: ['Rede Minuano', 'Minuano'] },
+      biz: { bar: 'Boteco da Boemia', oficina: 'Oficina de Motos', mercado: 'Banca do Mercado', logistica: 'Galpão das Chaminés', show: 'Casa de Shows' },
+      carnaval: 'Carnaval de rua', classico: 'Clássico gaúcho', baile: 'Bastidores do baile' }
+  ];
+  const cityOf = name => CITIES.find(c => c.name === name) || CITIES[0];
+  const cityIs = (s, id) => cityOf(s.city).id === id;
+  let appliedCity = null;
+  /** Aplica os nomes da cidade às tabelas (apenas textos; nenhuma regra muda aqui). */
+  function applyCity(name) {
+    const c = cityOf(name);
+    if (appliedCity === c.id) return c;
+    appliedCity = c.id;
+    for (const d of DISTRICTS) { d.name = c.districts[d.id][0]; d.desc = c.districts[d.id][1]; }
+    for (const f of FACTIONS) { f.name = c.factions[f.id][0]; f.short = c.factions[f.id][1]; }
+    for (const b of BUSINESSES) b.name = c.biz[b.id];
+    EVENTS.carnaval.title = c.carnaval; EVENTS.classico.title = c.classico;
+    MISSIONS.find(m => m.id === 'baile').name = c.baile;
+    return c;
+  }
+
+  /* Primeiros passos: trilha guiada com pequenas recompensas. `view` é a tela onde o passo acontece. */
+  const TUTORIAL = [
+    { id: 'career', title: 'Escolha sua especialização', text: 'Ela define seu estilo na temporada: Operador vive de serviços, Articulador de influência e acordos, Empreendedor de negócios.', view: 'painel', cta: 'Ver especializações', reward: 0, check: s => !!s.career },
+    { id: 'mission', title: 'Faça seu primeiro serviço', text: 'Serviços gastam energia e rendem dinheiro e respeito. Olhe a chance antes: falhar custa caixa e pode dar detenção.', view: 'acoes', cta: 'Abrir quadro de serviços', reward: 80, check: s => s.successful + s.failed >= 1 },
+    { id: 'train', title: 'Treine um atributo', text: 'Cada serviço usa um atributo. Treinar aumenta a chance e libera serviços melhores.', view: 'acoes', cta: 'Ir para o treino', reward: 60, check: s => s.tutorial.trained },
+    { id: 'goal', title: 'Escolha a meta da temporada', text: 'A meta é o seu norte: cumprir rende bônus e pontos. Escolha até o dia 5.', view: 'temporada', cta: 'Escolher meta', reward: 0, check: s => !!s.goal || s.day > 5 },
+    { id: 'day', title: 'Vire o dia', text: 'Quando a energia acabar, avance o dia: você recupera 70 de energia, a vigilância cai, a renda entra e as facções se movem. A temporada tem 30 dias.', view: 'painel', cta: 'Voltar ao início', reward: 60, check: s => s.day >= 2 },
+    { id: 'contact', title: 'Crie contatos no bairro', text: 'Influência é o caminho para liderar bairros, que pagam tributo todo dia e dão vantagens.', view: 'cidade', cta: 'Abrir bairros', reward: 80, check: s => s.tutorial.contacted },
+    { id: 'bank', title: 'Guarde dinheiro no banco', text: 'Falhas tiram parte do dinheiro em mãos. O banco protege, cobrando uma taxa pequena.', view: 'gestao', cta: 'Abrir banco', reward: 40, check: s => s.tutorial.banked },
+    { id: 'gang', title: 'Chegue a 30 de respeito e funde sua gangue', text: 'Com um grupo você faz operações coletivas, confronta facções e firma tréguas e alianças.', view: 'gangue', cta: 'Abrir gangue', reward: 200, check: s => !!s.gangName }
+  ];
+
   /* Eventos: mods são números ou funções (ctx, evento) → número.
      Chaves terminadas em Mult multiplicam; demais somam. */
   const inD = (e, c, v) => (c && c.district === e.district) ? v : 0;
@@ -163,21 +230,21 @@
     rotina: { title: 'Rotina normal', desc: 'Sem acontecimentos importantes. A cidade segue seu ritmo.', dur: [1, 1], weight: 4, mods: {} },
     movimentado: { title: 'Dia movimentado', desc: 'Comércio aquecido: missões rendem +12% em toda a cidade.', dur: [1, 1], weight: 3, mods: { reward: 12 } },
     fiscalizacao: { title: 'Fiscalização reforçada', desc: 'Missões com -8 de chance e vigilância gerada +20%.', dur: [2, 2], weight: 3, mods: { risk: 8, heatMult: 1.2 } },
-    festival: { title: 'Festival de rua', desc: 'Missões +9%, risco +4. Bar e Casa de Shows lucram +30%.', dur: [1, 1], weight: 2, mods: { reward: 9, risk: 4, bizMult: c => c.biz && c.biz.tags.includes('festa') ? 1.3 : 1 } },
+    festival: { title: 'Festival de rua', desc: 'Missões +9%, risco +4. {bar} e {show} lucram +30%.', dur: [1, 1], weight: 2, mods: { reward: 9, risk: 4, bizMult: c => c.biz && c.biz.tags.includes('festa') ? 1.3 : 1 } },
     patrulhas: { title: 'Patrulhas reduzidas', desc: 'Risco -7 nas missões e vigilância cai 5 extras.', dur: [1, 1], weight: 2, mods: { risk: -7, heatDecay: 5 } },
     comercio: { title: 'Semana de comércio', desc: 'Missões +6% e todos os negócios +12% por 3 dias.', dur: [3, 3], weight: 2, mods: { reward: 6, bizMult: 1.12 } },
-    carnaval: { title: 'Carnaval', desc: 'Blocos nas ruas: missões no Centro e na Vila +25% (demais +8%), risco +4, multidões escondem (vigilância gerada -10%). Bar +60% e Casa de Shows +80%. Equipe +3 de ânimo por dia.', dur: [3, 3], fixed: 9, weight: 0,
+    carnaval: { title: 'Carnaval', desc: 'Blocos nas ruas: missões em {centro} e {vila} +25% (demais +8%), risco +4, multidões escondem (vigilância gerada -10%). {bar} +60% e {show} +80%. Equipe +3 de ânimo por dia.', dur: [3, 3], fixed: 9, weight: 0,
       mods: { reward: c => (c.district === 'centro' || c.district === 'vila') ? 25 : 8, risk: 4, heatMult: .9, morale: 3, bizMult: c => c.biz ? (c.biz.id === 'show' ? 1.8 : c.biz.id === 'bar' ? 1.6 : 1) : 1, festive: 1 } },
-    classico: { title: 'Clássico no estádio', desc: 'A cidade para pelo futebol: Bar +100%, Casa de Shows +40%, risco +8 no Centro e equipe +5 de ânimo.', dur: [1, 1], fixed: 20, weight: 0,
+    classico: { title: 'Clássico no estádio', desc: 'A cidade para pelo futebol: {bar} +100%, {show} +40%, risco +8 em {centro} e equipe +5 de ânimo.', dur: [1, 1], fixed: 20, weight: 0,
       mods: { risk: c => c.district === 'centro' ? 8 : 0, morale: 5, bizMult: c => c.biz ? (c.biz.id === 'bar' ? 2 : c.biz.id === 'show' ? 1.4 : 1) : 1 } },
-    saojoao: { title: 'Arraial no Jardim União', desc: 'Festa junina: missões no Jardim +20%, economia local em alta, Oficina +20% e equipe +2 de ânimo.', dur: [2, 2], weight: 1, district: 'jardim',
+    saojoao: { title: 'Arraial em {d}', desc: 'Festa junina: missões em {jardim} +20%, economia local em alta, {oficina} +20% e equipe +2 de ânimo.', dur: [2, 2], weight: 1, district: 'jardim',
       mods: { reward: (c, e) => inD(e, c, 20), econ: (c, e) => inD(e, c, .15), morale: 2, bizMult: c => c.biz && c.biz.id === 'oficina' ? 1.2 : 1, festive: 1 } },
     crise: { title: 'Crise no comércio', desc: 'Economia em queda por 4 dias: negócios -25%, missões -8%, bicos -20%. Em compensação, recrutar custa 30% menos.', dur: [4, 4], weight: 1,
       mods: { econ: -.2, bizMult: .75, reward: -8, recruitMult: .7, gigMult: .8, crisis: 1 } },
     operacao: { title: 'Operação policial em {d}', desc: 'Vigilância local +35 ao começar e risco +15 no bairro por 2 dias.', dur: [2, 2], weight: 2, randomDistrict: true,
       onStart: (s, e) => { s.dstate[e.district].vigil = clamp(s.dstate[e.district].vigil + 35, 0, 100); },
       mods: { risk: (c, e) => inD(e, c, 15), heatMult: 1 } },
-    greve: { title: 'Greve no porto', desc: 'Cais do Norte com economia -30% e missões -20% por 3 dias. A Frente dos Armazéns perde força.', dur: [3, 3], weight: 1, district: 'cais',
+    greve: { title: 'Greve em {d}', desc: '{cais} com economia -30% e missões -20% por 3 dias. {docas} perde força.', dur: [3, 3], weight: 1, district: 'cais',
       onStart: s => { s.factions.docas.power = clamp(s.factions.docas.power - 8, 10, 100); },
       mods: { econ: (c, e) => inD(e, c, -.3), reward: (c, e) => inD(e, c, -20) } },
     guerra: { title: 'Guerra entre facções em {d}', desc: 'Facções se enfrentam: disputas e confrontos no bairro +12, risco local +6.', dur: [2, 2], weight: 0,
@@ -288,7 +355,8 @@
       crew: [], crewMorale: 0, crewLastRecruit: 0, crewLastRally: 0, nextMemberId: 1,
       factions: startFactions(), gangStats: startGangStats(), treachery: 0,
       today: emptyToday(), seasonStats: emptySeasonStats(),
-      achievements: {}, prestige: 0, nemesis: null, records: {}
+      achievements: {}, prestige: 0, nemesis: null, records: {},
+      tutorial: { step: 0, done: false, trained: false, contacted: false, banked: false }
     };
   }
 
@@ -319,7 +387,7 @@
    */
   function normalizeSave(saved) {
     const notes = [];
-    const base = defaultState(cleanText(saved.name, 22).trim(), cleanText(saved.city, 40) || 'Rio de Janeiro');
+    const base = defaultState(cleanText(saved.name, 22).trim(), cityOf(cleanText(saved.city, 40)).name);
     const s = base;
     const fromV04 = saved.schema === 1;
     if (fromV04) notes.push('Salvamento da versão 0.4 (ou anterior) convertido para a 0.5.');
@@ -438,6 +506,11 @@
     s.nemesis = FACTIONS.some(f => f.id === saved.nemesis) ? saved.nemesis : null;
     s.records = {};
     if (saved.records && typeof saved.records === 'object') for (const c of CATEGORIES) if (isNum(saved.records[c.id])) s.records[c.id] = toInt(saved.records[c.id], 0, 0, BIG);
+    // Primeiros passos: saves anteriores à 0.6 não tinham tutorial; quem já jogou não é obrigado a refazê-lo.
+    const tu = saved.tutorial;
+    if (tu && typeof tu === 'object') s.tutorial = { step: toInt(tu.step, 0, 0, TUTORIAL.length), done: tu.done === true, trained: tu.trained === true, contacted: tu.contacted === true, banked: tu.banked === true };
+    else s.tutorial = { step: 0, done: s.season > 1 || s.day > 1, trained: false, contacted: false, banked: false };
+    if (s.tutorial.step >= TUTORIAL.length) s.tutorial.done = true;
     s.schema = SCHEMA; s.version = VERSION;
     return { state: s, notes };
   }
@@ -473,6 +546,15 @@
   /** Eventos válidos hoje, com definição. */
   function activeEvents(s) { return s.events.filter(e => e.start <= s.day && e.until >= s.day && EVENTS[e.id]).map(e => ({ ...e, def: EVENTS[e.id] })); }
   function eventTitle(e) { const n = e.district ? district(null, e.district).name : ''; return EVENTS[e.id].title.replace('{d}', n); }
+  /** Descrição do evento com os nomes da cidade atual. */
+  function eventDesc(e) {
+    return EVENTS[e.id].desc.replace(/\{(\w+)\}/g, (m, k) => {
+      const d = DISTRICTS.find(x => x.id === k); if (d) return d.name;
+      const b = BUSINESSES.find(x => x.id === k); if (b) return b.name;
+      const f = FACTIONS.find(x => x.id === k); if (f) return f.name;
+      return m;
+    });
+  }
   function eventMod(s, key, ctx) {
     const mult = key.endsWith('Mult');
     let total = mult ? 1 : 0;
@@ -530,6 +612,8 @@
     let mult = (1 + pct / 100) * s.dstate[d].econ;
     mult *= Math.max(.5, 1 - .12 * (s.today.missions[m.id] || 0));
     if (s.career === 'articulador') mult *= .9;
+    if (s.career === 'operador' && m.difficulty >= 33) mult *= 1.08; // especialista em serviços grandes
+    if (d === 'vila' && cityIs(s, 'rio')) mult *= 1.1;
     return Math.max(.2, mult);
   }
   function arrestChance(s, m) {
@@ -564,6 +648,8 @@
     if (s.career === 'operador') v *= .9;
     if (controlled(s, b.district)) v *= 1.15;
     if (controlled(s, 'industrial')) v *= 1.12;
+    if (cityIs(s, 'sp')) v *= 1.08;
+    if (b.id === 'bar' && cityIs(s, 'bh')) v *= 1.4;
     const l = leader(s, b.district);
     const fs = s.factions[l.id];
     if (!controlled(s, b.district) && !agreement(s, l.id) && fs.relation < 0 && l.value >= s.influence[b.district] + 25) v *= .85; // pressão rival
@@ -576,7 +662,8 @@
   const patrimony = s => s.cash + s.bank + resaleValue(s);
   const depositFee = (s, amount) => Math.max(1, Math.ceil(amount * (hasPerk(s, 'empreendedor', 1) ? .01 : .03)));
   const buyCost = (s, b) => Math.round(b.cost * (s.career === 'empreendedor' ? .88 : 1));
-  const trainCost = (s, id) => { const l = s.stats[id]; return Math.round(250 + l * 40 + l * l * 1.2); };
+  const trainCost = (s, id) => { const l = s.stats[id]; return Math.round((250 + l * 40 + l * l * 1.2) * (cityIs(s, 'poa') ? .9 : 1)); };
+  const travelCost = s => cityIs(s, 'recife') ? { cash: 45, energy: 0 } : { cash: 90, energy: 5 };
   const bailCost = s => s.jail > 0 ? 250 + s.jail * 250 + Math.floor(s.respect * 1.5) : 0;
   const contactCost = s => Math.round(180 * (hasPerk(s, 'articulador', 1) ? .7 : 1) * (controlled(s, 'centro') ? .8 : 1));
   const allianceCost = s => Math.round(900 * (hasPerk(s, 'articulador', 2) ? .6 : 1));
@@ -606,7 +693,7 @@
   function dialogueOdds(s, fid) {
     const f = faction(fid), r = s.factions[fid];
     return clamp(Math.round(55 + s.stats.labia * 1.1 + s.stats.influencia * .35 + r.relation * .12 - r.tension * .22 - f.temperament * .45 +
-      roleLevels(s, 'negociador') * 2 + (s.career === 'articulador' ? 8 : 0) + (controlled(s, 'centro') ? 8 : 0) - Math.min(20, s.treachery * 5) - r.grudge * 2), 25, 92);
+      roleLevels(s, 'negociador') * 2 + (s.career === 'articulador' ? 8 : 0) + (controlled(s, 'centro') ? 8 : 0) + (cityIs(s, 'bh') ? 4 : 0) - Math.min(20, s.treachery * 5) - r.grudge * 2), 25, 92);
   }
   function factionStatus(s, fid) {
     const r = s.factions[fid];
@@ -695,7 +782,7 @@
     if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente para o treino.');
     s.energy -= 22; s.cash -= cost; s.today.training++;
     const gain = s.stats[id] < 25 ? 2 : 1;
-    s.stats[id] += gain; s.respect += 1;
+    s.stats[id] += gain; s.respect += 1; s.tutorial.trained = true;
     log(s, `Treinamento em ${st.name}: +${gain} ponto(s) por ${money(cost)}.`);
     return done(true, `${st.name}: +${gain} ponto(s)!`);
   }
@@ -703,8 +790,9 @@
   function doTravel(s, id) {
     const d = DISTRICTS.find(x => x.id === id);
     if (!d || d.id === s.district) return refuse('Destino inválido.');
-    if (s.jail > 0 || s.cash < 90 || s.energy < 5) return refuse('Não foi possível viajar: verifique dinheiro, energia e detenção.');
-    s.cash -= 90; s.energy -= 5; s.district = id;
+    const tc = travelCost(s);
+    if (s.jail > 0 || s.cash < tc.cash || s.energy < tc.energy) return refuse('Não foi possível viajar: verifique dinheiro, energia e detenção.');
+    s.cash -= tc.cash; s.energy -= tc.energy; s.district = id;
     log(s, `Você foi para ${d.name}.`);
     return done(true, `Agora você está em ${d.name}.`);
   }
@@ -737,7 +825,7 @@
     if (mode === 'deposit') {
       const fee = depositFee(s, amount);
       if (amount + fee > s.cash) return refuse(`Dinheiro em mãos insuficiente (valor + taxa de ${money(fee)}).`);
-      s.cash -= amount + fee; s.bank += amount;
+      s.cash -= amount + fee; s.bank += amount; s.tutorial.banked = true;
       log(s, `Depósito de ${money(amount)} (taxa ${money(fee)}).`);
       return done(true, `Depositado. Taxa: ${money(fee)}.`);
     }
@@ -781,7 +869,7 @@
     if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente.');
     s.energy -= 22; s.cash -= cost; s.today.contacts[d] = used + 1;
     const boost = Math.max(1, Math.round((10 + Math.floor(s.stats.influencia / 5) + roleLevels(s, 'negociador')) * (s.career === 'articulador' ? 1.3 : 1) * eventMod(s, 'influenceMult') * (used ? .5 : 1)));
-    addInf(s, d, boost); s.respect += 1; addHeat(s, 2);
+    addInf(s, d, boost); s.respect += 1; addHeat(s, 2); s.tutorial.contacted = true;
     addXP(s, 'articulador', 1);
     log(s, `Contatos em ${district(s).name}: +${boost} de influência.`);
     return done(true, `+${boost} influência em ${district(s).name}.`);
@@ -1041,7 +1129,8 @@
   /* ------------------------------------------------------------------ */
   function startEvent(s, id, districtId) {
     const def = EVENTS[id];
-    const len = rand(def.dur[0], def.dur[1]);
+    let len = rand(def.dur[0], def.dur[1]);
+    if (id === 'carnaval') len = cityIs(s, 'salvador') ? 5 : cityIs(s, 'rio') ? 4 : len;
     const e = { id, start: s.day, until: Math.min(MAXDAY, s.day + len - 1), district: districtId || def.district || (def.randomDistrict ? pick(DISTRICTS).id : null) };
     s.events.push(e);
     if (def.onStart) def.onStart(s, e);
@@ -1190,7 +1279,7 @@
       const cost = groupUpkeep(s);
       if (s.cash >= cost) { s.cash -= cost; addMorale(s, -2); if (cost) lines.push(`Manutenção da equipe: -${money(cost)}.`); }
       else { addMorale(s, -12); lines.push('Caixa insuficiente para pagar a equipe: -12 de ânimo.'); }
-      addMorale(s, eventMod(s, 'morale') + (controlled(s, 'jardim') ? 2 : 0));
+      addMorale(s, eventMod(s, 'morale') + (controlled(s, 'jardim') ? 2 : 0) + (cityIs(s, 'salvador') ? 1 : 0));
       if (s.crewMorale < 25 && crewSize(s) > 1 && roll(35)) {
         const m = s.crew.splice(rand(0, s.crew.length - 1), 1)[0];
         const to = FACTIONS.slice().sort((a, b) => s.factions[a.id].relation - s.factions[b.id].relation)[0];
@@ -1266,6 +1355,25 @@
     s.seasonStats.bestCash = Math.max(s.seasonStats.bestCash, patrimony(s));
   }
 
+  /** Avança os primeiros passos enquanto as condições estiverem cumpridas. Devolve linhas para o resumo. */
+  function advanceTutorial(s) {
+    const out = [], t = s.tutorial;
+    while (!t.done && t.step < TUTORIAL.length && TUTORIAL[t.step].check(s)) {
+      const st = TUTORIAL[t.step];
+      s.cash += st.reward; t.step++;
+      out.push(`Primeiros passos ${t.step}/${TUTORIAL.length}: ${st.title}${st.reward ? ` · +${money(st.reward)}` : ''}.`);
+      if (t.step >= TUTORIAL.length) { t.done = true; out.push('Primeiros passos concluídos. Agora é com você: 30 dias e cinco formas de vencer.'); log(s, 'Primeiros passos concluídos.'); }
+    }
+    return out;
+  }
+  function skipTutorial(s) {
+    if (s.tutorial.done) return refuse('Os primeiros passos já terminaram.');
+    s.tutorial.done = true;
+    return done(true, 'Primeiros passos dispensados. O guia continua em “Como jogar”.');
+  }
+  const tutorialStep = s => s.tutorial.done ? null : TUTORIAL[s.tutorial.step] || null;
+
+  const TITLES = [[0, 'Aprendiz da rua'], [110, 'Figura conhecida'], [200, 'Nome respeitado'], [300, 'Chefão da cidade'], [420, 'Lenda do Submundo']];
   function categoryValue(s, id) {
     if (id === 'fortuna') return patrimony(s);
     if (id === 'fama') return Math.max(0, s.respect - s.seasonStats.startRespect);
@@ -1278,8 +1386,8 @@
   function seasonScore(s) {
     const cats = CATEGORIES.map(c => { const v = Math.max(0, Math.round(categoryValue(s, c.id))); return { id: c.id, name: c.name, value: v, medal: medalFor(c, v), pct: Math.min(100, Math.round(v / c.tiers[2] * 100)) }; });
     const score = sum(cats.map(c => Math.min(150, c.pct))) + sum(cats.map(c => c.medal * 15)) + (s.goalDone ? 40 : 0);
-    const title = score >= 420 ? 'Lenda do Submundo' : score >= 300 ? 'Chefão da cidade' : score >= 200 ? 'Nome respeitado' : score >= 110 ? 'Figura conhecida' : 'Aprendiz da rua';
-    return { cats, score: Math.round(score), title };
+    const rs = Math.round(score), ti = TITLES.filter(t => rs >= t[0]).length - 1;
+    return { cats, score: rs, title: TITLES[ti][1], next: TITLES[ti + 1] ? { title: TITLES[ti + 1][1], at: TITLES[ti + 1][0] } : null };
   }
   function seasonRanking(s) {
     const rows = [{ id: 'player', name: s.gangName || s.name, power: cityPower(s), player: true }]
@@ -1317,6 +1425,7 @@
     n.prestige = s.prestige + sum(sc.cats.map(c => c.medal));
     n.records = records;
     n.nemesis = nemesis;
+    n.tutorial = { ...s.tutorial, done: true };
     if (nemesis) { n.factions[nemesis].relation -= 25; n.factions[nemesis].tension += 15; n.factions[nemesis].grudge = 2; }
     n.cash = 1900 + Math.min(1200, Math.floor(money_ * .05)) + (s.goalDone ? 600 : 0) + medalBonus;
     n.log = [{ day: 1, msg: `Temporada ${n.season} iniciada. Anterior: “${sc.title}” (${sc.score} pontos). Legado: ${money(n.cash - 1900)} extras.${nemesis ? ` ${faction(nemesis).name} não esqueceu a rivalidade.` : ''}` }];
@@ -1331,22 +1440,27 @@
     bank: doBank, buy: doBuy, sell: doSell, contact: doContact, dispute: doDispute,
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
-    career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, nextDay, endSeason
+    career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay, endSeason
   };
   /** Executa uma ação e roda verificações pós-ação. */
   function perform(s, name, ...args) {
     const fn = act[name]; if (!fn) return refuse('Ação desconhecida.');
+    applyCity(s.city);
     const r = fn(s, ...args);
-    if (r.ok && name !== 'endSeason') afterAction(s);
+    if (r.ok && name !== 'endSeason') {
+      const tut = advanceTutorial(s);
+      if (tut.length) r.lines = (r.lines || []).concat(tut);
+      afterAction(s);
+    }
     return r;
   }
 
   const SB = {
     VERSION, SCHEMA, MAXDAY, STORAGE_KEY, RESALE, CAREER_XP,
-    STATS, MISSIONS, DISTRICTS, BUSINESSES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
+    STATS, MISSIONS, DISTRICTS, BUSINESSES, CITIES, TUTORIAL, TITLES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
-    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventMod,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
     missionScore, missionChance, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
@@ -1354,6 +1468,7 @@
     currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
     act, perform
   };
+  applyCity(CITIES[0].name); // as tabelas sempre refletem uma cidade real
   root.SB = SB;
   if (typeof module !== 'undefined' && module.exports) module.exports = SB;
 })(typeof window !== 'undefined' ? window : globalThis);

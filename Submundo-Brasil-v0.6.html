@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111b1e">
   <meta name="description" content="Submundo Brasil — RPG urbano brasileiro de estratégia por turnos para navegador.">
-  <title>Submundo Brasil | Jogo de estratégia 0.5</title>
+  <title>Submundo Brasil | Jogo de estratégia 0.6</title>
   <style>
     :root{color-scheme:dark;--bg:#0d1319;--panel:#151e26;--panel2:#1a2630;--line:#30404d;--muted:#9eabb5;--text:#f0f2f1;--accent:#e8a04b;--accent2:#ffbd6e;--green:#81c9a6;--red:#ee948a;--info:#8dbedb;--radius:9px}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}a{color:var(--accent)}.hidden{display:none!important}
@@ -358,11 +358,37 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 @media(max-width:700px){.mobileNav button{font-size:9.5px;letter-spacing:0}.mobileNav button.active{font-size:9.5px}}
 @media(max-width:370px){.job{grid-template-columns:44px minmax(0,1fr) 82px}}
 
+/* ===== v0.6: primeiros passos, rumo, ajuda e cidade ===== */
+.guide{position:relative;margin:0 0 11px;padding:12px 13px 12px 16px;background:linear-gradient(180deg,#263329,#1b2620);border:1px solid #4f7a5c;border-left:5px solid #7fc8a4;border-radius:4px}
+.guideHead{display:flex;justify-content:space-between;align-items:center;gap:8px;font:800 10px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:#a7e0c3}
+.guideDots{display:flex;gap:4px}.guideDots i{width:14px;height:5px;background:#33473b;transform:skewX(-18deg)}.guideDots i.ok{background:#7fc8a4}.guideDots i.now{background:#f0c06e}
+.guide h3{margin:8px 0 4px;font:700 17px/1.2 Georgia,serif;color:#f5f2e9}.guide p{margin:0;font-size:12px;line-height:1.5;color:#cfdcd3}.guide p strong{color:#f0c06e}
+.guideBtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}.guideBtns .btn.primary{flex:1 1 150px}
+.guideHere{font-size:12px;font-weight:800;color:#f0c06e;padding:6px 0}
+.guide.slim{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px 8px 12px;font-size:12px;color:#dfeae2}.guide.slim b{color:#a7e0c3;margin-right:4px;white-space:nowrap}.guide.slim .btn{flex:none}
+.nav button.hint,.mobileNav button.hint{position:relative}
+.nav button.hint::after,.mobileNav button.hint::after{content:'';position:absolute;top:6px;right:calc(50% - 20px);width:9px;height:9px;border-radius:50%;background:#f0c06e;box-shadow:0 0 0 0 #f0c06e99;animation:hintPulse 1.4s infinite}
+.nav button.hint::after{right:10px;top:50%;margin-top:-4px}
+@keyframes hintPulse{0%{box-shadow:0 0 0 0 #f0c06e99}100%{box-shadow:0 0 0 9px #f0c06e00}}
+.rumo{margin:14px 0 4px;padding:12px 13px;background:#171f24;border:1px solid #4a4433;border-top:3px solid #e0ab61;border-radius:4px}
+.rumoHead{display:flex;justify-content:space-between;align-items:baseline;font:800 10px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:#e7af63}.rumoHead b{font:800 15px/1 system-ui,sans-serif;letter-spacing:0;color:#f5f2e9}
+.rumoTitles{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap;margin:8px 0 6px}.rumoTitles strong{font:700 17px/1.1 Georgia,serif;color:#f3d6ae}.rumoTitles span{font-size:11px;color:#a9b7bb}
+.rumo p{margin:8px 0 0;font-size:12px;line-height:1.5;color:#c3cfcf}.rumo p b{color:#f0c06e}.rumo p.warn{color:#f3b2a9;font-weight:700}
+.helpOverlay{position:fixed;inset:0;z-index:80;background:#070b0ee6;display:grid;place-items:center;padding:14px;overflow:auto}
+.helpBox{width:min(460px,100%);background:#efe6d0;color:#1d1a15;border-radius:3px;padding:16px 16px 14px;box-shadow:0 22px 70px #000c;border-top:6px solid #e0ab61;background-image:repeating-linear-gradient(0deg,#0000 0 23px,#0000000d 23px 24px)}
+.helpHead{display:flex;justify-content:space-between;align-items:center;font:800 10px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:#6b5a3a}
+.helpHead .close{background:transparent;border:0;font-size:22px;line-height:1;color:#3a3226;min-height:0;padding:2px 6px}
+.helpBox h2{margin:8px 0 6px;font:700 24px/1.1 Georgia,serif;color:#15120e}
+.helpBody{font-size:13px;line-height:1.55;min-height:230px}.helpBody p{margin:0 0 9px}.helpBody ol,.helpBody ul{margin:0 0 9px;padding-left:19px}.helpBody li{margin:4px 0}.helpBody strong{color:#7a3a14}
+.helpBtns{display:flex;justify-content:space-between;gap:8px;margin-top:8px}.helpBtns .btn.primary{min-width:130px}.helpBtns .btn.ghost{color:#3a3226;border-color:#8a7a5a}
+.cityTrait{margin:7px 0 0;font-size:12px;line-height:1.45;color:#d7c9a8}.cityTrait strong{color:#f0c06e}
+@media(prefers-reduced-motion:reduce){.nav button.hint::after,.mobileNav button.hint::after{animation:none}}
+
   </style>
 </head>
 <body>
   <header class="topbar hud" id="hud"><div class="topwrap hudwrap">
-    <div class="hudWho"><span class="hudAvatar" id="hudAvatar" aria-hidden="true"></span><div class="hudId"><strong id="hudName">SUBMUNDO BRASIL</strong><small id="hudSub">v0.5</small></div></div>
+    <div class="hudWho"><span class="hudAvatar" id="hudAvatar" aria-hidden="true"></span><div class="hudId"><strong id="hudName">SUBMUNDO BRASIL</strong><small id="hudSub">v0.6</small></div></div>
     <div class="hudMoney"><strong id="topCash" title="Dinheiro em mãos">R$ 0</strong><small><span id="hudRespect">0</span> respeito · <span id="topDay">Dia 1</span></small></div>
     <div class="hudBars">
       <div class="hudBar en" role="img" id="hudEnergyBox" aria-label="Energia"><i id="hudEnergy"></i><b id="hudEnergyTxt">Energia</b></div>
@@ -377,7 +403,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     <button type="button" data-view="gestao"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>Economia</button>
     <button type="button" data-view="gangue"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="4.5" cy="10" r="2"/><circle cx="19.5" cy="10" r="2"/></svg>Gangue</button>
     <button type="button" data-view="temporada"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4c0 3 1.5 4.5 3.5 4.5M17 6h3c0 3-1.5 4.5-3.5 4.5M12 14v4M8 20h8"/></svg>Temporada</button>
-  </nav><div class="sidefoot"><strong>Versão local 0.5.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.</div></aside>
+  </nav><div class="sidefoot"><strong>Versão local 0.6.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.<br><button type="button" class="btn small ghost" data-action="help" style="margin-top:8px">Como jogar</button></div></aside>
   <main class="content" id="content" tabindex="-1" aria-live="polite"></main></div>
   <nav class="mobileNav" aria-label="Navegação principal no celular">
     <button type="button" class="active" data-view="painel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v9h5v-5h4v5h5v-9"/></svg>Início</button>
@@ -390,13 +416,14 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <div class="welcome hidden" id="welcome"><form id="newGameForm" class="intro"><div id="welcomeNotice"></div><div class="cover" id="coverArt" aria-hidden="true"></div><div class="logo"><span class="logoTop">SUBMUNDO</span><span class="logoBottom">BRASIL</span><i class="logoStripe"></i></div><p class="tagline">Faça seu nome. Encare as consequências.</p>
     <div class="formfield"><label for="playerName">Seu codinome</label><input id="playerName" class="input" name="playerName" required minlength="2" maxlength="22" autocomplete="off" placeholder="Como vão te conhecer?"></div>
-    <div class="formfield"><label for="homeCity">Cidade de origem</label><select id="homeCity" class="input" name="homeCity"><option>Rio de Janeiro</option><option>São Paulo</option><option>Belo Horizonte</option><option>Salvador</option><option>Recife</option><option>Porto Alegre</option></select></div>
-    <button class="btn primary block" type="submit">Entrar na cidade</button><button class="btn ghost block" type="button" id="welcomeImport" style="margin-top:8px">Importar salvamento (.json)</button><input type="file" id="welcomeImportFile" accept=".json,application/json" class="hidden" aria-label="Selecionar salvamento JSON"><small>Todo o universo, os personagens e as situações são fictícios. Esta versão é offline e salva os dados apenas neste aparelho.</small>
+    <div class="formfield"><label for="homeCity">Sua cidade</label><select id="homeCity" class="input" name="homeCity"><option>Rio de Janeiro</option><option>São Paulo</option><option>Belo Horizonte</option><option>Salvador</option><option>Recife</option><option>Porto Alegre</option></select><p class="cityTrait" id="cityTrait" aria-live="polite"></p></div>
+    <button class="btn primary block" type="submit">Entrar na cidade</button><button class="btn ghost block" type="button" id="welcomeImport" style="margin-top:8px">Importar salvamento (.json)</button><input type="file" id="welcomeImportFile" accept=".json,application/json" class="hidden" aria-label="Selecionar salvamento JSON"><small>As cidades são reais; bairros, grupos, personagens e situações são fictícios. Esta versão é offline e salva os dados apenas neste aparelho.</small>
   </form></div>
+  <div class="helpOverlay hidden" id="help" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="helpBox" id="helpBox"></div></div>
 
   <script id="sb-engine">
 /* =====================================================================
- * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.5
+ * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.6
  * ---------------------------------------------------------------------
  * Este módulo NÃO acessa o DOM. Ele contém:
  *   1. Utilitários e gerador aleatório (substituível nos testes).
@@ -416,7 +443,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 (function (root) {
   'use strict';
 
-  const VERSION = '0.5';
+  const VERSION = '0.6';
   const SCHEMA = 2;
   const MAXDAY = 30;
   const MAX_LOG = 60;
@@ -485,8 +512,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     { id: 'comboio', name: 'Comboio misterioso', desc: 'Uma operação de alto risco que exige gente de confiança.', stat: 'forca', difficulty: 46, cost: 40, low: 1050, high: 1750, heat: 19, vigil: 12, respect: 8, unlock: 75, req: { gang: true }, arrest: 50, loss: .14, tension: 5 },
     { id: 'cofre', name: 'O grande cofre', desc: 'A missão mais difícil da temporada. Uma vez por dia.', stat: 'astucia', difficulty: 58, cost: 52, low: 1900, high: 3100, heat: 26, vigil: 18, respect: 13, unlock: 120, req: { stat: ['astucia', 22], oncePerDay: true }, arrest: 55, loss: .15, tension: 6 },
     // Oportunidades exclusivas de bairro
-    { id: 'camelodromo', district: 'centro', name: 'Esquema do camelódromo', desc: 'Organizar a revenda de um lote sem nota no centro comercial.', stat: 'labia', difficulty: 23, cost: 22, low: 330, high: 560, heat: 7, vigil: 8, respect: 3, unlock: 10, arrest: 30, loss: .08, tension: 2 },
-    { id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Um contêiner esquecido nos galpões do porto. Os Armazéns não vão gostar.', stat: 'forca', difficulty: 29, cost: 28, low: 560, high: 900, heat: 12, vigil: 10, respect: 4, unlock: 15, arrest: 40, loss: .12, tension: 5 },
+    { id: 'camelodromo', district: 'centro', name: 'Esquema do camelódromo', desc: 'Organizar a revenda de um lote sem nota no comércio popular.', stat: 'labia', difficulty: 23, cost: 22, low: 330, high: 560, heat: 7, vigil: 8, respect: 3, unlock: 10, arrest: 30, loss: .08, tension: 2 },
+    { id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Uma carga esquecida nos galpões. O grupo que manda ali não vai gostar.', stat: 'forca', difficulty: 29, cost: 28, low: 560, high: 900, heat: 12, vigil: 10, respect: 4, unlock: 15, arrest: 40, loss: .12, tension: 5 },
     { id: 'favor', district: 'jardim', name: 'Favor de vizinhança', desc: 'Resolver um problema de moradores e ganhar contatos. Pouco dinheiro.', stat: 'influencia', difficulty: 12, cost: 18, low: 90, high: 170, heat: 1, vigil: 2, respect: 3, unlock: 0, arrest: 10, loss: .04, tension: 0, influence: 4 },
     { id: 'galpao', district: 'industrial', name: 'Galpão desativado', desc: 'Material valioso parado num galpão sob patrulha reforçada.', stat: 'astucia', difficulty: 41, cost: 36, low: 900, high: 1500, heat: 18, vigil: 16, respect: 6, unlock: 40, arrest: 50, loss: .14, tension: 3 },
     { id: 'baile', district: 'vila', name: 'Bastidores do baile', desc: 'Cuidar da “organização paralela” de um baile de rua.', stat: 'labia', difficulty: 22, cost: 22, low: 300, high: 520, heat: 6, vigil: 6, respect: 4, unlock: 12, arrest: 26, loss: .08, tension: 2, festive: true }
@@ -511,7 +538,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   const RESALE = 0.6;
 
   const CAREERS = [
-    { id: 'operador', name: 'Operador', desc: '+6 de chance nas missões e as falhas custam 30% menos caixa. Vigilância gerada +10% e negócios rendem -10%.',
+    { id: 'operador', name: 'Operador', desc: '+6 de chance nas missões, +8% de recompensa nos serviços grandes e falhas custam 30% menos caixa. Vigilância gerada +10% e negócios rendem -10%.',
       xpDesc: 'Ganha experiência concluindo missões (mais nas difíceis).',
       perks: ['Rota de fuga: -15 pontos na chance de detenção.', 'Ritmo de rua: penalidade por repetir missões cai pela metade.', 'Sangue frio: a vigilância pesa metade nas chances; o cofre exige Astúcia 18.'] },
     { id: 'articulador', name: 'Articulador', desc: '+30% de influência, +8 nos diálogos e +5 em disputas e confrontos. Recompensas de missões -10%.',
@@ -553,6 +580,73 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   /* Inimizades entre facções (usadas na IA e no apoio de aliados). */
   const FACTION_ENEMY = { esquina: 'docas', docas: 'esquina', aurora: 'docas' };
 
+  /* ------------------------------------------------------------------
+   * Cidades. A cidade de origem define nomes de bairros, grupos, negócios
+   * e festas, além de uma vantagem própria. As cidades são reais; bairros
+   * e grupos são INVENTADOS (inspirados na paisagem de cada cidade) para
+   * não associar comunidades reais ao crime. Os ids dos bairros são fixos
+   * (centro, cais, jardim, industrial, vila) e valem para todas as cidades.
+   * ------------------------------------------------------------------ */
+  const CITIES = [
+    { id: 'rio', name: 'Rio de Janeiro', trait: 'Cidade Maravilhosa', traitDesc: 'Carnaval dura 4 dias e serviços na orla rendem +10%.',
+      districts: { centro: ['Largo dos Arcos', 'Sobrados, camelôs e samba na calçada debaixo dos arcos brancos.'], cais: ['Cais da Guanabara', 'Armazéns e guindastes de frente para a baía.'], jardim: ['Parada do Subúrbio', 'Casas simples, trem lotado e churrasquinho na esquina.'], industrial: ['Galpões da Avenida', 'Fábricas e depósitos à beira da via expressa, com patrulha pesada.'], vila: ['Praia do Posto 13', 'Quiosques, calçadão e movimento até de madrugada.'] },
+      factions: { esquina: ['Velha Guarda do Largo', 'Velha Guarda'], docas: ['Turma do Cais', 'Turma do Cais'], aurora: ['Rede do Calçadão', 'Calçadão'] },
+      biz: { bar: 'Boteco Pé-Sujo', oficina: 'Oficina de Motos', mercado: 'Banca do Camelódromo', logistica: 'Depósito da Avenida', show: 'Casa de Samba' },
+      carnaval: 'Carnaval dos blocos', classico: 'Clássico carioca', baile: 'Bastidores do baile' },
+    { id: 'sp', name: 'São Paulo', trait: 'Terra do trabalho', traitDesc: 'Todos os negócios rendem +8%.',
+      districts: { centro: ['Ladeira dos Camelôs', 'Lojas de galeria, vendedores e multidão o dia inteiro.'], cais: ['Terminal de Cargas', 'Pátio de contêineres e trilhos no meio da cidade.'], jardim: ['Vila dos Sobradinhos', 'Ruas estreitas, sobrados geminados e feira de domingo.'], industrial: ['Galpões da Marginal', 'Fábricas e transportadoras à beira do rio, sob vigilância.'], vila: ['Quadra da Garoa', 'Bares, lanchonetes e casas de show sob a garoa fina.'] },
+      factions: { esquina: ['Irmandade da Ladeira', 'Irmandade'], docas: ['Consórcio dos Galpões', 'Consórcio'], aurora: ['Rede Garoa', 'Garoa'] },
+      biz: { bar: 'Boteco do Chope', oficina: 'Oficina de Motos', mercado: 'Loja de Galeria', logistica: 'Transportadora', show: 'Casa de Shows' },
+      carnaval: 'Carnaval de rua', classico: 'Clássico paulista', baile: 'Bastidores da balada' },
+    { id: 'bh', name: 'Belo Horizonte', trait: 'Capital dos botecos', traitDesc: 'O boteco rende +40% e diálogos têm +4 de chance.',
+      districts: { centro: ['Mercado Velho', 'Bancas de queijo, cachaça e conversa fiada entre corredores apertados.'], cais: ['Pátio Ferroviário', 'Vagões, minério e galpões ao longo da linha do trem.'], jardim: ['Alto da Serra', 'Ladeiras, casas com varanda e vista para a serra.'], industrial: ['Polo do Minério', 'Siderúrgicas e pátios de carga com patrulha reforçada.'], vila: ['Rua dos Botecos', 'Mesa na calçada, tira-gosto e música ao vivo.'] },
+      factions: { esquina: ['Confraria do Mercado', 'Confraria'], docas: ['Turma do Trilho', 'Trilho'], aurora: ['Rede das Gerais', 'Gerais'] },
+      biz: { bar: 'Buteco de Esquina', oficina: 'Oficina de Motos', mercado: 'Banca do Mercado', logistica: 'Pátio de Cargas', show: 'Casa de Shows' },
+      carnaval: 'Carnaval de rua', classico: 'Clássico mineiro', baile: 'Bastidores do forró' },
+    { id: 'salvador', name: 'Salvador', trait: 'Terra da festa', traitDesc: 'Carnaval dura 5 dias e a equipe ganha +1 de ânimo por dia.',
+      districts: { centro: ['Largo das Ladeiras', 'Casarões coloridos, tambores e turistas subindo e descendo.'], cais: ['Cais da Baía', 'Saveiros, armazéns e o movimento do porto na baía.'], jardim: ['Alto das Mangueiras', 'Bairro de moradores antigos, quintais e terreiros de festa.'], industrial: ['Polo do Recôncavo', 'Indústrias e tanques com segurança reforçada.'], vila: ['Orla do Dendê', 'Barracas de praia, tabuleiros e som alto na areia.'] },
+      factions: { esquina: ['Irmandade das Ladeiras', 'Irmandade'], docas: ['Estiva da Baía', 'Estiva'], aurora: ['Rede do Dendê', 'Dendê'] },
+      biz: { bar: 'Barraca da Orla', oficina: 'Oficina de Motos', mercado: 'Mercadinho do Largo', logistica: 'Armazém do Polo', show: 'Casa de Axé' },
+      carnaval: 'Carnaval dos trios', classico: 'Clássico baiano', baile: 'Bastidores do pagodão' },
+    { id: 'recife', name: 'Recife', trait: 'Cidade das pontes', traitDesc: 'Viajar entre bairros custa metade do dinheiro e nenhuma energia.',
+      districts: { centro: ['Pátio dos Sobrados', 'Sobrados antigos, mascates e orquestra de frevo ensaiando.'], cais: ['Cais das Pontes', 'Armazéns entre rios e pontes, com barcos atracados.'], jardim: ['Beira do Mangue', 'Palafitas, pescadores e ruas que alagam na maré cheia.'], industrial: ['Galpões da BR', 'Depósitos e fábricas à beira da rodovia, bem vigiados.'], vila: ['Ladeira dos Bonecos', 'Ateliês, bonecos gigantes e bares na ladeira.'] },
+      factions: { esquina: ['Clube do Pátio', 'Clube'], docas: ['Frente das Pontes', 'Pontes'], aurora: ['Maré Mansa', 'Maré'] },
+      biz: { bar: 'Bar do Caldinho', oficina: 'Oficina de Motos', mercado: 'Mercadinho do Pátio', logistica: 'Galpão da BR', show: 'Casa de Frevo' },
+      carnaval: 'Carnaval do frevo', classico: 'Clássico pernambucano', baile: 'Bastidores do brega' },
+    { id: 'poa', name: 'Porto Alegre', trait: 'Disciplina gaúcha', traitDesc: 'Treinos custam 10% menos.',
+      districts: { centro: ['Largo do Mercado', 'Bancas, erva-mate e gente apressada em volta do mercado.'], cais: ['Cais do Guaíba', 'Armazéns antigos e o pôr do sol sobre a água.'], jardim: ['Vila dos Plátanos', 'Ruas arborizadas, casas baixas e armazém de esquina.'], industrial: ['Distrito das Chaminés', 'Fábricas antigas e galpões com vigilância constante.'], vila: ['Rua da Boemia', 'Bares, churrasquinho e música até tarde.'] },
+      factions: { esquina: ['Velhos do Mercado', 'Mercado'], docas: ['Turma do Guaíba', 'Guaíba'], aurora: ['Rede Minuano', 'Minuano'] },
+      biz: { bar: 'Boteco da Boemia', oficina: 'Oficina de Motos', mercado: 'Banca do Mercado', logistica: 'Galpão das Chaminés', show: 'Casa de Shows' },
+      carnaval: 'Carnaval de rua', classico: 'Clássico gaúcho', baile: 'Bastidores do baile' }
+  ];
+  const cityOf = name => CITIES.find(c => c.name === name) || CITIES[0];
+  const cityIs = (s, id) => cityOf(s.city).id === id;
+  let appliedCity = null;
+  /** Aplica os nomes da cidade às tabelas (apenas textos; nenhuma regra muda aqui). */
+  function applyCity(name) {
+    const c = cityOf(name);
+    if (appliedCity === c.id) return c;
+    appliedCity = c.id;
+    for (const d of DISTRICTS) { d.name = c.districts[d.id][0]; d.desc = c.districts[d.id][1]; }
+    for (const f of FACTIONS) { f.name = c.factions[f.id][0]; f.short = c.factions[f.id][1]; }
+    for (const b of BUSINESSES) b.name = c.biz[b.id];
+    EVENTS.carnaval.title = c.carnaval; EVENTS.classico.title = c.classico;
+    MISSIONS.find(m => m.id === 'baile').name = c.baile;
+    return c;
+  }
+
+  /* Primeiros passos: trilha guiada com pequenas recompensas. `view` é a tela onde o passo acontece. */
+  const TUTORIAL = [
+    { id: 'career', title: 'Escolha sua especialização', text: 'Ela define seu estilo na temporada: Operador vive de serviços, Articulador de influência e acordos, Empreendedor de negócios.', view: 'painel', cta: 'Ver especializações', reward: 0, check: s => !!s.career },
+    { id: 'mission', title: 'Faça seu primeiro serviço', text: 'Serviços gastam energia e rendem dinheiro e respeito. Olhe a chance antes: falhar custa caixa e pode dar detenção.', view: 'acoes', cta: 'Abrir quadro de serviços', reward: 80, check: s => s.successful + s.failed >= 1 },
+    { id: 'train', title: 'Treine um atributo', text: 'Cada serviço usa um atributo. Treinar aumenta a chance e libera serviços melhores.', view: 'acoes', cta: 'Ir para o treino', reward: 60, check: s => s.tutorial.trained },
+    { id: 'goal', title: 'Escolha a meta da temporada', text: 'A meta é o seu norte: cumprir rende bônus e pontos. Escolha até o dia 5.', view: 'temporada', cta: 'Escolher meta', reward: 0, check: s => !!s.goal || s.day > 5 },
+    { id: 'day', title: 'Vire o dia', text: 'Quando a energia acabar, avance o dia: você recupera 70 de energia, a vigilância cai, a renda entra e as facções se movem. A temporada tem 30 dias.', view: 'painel', cta: 'Voltar ao início', reward: 60, check: s => s.day >= 2 },
+    { id: 'contact', title: 'Crie contatos no bairro', text: 'Influência é o caminho para liderar bairros, que pagam tributo todo dia e dão vantagens.', view: 'cidade', cta: 'Abrir bairros', reward: 80, check: s => s.tutorial.contacted },
+    { id: 'bank', title: 'Guarde dinheiro no banco', text: 'Falhas tiram parte do dinheiro em mãos. O banco protege, cobrando uma taxa pequena.', view: 'gestao', cta: 'Abrir banco', reward: 40, check: s => s.tutorial.banked },
+    { id: 'gang', title: 'Chegue a 30 de respeito e funde sua gangue', text: 'Com um grupo você faz operações coletivas, confronta facções e firma tréguas e alianças.', view: 'gangue', cta: 'Abrir gangue', reward: 200, check: s => !!s.gangName }
+  ];
+
   /* Eventos: mods são números ou funções (ctx, evento) → número.
      Chaves terminadas em Mult multiplicam; demais somam. */
   const inD = (e, c, v) => (c && c.district === e.district) ? v : 0;
@@ -560,21 +654,21 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     rotina: { title: 'Rotina normal', desc: 'Sem acontecimentos importantes. A cidade segue seu ritmo.', dur: [1, 1], weight: 4, mods: {} },
     movimentado: { title: 'Dia movimentado', desc: 'Comércio aquecido: missões rendem +12% em toda a cidade.', dur: [1, 1], weight: 3, mods: { reward: 12 } },
     fiscalizacao: { title: 'Fiscalização reforçada', desc: 'Missões com -8 de chance e vigilância gerada +20%.', dur: [2, 2], weight: 3, mods: { risk: 8, heatMult: 1.2 } },
-    festival: { title: 'Festival de rua', desc: 'Missões +9%, risco +4. Bar e Casa de Shows lucram +30%.', dur: [1, 1], weight: 2, mods: { reward: 9, risk: 4, bizMult: c => c.biz && c.biz.tags.includes('festa') ? 1.3 : 1 } },
+    festival: { title: 'Festival de rua', desc: 'Missões +9%, risco +4. {bar} e {show} lucram +30%.', dur: [1, 1], weight: 2, mods: { reward: 9, risk: 4, bizMult: c => c.biz && c.biz.tags.includes('festa') ? 1.3 : 1 } },
     patrulhas: { title: 'Patrulhas reduzidas', desc: 'Risco -7 nas missões e vigilância cai 5 extras.', dur: [1, 1], weight: 2, mods: { risk: -7, heatDecay: 5 } },
     comercio: { title: 'Semana de comércio', desc: 'Missões +6% e todos os negócios +12% por 3 dias.', dur: [3, 3], weight: 2, mods: { reward: 6, bizMult: 1.12 } },
-    carnaval: { title: 'Carnaval', desc: 'Blocos nas ruas: missões no Centro e na Vila +25% (demais +8%), risco +4, multidões escondem (vigilância gerada -10%). Bar +60% e Casa de Shows +80%. Equipe +3 de ânimo por dia.', dur: [3, 3], fixed: 9, weight: 0,
+    carnaval: { title: 'Carnaval', desc: 'Blocos nas ruas: missões em {centro} e {vila} +25% (demais +8%), risco +4, multidões escondem (vigilância gerada -10%). {bar} +60% e {show} +80%. Equipe +3 de ânimo por dia.', dur: [3, 3], fixed: 9, weight: 0,
       mods: { reward: c => (c.district === 'centro' || c.district === 'vila') ? 25 : 8, risk: 4, heatMult: .9, morale: 3, bizMult: c => c.biz ? (c.biz.id === 'show' ? 1.8 : c.biz.id === 'bar' ? 1.6 : 1) : 1, festive: 1 } },
-    classico: { title: 'Clássico no estádio', desc: 'A cidade para pelo futebol: Bar +100%, Casa de Shows +40%, risco +8 no Centro e equipe +5 de ânimo.', dur: [1, 1], fixed: 20, weight: 0,
+    classico: { title: 'Clássico no estádio', desc: 'A cidade para pelo futebol: {bar} +100%, {show} +40%, risco +8 em {centro} e equipe +5 de ânimo.', dur: [1, 1], fixed: 20, weight: 0,
       mods: { risk: c => c.district === 'centro' ? 8 : 0, morale: 5, bizMult: c => c.biz ? (c.biz.id === 'bar' ? 2 : c.biz.id === 'show' ? 1.4 : 1) : 1 } },
-    saojoao: { title: 'Arraial no Jardim União', desc: 'Festa junina: missões no Jardim +20%, economia local em alta, Oficina +20% e equipe +2 de ânimo.', dur: [2, 2], weight: 1, district: 'jardim',
+    saojoao: { title: 'Arraial em {d}', desc: 'Festa junina: missões em {jardim} +20%, economia local em alta, {oficina} +20% e equipe +2 de ânimo.', dur: [2, 2], weight: 1, district: 'jardim',
       mods: { reward: (c, e) => inD(e, c, 20), econ: (c, e) => inD(e, c, .15), morale: 2, bizMult: c => c.biz && c.biz.id === 'oficina' ? 1.2 : 1, festive: 1 } },
     crise: { title: 'Crise no comércio', desc: 'Economia em queda por 4 dias: negócios -25%, missões -8%, bicos -20%. Em compensação, recrutar custa 30% menos.', dur: [4, 4], weight: 1,
       mods: { econ: -.2, bizMult: .75, reward: -8, recruitMult: .7, gigMult: .8, crisis: 1 } },
     operacao: { title: 'Operação policial em {d}', desc: 'Vigilância local +35 ao começar e risco +15 no bairro por 2 dias.', dur: [2, 2], weight: 2, randomDistrict: true,
       onStart: (s, e) => { s.dstate[e.district].vigil = clamp(s.dstate[e.district].vigil + 35, 0, 100); },
       mods: { risk: (c, e) => inD(e, c, 15), heatMult: 1 } },
-    greve: { title: 'Greve no porto', desc: 'Cais do Norte com economia -30% e missões -20% por 3 dias. A Frente dos Armazéns perde força.', dur: [3, 3], weight: 1, district: 'cais',
+    greve: { title: 'Greve em {d}', desc: '{cais} com economia -30% e missões -20% por 3 dias. {docas} perde força.', dur: [3, 3], weight: 1, district: 'cais',
       onStart: s => { s.factions.docas.power = clamp(s.factions.docas.power - 8, 10, 100); },
       mods: { econ: (c, e) => inD(e, c, -.3), reward: (c, e) => inD(e, c, -20) } },
     guerra: { title: 'Guerra entre facções em {d}', desc: 'Facções se enfrentam: disputas e confrontos no bairro +12, risco local +6.', dur: [2, 2], weight: 0,
@@ -685,7 +779,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       crew: [], crewMorale: 0, crewLastRecruit: 0, crewLastRally: 0, nextMemberId: 1,
       factions: startFactions(), gangStats: startGangStats(), treachery: 0,
       today: emptyToday(), seasonStats: emptySeasonStats(),
-      achievements: {}, prestige: 0, nemesis: null, records: {}
+      achievements: {}, prestige: 0, nemesis: null, records: {},
+      tutorial: { step: 0, done: false, trained: false, contacted: false, banked: false }
     };
   }
 
@@ -716,7 +811,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
    */
   function normalizeSave(saved) {
     const notes = [];
-    const base = defaultState(cleanText(saved.name, 22).trim(), cleanText(saved.city, 40) || 'Rio de Janeiro');
+    const base = defaultState(cleanText(saved.name, 22).trim(), cityOf(cleanText(saved.city, 40)).name);
     const s = base;
     const fromV04 = saved.schema === 1;
     if (fromV04) notes.push('Salvamento da versão 0.4 (ou anterior) convertido para a 0.5.');
@@ -835,6 +930,11 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     s.nemesis = FACTIONS.some(f => f.id === saved.nemesis) ? saved.nemesis : null;
     s.records = {};
     if (saved.records && typeof saved.records === 'object') for (const c of CATEGORIES) if (isNum(saved.records[c.id])) s.records[c.id] = toInt(saved.records[c.id], 0, 0, BIG);
+    // Primeiros passos: saves anteriores à 0.6 não tinham tutorial; quem já jogou não é obrigado a refazê-lo.
+    const tu = saved.tutorial;
+    if (tu && typeof tu === 'object') s.tutorial = { step: toInt(tu.step, 0, 0, TUTORIAL.length), done: tu.done === true, trained: tu.trained === true, contacted: tu.contacted === true, banked: tu.banked === true };
+    else s.tutorial = { step: 0, done: s.season > 1 || s.day > 1, trained: false, contacted: false, banked: false };
+    if (s.tutorial.step >= TUTORIAL.length) s.tutorial.done = true;
     s.schema = SCHEMA; s.version = VERSION;
     return { state: s, notes };
   }
@@ -870,6 +970,15 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   /** Eventos válidos hoje, com definição. */
   function activeEvents(s) { return s.events.filter(e => e.start <= s.day && e.until >= s.day && EVENTS[e.id]).map(e => ({ ...e, def: EVENTS[e.id] })); }
   function eventTitle(e) { const n = e.district ? district(null, e.district).name : ''; return EVENTS[e.id].title.replace('{d}', n); }
+  /** Descrição do evento com os nomes da cidade atual. */
+  function eventDesc(e) {
+    return EVENTS[e.id].desc.replace(/\{(\w+)\}/g, (m, k) => {
+      const d = DISTRICTS.find(x => x.id === k); if (d) return d.name;
+      const b = BUSINESSES.find(x => x.id === k); if (b) return b.name;
+      const f = FACTIONS.find(x => x.id === k); if (f) return f.name;
+      return m;
+    });
+  }
   function eventMod(s, key, ctx) {
     const mult = key.endsWith('Mult');
     let total = mult ? 1 : 0;
@@ -927,6 +1036,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     let mult = (1 + pct / 100) * s.dstate[d].econ;
     mult *= Math.max(.5, 1 - .12 * (s.today.missions[m.id] || 0));
     if (s.career === 'articulador') mult *= .9;
+    if (s.career === 'operador' && m.difficulty >= 33) mult *= 1.08; // especialista em serviços grandes
+    if (d === 'vila' && cityIs(s, 'rio')) mult *= 1.1;
     return Math.max(.2, mult);
   }
   function arrestChance(s, m) {
@@ -961,6 +1072,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     if (s.career === 'operador') v *= .9;
     if (controlled(s, b.district)) v *= 1.15;
     if (controlled(s, 'industrial')) v *= 1.12;
+    if (cityIs(s, 'sp')) v *= 1.08;
+    if (b.id === 'bar' && cityIs(s, 'bh')) v *= 1.4;
     const l = leader(s, b.district);
     const fs = s.factions[l.id];
     if (!controlled(s, b.district) && !agreement(s, l.id) && fs.relation < 0 && l.value >= s.influence[b.district] + 25) v *= .85; // pressão rival
@@ -973,7 +1086,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   const patrimony = s => s.cash + s.bank + resaleValue(s);
   const depositFee = (s, amount) => Math.max(1, Math.ceil(amount * (hasPerk(s, 'empreendedor', 1) ? .01 : .03)));
   const buyCost = (s, b) => Math.round(b.cost * (s.career === 'empreendedor' ? .88 : 1));
-  const trainCost = (s, id) => { const l = s.stats[id]; return Math.round(250 + l * 40 + l * l * 1.2); };
+  const trainCost = (s, id) => { const l = s.stats[id]; return Math.round((250 + l * 40 + l * l * 1.2) * (cityIs(s, 'poa') ? .9 : 1)); };
+  const travelCost = s => cityIs(s, 'recife') ? { cash: 45, energy: 0 } : { cash: 90, energy: 5 };
   const bailCost = s => s.jail > 0 ? 250 + s.jail * 250 + Math.floor(s.respect * 1.5) : 0;
   const contactCost = s => Math.round(180 * (hasPerk(s, 'articulador', 1) ? .7 : 1) * (controlled(s, 'centro') ? .8 : 1));
   const allianceCost = s => Math.round(900 * (hasPerk(s, 'articulador', 2) ? .6 : 1));
@@ -1003,7 +1117,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   function dialogueOdds(s, fid) {
     const f = faction(fid), r = s.factions[fid];
     return clamp(Math.round(55 + s.stats.labia * 1.1 + s.stats.influencia * .35 + r.relation * .12 - r.tension * .22 - f.temperament * .45 +
-      roleLevels(s, 'negociador') * 2 + (s.career === 'articulador' ? 8 : 0) + (controlled(s, 'centro') ? 8 : 0) - Math.min(20, s.treachery * 5) - r.grudge * 2), 25, 92);
+      roleLevels(s, 'negociador') * 2 + (s.career === 'articulador' ? 8 : 0) + (controlled(s, 'centro') ? 8 : 0) + (cityIs(s, 'bh') ? 4 : 0) - Math.min(20, s.treachery * 5) - r.grudge * 2), 25, 92);
   }
   function factionStatus(s, fid) {
     const r = s.factions[fid];
@@ -1092,7 +1206,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente para o treino.');
     s.energy -= 22; s.cash -= cost; s.today.training++;
     const gain = s.stats[id] < 25 ? 2 : 1;
-    s.stats[id] += gain; s.respect += 1;
+    s.stats[id] += gain; s.respect += 1; s.tutorial.trained = true;
     log(s, `Treinamento em ${st.name}: +${gain} ponto(s) por ${money(cost)}.`);
     return done(true, `${st.name}: +${gain} ponto(s)!`);
   }
@@ -1100,8 +1214,9 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   function doTravel(s, id) {
     const d = DISTRICTS.find(x => x.id === id);
     if (!d || d.id === s.district) return refuse('Destino inválido.');
-    if (s.jail > 0 || s.cash < 90 || s.energy < 5) return refuse('Não foi possível viajar: verifique dinheiro, energia e detenção.');
-    s.cash -= 90; s.energy -= 5; s.district = id;
+    const tc = travelCost(s);
+    if (s.jail > 0 || s.cash < tc.cash || s.energy < tc.energy) return refuse('Não foi possível viajar: verifique dinheiro, energia e detenção.');
+    s.cash -= tc.cash; s.energy -= tc.energy; s.district = id;
     log(s, `Você foi para ${d.name}.`);
     return done(true, `Agora você está em ${d.name}.`);
   }
@@ -1134,7 +1249,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     if (mode === 'deposit') {
       const fee = depositFee(s, amount);
       if (amount + fee > s.cash) return refuse(`Dinheiro em mãos insuficiente (valor + taxa de ${money(fee)}).`);
-      s.cash -= amount + fee; s.bank += amount;
+      s.cash -= amount + fee; s.bank += amount; s.tutorial.banked = true;
       log(s, `Depósito de ${money(amount)} (taxa ${money(fee)}).`);
       return done(true, `Depositado. Taxa: ${money(fee)}.`);
     }
@@ -1178,7 +1293,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente.');
     s.energy -= 22; s.cash -= cost; s.today.contacts[d] = used + 1;
     const boost = Math.max(1, Math.round((10 + Math.floor(s.stats.influencia / 5) + roleLevels(s, 'negociador')) * (s.career === 'articulador' ? 1.3 : 1) * eventMod(s, 'influenceMult') * (used ? .5 : 1)));
-    addInf(s, d, boost); s.respect += 1; addHeat(s, 2);
+    addInf(s, d, boost); s.respect += 1; addHeat(s, 2); s.tutorial.contacted = true;
     addXP(s, 'articulador', 1);
     log(s, `Contatos em ${district(s).name}: +${boost} de influência.`);
     return done(true, `+${boost} influência em ${district(s).name}.`);
@@ -1438,7 +1553,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   /* ------------------------------------------------------------------ */
   function startEvent(s, id, districtId) {
     const def = EVENTS[id];
-    const len = rand(def.dur[0], def.dur[1]);
+    let len = rand(def.dur[0], def.dur[1]);
+    if (id === 'carnaval') len = cityIs(s, 'salvador') ? 5 : cityIs(s, 'rio') ? 4 : len;
     const e = { id, start: s.day, until: Math.min(MAXDAY, s.day + len - 1), district: districtId || def.district || (def.randomDistrict ? pick(DISTRICTS).id : null) };
     s.events.push(e);
     if (def.onStart) def.onStart(s, e);
@@ -1587,7 +1703,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       const cost = groupUpkeep(s);
       if (s.cash >= cost) { s.cash -= cost; addMorale(s, -2); if (cost) lines.push(`Manutenção da equipe: -${money(cost)}.`); }
       else { addMorale(s, -12); lines.push('Caixa insuficiente para pagar a equipe: -12 de ânimo.'); }
-      addMorale(s, eventMod(s, 'morale') + (controlled(s, 'jardim') ? 2 : 0));
+      addMorale(s, eventMod(s, 'morale') + (controlled(s, 'jardim') ? 2 : 0) + (cityIs(s, 'salvador') ? 1 : 0));
       if (s.crewMorale < 25 && crewSize(s) > 1 && roll(35)) {
         const m = s.crew.splice(rand(0, s.crew.length - 1), 1)[0];
         const to = FACTIONS.slice().sort((a, b) => s.factions[a.id].relation - s.factions[b.id].relation)[0];
@@ -1663,6 +1779,25 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     s.seasonStats.bestCash = Math.max(s.seasonStats.bestCash, patrimony(s));
   }
 
+  /** Avança os primeiros passos enquanto as condições estiverem cumpridas. Devolve linhas para o resumo. */
+  function advanceTutorial(s) {
+    const out = [], t = s.tutorial;
+    while (!t.done && t.step < TUTORIAL.length && TUTORIAL[t.step].check(s)) {
+      const st = TUTORIAL[t.step];
+      s.cash += st.reward; t.step++;
+      out.push(`Primeiros passos ${t.step}/${TUTORIAL.length}: ${st.title}${st.reward ? ` · +${money(st.reward)}` : ''}.`);
+      if (t.step >= TUTORIAL.length) { t.done = true; out.push('Primeiros passos concluídos. Agora é com você: 30 dias e cinco formas de vencer.'); log(s, 'Primeiros passos concluídos.'); }
+    }
+    return out;
+  }
+  function skipTutorial(s) {
+    if (s.tutorial.done) return refuse('Os primeiros passos já terminaram.');
+    s.tutorial.done = true;
+    return done(true, 'Primeiros passos dispensados. O guia continua em “Como jogar”.');
+  }
+  const tutorialStep = s => s.tutorial.done ? null : TUTORIAL[s.tutorial.step] || null;
+
+  const TITLES = [[0, 'Aprendiz da rua'], [110, 'Figura conhecida'], [200, 'Nome respeitado'], [300, 'Chefão da cidade'], [420, 'Lenda do Submundo']];
   function categoryValue(s, id) {
     if (id === 'fortuna') return patrimony(s);
     if (id === 'fama') return Math.max(0, s.respect - s.seasonStats.startRespect);
@@ -1675,8 +1810,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   function seasonScore(s) {
     const cats = CATEGORIES.map(c => { const v = Math.max(0, Math.round(categoryValue(s, c.id))); return { id: c.id, name: c.name, value: v, medal: medalFor(c, v), pct: Math.min(100, Math.round(v / c.tiers[2] * 100)) }; });
     const score = sum(cats.map(c => Math.min(150, c.pct))) + sum(cats.map(c => c.medal * 15)) + (s.goalDone ? 40 : 0);
-    const title = score >= 420 ? 'Lenda do Submundo' : score >= 300 ? 'Chefão da cidade' : score >= 200 ? 'Nome respeitado' : score >= 110 ? 'Figura conhecida' : 'Aprendiz da rua';
-    return { cats, score: Math.round(score), title };
+    const rs = Math.round(score), ti = TITLES.filter(t => rs >= t[0]).length - 1;
+    return { cats, score: rs, title: TITLES[ti][1], next: TITLES[ti + 1] ? { title: TITLES[ti + 1][1], at: TITLES[ti + 1][0] } : null };
   }
   function seasonRanking(s) {
     const rows = [{ id: 'player', name: s.gangName || s.name, power: cityPower(s), player: true }]
@@ -1714,6 +1849,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     n.prestige = s.prestige + sum(sc.cats.map(c => c.medal));
     n.records = records;
     n.nemesis = nemesis;
+    n.tutorial = { ...s.tutorial, done: true };
     if (nemesis) { n.factions[nemesis].relation -= 25; n.factions[nemesis].tension += 15; n.factions[nemesis].grudge = 2; }
     n.cash = 1900 + Math.min(1200, Math.floor(money_ * .05)) + (s.goalDone ? 600 : 0) + medalBonus;
     n.log = [{ day: 1, msg: `Temporada ${n.season} iniciada. Anterior: “${sc.title}” (${sc.score} pontos). Legado: ${money(n.cash - 1900)} extras.${nemesis ? ` ${faction(nemesis).name} não esqueceu a rivalidade.` : ''}` }];
@@ -1728,22 +1864,27 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     bank: doBank, buy: doBuy, sell: doSell, contact: doContact, dispute: doDispute,
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
-    career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, nextDay, endSeason
+    career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay, endSeason
   };
   /** Executa uma ação e roda verificações pós-ação. */
   function perform(s, name, ...args) {
     const fn = act[name]; if (!fn) return refuse('Ação desconhecida.');
+    applyCity(s.city);
     const r = fn(s, ...args);
-    if (r.ok && name !== 'endSeason') afterAction(s);
+    if (r.ok && name !== 'endSeason') {
+      const tut = advanceTutorial(s);
+      if (tut.length) r.lines = (r.lines || []).concat(tut);
+      afterAction(s);
+    }
     return r;
   }
 
   const SB = {
     VERSION, SCHEMA, MAXDAY, STORAGE_KEY, RESALE, CAREER_XP,
-    STATS, MISSIONS, DISTRICTS, BUSINESSES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
+    STATS, MISSIONS, DISTRICTS, BUSINESSES, CITIES, TUTORIAL, TITLES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
-    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventMod,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
     missionScore, missionChance, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
@@ -1751,6 +1892,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
     act, perform
   };
+  applyCity(CITIES[0].name); // as tabelas sempre refletem uma cidade real
   root.SB = SB;
   if (typeof module !== 'undefined' && module.exports) module.exports = SB;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -1758,7 +1900,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   </script>
   <script id="sb-ui">
 /* =====================================================================
- * SUBMUNDO BRASIL — INTERFACE v0.5
+ * SUBMUNDO BRASIL — INTERFACE v0.6
  * Responsável por: persistência (localStorage, backup, importação e
  * exportação), renderização das telas e tratamento dos cliques.
  * Todas as regras ficam em window.SB (motor). Esta camada só chama
@@ -1856,14 +1998,25 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       return o;
     }
   };
+  /** Silhueta distante que identifica a cidade (formas genéricas, sem reproduzir fotos ou marcas). */
+  const LM = '#22363f';
+  const LANDMARK = {
+    rio: () => `<path d="M186 120Q204 66 226 62Q246 64 254 92Q270 34 300 30Q334 36 360 120z" fill="${LM}"/>`,
+    sp: () => [[214, 44, 16], [234, 30, 20], [258, 50, 14], [276, 22, 18], [298, 40, 22], [324, 54, 16], [342, 36, 18]].map(([x, y, w]) => R(x, y, w, 120 - y, LM)).join('') + R(284, 4, 2, 18, LM) + R(243, 18, 2, 12, LM),
+    bh: () => `<path d="M0 84L36 62L84 74L132 46L190 68L246 40L300 60L360 44V120H0z" fill="${LM}"/>`,
+    salvador: () => R(236, 26, 11, 94, LM) + R(232, 22, 19, 5, LM) + R(247, 34, 44, 5, LM) + R(288, 38, 72, 82, LM) + R(300, 22, 9, 16, LM) + R(322, 22, 9, 16, LM) + `<path d="M300 22l4.500-8 4.500 8zM322 22l4.500-8 4.500 8z" fill="${LM}"/>`.replace(/\.500/g, '.5'),
+    recife: () => R(0, 70, 360, 4, LM) + [0, 72, 144, 216, 288].map(x => `<path d="M${x} 74h72v46h-8q-28 -50 -56 0h-8z" fill="${LM}"/>`).join('') + R(318, 30, 7, 40, LM) + `<path d="M316 30l5.500-9 5.500 9z" fill="${LM}"/>`.replace(/\.500/g, '.5'),
+    poa: () => R(296, 14, 9, 106, LM) + R(293, 12, 15, 4, LM) + R(262, 76, 84, 44, LM) + `<path d="M262 76l14 -10h56l14 10z" fill="${LM}"/>` + R(0, 100, 250, 2, '#2f4c59')
+  };
   const SKY = { centro: ['#2b3a44', '#7a5a3c'], cais: ['#1c3340', '#4d6a70'], jardim: ['#2a3550', '#b0704a'], industrial: ['#2c2f36', '#6a5444'], vila: ['#23344a', '#c2824a'] };
   /** Cena do bairro; reage aos eventos ativos (festa, chuva, operação, greve, guerra). */
-  function scene(id, withEvents = true) {
+  function scene(id, withEvents = true, cityName) {
     const evs = withEvents && state ? SB.activeEvents(state) : [];
     const has = k => evs.some(e => e.id === k && (!e.district || e.district === id));
     const [a, b] = SKY[id] || SKY.centro;
     let o = `<svg class="scene" viewBox="0 0 360 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="sky-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>`;
     o += R(0, 0, 360, 120, `url(#sky-${id})`) + `<circle cx="${id === 'cais' ? 300 : 78}" cy="${id === 'industrial' ? 40 : 30}" r="13" fill="#f3d9a4" opacity="${has('temporal') ? .15 : .8}"/>`;
+    o += (LANDMARK[SB.cityOf(cityName || (state && state.city)).id] || LANDMARK.rio)();
     o += (SCENES[id] || SCENES.centro)();
     if (has('carnaval') || has('festival') || has('saojoao')) {
       const cols = ['#f0c06e', '#c9503a', '#7fc8a4', '#5c8fd6', '#e7d9b8'];
@@ -1936,7 +2089,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function exportSave() {
-    download(`submundo-brasil-v0.5-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
+    download(`submundo-brasil-v0.6-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
     notify('Cópia da carreira preparada para download.');
   }
   async function importFile(file, fromWelcome) {
@@ -2018,7 +2171,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 
   /* ---------- componentes ---------- */
   function heading(label, desc, extra = '') {
-    return `<div class="pagehead"><div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>`;
+    return `<div class="pagehead"><div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>` + guideCard();
   }
   function resultCard() {
     if (!result) return '';
@@ -2039,7 +2192,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     return button(armedNext ? `Confirmar? Restam ${state.energy} de energia` : 'Avançar dia', 'next-day', '', false, (armedNext ? 'armed ' : 'primary ') + cls);
   }
   function eventChips() {
-    return SB.activeEvents(state).map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > state.day ? ` · até o dia ${e.until}` : ''}<br>${esc(e.def.desc)}</li>`).join('');
+    return SB.activeEvents(state).map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > state.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('');
   }
   /** Faixa do local atual: cena do bairro, placa de rua e condições. */
   function localeStrip(tall) {
@@ -2063,6 +2216,66 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     return best;
   }
 
+  /* ---------- primeiros passos, rumo e ajuda ---------- */
+  const VIEW_NAMES = { painel: 'Início', acoes: 'Missões', cidade: 'Bairros', gestao: 'Banco', gangue: 'Gangue', temporada: 'Temporada' };
+  /** Cartão do passo atual: completo no Início, em faixa nas outras telas. */
+  function guideCard() {
+    const st = SB.tutorialStep(state); if (!st) return '';
+    const n = state.tutorial.step + 1, total = SB.TUTORIAL.length, here = st.view === view;
+    const dots = SB.TUTORIAL.map((_, i) => `<i class="${i < n - 1 ? 'ok' : i === n - 1 ? 'now' : ''}"></i>`).join('');
+    const go = here ? `<span class="guideHere">É nesta tela ↓</span>` : button(`${esc(st.cta)} →`, 'switch', `data-target="${st.view}"`, false, 'small primary');
+    if (view !== 'painel') return `<section class="guide slim" aria-label="Primeiros passos"><div><b>Passo ${n}/${total}</b> ${esc(st.title)}</div>${go}</section>`;
+    return `<section class="guide" aria-label="Primeiros passos"><div class="guideHead"><span>Primeiros passos · ${n}/${total}</span><span class="guideDots" aria-hidden="true">${dots}</span></div>
+      <h3>${esc(st.title)}</h3><p>${esc(st.text)}${st.reward ? ` <strong>Recompensa: ${fmt(st.reward)}.</strong>` : ''}</p>
+      <div class="guideBtns">${go}${button('Como jogar', 'help', '', false, 'small ghost')}${button('Pular guia', 'skip-tutorial', '', false, 'small ghost')}</div></section>`;
+  }
+  const CAT_TIPS = {
+    fortuna: 'junte dinheiro com serviços e negócios e guarde no banco',
+    fama: 'conclua serviços mais difíceis, treine e compre negócios',
+    territorio: 'crie contatos até 60 de influência e mantenha a liderança de um bairro',
+    diplomacia: 'dialogue com os grupos, firme tréguas e uma aliança',
+    gangue: 'faça a operação coletiva todo dia e vença confrontos'
+  };
+  /** Rumo: onde você está, o próximo título e a medalha mais próxima, com o caminho. */
+  function rumoCard() {
+    const s = state, sc = SB.seasonScore(s);
+    let best = null;
+    for (const c of sc.cats) { const cat = SB.CATEGORIES.find(x => x.id === c.id), next = cat.tiers[c.medal]; if (!next) continue; const prev = c.medal ? cat.tiers[c.medal - 1] : 0, gap = (next - c.value) / (next - prev); if (!best || gap < best.gap) best = { c, cat, next, gap }; }
+    const span = sc.next ? pct((sc.score - (SB.TITLES.find(t => t[1] === sc.title) || [0])[0]) / (sc.next.at - (SB.TITLES.find(t => t[1] === sc.title) || [0])[0]) * 100) : 100;
+    return `<section class="rumo" aria-label="Seu rumo na temporada"><div class="rumoHead"><span>Seu rumo</span><b>${num(sc.score)} pts</b></div>
+      <div class="rumoTitles"><strong>${esc(sc.title)}</strong>${sc.next ? `<span>→ ${esc(sc.next.title)} com ${num(sc.next.at)}</span>` : '<span>título máximo</span>'}</div>
+      <div class="meter"><div style="width:${span}%"></div></div>
+      ${best ? `<p><b>Medalha mais próxima:</b> ${best.c.name} ${SB.MEDALS[best.c.medal + 1]} — faltam ${best.cat.unit === 'money' ? fmt(best.next - best.c.value) : num(best.next - best.c.value)}. Para chegar: ${CAT_TIPS[best.c.id]}.</p>` : '<p>Todas as medalhas de ouro conquistadas.</p>'}
+      ${s.day >= 25 && s.day < MAXDAY ? `<p class="warn">Reta final: faltam ${MAXDAY - s.day} dia(s).</p>` : ''}</section>`;
+  }
+  let helpPage = 0;
+  function helpPages() {
+    const c = state ? SB.cityOf(state.city) : SB.CITIES[0];
+    return [
+      ['O objetivo', `<p>Você chega a <strong>${esc(c.name)}</strong> com pouco dinheiro e nenhum nome. Tem <strong>30 dias</strong> (uma temporada) para virar alguém.</p>
+        <p>No fim, sua temporada recebe pontos e medalhas em <strong>cinco caminhos</strong>: Fortuna, Fama, Território, Diplomacia e Gangue. Não precisa ser bom em tudo: escolha um ou dois e vá fundo.</p>
+        <p>Os títulos vão de <em>Aprendiz da rua</em> a <em>Lenda do Submundo</em>. O cartão <strong>Seu rumo</strong>, no Início, mostra sempre o próximo título e a medalha mais próxima.</p>`],
+      ['Seu dia', `<p>Tudo gasta <strong>energia</strong> (barra verde). Um dia típico:</p>
+        <ol><li><strong>Serviços</strong> rendem dinheiro e respeito. Veja a chance antes.</li><li><strong>Treino</strong> melhora atributos e libera serviços maiores.</li><li><strong>Contatos</strong> nos bairros viram influência e tributo.</li><li>Sem energia? <strong>Avance o dia</strong>: +70 de energia, a renda entra e os grupos se movem.</li></ol>
+        <p>Respeito libera serviços, a gangue (30) e mais. Dinheiro compra treino, negócios e equipe.</p>`],
+      ['Os riscos', `<p><strong>Vigilância</strong> (barra vermelha) sobe a cada serviço e derruba suas chances. Ela cai sozinha ao virar o dia, ou com “Ficar na sua”.</p>
+        <p><strong>Falhar</strong> tira parte do dinheiro <em>em mãos</em> e pode dar <strong>detenção</strong> (dias perdidos, ou fiança). O banco protege o dinheiro por uma taxa.</p>
+        <p><strong>Repetir</strong> o mesmo serviço no dia ou insistir no mesmo bairro piora chance e pagamento. Varie.</p>
+        <p>Os <strong>grupos rivais</strong> reagem: agir no território deles gera atrito, retaliação e extorsão. Dá para conversar, firmar trégua ou aliança.</p>`],
+      ['Sua cidade', `<p><strong>${esc(c.name)} — ${esc(c.trait)}.</strong> ${esc(c.traitDesc)}</p>
+        <ul>${SB.DISTRICTS.map(d => `<li><strong>${esc(d.name)}</strong>: ${esc(d.advantage)}</li>`).join('')}</ul>
+        <p>Fique de olho no calendário: <strong>${esc(SB.EVENTS.carnaval.title)}</strong> começa no dia 9 e o <strong>${esc(SB.EVENTS.classico.title)}</strong> é no dia 20.</p>`]
+    ];
+  }
+  function renderHelp() {
+    const pages = helpPages(), [title, body] = pages[helpPage], last = helpPage === pages.length - 1;
+    $('#helpBox').innerHTML = `<div class="helpHead"><span>Como jogar · ${helpPage + 1}/${pages.length}</span><button type="button" class="close" data-action="close-help" aria-label="Fechar">×</button></div>
+      <h2 id="helpTitle">${title}</h2><div class="helpBody">${body}</div>
+      <div class="helpBtns">${helpPage ? button('Voltar', 'help-prev', '', false, 'small ghost') : '<span></span>'}${last ? button(state && SB.tutorialStep(state) ? 'Começar' : 'Fechar', 'close-help', '', false, 'primary') : button('Próximo', 'help-next', '', false, 'primary')}</div>`;
+  }
+  function openHelp(page = 0) { if (state) SB.applyCity(state.city); helpPage = page; renderHelp(); $('#help').classList.remove('hidden'); const b = $('#helpBox .btn.primary'); if (b) b.focus(); }
+  function closeHelp() { $('#help').classList.add('hidden'); }
+
   /* ---------- telas ---------- */
   function panel() {
     const s = state;
@@ -2071,7 +2284,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     const net = SB.income(s) + SB.controls(s).reduce((t, d) => t + SB.tribute(s, d.id), 0) - SB.groupUpkeep(s);
     return jailNotice() + localeStrip(true) + `
       <div class="dayBar"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>Temporada ${s.season} · ${standing}</span><div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></div>${nextDayButton('')}</div>
-      ${resultCard()}${careerCard()}${goalSummary()}${newsCard()}
+      ${resultCard()}${guideCard()}${careerCard()}${s.career || s.tutorial.done ? goalSummary() + newsCard() : ''}
       <section class="boardLead job ${m ? '' : 'idle'}"><div class="jobIcon">${m ? statIcon(m.stat) : statIcon('astucia')}</div>
         <div class="jobMain"><div class="eyebrow">Serviço da vez</div><h3>${m ? esc(m.name) : 'Nada com boa chance agora'}</h3>
           <p class="jobMeta">${m ? `${m.cost} energia · ${fmt(m.low * SB.missionRewardMult(s, m))}–${fmt(m.high * SB.missionRewardMult(s, m))}` : 'Treine, baixe a vigilância, viaje ou vire o dia.'}</p></div>
@@ -2082,7 +2295,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
         <button class="tile" type="button" data-view="gestao"><b class="${net < 0 ? 'neg' : ''}">${fmt(net)}</b><span>saldo por dia</span></button>
         <button class="tile" type="button" data-view="gangue"><b>${s.gangName ? s.crew.length : '—'}</b><span>${s.gangName ? 'no bonde · ânimo ' + s.crewMorale : 'sem gangue'}</span></button>
       </div>
-      ${SB.activeEvents(s).some(e => e.id !== 'rotina') ? stencil('Na cidade hoje') + `<section class="poster"><ul class="eventList">${SB.activeEvents(s).filter(e => e.id !== 'rotina').map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(e.def.desc)}</li>`).join('')}</ul></section>` : ''}
+      ${SB.activeEvents(s).some(e => e.id !== 'rotina') ? stencil('Na cidade hoje') + `<section class="poster"><ul class="eventList">${SB.activeEvents(s).filter(e => e.id !== 'rotina').map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
+      ${rumoCard()}
       ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(3)}</section>`;
   }
   function journal(max) { return `<ul class="timeline">${state.log.slice(0, max).map(i => `<li><time>Dia ${num(i.day)}</time>${esc(i.msg)}</li>`).join('')}</ul>`; }
@@ -2154,7 +2368,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       <section class="brandpanel" style="margin-top:13px"><p>${esc(d.desc)}</p>
         <div class="kv"><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigilância local</span><strong>${ds.vigil}</strong></div><div><span>Recompensas</span><strong>${signed(d.bonus)}%</strong></div><div><span>Risco base</span><strong>${signed(d.risk)}</strong></div><div><span>Tributo se liderar</span><strong>${fmt(SB.tribute(s, d.id))}/dia</strong></div><div><span>Oportunidade</span><strong>${special ? esc(special.name) : '—'}</strong></div></div>
         <p class="mini" style="margin-top:9px">Vantagem de liderar: ${esc(d.advantage)} Cada bairro liderado também gera +2 de vigilância por dia e atrai as facções.</p></section>
-      <div class="section"><h2>Mapa da cidade</h2><small>Viagem: R$ 90 e 5 energia</small></div>
+      <div class="section"><h2>Mapa da cidade</h2><small>Viagem: ${fmt(SB.travelCost(s).cash)}${SB.travelCost(s).energy ? ' e ' + SB.travelCost(s).energy + ' energia' : ''}</small></div>
       <div class="grid two">${SB.DISTRICTS.map(x => districtCard(x)).join('')}</div>
       <div class="section"><h2>Poder na cidade</h2><small>Simulado: você contra as facções</small></div>
       <section class="card">${SB.seasonRanking(s).map((r, i) => `<div class="rankRow ${r.player ? 'me' : ''}"><strong>${i + 1}. ${esc(r.name)}</strong><span>${num(r.power)}</span></div>`).join('')}<p class="mini" style="margin-top:6px">Soma da influência/presença nos bairros, +30 por bairro liderado.</p></section>
@@ -2166,7 +2380,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     return `<section class="card district ${here ? 'selected' : ''}"><div class="miniScene">${scene(x.id)}${plate(x.name)}${here ? '<span class="pill here">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill here">Você lidera</span>' : ''}</div>
       <div class="kv"><div><span>Líder</span><strong>${SB.controlled(s, x.id) ? 'Você' : esc(F(l.id).short) + ' ' + l.value}</strong></div><div><span>Sua influência</span><strong>${s.influence[x.id]}</strong></div><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigilância</span><strong>${ds.vigil}</strong></div></div>
       ${evs.length ? `<div class="chips">${evs.map(e => `<span class="chip warn">${esc(SB.eventTitle(e))}</span>`).join('')}</div>` : ''}
-      <div class="statusbar"><span class="mini">${esc(x.advantage)}</span>${here ? '' : button('Viajar', 'travel', `data-id="${x.id}"`, s.cash < 90 || s.energy < 5 || s.jail > 0, 'small')}</div></section>`;
+      <div class="statusbar"><span class="mini">${esc(x.advantage)}</span>${here ? '' : button('Viajar', 'travel', `data-id="${x.id}"`, s.cash < SB.travelCost(s).cash || s.energy < SB.travelCost(s).energy || s.jail > 0, 'small')}</div></section>`;
   }
 
   function management() {
@@ -2255,7 +2469,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
         ${Object.keys(s.records).length ? `<div class="divider"></div><h3>Recordes</h3><div class="kv">${SB.CATEGORIES.filter(c => s.records[c.id] !== undefined).map(c => `<div><span>${c.name}</span><strong>${c.unit === 'money' ? fmt(s.records[c.id]) : num(s.records[c.id])}</strong></div>`).join('')}</div>` : ''}</section>
       <div class="section"><h2>Salvamento e segurança</h2></div>
       <section class="card"><h2>Seu progresso</h2><p>Salvo automaticamente neste navegador. Exporte uma cópia para trocar de aparelho ou se proteger de limpezas do navegador.</p>
-        <div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Importar carreira', 'import', '', false, 'small ghost')}${button('Recomeçar tudo', 'reset', '', false, 'small danger')}</div>
+        <div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Importar carreira', 'import', '', false, 'small ghost')}${button('Como jogar', 'help', '', false, 'small ghost')}${button('Recomeçar tudo', 'reset', '', false, 'small danger')}</div>
         <input type="file" id="importFile" accept=".json,application/json" class="hidden" aria-label="Selecionar salvamento JSON">
         ${hasKey(V04_BACKUP_KEY) ? `<div class="divider"></div><p class="mini">Há uma cópia do seu salvamento original da 0.4 guardada neste navegador.</p>${button('Baixar cópia da 0.4', 'download-backup', `data-id="${V04_BACKUP_KEY}"`, false, 'small ghost')}` : ''}
         ${hasKey(CORRUPT_KEY) ? `<div class="divider"></div><p class="mini">Há um salvamento ilegível guardado (não foi apagado).</p>${button('Baixar salvamento ilegível', 'download-backup', `data-id="${CORRUPT_KEY}"`, false, 'small ghost')}` : ''}
@@ -2275,15 +2489,18 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   /* ---------- renderização ---------- */
   function render() {
     if (!state) return;
+    SB.applyCity(state.city);
     const pages = { painel: panel, acoes: actions, cidade: city, gestao: management, gangue: gang, temporada: seasons };
     try {
-      $('#content').innerHTML = (pages[view] || panel)() + `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • Universo fictício • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`;
+      $('#content').innerHTML = (pages[view] || panel)() + `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • Cidades reais, bairros e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`;
     } catch (e) {
       console.error(e);
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
     }
     renderHud();
     $all('.nav button, .mobileNav button').forEach(b => { const on = b.dataset.view === view; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    const st = SB.tutorialStep(state);
+    $all('.nav button, .mobileNav button').forEach(b => b.classList.toggle('hint', !!st && st.view === b.dataset.view && st.view !== view));
   }
   function switchView(target) {
     if (!VIEWS.includes(target)) return;
@@ -2314,6 +2531,11 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     switch (a) {
       case 'switch': switchView(btn.dataset.target); break;
       case 'dismiss-result': result = null; render(); break;
+      case 'help': openHelp(0); break;
+      case 'help-next': helpPage++; renderHelp(); break;
+      case 'help-prev': helpPage--; renderHelp(); break;
+      case 'close-help': closeHelp(); break;
+      case 'skip-tutorial': if (confirm('Dispensar os primeiros passos? As recompensas restantes serão perdidas.')) run('skipTutorial'); break;
       case 'filter': missionFilter = id; render(); break;
       case 'mission': run('mission', id); break;
       case 'train': run('train', id); break;
@@ -2359,7 +2581,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     const name = $('#playerName').value.trim().replace(/\s+/g, ' ');
     if (name.length < 2 || name.length > 22) return notify('Escolha um codinome entre 2 e 22 caracteres.', true);
     state = SB.defaultState(name, $('#homeCity').value); view = 'painel'; result = null;
-    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); save(); render(); notify(`Bem-vindo à cidade, ${name}.`);
+    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); save(); render(); openHelp(0);
   });
   // Outra aba alterou o save: recarrega para não sobrescrever progresso.
   window.addEventListener('storage', e => {
@@ -2375,11 +2597,18 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     try { localStorage.removeItem(KEY); } catch (e) { /* ignorado */ }
     state = null; result = null; showWelcome(); notify('Novo início disponível.');
   }
+  function paintCover() {
+    const c = SB.cityOf($('#homeCity').value);
+    $('#coverArt').innerHTML = scene('centro', false, c.name);
+    $('#cityTrait').innerHTML = `<strong>${esc(c.trait)}:</strong> ${esc(c.traitDesc)}`;
+  }
+  $('#homeCity').addEventListener('change', paintCover);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#help').classList.contains('hidden')) closeHelp(); });
   function showWelcome() {
     const box = $('#welcomeNotice');
     box.innerHTML = corrupt ? `<div class="notice error"><strong>Não foi possível ler o salvamento encontrado.</strong> ${esc(corrupt.reason)} Uma cópia foi guardada e não será apagada. <button type="button" class="btn small ghost" id="dlCorrupt" style="margin-top:6px">Baixar cópia</button></div>` : '';
     const dl = $('#dlCorrupt'); if (dl) dl.addEventListener('click', () => download('submundo-salvamento-ilegivel.json', corrupt.raw));
-    $('#coverArt').innerHTML = scene('centro', false);
+    paintCover();
     document.body.classList.add('atCover');
     $('#welcome').classList.remove('hidden'); $('#playerName').focus();
   }

@@ -78,5 +78,19 @@ t('campos com HTML são texto puro (sem chaves extras)', () => { const r = SB.pa
 t('ida e volta schema 2 é estável', () => { const s = SB.parseSave(JSON.stringify(v04)).state; const a = JSON.stringify(s); eq(JSON.stringify(SB.parseSave(a).state), a); });
 t('checksum detecta alteração', () => { const p = SB.exportPayload(fresh()); eq(SB.checksum(JSON.stringify(p.save)), p.checksum); p.save.cash = 999999; ok(SB.checksum(JSON.stringify(p.save)) !== p.checksum); });
 
+console.log('Cidades e primeiros passos');
+t('seis cidades com 5 bairros, 3 grupos e 5 negócios nomeados', () => { eq(SB.CITIES.length, 6); for (const c of SB.CITIES) { eq(Object.keys(c.districts).length, 5); eq(Object.keys(c.factions).length, 3); eq(Object.keys(c.biz).length, 5); ok(c.traitDesc.length > 10); } });
+t('nomes mudam com a cidade e voltam', () => { SB.applyCity('São Paulo'); eq(SB.district(null, 'cais').name, 'Terminal de Cargas'); eq(SB.faction('aurora').short, 'Garoa'); SB.applyCity('Rio de Janeiro'); eq(SB.district(null, 'cais').name, 'Cais da Guanabara'); });
+t('cidade desconhecida em save vira Rio de Janeiro', () => { eq(SB.parseSave(JSON.stringify({ ...v04, city: 'Atlântida' })).state.city, 'Rio de Janeiro'); });
+t('Recife: viagem custa metade e nenhuma energia', () => { const s = SB.defaultState('T', 'Recife'); SB.perform(s, 'travel', 'cais'); eq(s.cash, 1900 - 45); eq(s.energy, 100); });
+t('Porto Alegre: treino 10% mais barato', () => { ok(SB.trainCost(SB.defaultState('T', 'Porto Alegre'), 'forca') < SB.trainCost(SB.defaultState('T', 'Recife'), 'forca')); });
+t('São Paulo e BH: bônus de negócios', () => { const mk = c => { const s = SB.defaultState('T', c); s.businesses = ['bar']; return SB.income(s); }; ok(mk('São Paulo') > mk('Recife')); ok(mk('Belo Horizonte') > mk('São Paulo')); });
+t('Salvador: Carnaval de 5 dias; Rio: 4; demais: 3', () => { const len = c => { const s = SB.defaultState('T', c); while (s.day < 9) SB.perform(s, 'nextDay'); const e = s.events.find(x => x.id === 'carnaval'); return e.until - e.start + 1; }; eq(len('Salvador'), 5); eq(len('Rio de Janeiro'), 4); eq(len('Recife'), 3); });
+t('textos de eventos usam nomes da cidade', () => { const s = SB.defaultState('T', 'Belo Horizonte'); SB.applyCity(s.city); s.events = [{ id: 'carnaval', start: 1, until: 3, district: null }]; const d = SB.eventDesc(SB.activeEvents(s)[0]); ok(d.includes('Mercado Velho') && d.includes('Buteco') && !d.includes('{'), d); });
+t('primeiros passos: sequência completa e recompensas', () => { const s = fresh(); SB.setRandom(SB.seeded(9)); eq(SB.tutorialStep(s).id, 'career'); SB.perform(s, 'career', 'operador'); eq(SB.tutorialStep(s).id, 'mission'); const c = s.cash; let r = SB.perform(s, 'gig'); eq(SB.tutorialStep(s).id, 'mission'); r = SB.perform(s, 'mission', 'correria'); ok(r.lines.some(l => l.includes('Primeiros passos 2/8'))); s.jail = 0; SB.perform(s, 'train', 'forca'); eq(SB.tutorialStep(s).id, 'goal'); SB.perform(s, 'goal', 'renome'); SB.perform(s, 'nextDay'); s.jail = 0; s.cash += 1000; SB.perform(s, 'contact'); SB.perform(s, 'bank', 'deposit', 100); eq(SB.tutorialStep(s).id, 'gang'); s.respect = 40; s.cash = 3000; SB.perform(s, 'foundGang', 'Bonde'); eq(s.tutorial.done, true); eq(SB.tutorialStep(s), null); });
+t('pular guia encerra sem recompensa', () => { const s = fresh(); const c = s.cash; eq(SB.perform(s, 'skipTutorial').ok, true); eq(s.cash, c); eq(SB.perform(s, 'skipTutorial').ok, false); });
+t('save antigo em andamento não é forçado ao guia; nova temporada também não', () => { eq(SB.parseSave(JSON.stringify(v04)).state.tutorial.done, true); const s = fresh(); s.day = 30; eq(SB.perform(s, 'endSeason').state.tutorial.done, true); });
+t('próximo título informado na pontuação', () => { const sc = SB.seasonScore(fresh()); eq(sc.title, 'Aprendiz da rua'); eq(sc.next.at, 110); });
+
 console.log(`\n${pass} passaram, ${fail} falharam.`);
 process.exit(fail ? 1 : 0);

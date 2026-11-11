@@ -1,5 +1,5 @@
 /* =====================================================================
- * SUBMUNDO BRASIL — INTERFACE v0.5
+ * SUBMUNDO BRASIL — INTERFACE v0.6
  * Responsável por: persistência (localStorage, backup, importação e
  * exportação), renderização das telas e tratamento dos cliques.
  * Todas as regras ficam em window.SB (motor). Esta camada só chama
@@ -97,14 +97,25 @@
       return o;
     }
   };
+  /** Silhueta distante que identifica a cidade (formas genéricas, sem reproduzir fotos ou marcas). */
+  const LM = '#22363f';
+  const LANDMARK = {
+    rio: () => `<path d="M186 120Q204 66 226 62Q246 64 254 92Q270 34 300 30Q334 36 360 120z" fill="${LM}"/>`,
+    sp: () => [[214, 44, 16], [234, 30, 20], [258, 50, 14], [276, 22, 18], [298, 40, 22], [324, 54, 16], [342, 36, 18]].map(([x, y, w]) => R(x, y, w, 120 - y, LM)).join('') + R(284, 4, 2, 18, LM) + R(243, 18, 2, 12, LM),
+    bh: () => `<path d="M0 84L36 62L84 74L132 46L190 68L246 40L300 60L360 44V120H0z" fill="${LM}"/>`,
+    salvador: () => R(236, 26, 11, 94, LM) + R(232, 22, 19, 5, LM) + R(247, 34, 44, 5, LM) + R(288, 38, 72, 82, LM) + R(300, 22, 9, 16, LM) + R(322, 22, 9, 16, LM) + `<path d="M300 22l4.500-8 4.500 8zM322 22l4.500-8 4.500 8z" fill="${LM}"/>`.replace(/\.500/g, '.5'),
+    recife: () => R(0, 70, 360, 4, LM) + [0, 72, 144, 216, 288].map(x => `<path d="M${x} 74h72v46h-8q-28 -50 -56 0h-8z" fill="${LM}"/>`).join('') + R(318, 30, 7, 40, LM) + `<path d="M316 30l5.500-9 5.500 9z" fill="${LM}"/>`.replace(/\.500/g, '.5'),
+    poa: () => R(296, 14, 9, 106, LM) + R(293, 12, 15, 4, LM) + R(262, 76, 84, 44, LM) + `<path d="M262 76l14 -10h56l14 10z" fill="${LM}"/>` + R(0, 100, 250, 2, '#2f4c59')
+  };
   const SKY = { centro: ['#2b3a44', '#7a5a3c'], cais: ['#1c3340', '#4d6a70'], jardim: ['#2a3550', '#b0704a'], industrial: ['#2c2f36', '#6a5444'], vila: ['#23344a', '#c2824a'] };
   /** Cena do bairro; reage aos eventos ativos (festa, chuva, operação, greve, guerra). */
-  function scene(id, withEvents = true) {
+  function scene(id, withEvents = true, cityName) {
     const evs = withEvents && state ? SB.activeEvents(state) : [];
     const has = k => evs.some(e => e.id === k && (!e.district || e.district === id));
     const [a, b] = SKY[id] || SKY.centro;
     let o = `<svg class="scene" viewBox="0 0 360 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="sky-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>`;
     o += R(0, 0, 360, 120, `url(#sky-${id})`) + `<circle cx="${id === 'cais' ? 300 : 78}" cy="${id === 'industrial' ? 40 : 30}" r="13" fill="#f3d9a4" opacity="${has('temporal') ? .15 : .8}"/>`;
+    o += (LANDMARK[SB.cityOf(cityName || (state && state.city)).id] || LANDMARK.rio)();
     o += (SCENES[id] || SCENES.centro)();
     if (has('carnaval') || has('festival') || has('saojoao')) {
       const cols = ['#f0c06e', '#c9503a', '#7fc8a4', '#5c8fd6', '#e7d9b8'];
@@ -177,7 +188,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function exportSave() {
-    download(`submundo-brasil-v0.5-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
+    download(`submundo-brasil-v0.6-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
     notify('Cópia da carreira preparada para download.');
   }
   async function importFile(file, fromWelcome) {
@@ -259,7 +270,7 @@
 
   /* ---------- componentes ---------- */
   function heading(label, desc, extra = '') {
-    return `<div class="pagehead"><div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>`;
+    return `<div class="pagehead"><div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>` + guideCard();
   }
   function resultCard() {
     if (!result) return '';
@@ -280,7 +291,7 @@
     return button(armedNext ? `Confirmar? Restam ${state.energy} de energia` : 'Avançar dia', 'next-day', '', false, (armedNext ? 'armed ' : 'primary ') + cls);
   }
   function eventChips() {
-    return SB.activeEvents(state).map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > state.day ? ` · até o dia ${e.until}` : ''}<br>${esc(e.def.desc)}</li>`).join('');
+    return SB.activeEvents(state).map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > state.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('');
   }
   /** Faixa do local atual: cena do bairro, placa de rua e condições. */
   function localeStrip(tall) {
@@ -304,6 +315,66 @@
     return best;
   }
 
+  /* ---------- primeiros passos, rumo e ajuda ---------- */
+  const VIEW_NAMES = { painel: 'Início', acoes: 'Missões', cidade: 'Bairros', gestao: 'Banco', gangue: 'Gangue', temporada: 'Temporada' };
+  /** Cartão do passo atual: completo no Início, em faixa nas outras telas. */
+  function guideCard() {
+    const st = SB.tutorialStep(state); if (!st) return '';
+    const n = state.tutorial.step + 1, total = SB.TUTORIAL.length, here = st.view === view;
+    const dots = SB.TUTORIAL.map((_, i) => `<i class="${i < n - 1 ? 'ok' : i === n - 1 ? 'now' : ''}"></i>`).join('');
+    const go = here ? `<span class="guideHere">É nesta tela ↓</span>` : button(`${esc(st.cta)} →`, 'switch', `data-target="${st.view}"`, false, 'small primary');
+    if (view !== 'painel') return `<section class="guide slim" aria-label="Primeiros passos"><div><b>Passo ${n}/${total}</b> ${esc(st.title)}</div>${go}</section>`;
+    return `<section class="guide" aria-label="Primeiros passos"><div class="guideHead"><span>Primeiros passos · ${n}/${total}</span><span class="guideDots" aria-hidden="true">${dots}</span></div>
+      <h3>${esc(st.title)}</h3><p>${esc(st.text)}${st.reward ? ` <strong>Recompensa: ${fmt(st.reward)}.</strong>` : ''}</p>
+      <div class="guideBtns">${go}${button('Como jogar', 'help', '', false, 'small ghost')}${button('Pular guia', 'skip-tutorial', '', false, 'small ghost')}</div></section>`;
+  }
+  const CAT_TIPS = {
+    fortuna: 'junte dinheiro com serviços e negócios e guarde no banco',
+    fama: 'conclua serviços mais difíceis, treine e compre negócios',
+    territorio: 'crie contatos até 60 de influência e mantenha a liderança de um bairro',
+    diplomacia: 'dialogue com os grupos, firme tréguas e uma aliança',
+    gangue: 'faça a operação coletiva todo dia e vença confrontos'
+  };
+  /** Rumo: onde você está, o próximo título e a medalha mais próxima, com o caminho. */
+  function rumoCard() {
+    const s = state, sc = SB.seasonScore(s);
+    let best = null;
+    for (const c of sc.cats) { const cat = SB.CATEGORIES.find(x => x.id === c.id), next = cat.tiers[c.medal]; if (!next) continue; const prev = c.medal ? cat.tiers[c.medal - 1] : 0, gap = (next - c.value) / (next - prev); if (!best || gap < best.gap) best = { c, cat, next, gap }; }
+    const span = sc.next ? pct((sc.score - (SB.TITLES.find(t => t[1] === sc.title) || [0])[0]) / (sc.next.at - (SB.TITLES.find(t => t[1] === sc.title) || [0])[0]) * 100) : 100;
+    return `<section class="rumo" aria-label="Seu rumo na temporada"><div class="rumoHead"><span>Seu rumo</span><b>${num(sc.score)} pts</b></div>
+      <div class="rumoTitles"><strong>${esc(sc.title)}</strong>${sc.next ? `<span>→ ${esc(sc.next.title)} com ${num(sc.next.at)}</span>` : '<span>título máximo</span>'}</div>
+      <div class="meter"><div style="width:${span}%"></div></div>
+      ${best ? `<p><b>Medalha mais próxima:</b> ${best.c.name} ${SB.MEDALS[best.c.medal + 1]} — faltam ${best.cat.unit === 'money' ? fmt(best.next - best.c.value) : num(best.next - best.c.value)}. Para chegar: ${CAT_TIPS[best.c.id]}.</p>` : '<p>Todas as medalhas de ouro conquistadas.</p>'}
+      ${s.day >= 25 && s.day < MAXDAY ? `<p class="warn">Reta final: faltam ${MAXDAY - s.day} dia(s).</p>` : ''}</section>`;
+  }
+  let helpPage = 0;
+  function helpPages() {
+    const c = state ? SB.cityOf(state.city) : SB.CITIES[0];
+    return [
+      ['O objetivo', `<p>Você chega a <strong>${esc(c.name)}</strong> com pouco dinheiro e nenhum nome. Tem <strong>30 dias</strong> (uma temporada) para virar alguém.</p>
+        <p>No fim, sua temporada recebe pontos e medalhas em <strong>cinco caminhos</strong>: Fortuna, Fama, Território, Diplomacia e Gangue. Não precisa ser bom em tudo: escolha um ou dois e vá fundo.</p>
+        <p>Os títulos vão de <em>Aprendiz da rua</em> a <em>Lenda do Submundo</em>. O cartão <strong>Seu rumo</strong>, no Início, mostra sempre o próximo título e a medalha mais próxima.</p>`],
+      ['Seu dia', `<p>Tudo gasta <strong>energia</strong> (barra verde). Um dia típico:</p>
+        <ol><li><strong>Serviços</strong> rendem dinheiro e respeito. Veja a chance antes.</li><li><strong>Treino</strong> melhora atributos e libera serviços maiores.</li><li><strong>Contatos</strong> nos bairros viram influência e tributo.</li><li>Sem energia? <strong>Avance o dia</strong>: +70 de energia, a renda entra e os grupos se movem.</li></ol>
+        <p>Respeito libera serviços, a gangue (30) e mais. Dinheiro compra treino, negócios e equipe.</p>`],
+      ['Os riscos', `<p><strong>Vigilância</strong> (barra vermelha) sobe a cada serviço e derruba suas chances. Ela cai sozinha ao virar o dia, ou com “Ficar na sua”.</p>
+        <p><strong>Falhar</strong> tira parte do dinheiro <em>em mãos</em> e pode dar <strong>detenção</strong> (dias perdidos, ou fiança). O banco protege o dinheiro por uma taxa.</p>
+        <p><strong>Repetir</strong> o mesmo serviço no dia ou insistir no mesmo bairro piora chance e pagamento. Varie.</p>
+        <p>Os <strong>grupos rivais</strong> reagem: agir no território deles gera atrito, retaliação e extorsão. Dá para conversar, firmar trégua ou aliança.</p>`],
+      ['Sua cidade', `<p><strong>${esc(c.name)} — ${esc(c.trait)}.</strong> ${esc(c.traitDesc)}</p>
+        <ul>${SB.DISTRICTS.map(d => `<li><strong>${esc(d.name)}</strong>: ${esc(d.advantage)}</li>`).join('')}</ul>
+        <p>Fique de olho no calendário: <strong>${esc(SB.EVENTS.carnaval.title)}</strong> começa no dia 9 e o <strong>${esc(SB.EVENTS.classico.title)}</strong> é no dia 20.</p>`]
+    ];
+  }
+  function renderHelp() {
+    const pages = helpPages(), [title, body] = pages[helpPage], last = helpPage === pages.length - 1;
+    $('#helpBox').innerHTML = `<div class="helpHead"><span>Como jogar · ${helpPage + 1}/${pages.length}</span><button type="button" class="close" data-action="close-help" aria-label="Fechar">×</button></div>
+      <h2 id="helpTitle">${title}</h2><div class="helpBody">${body}</div>
+      <div class="helpBtns">${helpPage ? button('Voltar', 'help-prev', '', false, 'small ghost') : '<span></span>'}${last ? button(state && SB.tutorialStep(state) ? 'Começar' : 'Fechar', 'close-help', '', false, 'primary') : button('Próximo', 'help-next', '', false, 'primary')}</div>`;
+  }
+  function openHelp(page = 0) { if (state) SB.applyCity(state.city); helpPage = page; renderHelp(); $('#help').classList.remove('hidden'); const b = $('#helpBox .btn.primary'); if (b) b.focus(); }
+  function closeHelp() { $('#help').classList.add('hidden'); }
+
   /* ---------- telas ---------- */
   function panel() {
     const s = state;
@@ -312,7 +383,7 @@
     const net = SB.income(s) + SB.controls(s).reduce((t, d) => t + SB.tribute(s, d.id), 0) - SB.groupUpkeep(s);
     return jailNotice() + localeStrip(true) + `
       <div class="dayBar"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>Temporada ${s.season} · ${standing}</span><div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></div>${nextDayButton('')}</div>
-      ${resultCard()}${careerCard()}${goalSummary()}${newsCard()}
+      ${resultCard()}${guideCard()}${careerCard()}${s.career || s.tutorial.done ? goalSummary() + newsCard() : ''}
       <section class="boardLead job ${m ? '' : 'idle'}"><div class="jobIcon">${m ? statIcon(m.stat) : statIcon('astucia')}</div>
         <div class="jobMain"><div class="eyebrow">Serviço da vez</div><h3>${m ? esc(m.name) : 'Nada com boa chance agora'}</h3>
           <p class="jobMeta">${m ? `${m.cost} energia · ${fmt(m.low * SB.missionRewardMult(s, m))}–${fmt(m.high * SB.missionRewardMult(s, m))}` : 'Treine, baixe a vigilância, viaje ou vire o dia.'}</p></div>
@@ -323,7 +394,8 @@
         <button class="tile" type="button" data-view="gestao"><b class="${net < 0 ? 'neg' : ''}">${fmt(net)}</b><span>saldo por dia</span></button>
         <button class="tile" type="button" data-view="gangue"><b>${s.gangName ? s.crew.length : '—'}</b><span>${s.gangName ? 'no bonde · ânimo ' + s.crewMorale : 'sem gangue'}</span></button>
       </div>
-      ${SB.activeEvents(s).some(e => e.id !== 'rotina') ? stencil('Na cidade hoje') + `<section class="poster"><ul class="eventList">${SB.activeEvents(s).filter(e => e.id !== 'rotina').map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(e.def.desc)}</li>`).join('')}</ul></section>` : ''}
+      ${SB.activeEvents(s).some(e => e.id !== 'rotina') ? stencil('Na cidade hoje') + `<section class="poster"><ul class="eventList">${SB.activeEvents(s).filter(e => e.id !== 'rotina').map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
+      ${rumoCard()}
       ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(3)}</section>`;
   }
   function journal(max) { return `<ul class="timeline">${state.log.slice(0, max).map(i => `<li><time>Dia ${num(i.day)}</time>${esc(i.msg)}</li>`).join('')}</ul>`; }
@@ -395,7 +467,7 @@
       <section class="brandpanel" style="margin-top:13px"><p>${esc(d.desc)}</p>
         <div class="kv"><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigilância local</span><strong>${ds.vigil}</strong></div><div><span>Recompensas</span><strong>${signed(d.bonus)}%</strong></div><div><span>Risco base</span><strong>${signed(d.risk)}</strong></div><div><span>Tributo se liderar</span><strong>${fmt(SB.tribute(s, d.id))}/dia</strong></div><div><span>Oportunidade</span><strong>${special ? esc(special.name) : '—'}</strong></div></div>
         <p class="mini" style="margin-top:9px">Vantagem de liderar: ${esc(d.advantage)} Cada bairro liderado também gera +2 de vigilância por dia e atrai as facções.</p></section>
-      <div class="section"><h2>Mapa da cidade</h2><small>Viagem: R$ 90 e 5 energia</small></div>
+      <div class="section"><h2>Mapa da cidade</h2><small>Viagem: ${fmt(SB.travelCost(s).cash)}${SB.travelCost(s).energy ? ' e ' + SB.travelCost(s).energy + ' energia' : ''}</small></div>
       <div class="grid two">${SB.DISTRICTS.map(x => districtCard(x)).join('')}</div>
       <div class="section"><h2>Poder na cidade</h2><small>Simulado: você contra as facções</small></div>
       <section class="card">${SB.seasonRanking(s).map((r, i) => `<div class="rankRow ${r.player ? 'me' : ''}"><strong>${i + 1}. ${esc(r.name)}</strong><span>${num(r.power)}</span></div>`).join('')}<p class="mini" style="margin-top:6px">Soma da influência/presença nos bairros, +30 por bairro liderado.</p></section>
@@ -407,7 +479,7 @@
     return `<section class="card district ${here ? 'selected' : ''}"><div class="miniScene">${scene(x.id)}${plate(x.name)}${here ? '<span class="pill here">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill here">Você lidera</span>' : ''}</div>
       <div class="kv"><div><span>Líder</span><strong>${SB.controlled(s, x.id) ? 'Você' : esc(F(l.id).short) + ' ' + l.value}</strong></div><div><span>Sua influência</span><strong>${s.influence[x.id]}</strong></div><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigilância</span><strong>${ds.vigil}</strong></div></div>
       ${evs.length ? `<div class="chips">${evs.map(e => `<span class="chip warn">${esc(SB.eventTitle(e))}</span>`).join('')}</div>` : ''}
-      <div class="statusbar"><span class="mini">${esc(x.advantage)}</span>${here ? '' : button('Viajar', 'travel', `data-id="${x.id}"`, s.cash < 90 || s.energy < 5 || s.jail > 0, 'small')}</div></section>`;
+      <div class="statusbar"><span class="mini">${esc(x.advantage)}</span>${here ? '' : button('Viajar', 'travel', `data-id="${x.id}"`, s.cash < SB.travelCost(s).cash || s.energy < SB.travelCost(s).energy || s.jail > 0, 'small')}</div></section>`;
   }
 
   function management() {
@@ -496,7 +568,7 @@
         ${Object.keys(s.records).length ? `<div class="divider"></div><h3>Recordes</h3><div class="kv">${SB.CATEGORIES.filter(c => s.records[c.id] !== undefined).map(c => `<div><span>${c.name}</span><strong>${c.unit === 'money' ? fmt(s.records[c.id]) : num(s.records[c.id])}</strong></div>`).join('')}</div>` : ''}</section>
       <div class="section"><h2>Salvamento e segurança</h2></div>
       <section class="card"><h2>Seu progresso</h2><p>Salvo automaticamente neste navegador. Exporte uma cópia para trocar de aparelho ou se proteger de limpezas do navegador.</p>
-        <div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Importar carreira', 'import', '', false, 'small ghost')}${button('Recomeçar tudo', 'reset', '', false, 'small danger')}</div>
+        <div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Importar carreira', 'import', '', false, 'small ghost')}${button('Como jogar', 'help', '', false, 'small ghost')}${button('Recomeçar tudo', 'reset', '', false, 'small danger')}</div>
         <input type="file" id="importFile" accept=".json,application/json" class="hidden" aria-label="Selecionar salvamento JSON">
         ${hasKey(V04_BACKUP_KEY) ? `<div class="divider"></div><p class="mini">Há uma cópia do seu salvamento original da 0.4 guardada neste navegador.</p>${button('Baixar cópia da 0.4', 'download-backup', `data-id="${V04_BACKUP_KEY}"`, false, 'small ghost')}` : ''}
         ${hasKey(CORRUPT_KEY) ? `<div class="divider"></div><p class="mini">Há um salvamento ilegível guardado (não foi apagado).</p>${button('Baixar salvamento ilegível', 'download-backup', `data-id="${CORRUPT_KEY}"`, false, 'small ghost')}` : ''}
@@ -516,15 +588,18 @@
   /* ---------- renderização ---------- */
   function render() {
     if (!state) return;
+    SB.applyCity(state.city);
     const pages = { painel: panel, acoes: actions, cidade: city, gestao: management, gangue: gang, temporada: seasons };
     try {
-      $('#content').innerHTML = (pages[view] || panel)() + `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • Universo fictício • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`;
+      $('#content').innerHTML = (pages[view] || panel)() + `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • Cidades reais, bairros e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`;
     } catch (e) {
       console.error(e);
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
     }
     renderHud();
     $all('.nav button, .mobileNav button').forEach(b => { const on = b.dataset.view === view; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    const st = SB.tutorialStep(state);
+    $all('.nav button, .mobileNav button').forEach(b => b.classList.toggle('hint', !!st && st.view === b.dataset.view && st.view !== view));
   }
   function switchView(target) {
     if (!VIEWS.includes(target)) return;
@@ -555,6 +630,11 @@
     switch (a) {
       case 'switch': switchView(btn.dataset.target); break;
       case 'dismiss-result': result = null; render(); break;
+      case 'help': openHelp(0); break;
+      case 'help-next': helpPage++; renderHelp(); break;
+      case 'help-prev': helpPage--; renderHelp(); break;
+      case 'close-help': closeHelp(); break;
+      case 'skip-tutorial': if (confirm('Dispensar os primeiros passos? As recompensas restantes serão perdidas.')) run('skipTutorial'); break;
       case 'filter': missionFilter = id; render(); break;
       case 'mission': run('mission', id); break;
       case 'train': run('train', id); break;
@@ -600,7 +680,7 @@
     const name = $('#playerName').value.trim().replace(/\s+/g, ' ');
     if (name.length < 2 || name.length > 22) return notify('Escolha um codinome entre 2 e 22 caracteres.', true);
     state = SB.defaultState(name, $('#homeCity').value); view = 'painel'; result = null;
-    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); save(); render(); notify(`Bem-vindo à cidade, ${name}.`);
+    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); save(); render(); openHelp(0);
   });
   // Outra aba alterou o save: recarrega para não sobrescrever progresso.
   window.addEventListener('storage', e => {
@@ -616,11 +696,18 @@
     try { localStorage.removeItem(KEY); } catch (e) { /* ignorado */ }
     state = null; result = null; showWelcome(); notify('Novo início disponível.');
   }
+  function paintCover() {
+    const c = SB.cityOf($('#homeCity').value);
+    $('#coverArt').innerHTML = scene('centro', false, c.name);
+    $('#cityTrait').innerHTML = `<strong>${esc(c.trait)}:</strong> ${esc(c.traitDesc)}`;
+  }
+  $('#homeCity').addEventListener('change', paintCover);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#help').classList.contains('hidden')) closeHelp(); });
   function showWelcome() {
     const box = $('#welcomeNotice');
     box.innerHTML = corrupt ? `<div class="notice error"><strong>Não foi possível ler o salvamento encontrado.</strong> ${esc(corrupt.reason)} Uma cópia foi guardada e não será apagada. <button type="button" class="btn small ghost" id="dlCorrupt" style="margin-top:6px">Baixar cópia</button></div>` : '';
     const dl = $('#dlCorrupt'); if (dl) dl.addEventListener('click', () => download('submundo-salvamento-ilegivel.json', corrupt.raw));
-    $('#coverArt').innerHTML = scene('centro', false);
+    paintCover();
     document.body.classList.add('atCover');
     $('#welcome').classList.remove('hidden'); $('#playerName').focus();
   }

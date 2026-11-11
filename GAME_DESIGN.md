@@ -1,4 +1,4 @@
-# Submundo Brasil — Game Design (v0.5)
+# Submundo Brasil — Game Design (v0.6)
 
 Documento de referência das mecânicas. Os números aqui são os do código em
 `src/engine.js`. Se você mudar um valor no código, atualize este documento.
@@ -90,7 +90,7 @@ atributo usado.
 
 | | Passiva | Desvantagem | Nível 1 (10 XP) | Nível 2 (25 XP) | Nível 3 (45 XP) |
 |---|---|---|---|---|---|
-| **Operador** | +6 de chance; falhas custam 30% menos caixa | vigilância gerada +10%; negócios −10% | Rota de fuga: −15 na detenção | Ritmo de rua: fadiga de repetição pela metade | Sangue frio: vigilância pesa metade; cofre com Astúcia 18 |
+| **Operador** | +6 de chance; +8% de recompensa em serviços grandes (dificuldade ≥ 33); falhas custam 30% menos caixa | vigilância gerada +10%; negócios −10% | Rota de fuga: −15 na detenção | Ritmo de rua: fadiga de repetição pela metade | Sangue frio: vigilância pesa metade; cofre com Astúcia 18 |
 | **Articulador** | +30% de influência; +8 em diálogos; +5 em disputas e confrontos | recompensas de missões −10% | Rede de contatos: contatos −30% | Mediador: tréguas de 5 dias, alianças −40% | Voz do bairro: tributo +60%, 50% das retaliações evitadas |
 | **Empreendedor** | negócios +25% de renda e −12% de custo | chance nas missões −3 | Contador: taxa bancária 1% | Fornecedores: crises e extorsões pela metade | Sócio oculto: banco rende 0,4%/dia (até R$ 120) |
 
@@ -308,3 +308,51 @@ em caixa alta condensada (`Impact` → `Roboto Condensed` → sans); tudo em CSS
 inline, sem arquivos externos. Animações curtas e desligadas com
 `prefers-reduced-motion`. O aviso flutuante só aparece quando o cupom de
 resultado está fora da tela.
+
+---
+
+## 12. Cidades (v0.6)
+
+O jogador escolhe uma de seis **cidades reais**. A cidade troca nomes de bairros,
+grupos, negócios e festas, e dá uma vantagem própria. Bairros e grupos são
+**inventados**, inspirados na paisagem de cada cidade, para não associar
+comunidades reais ao crime. As regras dos bairros (seção 5) valem por papel:
+centro comercial, zona de cargas, bairro residencial, polo industrial e zona boêmia.
+
+| Cidade | Vantagem | Centro · Cargas · Residencial · Industrial · Boemia | Grupos (tradicional · expansionista · oportunista) |
+|---|---|---|---|
+| Rio de Janeiro | Carnaval de 4 dias; serviços na orla +10% | Largo dos Arcos · Cais da Guanabara · Parada do Subúrbio · Galpões da Avenida · Praia do Posto 13 | Velha Guarda do Largo · Turma do Cais · Rede do Calçadão |
+| São Paulo | Negócios +8% | Ladeira dos Camelôs · Terminal de Cargas · Vila dos Sobradinhos · Galpões da Marginal · Quadra da Garoa | Irmandade da Ladeira · Consórcio dos Galpões · Rede Garoa |
+| Belo Horizonte | Boteco +40%; diálogos +4 | Mercado Velho · Pátio Ferroviário · Alto da Serra · Polo do Minério · Rua dos Botecos | Confraria do Mercado · Turma do Trilho · Rede das Gerais |
+| Salvador | Carnaval de 5 dias; equipe +1 de ânimo/dia | Largo das Ladeiras · Cais da Baía · Alto das Mangueiras · Polo do Recôncavo · Orla do Dendê | Irmandade das Ladeiras · Estiva da Baía · Rede do Dendê |
+| Recife | Viagem pela metade do preço e sem energia | Pátio dos Sobrados · Cais das Pontes · Beira do Mangue · Galpões da BR · Ladeira dos Bonecos | Clube do Pátio · Frente das Pontes · Maré Mansa |
+| Porto Alegre | Treinos −10% | Largo do Mercado · Cais do Guaíba · Vila dos Plátanos · Distrito das Chaminés · Rua da Boemia | Velhos do Mercado · Turma do Guaíba · Rede Minuano |
+
+Cada cidade também nomeia o Carnaval ("Carnaval dos trios", "Carnaval do frevo"),
+o clássico de futebol ("Clássico mineiro") e a festa do serviço da zona boêmia
+(baile, pagodão, brega, forró). Nas cenas, uma silhueta distante identifica a
+cidade (morros, torres, serra, elevador, pontes, chaminé).
+
+Saves antigos mantêm a cidade que já tinham; uma cidade desconhecida vira Rio de Janeiro.
+
+## 13. Primeiros passos e orientação (v0.6)
+
+Três camadas respondem "qual é o objetivo, aonde chegar e como":
+
+1. **Como jogar**: introdução de 4 páginas aberta no primeiro jogo (O objetivo, Seu dia, Os riscos, Sua cidade), sempre acessível depois.
+2. **Primeiros passos**: trilha de 8 passos com recompensas pequenas (R$ 520 no total). O passo atual aparece em todas as telas, com um botão que leva à tela certa, e a aba correspondente pisca. Pode ser dispensada.
+
+| # | Passo | Recompensa |
+|---|---|---|
+| 1 | Escolher a especialização | — |
+| 2 | Fazer o primeiro serviço | R$ 80 |
+| 3 | Treinar um atributo | R$ 60 |
+| 4 | Escolher a meta da temporada | — |
+| 5 | Virar o dia | R$ 60 |
+| 6 | Criar contatos no bairro | R$ 80 |
+| 7 | Guardar dinheiro no banco | R$ 40 |
+| 8 | Chegar a 30 de respeito e fundar a gangue | R$ 200 |
+
+3. **Seu rumo**: cartão permanente no Início com a pontuação, o título atual, o próximo título e a **medalha mais próxima**, com a dica de como chegar nela. Avisa na reta final (dia 25 em diante).
+
+Para não sobrecarregar, a meta e a primeira notícia só aparecem depois da escolha da especialização.

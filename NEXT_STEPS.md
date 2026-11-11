@@ -21,10 +21,14 @@
 - [x] Simulação de balanceamento e testes automatizados
 - [x] Direção de arte "rua brasileira": HUD fixo com retrato, cenas SVG por bairro que reagem a eventos, placa de rua, lambe-lambe, cupom com carimbo, fita zebrada, dossiês de facção, cartinhas de integrantes, capa e transição de amanhecer
 
+- [x] **v0.6**: seis cidades reais com bairros, grupos, negócios, festas e vantagem próprios; introdução "Como jogar", trilha de primeiros passos e cartão "Seu rumo"; Operador com +8% em serviços grandes
+
+O que falta para lançar está em **LANCAMENTO.md**.
+
 ## Pendências de balanceamento (prioridade alta)
 
-1. **Operador sem estratégia dominante própria**: dar a ele uma vantagem exclusiva em missões de alto nível. Por exemplo, nível 2 liberando uma missão "Golpe de mestre", ou recompensas +8% em missões com dificuldade ≥ 33. Validar com `npm run careers` (meta: Operador ≥ +10 pontos no farm de missões).
-2. **Articulador levemente forte**: reduzir o bônus de influência das notícias para +15% (hoje +30% em tudo) ou cobrar mais caro o primeiro contato do dia.
+1. **Articulador forte na estratégia de gangue** (191 contra 172 do Operador): rever o bônus de +5 em confrontos.
+2. **Articulador levemente forte como generalista**: reduzir o bônus de influência das notícias para +15% (hoje +30% em tudo).
 3. **Empreendedor fraco fora dos negócios** (151–171): considerar +1 de XP por compra de treino ou uma habilidade híbrida.
 4. **Estratégia de gangue com caixa baixo**: avaliar com pessoas se é frustrante; uma opção é a operação coletiva render mais com integrantes de nível alto.
 5. Repetir a calibração das medalhas após cada mudança (`npm run simulate`).
