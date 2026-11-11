@@ -1,0 +1,1359 @@
+/* =====================================================================
+ * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.5
+ * ---------------------------------------------------------------------
+ * Este módulo NÃO acessa o DOM. Ele contém:
+ *   1. Utilitários e gerador aleatório (substituível nos testes).
+ *   2. Tabelas de dados do jogo (missões, bairros, facções, eventos...).
+ *   3. Criação, validação e migração do estado salvo.
+ *   4. Fórmulas derivadas (chances, rendas, controle de bairros).
+ *   5. Ações do jogador (cada uma valida antes de alterar o estado).
+ *   6. Virada do dia (economia, eventos, IA das facções).
+ *   7. Fim de temporada, pontuação, medalhas e conquistas.
+ *
+ * Convenção das ações: recebem o estado `s`, alteram-no somente se a
+ * ação for permitida e devolvem { ok, good, msg, lines? }.
+ *   ok=false  → ação recusada, estado intacto.
+ *   ok=true   → ação executada; good indica sucesso (true) ou fracasso.
+ * Todo o conteúdo é fictício e abstrato: não há instruções reais.
+ * ===================================================================== */
+(function (root) {
+  'use strict';
+
+  const VERSION = '0.5';
+  const SCHEMA = 2;
+  const MAXDAY = 30;
+  const MAX_LOG = 60;
+  const STORAGE_KEY = 'submundo_brasil_v01'; // mantida desde a 0.1 para ler saves antigos
+
+  /* ------------------------------------------------------------------ */
+  /* 1. Utilitários                                                       */
+  /* ------------------------------------------------------------------ */
+  function cryptoRandom() {
+    if (globalThis.crypto && globalThis.crypto.getRandomValues) {
+      const a = new Uint32Array(1);
+      globalThis.crypto.getRandomValues(a);
+      return a[0] / 4294967296;
+    }
+    return Math.random();
+  }
+  /** Gerador determinístico (mulberry32) usado em testes e simulações. */
+  function seeded(seed) {
+    let t = seed >>> 0;
+    return function () {
+      t += 0x6D2B79F5;
+      let r = Math.imul(t ^ (t >>> 15), 1 | t);
+      r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  let rng = cryptoRandom;
+  function setRandom(fn) { rng = typeof fn === 'function' ? fn : cryptoRandom; }
+  const rand = (min, max) => min + Math.floor(rng() * (max - min + 1));
+  const roll = pct => rand(1, 100) <= pct;
+  const pick = arr => arr[rand(0, arr.length - 1)];
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const isNum = v => typeof v === 'number' && Number.isFinite(v);
+  /** Converte em inteiro limitado; usa `def` se o valor não for número. */
+  const toInt = (v, def, min, max) => isNum(v) ? clamp(Math.round(v), min, max) : def;
+  const toNum = (v, def, min, max) => isNum(v) ? clamp(v, min, max) : def;
+  const sum = arr => arr.reduce((a, b) => a + b, 0);
+  function weighted(options) {
+    const total = sum(options.map(o => Math.max(0, o.w)));
+    if (total <= 0) return options[0];
+    let r = rng() * total;
+    for (const o of options) { r -= Math.max(0, o.w); if (r <= 0) return o; }
+    return options[options.length - 1];
+  }
+  const money = n => 'R$ ' + Math.round(n || 0).toLocaleString('pt-BR');
+
+  /* ------------------------------------------------------------------ */
+  /* 2. Dados do jogo                                                     */
+  /* ------------------------------------------------------------------ */
+  const STATS = [
+    { id: 'astucia', name: 'Astúcia', desc: 'Planejamento e leitura de situação. Base das operações discretas.' },
+    { id: 'forca', name: 'Força', desc: 'Preparo físico e presença. Base das ações de cobrança e escolta.' },
+    { id: 'labia', name: 'Lábia', desc: 'Negociação e convencimento. Base dos acordos e da diplomacia.' },
+    { id: 'influencia', name: 'Influência', desc: 'Rede de contatos. Base da disputa por bairros e da gangue.' }
+  ];
+
+  /* Missões: `stat` define o atributo principal; `district` limita a um bairro.
+     difficulty está na escala do "preparo" (ver missionScore). */
+  const MISSIONS = [
+    { id: 'correria', name: 'Serviço suspeito', desc: 'Uma oportunidade duvidosa para quem está começando.', stat: 'astucia', difficulty: 14, cost: 16, low: 150, high: 290, heat: 6, vigil: 5, respect: 2, unlock: 0, arrest: 28, loss: .10, tension: 1 },
+    { id: 'rolo', name: 'Rolo na feira', desc: 'Convencer um atravessador fictício a fechar negócio fora da tabela.', stat: 'labia', difficulty: 16, cost: 18, low: 190, high: 340, heat: 3, vigil: 3, respect: 2, unlock: 6, arrest: 18, loss: .06, tension: 1 },
+    { id: 'mercadoria', name: 'Mercadoria desaparecida', desc: 'Um intermediário paga para reaver uma carga extraviada.', stat: 'forca', difficulty: 19, cost: 23, low: 300, high: 560, heat: 10, vigil: 7, respect: 3, unlock: 0, arrest: 38, loss: .12, tension: 2 },
+    { id: 'cobranca', name: 'Cobrança atrasada', desc: 'Um comerciante quer receber uma dívida antiga. Exige presença.', stat: 'forca', difficulty: 27, cost: 26, low: 420, high: 740, heat: 12, vigil: 6, respect: 4, unlock: 20, arrest: 38, loss: .10, tension: 3 },
+    { id: 'deposito', name: 'Operação no depósito', desc: 'Um plano maior, com mais recompensa e mais vigilância.', stat: 'astucia', difficulty: 33, cost: 32, low: 580, high: 980, heat: 15, vigil: 10, respect: 5, unlock: 32, arrest: 44, loss: .12, tension: 3 },
+    { id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', stat: 'labia', difficulty: 37, cost: 30, low: 680, high: 1120, heat: 8, vigil: 6, respect: 6, unlock: 50, req: { influence: 25 }, arrest: 28, loss: .08, tension: 2 },
+    { id: 'comboio', name: 'Comboio misterioso', desc: 'Uma operação de alto risco que exige gente de confiança.', stat: 'forca', difficulty: 46, cost: 40, low: 1050, high: 1750, heat: 19, vigil: 12, respect: 8, unlock: 75, req: { gang: true }, arrest: 50, loss: .14, tension: 5 },
+    { id: 'cofre', name: 'O grande cofre', desc: 'A missão mais difícil da temporada. Uma vez por dia.', stat: 'astucia', difficulty: 58, cost: 52, low: 1900, high: 3100, heat: 26, vigil: 18, respect: 13, unlock: 120, req: { stat: ['astucia', 22], oncePerDay: true }, arrest: 55, loss: .15, tension: 6 },
+    // Oportunidades exclusivas de bairro
+    { id: 'camelodromo', district: 'centro', name: 'Esquema do camelódromo', desc: 'Organizar a revenda de um lote sem nota no centro comercial.', stat: 'labia', difficulty: 23, cost: 22, low: 330, high: 560, heat: 7, vigil: 8, respect: 3, unlock: 10, arrest: 30, loss: .08, tension: 2 },
+    { id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Um contêiner esquecido nos galpões do porto. Os Armazéns não vão gostar.', stat: 'forca', difficulty: 29, cost: 28, low: 560, high: 900, heat: 12, vigil: 10, respect: 4, unlock: 15, arrest: 40, loss: .12, tension: 5 },
+    { id: 'favor', district: 'jardim', name: 'Favor de vizinhança', desc: 'Resolver um problema de moradores e ganhar contatos. Pouco dinheiro.', stat: 'influencia', difficulty: 12, cost: 18, low: 90, high: 170, heat: 1, vigil: 2, respect: 3, unlock: 0, arrest: 10, loss: .04, tension: 0, influence: 4 },
+    { id: 'galpao', district: 'industrial', name: 'Galpão desativado', desc: 'Material valioso parado num galpão sob patrulha reforçada.', stat: 'astucia', difficulty: 41, cost: 36, low: 900, high: 1500, heat: 18, vigil: 16, respect: 6, unlock: 40, arrest: 50, loss: .14, tension: 3 },
+    { id: 'baile', district: 'vila', name: 'Bastidores do baile', desc: 'Cuidar da “organização paralela” de um baile de rua.', stat: 'labia', difficulty: 22, cost: 22, low: 300, high: 520, heat: 6, vigil: 6, respect: 4, unlock: 12, arrest: 26, loss: .08, tension: 2, festive: true }
+  ];
+
+  const DISTRICTS = [
+    { id: 'centro', name: 'Centro Antigo', desc: 'Comércio intenso e circulação constante de gente.', risk: 0, bonus: 0, tribute: 110, advantage: 'Diálogos com facções +8 e criar contatos 20% mais barato.' },
+    { id: 'cais', name: 'Cais do Norte', desc: 'Galpões, armazéns e uma região portuária em transformação.', risk: 5, bonus: 15, tribute: 140, advantage: 'Operações coletivas rendem +20%.' },
+    { id: 'jardim', name: 'Jardim União', desc: 'Bairro residencial de trabalhadores e pequenos negócios.', risk: -4, bonus: -10, tribute: 70, advantage: 'Recrutar custa 25% menos e a equipe ganha +2 de ânimo por dia.' },
+    { id: 'industrial', name: 'Distrito Industrial', desc: 'Grandes empresas e patrulhamento reforçado.', risk: 10, bonus: 28, tribute: 160, advantage: 'Todos os seus negócios rendem +12%.' },
+    { id: 'vila', name: 'Vila das Palmeiras', desc: 'Ruas movimentadas e comércio de bairro.', risk: -2, bonus: 4, tribute: 90, advantage: 'Sua vigilância cai 5 pontos extras por dia.' }
+  ];
+
+  /* Negócios: cada um fica em um bairro e sofre a economia e as facções locais. */
+  const BUSINESSES = [
+    { id: 'bar', name: 'Bar da Esquina', district: 'vila', desc: 'Ponto de encontro. Lucra muito em festas e jogos.', cost: 1250, net: 70, respect: 3, tags: ['festa', 'jogo'] },
+    { id: 'oficina', name: 'Oficina de Motos', district: 'jardim', desc: 'Clientela recorrente e estável.', cost: 2850, net: 150, respect: 6, tags: [] },
+    { id: 'mercado', name: 'Mercadinho 24h', district: 'centro', desc: 'Renda regular, sensível a crises.', cost: 5200, net: 270, respect: 10, tags: ['varejo'] },
+    { id: 'logistica', name: 'Depósito de Logística', district: 'industrial', desc: 'Armazenagem para o comércio. Retorno alto, patrulha forte.', cost: 7400, net: 380, respect: 12, tags: [] },
+    { id: 'show', name: 'Casa de Shows', district: 'cais', desc: 'Maior investimento. Explode no Carnaval.', cost: 9700, net: 500, respect: 17, tags: ['festa'] }
+  ];
+  const RESALE = 0.6;
+
+  const CAREERS = [
+    { id: 'operador', name: 'Operador', desc: '+6 de chance nas missões e as falhas custam 30% menos caixa. Vigilância gerada +10% e negócios rendem -10%.',
+      xpDesc: 'Ganha experiência concluindo missões (mais nas difíceis).',
+      perks: ['Rota de fuga: -15 pontos na chance de detenção.', 'Ritmo de rua: penalidade por repetir missões cai pela metade.', 'Sangue frio: a vigilância pesa metade nas chances; o cofre exige Astúcia 18.'] },
+    { id: 'articulador', name: 'Articulador', desc: '+30% de influência, +8 nos diálogos e +5 em disputas e confrontos. Recompensas de missões -10%.',
+      xpDesc: 'Ganha experiência com contatos, diálogos, acordos e notícias.',
+      perks: ['Rede de contatos: criar contatos custa 30% menos.', 'Mediador: tréguas duram 5 dias e alianças custam 40% menos.', 'Voz do bairro: tributo dos bairros +60% e metade das retaliações é evitada.'] },
+    { id: 'empreendedor', name: 'Empreendedor', desc: 'Negócios rendem +25% e custam 12% menos. Chance nas missões -3.',
+      xpDesc: 'Ganha experiência a cada dia lucrativo e a cada negócio comprado.',
+      perks: ['Contador: taxa de depósito bancário cai de 3% para 1%.', 'Fornecedores: crises e extorsões afetam metade dos seus negócios.', 'Sócio oculto: o banco rende 0,4% ao dia (até R$ 120).'] }
+  ];
+  const CAREER_XP = [10, 25, 45];
+
+  const GOALS = [
+    { id: 'capital', name: 'Patrimônio', desc: 'Alcançar R$ 18.000 de patrimônio (caixa, banco e valor de revenda dos negócios).' },
+    { id: 'renome', name: 'Renome', desc: 'Alcançar 130 de respeito e 25 missões concluídas.' },
+    { id: 'dominio', name: 'Territórios', desc: 'Somar 12 dias liderando bairros (um bairro por 12 dias ou vários ao mesmo tempo).' },
+    { id: 'diplomacia', name: 'Diplomacia', desc: 'Firmar 3 acordos (tréguas ou aliança) e terminar com relação +50 com 2 grupos.' },
+    { id: 'bonde', name: 'Bonde forte', desc: 'Ter 5 integrantes e concluir 8 operações coletivas.' }
+  ];
+
+  const ROLES = [
+    { id: 'musculo', name: 'Músculo', desc: '+confrontos e operações coletivas.' },
+    { id: 'olheiro', name: 'Olheiro', desc: '-detenção e -vigilância nas operações.' },
+    { id: 'negociador', name: 'Negociador', desc: '+diálogos e +influência ao criar contatos.' }
+  ];
+  const NICKNAMES = ['Baixinho', 'Magrão', 'Tico', 'Careca', 'Ligeirinho', 'Bigode', 'Dentinho', 'Tatu', 'Pardal', 'Juju', 'Nena', 'Lia', 'Biscoito', 'Coruja', 'Mocotó', 'Faísca', 'Chiclete', 'Tampinha', 'Sabiá', 'Paçoca', 'Quindim', 'Cabeção', 'Maré', 'Brisa', 'Tainha', 'Zóio', 'Gringo', 'Cuíca'];
+
+  /* Facções: personalidade define pesos da IA (0 a 1). */
+  const FACTIONS = [
+    { id: 'esquina', name: 'Círculo da Esquina', short: 'Esquina', districts: ['centro', 'vila'], initialRelation: -10, temperament: 0,
+      desc: 'Grupo antigo que preza reputação e acordos de palavra. Honra tréguas, mas não esquece traições.',
+      persona: { label: 'Tradicional', aggr: .45, expand: .5, diplo: .8, honor: .95, opportunism: .15, pressure: 'extorsao' } },
+    { id: 'docas', name: 'Frente dos Armazéns', short: 'Armazéns', districts: ['cais', 'industrial'], initialRelation: -20, temperament: 10,
+      desc: 'Organização pragmática e expansionista dos galpões. Reage com força e testa quem parece fraco.',
+      persona: { label: 'Expansionista', aggr: .9, expand: .85, diplo: .3, honor: .45, opportunism: .5, pressure: 'ataque' } },
+    { id: 'aurora', name: 'Coletivo Aurora', short: 'Aurora', districts: ['jardim'], initialRelation: 0, temperament: -10,
+      desc: 'Rede de intermediários que prefere influência silenciosa. Avança onde você não está e muda de lado quando convém.',
+      persona: { label: 'Oportunista', aggr: .3, expand: .75, diplo: .6, honor: .25, opportunism: .9, pressure: 'denuncia' } }
+  ];
+  /* Inimizades entre facções (usadas na IA e no apoio de aliados). */
+  const FACTION_ENEMY = { esquina: 'docas', docas: 'esquina', aurora: 'docas' };
+
+  /* Eventos: mods são números ou funções (ctx, evento) → número.
+     Chaves terminadas em Mult multiplicam; demais somam. */
+  const inD = (e, c, v) => (c && c.district === e.district) ? v : 0;
+  const EVENTS = {
+    rotina: { title: 'Rotina normal', desc: 'Sem acontecimentos importantes. A cidade segue seu ritmo.', dur: [1, 1], weight: 4, mods: {} },
+    movimentado: { title: 'Dia movimentado', desc: 'Comércio aquecido: missões rendem +12% em toda a cidade.', dur: [1, 1], weight: 3, mods: { reward: 12 } },
+    fiscalizacao: { title: 'Fiscalização reforçada', desc: 'Missões com -8 de chance e vigilância gerada +20%.', dur: [2, 2], weight: 3, mods: { risk: 8, heatMult: 1.2 } },
+    festival: { title: 'Festival de rua', desc: 'Missões +9%, risco +4. Bar e Casa de Shows lucram +30%.', dur: [1, 1], weight: 2, mods: { reward: 9, risk: 4, bizMult: c => c.biz && c.biz.tags.includes('festa') ? 1.3 : 1 } },
+    patrulhas: { title: 'Patrulhas reduzidas', desc: 'Risco -7 nas missões e vigilância cai 5 extras.', dur: [1, 1], weight: 2, mods: { risk: -7, heatDecay: 5 } },
+    comercio: { title: 'Semana de comércio', desc: 'Missões +6% e todos os negócios +12% por 3 dias.', dur: [3, 3], weight: 2, mods: { reward: 6, bizMult: 1.12 } },
+    carnaval: { title: 'Carnaval', desc: 'Blocos nas ruas: missões no Centro e na Vila +25% (demais +8%), risco +4, multidões escondem (vigilância gerada -10%). Bar +60% e Casa de Shows +80%. Equipe +3 de ânimo por dia.', dur: [3, 3], fixed: 9, weight: 0,
+      mods: { reward: c => (c.district === 'centro' || c.district === 'vila') ? 25 : 8, risk: 4, heatMult: .9, morale: 3, bizMult: c => c.biz ? (c.biz.id === 'show' ? 1.8 : c.biz.id === 'bar' ? 1.6 : 1) : 1, festive: 1 } },
+    classico: { title: 'Clássico no estádio', desc: 'A cidade para pelo futebol: Bar +100%, Casa de Shows +40%, risco +8 no Centro e equipe +5 de ânimo.', dur: [1, 1], fixed: 20, weight: 0,
+      mods: { risk: c => c.district === 'centro' ? 8 : 0, morale: 5, bizMult: c => c.biz ? (c.biz.id === 'bar' ? 2 : c.biz.id === 'show' ? 1.4 : 1) : 1 } },
+    saojoao: { title: 'Arraial no Jardim União', desc: 'Festa junina: missões no Jardim +20%, economia local em alta, Oficina +20% e equipe +2 de ânimo.', dur: [2, 2], weight: 1, district: 'jardim',
+      mods: { reward: (c, e) => inD(e, c, 20), econ: (c, e) => inD(e, c, .15), morale: 2, bizMult: c => c.biz && c.biz.id === 'oficina' ? 1.2 : 1, festive: 1 } },
+    crise: { title: 'Crise no comércio', desc: 'Economia em queda por 4 dias: negócios -25%, missões -8%, bicos -20%. Em compensação, recrutar custa 30% menos.', dur: [4, 4], weight: 1,
+      mods: { econ: -.2, bizMult: .75, reward: -8, recruitMult: .7, gigMult: .8, crisis: 1 } },
+    operacao: { title: 'Operação policial em {d}', desc: 'Vigilância local +35 ao começar e risco +15 no bairro por 2 dias.', dur: [2, 2], weight: 2, randomDistrict: true,
+      onStart: (s, e) => { s.dstate[e.district].vigil = clamp(s.dstate[e.district].vigil + 35, 0, 100); },
+      mods: { risk: (c, e) => inD(e, c, 15), heatMult: 1 } },
+    greve: { title: 'Greve no porto', desc: 'Cais do Norte com economia -30% e missões -20% por 3 dias. A Frente dos Armazéns perde força.', dur: [3, 3], weight: 1, district: 'cais',
+      onStart: s => { s.factions.docas.power = clamp(s.factions.docas.power - 8, 10, 100); },
+      mods: { econ: (c, e) => inD(e, c, -.3), reward: (c, e) => inD(e, c, -20) } },
+    guerra: { title: 'Guerra entre facções em {d}', desc: 'Facções se enfrentam: disputas e confrontos no bairro +12, risco local +6.', dur: [2, 2], weight: 0,
+      mods: { dispute: (c, e) => inD(e, c, 12), risk: (c, e) => inD(e, c, 6) } },
+    feriadao: { title: 'Feriadão prolongado', desc: 'Por 3 dias: +15 de energia ao amanhecer e negócios +15%. Missões -5%.', dur: [3, 3], weight: 1, mods: { energy: 15, bizMult: 1.15, reward: -5 } },
+    eleicao: { title: 'Eleição municipal', desc: 'Por 4 dias: risco +5 e ações de influência +40%.', dur: [4, 4], weight: 1, mods: { risk: 5, influenceMult: 1.4 } },
+    temporal: { title: 'Temporal de verão', desc: 'Chuva forte: missões -10%, risco -5 e -10 de energia ao amanhecer.', dur: [1, 1], weight: 2, mods: { reward: -10, risk: -5, energy: -10 } }
+  };
+  /* Mapeia o antigo eventIndex (0.1–0.4) para os eventos atuais. */
+  const LEGACY_EVENTS = ['movimentado', 'fiscalizacao', 'festival', 'rotina', 'patrulhas', 'comercio'];
+
+  /* Notícias com decisões. `when` limita quando podem aparecer. */
+  const NEWS = [
+    { id: 'feira', name: 'Feira do bairro', desc: 'O comércio local organiza uma feira. Seu apoio pode melhorar seus contatos.', choices: [
+      { label: 'Patrocinar a feira', desc: 'R$ 180 · +14 influência local · +2 respeito', cash: 180, influence: 14, respect: 2 },
+      { label: 'Ajudar na montagem', desc: '25 energia · +R$ 90 · +7 influência local', energy: 25, influence: 7, money: 90 }] },
+    { id: 'fiscalizacao', name: 'Boletim de fiscalização', desc: 'A cidade intensificou a fiscalização. Há caminhos para reduzir sua exposição.', choices: [
+      { label: 'Contratar assessoria jurídica', desc: 'R$ 260 · -24 vigilância', cash: 260, heat: -24 },
+      { label: 'Diminuir o ritmo', desc: '18 energia · -12 vigilância', energy: 18, heat: -12 }] },
+    { id: 'boatos', name: 'Rumores na vizinhança', desc: 'O grupo que lidera o bairro espalha boatos sobre você.', choices: [
+      { label: 'Organizar reunião', desc: 'R$ 160 e 12 energia · +12 influência · presença rival -8 · relação +6', cash: 160, energy: 12, influence: 12, rival: -8, relation: 6 },
+      { label: 'Responder publicamente', desc: '18 energia · +4 respeito · +10 vigilância · presença rival +6 · tensão +8', energy: 18, respect: 4, heat: 10, rival: 6, tension: 8 }] },
+    { id: 'festival', name: 'Festival da cidade', desc: 'Um festival movimenta clientes e abre oportunidades.', choices: [
+      { label: 'Investir em barracas', desc: 'R$ 320 agora · R$ 480 amanhã', cash: 320, nextBonus: 480, notLastDay: true },
+      { label: 'Ajudar na produção', desc: '25 energia · +R$ 150 · +6 influência', energy: 25, money: 150, influence: 6 }] },
+    { id: 'comercio', name: 'Convite de comerciantes', desc: 'Uma associação comercial pede apoio para reorganizar a região.', choices: [
+      { label: 'Apoiar a associação', desc: 'R$ 240 · +10 influência · presença rival -4', cash: 240, influence: 10, rival: -4 },
+      { label: 'Oferecer seu tempo', desc: '20 energia · +6 influência · -5 vigilância', energy: 20, influence: 6, heat: -5 }] },
+    { id: 'informante', name: 'Informante de confiança', desc: 'Alguém oferece dicas sobre a rotina da cidade.', choices: [
+      { label: 'Pagar pela dica', desc: 'R$ 250 · próxima missão hoje ou amanhã +12 de chance', cash: 250, tip: 2 },
+      { label: 'Desconfiar', desc: 'Sem custo · -4 vigilância', heat: -4 }] },
+    { id: 'insatisfacao', name: 'Integrantes reclamam', desc: 'Sua equipe está desanimada e cobra reconhecimento.', when: s => !!s.gangName && s.crewMorale < 50 && s.crew.length > 0, choices: [
+      { label: 'Pagar uma gratificação', desc: 'R$ 60 por integrante · +20 ânimo', cashPerMember: 60, morale: 20 },
+      { label: 'Conversar com o grupo', desc: '15 energia · +8 ânimo (Articulador +16)', energy: 15, morale: 8 }] },
+    { id: 'sociedade', name: 'Proposta de sociedade', desc: 'Um comerciante oferece participação num negócio de bairro.', when: s => s.businesses.length > 0 || s.career === 'empreendedor', choices: [
+      { label: 'Investir R$ 800', desc: '+R$ 95 por dia durante 10 dias (sujeito à economia)', cash: 800, contract: { daily: 95, days: 10 } },
+      { label: 'Recusar', desc: 'Sem custo', none: true }] },
+    { id: 'aliado', name: 'Seu aliado pede apoio', desc: 'Um grupo aliado precisa de ajuda contra um rival.', when: s => FACTIONS.some(f => s.factions[f.id].allied), choices: [
+      { label: 'Mandar ajuda', desc: 'R$ 300 e 15 energia · relação +12 · inimigo do aliado: tensão +10', cash: 300, energy: 15, allyHelp: true },
+      { label: 'Negar ajuda', desc: 'Relação com o aliado -20 (a aliança pode acabar)', allyRefuse: true }] },
+    { id: 'oferta', name: 'Proposta de acordo', desc: 'Um grupo rival manda um recado propondo um acordo.', offer: true, choices: [
+      { label: 'Aceitar o acordo', desc: 'Trégua de 3 dias sem custo · relação +5', acceptOffer: true },
+      { label: 'Recusar', desc: 'Relação -5', declineOffer: true }] }
+  ];
+
+  const CATEGORIES = [
+    { id: 'fortuna', name: 'Fortuna', desc: 'Patrimônio final (caixa, banco e revenda dos negócios).', unit: 'money', tiers: [11000, 17000, 24000] },
+    { id: 'fama', name: 'Fama', desc: 'Respeito acumulado na temporada.', unit: 'num', tiers: [110, 160, 220] },
+    { id: 'territorio', name: 'Território', desc: 'Soma dos dias liderando bairros.', unit: 'num', tiers: [10, 25, 45] },
+    { id: 'diplomacia', name: 'Diplomacia', desc: 'Acordos, alianças, diálogos e boas relações.', unit: 'num', tiers: [35, 70, 110] },
+    { id: 'gangue', name: 'Gangue', desc: 'Operações coletivas, confrontos vencidos e experiência da equipe.', unit: 'num', tiers: [40, 90, 140] }
+  ];
+  const MEDALS = ['—', 'Bronze', 'Prata', 'Ouro'];
+
+  const ACHIEVEMENTS = [
+    { id: 'primeira', name: 'Primeiro passo', desc: 'Concluir a primeira missão.' },
+    { id: 'cofre', name: 'O grande golpe', desc: 'Concluir “O grande cofre”.' },
+    { id: 'dono', name: 'Dono do pedaço', desc: 'Liderar um bairro.' },
+    { id: 'tres', name: 'Três bandeiras', desc: 'Liderar 3 bairros ao mesmo tempo.' },
+    { id: 'diplomata', name: 'Diplomata', desc: 'Firmar 3 tréguas na mesma temporada.' },
+    { id: 'alianca', name: 'Palavra empenhada', desc: 'Formar uma aliança.' },
+    { id: 'traidor', name: 'Sem palavra', desc: 'Romper um acordo com uma facção.' },
+    { id: 'empresario', name: 'Rede de negócios', desc: 'Possuir 4 negócios ao mesmo tempo.' },
+    { id: 'cofrecheio', name: 'Cofre cheio', desc: 'Atingir R$ 35.000 de patrimônio.' },
+    { id: 'bonde', name: 'Bonde completo', desc: 'Ter 8 integrantes.' },
+    { id: 'veterano', name: 'Veterano', desc: 'Ter um integrante no nível 5.' },
+    { id: 'fichalimpa', name: 'Ficha limpa', desc: 'Encerrar uma temporada sem ser detido.' },
+    { id: 'ouro', name: 'Medalha de ouro', desc: 'Ganhar ouro em qualquer categoria.' },
+    { id: 'versatil', name: 'Versátil', desc: 'Medalhas em 3 categorias na mesma temporada.' },
+    { id: 'determinado', name: 'Determinação', desc: 'Cumprir 3 metas de temporada.' },
+    { id: 'fianca', name: 'Porta da frente', desc: 'Pagar fiança para sair da detenção.' },
+    { id: 'virada', name: 'Virada', desc: 'Vencer um confronto com chance de 40% ou menos.' },
+    { id: 'mestre', name: 'Mestre da carreira', desc: 'Alcançar o nível 3 da especialização.' }
+  ];
+
+  /* ------------------------------------------------------------------ */
+  /* 3. Estado: criação, validação e migração                            */
+  /* ------------------------------------------------------------------ */
+  const startFactions = () => Object.fromEntries(FACTIONS.map(f => [f.id, {
+    relation: f.initialRelation, tension: 20 + f.temperament, truceUntil: 0, lastActionDay: 0,
+    power: 50, grudge: 0, allied: false, allyDays: 0, lastMove: '', deals: 0, cooldown: 0
+  }]));
+  const startGangStats = () => ({ confrontWins: 0, confrontLosses: 0, pacts: 0, dialogs: 0, retaliations: 0, groupWins: 0, alliances: 0, betrayals: 0 });
+  const initialInfluence = () => Object.fromEntries(DISTRICTS.map(d => [d.id, d.id === 'centro' ? 8 : 0]));
+  /** Presença das facções por bairro. O dono herda o antigo "rival" da 0.4. */
+  const initialPresence = (legacyRivals) => Object.fromEntries(DISTRICTS.map((d, i) => {
+    const owner = factionFor(d.id).id;
+    return [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, f.id === owner ? (legacyRivals && isNum(legacyRivals[d.id]) ? clamp(Math.round(legacyRivals[d.id]), 0, 100) : 22 + i * 3) : (f.id === 'aurora' ? 4 : 2)]))];
+  }));
+  const initialDistrictState = () => Object.fromEntries(DISTRICTS.map(d => [d.id, { vigil: 0, econ: 1 }]));
+  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0 });
+  const emptySeasonStats = () => ({ arrests: 0, startRespect: 5, bailPaid: 0, controlDays: Object.fromEntries(DISTRICTS.map(d => [d.id, 0])), bestCash: 0 });
+
+  function factionFor(districtId) { return FACTIONS.find(f => f.districts.includes(districtId)) || FACTIONS[0]; }
+
+  function defaultState(name, city) {
+    return {
+      schema: SCHEMA, version: VERSION, name, city, season: 1, day: 1,
+      cash: 1900, bank: 0, energy: 100, heat: 0, respect: 5,
+      stats: { astucia: 6, forca: 4, labia: 4, influencia: 3 },
+      district: 'centro', jail: 0, businesses: [], gangName: null, gangLevel: 0,
+      successful: 0, failed: 0, seasonHistory: [],
+      log: [{ day: 1, msg: 'Você chegou à cidade com algum dinheiro, poucos contatos e muita ambição.' }],
+      career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
+      influence: initialInfluence(), presence: initialPresence(null), dstate: initialDistrictState(),
+      events: [{ id: 'rotina', start: 1, until: 1, district: null }],
+      newsPending: { id: 'feira', day: 1 }, lastEvent: 'rotina', nextBonus: 0, tip: 0, contracts: [], extorted: {},
+      crew: [], crewMorale: 0, crewLastRecruit: 0, crewLastRally: 0, nextMemberId: 1,
+      factions: startFactions(), gangStats: startGangStats(), treachery: 0,
+      today: emptyToday(), seasonStats: emptySeasonStats(),
+      achievements: {}, prestige: 0, nemesis: null, records: {}
+    };
+  }
+
+  /**
+   * Verificação estrutural mínima. Saves que passam aqui são então
+   * higienizados campo a campo por normalizeSave (nada é confiado).
+   * Retorna '' se aceitável ou o motivo da recusa.
+   */
+  function structuralProblem(obj) {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return 'O arquivo não contém um salvamento.';
+    if (obj.schema !== 1 && obj.schema !== 2) return 'Versão de salvamento desconhecida (schema ' + String(obj.schema).slice(0, 10) + ').';
+    if (typeof obj.name !== 'string' || obj.name.trim().length < 2 || obj.name.length > 22) return 'Codinome ausente ou inválido.';
+    if (typeof obj.city !== 'string' || obj.city.length > 40) return 'Cidade de origem inválida.';
+    if (!Number.isInteger(obj.day) || obj.day < 1 || obj.day > MAXDAY) return 'Dia da temporada inválido.';
+    if (!Number.isInteger(obj.season) || obj.season < 1 || obj.season > 9999) return 'Número da temporada inválido.';
+    if (!obj.stats || typeof obj.stats !== 'object') return 'Atributos ausentes.';
+    if (!Array.isArray(obj.businesses) || !Array.isArray(obj.log)) return 'Listas obrigatórias ausentes.';
+    return '';
+  }
+  function validate(obj) { return structuralProblem(obj) === ''; }
+
+  const cleanText = (v, max) => typeof v === 'string' ? v.replace(/[\u0000-\u001f]/g, ' ').slice(0, max) : '';
+
+  /**
+   * Converte qualquer save aceito (schema 1 da 0.1–0.4 ou schema 2) em um
+   * estado 0.5 íntegro. Valores fora de faixa são limitados; campos
+   * desconhecidos são descartados. Retorna { state, notes }.
+   */
+  function normalizeSave(saved) {
+    const notes = [];
+    const base = defaultState(cleanText(saved.name, 22).trim(), cleanText(saved.city, 40) || 'Rio de Janeiro');
+    const s = base;
+    const fromV04 = saved.schema === 1;
+    if (fromV04) notes.push('Salvamento da versão 0.4 (ou anterior) convertido para a 0.5.');
+    s.season = saved.season; s.day = saved.day;
+    const BIG = 1e12;
+    for (const k of ['cash', 'bank', 'respect', 'successful', 'failed', 'goalWins', 'prestige', 'treachery']) {
+      const v = toInt(saved[k], base[k], 0, BIG);
+      if (isNum(saved[k]) && v !== saved[k]) notes.push(`Campo “${k}” ajustado para ${v}.`);
+      s[k] = v;
+    }
+    s.energy = toInt(saved.energy, 100, 0, 100);
+    s.heat = toInt(saved.heat, 0, 0, 100);
+    s.jail = toInt(saved.jail, 0, 0, 5);
+    s.gangLevel = toInt(saved.gangLevel, 0, 0, 8);
+    for (const st of STATS) s.stats[st.id] = toInt(saved.stats[st.id], base.stats[st.id], 1, 1e6);
+    s.district = DISTRICTS.some(d => d.id === saved.district) ? saved.district : 'centro';
+    const biz = [...new Set(saved.businesses.filter(id => BUSINESSES.some(b => b.id === id)))];
+    if (biz.length !== saved.businesses.length) notes.push('Negócios inválidos ou repetidos foram removidos.');
+    s.businesses = biz;
+    s.gangName = typeof saved.gangName === 'string' && saved.gangName.trim().length >= 3 ? cleanText(saved.gangName, 25).trim() : null;
+    if (!s.gangName) s.gangLevel = 0;
+    else s.gangLevel = Math.max(1, s.gangLevel);
+    s.career = CAREERS.some(c => c.id === saved.career) ? saved.career : null;
+    s.careerXP = toInt(saved.careerXP, fromV04 && s.career ? Math.min(20, Math.floor(s.successful / 2)) : 0, 0, 9999);
+    s.goal = GOALS.some(g => g.id === saved.goal) ? saved.goal : null;
+    s.goalDone = s.goal ? saved.goalDone === true : false;
+    s.log = saved.log.filter(x => x && typeof x.msg === 'string').slice(0, MAX_LOG)
+      .map(x => ({ day: toInt(x.day, 1, 1, MAXDAY), msg: cleanText(x.msg, 400) }));
+    if (!s.log.length) s.log = [{ day: s.day, msg: 'Registro restaurado.' }];
+    s.seasonHistory = (Array.isArray(saved.seasonHistory) ? saved.seasonHistory : []).filter(h => h && typeof h === 'object').slice(-200).map(h => ({
+      season: toInt(h.season, 0, 0, 9999), respect: toInt(h.respect, 0, 0, BIG), money: toInt(h.money, 0, 0, BIG),
+      success: toInt(h.success, 0, 0, BIG), failed: toInt(h.failed, 0, 0, BIG),
+      goal: GOALS.some(g => g.id === h.goal) ? h.goal : null, goalComplete: h.goalComplete === true,
+      career: CAREERS.some(c => c.id === h.career) ? h.career : null, districts: toInt(h.districts, 0, 0, 5),
+      gangName: typeof h.gangName === 'string' ? cleanText(h.gangName, 25) : null,
+      confrontWins: toInt(h.confrontWins, 0, 0, BIG), pacts: toInt(h.pacts, 0, 0, BIG), groupWins: toInt(h.groupWins, 0, 0, BIG),
+      score: toInt(h.score, 0, 0, BIG), title: typeof h.title === 'string' ? cleanText(h.title, 40) : '',
+      medals: h.medals && typeof h.medals === 'object' ? Object.fromEntries(CATEGORIES.map(c => [c.id, toInt(h.medals[c.id], 0, 0, 3)])) : null
+    }));
+    s.influence = Object.fromEntries(DISTRICTS.map(d => [d.id, toInt(saved.influence && saved.influence[d.id], base.influence[d.id], 0, 100)]));
+    // Presença das facções: schema 2 usa presence; schema 1 usa rivals.
+    if (saved.presence && typeof saved.presence === 'object') {
+      s.presence = Object.fromEntries(DISTRICTS.map(d => [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, toInt(saved.presence[d.id] && saved.presence[d.id][f.id], base.presence[d.id][f.id], 0, 100)]))]));
+    } else s.presence = initialPresence(saved.rivals);
+    s.dstate = Object.fromEntries(DISTRICTS.map(d => {
+      const o = saved.dstate && saved.dstate[d.id] || {};
+      return [d.id, { vigil: toInt(o.vigil, 0, 0, 100), econ: toNum(o.econ, 1, .6, 1.4) }];
+    }));
+    // Eventos ativos
+    if (Array.isArray(saved.events)) {
+      s.events = saved.events.filter(e => e && EVENTS[e.id]).slice(0, 6).map(e => ({
+        id: e.id, start: toInt(e.start, s.day, 1, MAXDAY), until: toInt(e.until, s.day, 1, MAXDAY),
+        district: DISTRICTS.some(d => d.id === e.district) ? e.district : null
+      })).filter(e => e.until >= s.day);
+      for (const e of s.events) if ((EVENTS[e.id].randomDistrict || EVENTS[e.id].district || e.id === 'guerra') && !e.district) e.district = EVENTS[e.id].district || 'centro';
+    } else {
+      const legacy = LEGACY_EVENTS[toInt(saved.eventIndex, 3, 0, LEGACY_EVENTS.length - 1)];
+      s.events = [{ id: legacy, start: s.day, until: s.day, district: null }];
+    }
+    // Notícias e ofertas
+    const np = saved.newsPending;
+    s.newsPending = (np && NEWS.some(n => n.id === np.id) && np.day === s.day) ? { id: np.id, day: s.day, faction: FACTIONS.some(f => f.id === np.faction) ? np.faction : null } : null;
+    if (s.newsPending && s.newsPending.id === 'oferta' && !s.newsPending.faction) s.newsPending = null;
+    s.lastEvent = EVENTS[saved.lastEvent] ? saved.lastEvent : 'rotina';
+    s.nextBonus = toInt(saved.nextBonus, 0, 0, 100000);
+    s.tip = toInt(saved.tip, 0, 0, 2);
+    s.contracts = (Array.isArray(saved.contracts) ? saved.contracts : []).slice(0, 5).map(c => ({ daily: toInt(c && c.daily, 0, 0, 1000), days: toInt(c && c.days, 0, 0, 30) })).filter(c => c.daily > 0 && c.days > 0);
+    s.extorted = {};
+    if (saved.extorted && typeof saved.extorted === 'object') for (const b of BUSINESSES) if (isNum(saved.extorted[b.id])) s.extorted[b.id] = toInt(saved.extorted[b.id], 0, 0, MAXDAY);
+    // Equipe: schema 1 só tinha crewSize → gera integrantes.
+    s.nextMemberId = toInt(saved.nextMemberId, 1, 1, 1e6);
+    if (s.gangName) {
+      if (Array.isArray(saved.crew)) {
+        s.crew = saved.crew.filter(m => m && ROLES.some(r => r.id === m.role)).slice(0, 8).map((m, i) => ({
+          id: isNum(m.id) ? toInt(m.id, 1, 1, 1e6) : 100000 + i, name: cleanText(m.name, 20) || pick(NICKNAMES), role: m.role,
+          level: toInt(m.level, 1, 1, 5), xp: toInt(m.xp, 0, 0, 100)
+        }));
+      } else {
+        const n = toInt(saved.crewSize, 2, 2, 8);
+        s.crew = [];
+        for (let i = 0; i < n; i++) s.crew.push(newMember(s, ROLES[i % ROLES.length].id, i));
+        notes.push(`Sua equipe de ${n} integrante(s) recebeu nomes e funções.`);
+      }
+      s.crewMorale = toInt(saved.crewMorale, 70, 0, 100);
+      s.nextMemberId = Math.max(s.nextMemberId, ...s.crew.map(m => m.id + 1));
+    } else { s.crew = []; s.crewMorale = 0; }
+    s.crewLastRecruit = toInt(saved.crewLastRecruit, 0, 0, MAXDAY);
+    s.crewLastRally = toInt(saved.crewLastRally, 0, 0, MAXDAY);
+    s.factions = Object.fromEntries(FACTIONS.map(f => {
+      const o = saved.factions && saved.factions[f.id] || {};
+      const b = startFactions()[f.id];
+      return [f.id, {
+        relation: toInt(o.relation, b.relation, -100, 100), tension: toInt(o.tension, b.tension, 0, 100),
+        truceUntil: toInt(o.truceUntil, 0, 0, MAXDAY), lastActionDay: toInt(o.lastActionDay, 0, 0, MAXDAY),
+        power: toInt(o.power, 50, 10, 100), grudge: toInt(o.grudge, 0, 0, 10), allied: o.allied === true && !!s.gangName,
+        allyDays: toInt(o.allyDays, 0, 0, 999), lastMove: cleanText(o.lastMove, 160),
+        deals: toInt(o.deals, 0, 0, 99), cooldown: toInt(o.cooldown, 0, 0, MAXDAY + 5)
+      }];
+    }));
+    s.gangStats = Object.fromEntries(Object.keys(startGangStats()).map(k => [k, toInt(saved.gangStats && saved.gangStats[k], 0, 0, 10000)]));
+    s.today = emptyToday();
+    if (saved.today && typeof saved.today === 'object') {
+      for (const m of MISSIONS) if (isNum(saved.today.missions && saved.today.missions[m.id])) s.today.missions[m.id] = toInt(saved.today.missions[m.id], 0, 0, 99);
+      for (const d of DISTRICTS) if (isNum(saved.today.contacts && saved.today.contacts[d.id])) s.today.contacts[d.id] = toInt(saved.today.contacts[d.id], 0, 0, 9);
+      s.today.op = saved.today.op === true;
+      s.today.training = toInt(saved.today.training, 0, 0, 9);
+    }
+    const ss = saved.seasonStats || {};
+    s.seasonStats = {
+      arrests: toInt(ss.arrests, 0, 0, 999), startRespect: toInt(ss.startRespect, 5, 0, BIG), bailPaid: toInt(ss.bailPaid, 0, 0, 999),
+      controlDays: Object.fromEntries(DISTRICTS.map(d => [d.id, toInt(ss.controlDays && ss.controlDays[d.id], 0, 0, MAXDAY)])),
+      bestCash: toInt(ss.bestCash, 0, 0, BIG)
+    };
+    s.achievements = {};
+    if (saved.achievements && typeof saved.achievements === 'object') for (const a of ACHIEVEMENTS) if (isNum(saved.achievements[a.id])) s.achievements[a.id] = toInt(saved.achievements[a.id], 1, 1, 9999);
+    s.nemesis = FACTIONS.some(f => f.id === saved.nemesis) ? saved.nemesis : null;
+    s.records = {};
+    if (saved.records && typeof saved.records === 'object') for (const c of CATEGORIES) if (isNum(saved.records[c.id])) s.records[c.id] = toInt(saved.records[c.id], 0, 0, BIG);
+    s.schema = SCHEMA; s.version = VERSION;
+    return { state: s, notes };
+  }
+
+  /** Lê um texto JSON (localStorage ou arquivo) e devolve {ok, state, notes, error}. */
+  function parseSave(text) {
+    let obj;
+    try { obj = JSON.parse(text); } catch (e) { return { ok: false, error: 'O conteúdo não é um JSON válido (arquivo corrompido ou incompleto).' }; }
+    if (obj && obj.game === 'Submundo Brasil' && obj.save) obj = obj.save; // formato de exportação
+    const problem = structuralProblem(obj);
+    if (problem) return { ok: false, error: problem };
+    try { const r = normalizeSave(obj); return { ok: true, state: r.state, notes: r.notes }; }
+    catch (e) { return { ok: false, error: 'Falha ao converter o salvamento: ' + e.message }; }
+  }
+  /** Soma de verificação simples (FNV-1a) para detectar arquivos alterados. */
+  function checksum(text) { let h = 0x811c9dc5; for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16); }
+  function exportPayload(s) { const save = JSON.stringify(s); return { game: 'Submundo Brasil', version: VERSION, exportedAt: new Date().toISOString(), checksum: checksum(save), save: s }; }
+
+  /* ------------------------------------------------------------------ */
+  /* 4. Fórmulas derivadas                                                */
+  /* ------------------------------------------------------------------ */
+  const district = (s, id) => DISTRICTS.find(d => d.id === (id || s.district)) || DISTRICTS[0];
+  const faction = id => FACTIONS.find(f => f.id === id);
+  const business = id => BUSINESSES.find(b => b.id === id);
+  const mission = id => MISSIONS.find(m => m.id === id);
+  const careerLevel = s => s.career ? CAREER_XP.filter(x => s.careerXP >= x).length : 0;
+  const hasPerk = (s, c, lvl) => s.career === c && careerLevel(s) >= lvl;
+  const pactActive = (s, fid) => s.day <= s.factions[fid].truceUntil;
+  const agreement = (s, fid) => pactActive(s, fid) || s.factions[fid].allied;
+
+  function log(s, msg) { s.log.unshift({ day: s.day, msg }); s.log = s.log.slice(0, MAX_LOG); }
+
+  /** Eventos válidos hoje, com definição. */
+  function activeEvents(s) { return s.events.filter(e => e.start <= s.day && e.until >= s.day && EVENTS[e.id]).map(e => ({ ...e, def: EVENTS[e.id] })); }
+  function eventTitle(e) { const n = e.district ? district(null, e.district).name : ''; return EVENTS[e.id].title.replace('{d}', n); }
+  function eventMod(s, key, ctx) {
+    const mult = key.endsWith('Mult');
+    let total = mult ? 1 : 0;
+    for (const e of activeEvents(s)) {
+      const m = e.def.mods[key]; if (m === undefined) continue;
+      const v = typeof m === 'function' ? m(ctx || {}, e) : m;
+      total = mult ? total * v : total + v;
+    }
+    return total;
+  }
+
+  /** Líder de um bairro entre as facções. */
+  function leader(s, did) {
+    let best = null;
+    for (const f of FACTIONS) { const v = s.presence[did][f.id]; if (!best || v > best.value) best = { id: f.id, value: v }; }
+    return best;
+  }
+  const controlled = (s, did) => s.influence[did] >= 60 && s.influence[did] >= leader(s, did).value + 10;
+  const controls = s => DISTRICTS.filter(d => controlled(s, d.id));
+  const allyTurf = (s, did) => { const l = leader(s, did); return l.value >= 10 && s.factions[l.id].allied; };
+
+  /* Equipe */
+  function newMember(s, role, i) {
+    const used = new Set((s.crew || []).map(m => m.name));
+    const free = NICKNAMES.filter(n => !used.has(n));
+    return { id: s.nextMemberId++, name: free.length ? pick(free) : 'Novato ' + (i || s.nextMemberId), role, level: 1, xp: 0 };
+  }
+  const roleLevels = (s, role) => sum(s.crew.filter(m => m.role === role).map(m => m.level));
+  const crewSize = s => s.crew.length;
+  const memberUpkeep = m => 20 + m.level * 8;
+  const groupUpkeep = s => s.gangName ? sum(s.crew.map(memberUpkeep)) : 0;
+  const recruitCost = s => Math.round((550 + crewSize(s) * 60) * (controlled(s, 'jardim') ? .75 : 1) * eventMod(s, 'recruitMult'));
+
+  /* Missões */
+  function missionScore(s, m) {
+    const st = s.stats;
+    const total = st.astucia + st.forca + st.labia + st.influencia;
+    return st[m.stat] * 2 + total * .4 + s.gangLevel * 1.5;
+  }
+  function missionChance(s, m) {
+    const d = s.district, ds = s.dstate[d];
+    let heatPen = s.heat * .35 + ds.vigil * .3;
+    if (hasPerk(s, 'operador', 3)) heatPen /= 2;
+    let fatigue = (s.today.missions[m.id] || 0) * 6;
+    if (hasPerk(s, 'operador', 2)) fatigue /= 2;
+    let c = 72 + (missionScore(s, m) - m.difficulty) * 2 - heatPen - district(s).risk - eventMod(s, 'risk', { district: d }) - fatigue;
+    if (s.career === 'operador') c += 6;
+    if (s.career === 'empreendedor') c -= 3;
+    if (s.tip > 0) c += 12;
+    return clamp(Math.round(c), 8, 95);
+  }
+  function missionRewardMult(s, m) {
+    const d = s.district;
+    const pct = district(s).bonus + eventMod(s, 'reward', { district: d }) + (controlled(s, d) ? 12 : 0) + (allyTurf(s, d) ? 10 : 0) + (m.festive && eventMod(s, 'festive') ? 25 : 0);
+    let mult = (1 + pct / 100) * s.dstate[d].econ;
+    mult *= Math.max(.5, 1 - .12 * (s.today.missions[m.id] || 0));
+    if (s.career === 'articulador') mult *= .9;
+    return Math.max(.2, mult);
+  }
+  function arrestChance(s, m) {
+    let a = m.arrest + s.heat * .3 + s.dstate[s.district].vigil * .15 - Math.min(20, roleLevels(s, 'olheiro') * 2);
+    if (hasPerk(s, 'operador', 1)) a -= 15;
+    return clamp(Math.round(a), 5, 90);
+  }
+  const failLoss = (s, m) => s.career === 'operador' ? m.loss * .7 : m.loss;
+  /** Motivo de bloqueio ('' se pode executar). */
+  function missionLock(s, m) {
+    if (m.district && m.district !== s.district) return 'Disponível somente em ' + district(s, m.district).name + '.';
+    if (s.respect < m.unlock) return `Requer ${m.unlock} de respeito.`;
+    const r = m.req || {};
+    if (r.gang && !s.gangName) return 'Requer uma gangue fundada.';
+    if (r.influence && s.influence[s.district] < r.influence) return `Requer ${r.influence} de influência no bairro.`;
+    if (r.stat) { const need = (m.id === 'cofre' && hasPerk(s, 'operador', 3)) ? 18 : r.stat[1]; if (s.stats[r.stat[0]] < need) return `Requer ${STATS.find(x => x.id === r.stat[0]).name} ${need}.`; }
+    if (r.oncePerDay && s.today.missions[m.id]) return 'Já realizada hoje.';
+    if (s.jail > 0) return 'Você está detido.';
+    if (s.energy < m.cost) return 'Energia insuficiente.';
+    return '';
+  }
+  const heatGain = (s, h) => Math.ceil(h * (s.career === 'operador' ? 1.1 : 1) * eventMod(s, 'heatMult'));
+  function respectGain(s, m) { return s.respect > m.unlock + 90 ? Math.ceil(m.respect / 3) : m.respect; }
+
+  /* Economia */
+  function businessIncome(s, b) {
+    let v = b.net * s.dstate[b.district].econ;
+    let em = eventMod(s, 'bizMult', { biz: b, district: b.district });
+    if (em < 1 && hasPerk(s, 'empreendedor', 2)) em = 1 - (1 - em) / 2;
+    v *= em;
+    if (s.career === 'empreendedor') v *= 1.25;
+    if (s.career === 'operador') v *= .9;
+    if (controlled(s, b.district)) v *= 1.15;
+    if (controlled(s, 'industrial')) v *= 1.12;
+    const l = leader(s, b.district);
+    const fs = s.factions[l.id];
+    if (!controlled(s, b.district) && !agreement(s, l.id) && fs.relation < 0 && l.value >= s.influence[b.district] + 25) v *= .85; // pressão rival
+    if (s.extorted[b.id] === s.day) v *= hasPerk(s, 'empreendedor', 2) ? .75 : .5;
+    return Math.max(0, Math.round(v));
+  }
+  const income = s => sum(s.businesses.map(id => businessIncome(s, business(id))));
+  const tribute = (s, did) => Math.round(district(s, did).tribute * s.dstate[did].econ * (hasPerk(s, 'articulador', 3) ? 1.6 : 1));
+  const resaleValue = s => sum(s.businesses.map(id => Math.round(business(id).cost * RESALE)));
+  const patrimony = s => s.cash + s.bank + resaleValue(s);
+  const depositFee = (s, amount) => Math.max(1, Math.ceil(amount * (hasPerk(s, 'empreendedor', 1) ? .01 : .03)));
+  const buyCost = (s, b) => Math.round(b.cost * (s.career === 'empreendedor' ? .88 : 1));
+  const trainCost = (s, id) => { const l = s.stats[id]; return Math.round(250 + l * 40 + l * l * 1.2); };
+  const bailCost = s => s.jail > 0 ? 250 + s.jail * 250 + Math.floor(s.respect * 1.5) : 0;
+  const contactCost = s => Math.round(180 * (hasPerk(s, 'articulador', 1) ? .7 : 1) * (controlled(s, 'centro') ? .8 : 1));
+  const allianceCost = s => Math.round(900 * (hasPerk(s, 'articulador', 2) ? .6 : 1));
+  const allianceFee = s => 50 + s.gangLevel * 15;
+  const upgradeCost = s => 1200 + s.gangLevel * 900;
+  /** Cada nova trégua com o mesmo grupo custa mais: acordos não são gratuitos. */
+  const pactCost = (s, fid) => 400 + s.factions[fid].deals * 200;
+
+  /* Gangue e facções */
+  function gangOdds(s) {
+    const d = s.district;
+    return clamp(Math.round(46 + s.gangLevel * 4 + s.stats.influencia * .6 + crewSize(s) * 1.5 + roleLevels(s, 'musculo') * 1.2 +
+      (s.crewMorale - 50) * .18 - s.heat * .35 - s.dstate[d].vigil * .3 - leader(s, d).value * .08 - eventMod(s, 'risk', { district: d }) * .5), 12, 90);
+  }
+  function enemyHelp(s, fid) { return FACTIONS.some(a => s.factions[a.id].allied && FACTION_ENEMY[a.id] === fid) ? 8 : 0; }
+  function clashOdds(s, did) {
+    const l = leader(s, did), r = s.factions[l.id];
+    return clamp(Math.round(38 + s.stats.influencia * 1.1 + s.stats.labia * .4 + s.gangLevel * 2.5 + crewSize(s) * 1.5 + roleLevels(s, 'musculo') * 1.5 +
+      (s.crewMorale - 50) * .12 - (l.value - s.influence[did]) * .2 - s.heat * .18 - r.tension * .08 - (r.power - 50) * .15 +
+      (s.career === 'articulador' ? 5 : 0) + eventMod(s, 'dispute', { district: did }) + enemyHelp(s, l.id)), 15, 88);
+  }
+  function disputeOdds(s, did) {
+    const l = leader(s, did), r = s.factions[l.id];
+    return clamp(Math.round(40 + s.stats.influencia * 1.2 + s.gangLevel * 3 + roleLevels(s, 'negociador') - s.heat * .15 -
+      (l.value - s.influence[did]) * .22 + (s.career === 'articulador' ? 5 : 0) - r.tension * .07 - (r.power - 50) * .1 + eventMod(s, 'dispute', { district: did }) + enemyHelp(s, l.id)), 18, 85);
+  }
+  function dialogueOdds(s, fid) {
+    const f = faction(fid), r = s.factions[fid];
+    return clamp(Math.round(55 + s.stats.labia * 1.1 + s.stats.influencia * .35 + r.relation * .12 - r.tension * .22 - f.temperament * .45 +
+      roleLevels(s, 'negociador') * 2 + (s.career === 'articulador' ? 8 : 0) + (controlled(s, 'centro') ? 8 : 0) - Math.min(20, s.treachery * 5) - r.grudge * 2), 25, 92);
+  }
+  function factionStatus(s, fid) {
+    const r = s.factions[fid];
+    if (r.allied) return 'Aliado';
+    if (pactActive(s, fid)) return 'Trégua em vigor';
+    return r.relation >= 45 ? 'Relações favoráveis' : r.relation <= -40 ? 'Rivalidade aberta' : r.relation < 0 ? 'Relações tensas' : 'Neutro';
+  }
+  const strength = s => Math.floor(s.respect + sum(Object.values(s.stats)) + s.businesses.length * 5 + s.gangLevel * 9 + crewSize(s) * 3);
+  const cityPower = s => sum(DISTRICTS.map(d => s.influence[d.id])) + controls(s).length * 30;
+  const factionCityPower = (s, fid) => sum(DISTRICTS.map(d => s.presence[d.id][fid])) + DISTRICTS.filter(d => leader(s, d.id).id === fid && !controlled(s, d.id)).length * 30;
+
+  /* ------------------------------------------------------------------ */
+  /* 5. Ações do jogador                                                  */
+  /* ------------------------------------------------------------------ */
+  const refuse = msg => ({ ok: false, good: false, msg });
+  const done = (good, msg, extra) => Object.assign({ ok: true, good, msg }, extra || {});
+  const addHeat = (s, v) => { s.heat = clamp(s.heat + v, 0, 100); };
+  const addInf = (s, did, v) => { s.influence[did] = clamp(Math.round(s.influence[did] + v), 0, 100); };
+  const addPres = (s, did, fid, v) => { s.presence[did][fid] = clamp(Math.round(s.presence[did][fid] + v), 0, 100); };
+  const addRel = (s, fid, v) => { s.factions[fid].relation = clamp(Math.round(s.factions[fid].relation + v), -100, 100); };
+  const addTen = (s, fid, v) => { s.factions[fid].tension = clamp(Math.round(s.factions[fid].tension + v), 0, 100); };
+  const addMorale = (s, v) => { if (s.gangName) s.crewMorale = clamp(Math.round(s.crewMorale + v), 0, 100); };
+  const addXP = (s, career, v) => { if (s.career === career) { const before = careerLevel(s); s.careerXP += v; const after = careerLevel(s); if (after > before) log(s, `Especialização ${CAREERS.find(c => c.id === career).name} nível ${after}: ${CAREERS.find(c => c.id === career).perks[after - 1]}`); } };
+  function memberXP(s, v, role) {
+    for (const m of s.crew) {
+      if (role && m.role !== role) continue;
+      m.xp += v;
+      while (m.level < 5 && m.xp >= m.level * 4) { m.xp -= m.level * 4; m.level++; log(s, `${m.name} (${ROLES.find(r => r.id === m.role).name}) subiu para o nível ${m.level}.`); }
+      if (m.level >= 5) m.xp = 0;
+    }
+  }
+  /** Atrito com a facção que lidera o bairro quando você age no território dela. */
+  function turfFriction(s, did, t) {
+    if (!t) return;
+    const l = leader(s, did);
+    if (l.value < 10 || s.factions[l.id].allied) return;
+    if (pactActive(s, l.id)) {
+      // Compromisso da trégua: agir no território do grupo desgasta o acordo.
+      addRel(s, l.id, -3); addTen(s, l.id, t);
+      if (s.factions[l.id].relation < 15) {
+        s.factions[l.id].truceUntil = 0; addRel(s, l.id, -10);
+        log(s, `${faction(l.id).name} considerou suas ações uma violação e encerrou a trégua.`);
+      }
+      return;
+    }
+    addTen(s, l.id, t);
+    if (t >= 4) addRel(s, l.id, -2);
+  }
+
+  function doMission(s, id) {
+    const m = mission(id); if (!m) return refuse('Missão desconhecida.');
+    const lock = missionLock(s, m); if (lock) return refuse(lock);
+    const odds = missionChance(s, m), mult = missionRewardMult(s, m), d = s.district;
+    s.energy -= m.cost;
+    s.today.missions[m.id] = (s.today.missions[m.id] || 0) + 1;
+    if (s.tip > 0) s.tip = 0;
+    s.dstate[d].vigil = clamp(s.dstate[d].vigil + m.vigil, 0, 100);
+    if (roll(odds)) {
+      const reward = Math.max(1, Math.round(rand(m.low, m.high) * mult));
+      const rg = respectGain(s, m);
+      s.cash += reward; s.respect += rg; addHeat(s, heatGain(s, m.heat)); s.successful++;
+      if (roll(30)) s.stats[m.stat] += 1;
+      if (m.influence) addInf(s, d, m.influence * (s.career === 'articulador' ? 1.3 : 1));
+      addXP(s, 'operador', m.difficulty >= 33 ? 2 : 1);
+      turfFriction(s, d, m.tension);
+      if (m.id === 'cofre') unlock(s, 'cofre');
+      unlock(s, 'primeira');
+      log(s, `${m.name}: sucesso (${odds}%). +${money(reward)} e +${rg} de respeito.`);
+      return done(true, `${m.name}: sucesso! +${money(reward)}`);
+    }
+    const lost = Math.min(s.cash, Math.ceil(s.cash * failLoss(s, m)));
+    s.cash -= lost; addHeat(s, heatGain(s, m.heat + rand(4, 10))); s.failed++;
+    turfFriction(s, d, Math.ceil(m.tension / 2));
+    const ac = arrestChance(s, m);
+    let jailMsg = '';
+    if (roll(ac)) { s.jail = rand(1, 3) + (s.heat >= 70 ? 1 : 0); s.seasonStats.arrests++; jailMsg = ` Você foi detido por ${s.jail} dia(s).`; }
+    log(s, `${m.name}: fracasso (${odds}%). Perda de ${money(lost)} em mãos.${jailMsg}`);
+    return done(false, `${m.name} falhou. -${money(lost)}.${jailMsg}`);
+  }
+
+  function doTrain(s, id) {
+    const st = STATS.find(x => x.id === id); if (!st) return refuse('Atributo desconhecido.');
+    const cost = trainCost(s, id);
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (s.today.training >= 3) return refuse('Limite de 3 treinos por dia. Descanse até amanhã.');
+    if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente para o treino.');
+    s.energy -= 22; s.cash -= cost; s.today.training++;
+    const gain = s.stats[id] < 25 ? 2 : 1;
+    s.stats[id] += gain; s.respect += 1;
+    log(s, `Treinamento em ${st.name}: +${gain} ponto(s) por ${money(cost)}.`);
+    return done(true, `${st.name}: +${gain} ponto(s)!`);
+  }
+
+  function doTravel(s, id) {
+    const d = DISTRICTS.find(x => x.id === id);
+    if (!d || d.id === s.district) return refuse('Destino inválido.');
+    if (s.jail > 0 || s.cash < 90 || s.energy < 5) return refuse('Não foi possível viajar: verifique dinheiro, energia e detenção.');
+    s.cash -= 90; s.energy -= 5; s.district = id;
+    log(s, `Você foi para ${d.name}.`);
+    return done(true, `Agora você está em ${d.name}.`);
+  }
+
+  function doGig(s) {
+    if (s.jail > 0 || s.energy < 28) return refuse('Você não pode fazer o bico agora.');
+    const pay = Math.round(rand(110, 170) * eventMod(s, 'gigMult'));
+    s.energy -= 28; s.cash += pay; addHeat(s, -4);
+    log(s, `Bico realizado: ${money(pay)} recebidos.`);
+    return done(true, `Bico concluído. +${money(pay)}`);
+  }
+  function doLayLow(s) {
+    if (s.jail > 0 || s.energy < 18 || s.heat === 0) return refuse('Não é necessário reduzir exposição agora.');
+    s.energy -= 18; addHeat(s, -20); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil - 10, 0, 100);
+    log(s, 'Você ficou longe dos holofotes: -20 vigilância e -10 vigilância local.');
+    return done(true, 'Vigilância reduzida.');
+  }
+  function doBail(s) {
+    if (s.jail <= 0) return refuse('Você não está detido.');
+    const c = bailCost(s);
+    if (s.cash < c) return refuse(`A fiança custa ${money(c)} em mãos.`);
+    s.cash -= c; s.jail = 0; s.seasonStats.bailPaid++; addHeat(s, 5);
+    unlock(s, 'fianca');
+    log(s, `Fiança paga: ${money(c)}. Você está livre, mas chamou atenção (+5 vigilância).`);
+    return done(true, 'Você saiu pela porta da frente.');
+  }
+
+  function doBank(s, mode, amount) {
+    if (!Number.isSafeInteger(amount) || amount <= 0) return refuse('Digite um valor inteiro maior que zero.');
+    if (mode === 'deposit') {
+      const fee = depositFee(s, amount);
+      if (amount + fee > s.cash) return refuse(`Dinheiro em mãos insuficiente (valor + taxa de ${money(fee)}).`);
+      s.cash -= amount + fee; s.bank += amount;
+      log(s, `Depósito de ${money(amount)} (taxa ${money(fee)}).`);
+      return done(true, `Depositado. Taxa: ${money(fee)}.`);
+    }
+    if (mode === 'withdraw') {
+      if (amount > s.bank) return refuse('Saldo no banco insuficiente.');
+      s.bank -= amount; s.cash += amount;
+      log(s, `Saque de ${money(amount)}.`);
+      return done(true, 'Saque realizado.');
+    }
+    return refuse('Operação bancária inválida.');
+  }
+  /** Maior depósito possível considerando a taxa. */
+  function maxDeposit(s) { let a = Math.floor(s.cash / (hasPerk(s, 'empreendedor', 1) ? 1.01 : 1.03)); while (a > 0 && a + depositFee(s, a) > s.cash) a--; return Math.max(0, a); }
+
+  function doBuy(s, id) {
+    const b = business(id);
+    if (!b || s.businesses.includes(id)) return refuse('Compra indisponível.');
+    if (s.jail > 0) return refuse('Não é possível fechar negócios detido.');
+    const c = buyCost(s, b);
+    if (s.cash < c) return refuse(`Você precisa de ${money(c)} em mãos.`);
+    s.cash -= c; s.businesses.push(id); s.respect += b.respect;
+    addXP(s, 'empreendedor', 3);
+    if (s.businesses.length >= 4) unlock(s, 'empresario');
+    log(s, `Você adquiriu ${b.name} (${district(s, b.district).name}) por ${money(c)}.`);
+    return done(true, `${b.name} adquirido!`);
+  }
+  function doSell(s, id) {
+    const b = business(id);
+    if (!b || !s.businesses.includes(id)) return refuse('Você não possui este negócio.');
+    if (s.jail > 0) return refuse('Não é possível negociar detido.');
+    const v = Math.round(b.cost * RESALE);
+    s.businesses = s.businesses.filter(x => x !== id); s.cash += v;
+    log(s, `Você vendeu ${b.name} por ${money(v)}.`);
+    return done(true, `${b.name} vendido por ${money(v)}.`);
+  }
+
+  function doContact(s) {
+    if (s.jail > 0) return refuse('Você está detido.');
+    const d = s.district, cost = contactCost(s), used = s.today.contacts[d] || 0;
+    if (used >= 2) return refuse('Você já fez 2 contatos neste bairro hoje.');
+    if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente.');
+    s.energy -= 22; s.cash -= cost; s.today.contacts[d] = used + 1;
+    const boost = Math.max(1, Math.round((10 + Math.floor(s.stats.influencia / 5) + roleLevels(s, 'negociador')) * (s.career === 'articulador' ? 1.3 : 1) * eventMod(s, 'influenceMult') * (used ? .5 : 1)));
+    addInf(s, d, boost); s.respect += 1; addHeat(s, 2);
+    addXP(s, 'articulador', 1);
+    log(s, `Contatos em ${district(s).name}: +${boost} de influência.`);
+    return done(true, `+${boost} influência em ${district(s).name}.`);
+  }
+
+  function doDispute(s) {
+    if (s.jail > 0) return refuse('Você está detido.');
+    const d = s.district, l = leader(s, d), fs = s.factions[l.id];
+    if (s.influence[d] < 20) return refuse('Construa pelo menos 20 de influência no bairro antes de disputar.');
+    if (agreement(s, l.id)) return refuse(`Você tem um acordo com ${faction(l.id).short}. Rompa-o na tela Gangue se quiser disputar.`);
+    if (fs.lastActionDay === s.day) return refuse('Você já agiu contra esta facção hoje.');
+    if (s.energy < 33 || s.cash < 320) return refuse('Energia ou dinheiro insuficiente.');
+    const odds = disputeOdds(s, d);
+    s.energy -= 33; s.cash -= 320; fs.lastActionDay = s.day; addRel(s, l.id, -10); addTen(s, l.id, 12);
+    s.dstate[d].econ = clamp(s.dstate[d].econ - .03, .6, 1.4);
+    if (roll(odds)) {
+      addInf(s, d, 15); addPres(s, d, l.id, -12); s.respect += 5; addHeat(s, 8); addXP(s, 'articulador', 1);
+      log(s, `Disputa vencida em ${district(s).name} (${odds}%). ${faction(l.id).short} perdeu espaço.`);
+      return done(true, `Disputa vencida! (${odds}%)`);
+    }
+    addInf(s, d, -6); addPres(s, d, l.id, 8); addHeat(s, 11);
+    log(s, `Disputa perdida em ${district(s).name} (${odds}%). ${faction(l.id).short} avançou.`);
+    return done(false, 'Disputa perdida. O rival avançou.');
+  }
+
+  function doDialogue(s, fid) {
+    const f = faction(fid); if (!f) return refuse('Facção desconhecida.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    const r = s.factions[fid];
+    if (r.lastActionDay === s.day) return refuse('Você já interagiu com este grupo hoje.');
+    if (s.energy < 18 || s.cash < 170) return refuse('Diálogo exige R$ 170 e 18 de energia.');
+    const odds = dialogueOdds(s, fid);
+    s.energy -= 18; s.cash -= 170; r.lastActionDay = s.day;
+    if (roll(odds)) {
+      addRel(s, fid, 14); addTen(s, fid, -12); s.gangStats.dialogs++; addXP(s, 'articulador', 2);
+      log(s, `Conversa com ${f.name}: aproximação bem-sucedida (${odds}%).`);
+      return done(true, `Diálogo positivo com ${f.short}!`);
+    }
+    addRel(s, fid, -6); addTen(s, fid, 5);
+    log(s, `Conversa com ${f.name}: sem acordo (${odds}%). A tensão aumentou.`);
+    return done(false, 'O diálogo não avançou.');
+  }
+
+  function doPact(s, fid, free) {
+    const f = faction(fid); if (!f) return refuse('Facção desconhecida.');
+    const r = s.factions[fid];
+    if (!s.gangName && !free) return refuse('Tréguas exigem uma gangue fundada.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (s.day >= MAXDAY) return refuse('A temporada está no último dia.');
+    if (agreement(s, fid)) return refuse('Já existe um acordo com este grupo.');
+    if (!free) {
+      if (r.lastActionDay === s.day) return refuse('Você já interagiu com este grupo hoje.');
+      if (r.relation < 35) return refuse('A trégua exige relação +35.');
+      if (s.day <= r.cooldown) return refuse(`${f.short} só aceita nova trégua após o dia ${r.cooldown}.`);
+      const c = pactCost(s, fid);
+      if (s.energy < 24 || s.cash < c) return refuse(`A trégua exige ${money(c)} e 24 de energia.`);
+      s.energy -= 24; s.cash -= c; r.lastActionDay = s.day;
+    }
+    r.deals++;
+    const len = hasPerk(s, 'articulador', 2) ? 5 : 3;
+    r.truceUntil = Math.min(MAXDAY, s.day + len);
+    r.cooldown = r.truceUntil + 2;
+    addRel(s, fid, free ? 5 : 3); addTen(s, fid, -15); s.gangStats.pacts++; addXP(s, 'articulador', 3);
+    if (s.gangStats.pacts >= 3) unlock(s, 'diplomata');
+    log(s, `Trégua com ${f.name} até o dia ${r.truceUntil}: sem disputas, avanços ou retaliações entre vocês.`);
+    return done(true, `Trégua com ${f.short} até o dia ${r.truceUntil}.`);
+  }
+
+  function doAlliance(s, fid) {
+    const f = faction(fid); if (!f) return refuse('Facção desconhecida.');
+    const r = s.factions[fid], cost = allianceCost(s);
+    if (!s.gangName || s.gangLevel < 2) return refuse('Alianças exigem gangue com sede nível 2.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (r.allied) return refuse('Vocês já são aliados.');
+    if (FACTIONS.some(x => s.factions[x.id].allied)) return refuse('Você só pode ter uma aliança por vez.');
+    if (r.lastActionDay === s.day) return refuse('Você já interagiu com este grupo hoje.');
+    if (r.relation < 60) return refuse('A aliança exige relação +60.');
+    if (s.energy < 20 || s.cash < cost) return refuse(`A aliança exige ${money(cost)} e 20 de energia.`);
+    s.energy -= 20; s.cash -= cost; r.lastActionDay = s.day; r.allied = true; r.allyDays = 0; r.truceUntil = 0;
+    addTen(s, fid, -20); s.gangStats.alliances++; s.gangStats.pacts++;
+    const enemy = FACTION_ENEMY[fid];
+    if (enemy) { addRel(s, enemy, -12); addTen(s, enemy, 10); }
+    addXP(s, 'articulador', 3); unlock(s, 'alianca');
+    log(s, `Aliança com ${f.name}! Contribuição diária de ${money(allianceFee(s))}. ${enemy ? faction(enemy).short + ' não gostou.' : ''}`);
+    return done(true, `Aliança firmada com ${f.short}.`);
+  }
+
+  /** Romper acordo: traição do jogador. Reduz a confiança de todas as facções. */
+  function betrayPenalty(s, fid) {
+    addRel(s, fid, -40); s.factions[fid].grudge = clamp(s.factions[fid].grudge + 3, 0, 10); addTen(s, fid, 20);
+    for (const f of FACTIONS) if (f.id !== fid) addRel(s, f.id, -8);
+    s.treachery++; s.gangStats.betrayals++; unlock(s, 'traidor');
+  }
+  function doBreak(s, fid) {
+    const f = faction(fid); if (!f) return refuse('Facção desconhecida.');
+    const r = s.factions[fid];
+    if (!agreement(s, fid)) return refuse('Não há acordo para romper.');
+    r.allied = false; r.truceUntil = 0;
+    betrayPenalty(s, fid);
+    log(s, `Você rompeu o acordo com ${f.name}. Todos na cidade souberam: sua palavra vale menos.`);
+    return done(false, `Acordo com ${f.short} rompido.`);
+  }
+
+  function doClash(s, fid) {
+    const f = faction(fid); if (!f) return refuse('Facção desconhecida.');
+    if (!s.gangName) return refuse('Confrontos exigem uma gangue.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    const r = s.factions[fid], d = s.district;
+    if (leader(s, d).id !== fid) return refuse(`${f.short} não lidera este bairro.`);
+    if (s.influence[d] < 20) return refuse('Você precisa de 20 de influência no bairro.');
+    if (agreement(s, fid)) return refuse('Há um acordo ativo. Rompa-o antes de confrontar.');
+    if (r.lastActionDay === s.day) return refuse('Você já interagiu com este grupo hoje.');
+    if (s.energy < 32 || s.cash < 300) return refuse('O confronto exige R$ 300 e 32 de energia.');
+    const odds = clashOdds(s, d);
+    s.energy -= 32; s.cash -= 300; r.lastActionDay = s.day;
+    addRel(s, fid, -18); addTen(s, fid, 19); r.grudge = clamp(r.grudge + 1, 0, 10);
+    s.dstate[d].econ = clamp(s.dstate[d].econ - .04, .6, 1.4); s.dstate[d].vigil = clamp(s.dstate[d].vigil + 10, 0, 100);
+    if (roll(odds)) {
+      addInf(s, d, 16); addPres(s, d, fid, -14); r.power = clamp(r.power - 6, 10, 100);
+      s.respect += 6; addHeat(s, 9); addMorale(s, 5); s.gangStats.confrontWins++; memberXP(s, 2, 'musculo'); memberXP(s, 1);
+      if (odds <= 40) unlock(s, 'virada');
+      log(s, `${s.gangName} venceu ${f.name} em ${district(s).name} (${odds}%).`);
+      return done(true, `Confronto vencido! (${odds}%)`);
+    }
+    addInf(s, d, -9); addPres(s, d, fid, 11); addHeat(s, 16); addMorale(s, -10); s.gangStats.confrontLosses++; memberXP(s, 1, 'musculo');
+    log(s, `${s.gangName} perdeu para ${f.name} em ${district(s).name} (${odds}%). A equipe ficou abalada.`);
+    return done(false, 'Confronto perdido: influência e ânimo reduzidos.');
+  }
+
+  function doFoundGang(s, rawName) {
+    const name = String(rawName || '').trim().replace(/\s+/g, ' ');
+    if (name.length < 3 || name.length > 25) return refuse('Use um nome entre 3 e 25 caracteres.');
+    if (s.gangName) return refuse('Você já lidera um grupo.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (s.respect < 30 || s.cash < 1800) return refuse('Requisitos: 30 de respeito e R$ 1.800 em mãos.');
+    s.cash -= 1800; s.gangName = name; s.gangLevel = 1; s.crewMorale = 70;
+    s.crew = [newMember(s, 'musculo', 0), newMember(s, 'olheiro', 1)];
+    log(s, `Você fundou ${name}, com ${s.crew[0].name} (Músculo) e ${s.crew[1].name} (Olheiro).`);
+    return done(true, 'Seu grupo foi fundado.');
+  }
+  function doRecruit(s, role) {
+    if (!ROLES.some(r => r.id === role)) return refuse('Escolha uma função.');
+    const c = recruitCost(s);
+    if (!s.gangName || s.jail > 0) return refuse('Recrutamento indisponível.');
+    if (crewSize(s) >= 8) return refuse('Sua equipe já tem 8 integrantes.');
+    if (s.crewLastRecruit === s.day) return refuse('Apenas um recrutamento por dia.');
+    if (s.cash < c || s.energy < 18) return refuse(`Recrutar exige ${money(c)} e 18 de energia.`);
+    s.cash -= c; s.energy -= 18; s.crewLastRecruit = s.day;
+    const m = newMember(s, role); s.crew.push(m); addMorale(s, 3);
+    if (crewSize(s) >= 8) unlock(s, 'bonde');
+    log(s, `${m.name} entrou na equipe como ${ROLES.find(r => r.id === role).name}. Manutenção: ${money(groupUpkeep(s))}/dia.`);
+    return done(true, `${m.name} entrou para o grupo.`);
+  }
+  function doDismiss(s, memberId) {
+    const m = s.crew.find(x => x.id === memberId);
+    if (!m) return refuse('Integrante não encontrado.');
+    s.crew = s.crew.filter(x => x.id !== memberId); addMorale(s, -6);
+    log(s, `${m.name} foi dispensado. A equipe ficou apreensiva (-6 ânimo).`);
+    return done(true, `${m.name} dispensado.`);
+  }
+  function doRally(s) {
+    if (!s.gangName || s.jail > 0 || s.crewLastRally === s.day || s.crewMorale >= 100) return refuse('Reunião indisponível agora.');
+    if (s.cash < 180 || s.energy < 12) return refuse('A reunião exige R$ 180 e 12 de energia.');
+    s.cash -= 180; s.energy -= 12; addMorale(s, 18); s.crewLastRally = s.day;
+    log(s, 'A equipe se reuniu e recuperou parte do ânimo.');
+    return done(true, 'Ânimo do grupo recuperado.');
+  }
+  function doUpgrade(s) {
+    const c = upgradeCost(s);
+    if (!s.gangName || s.gangLevel >= 8) return refuse('Melhoria indisponível.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (s.cash < c) return refuse(`A melhoria custa ${money(c)}.`);
+    s.cash -= c; s.gangLevel++; s.respect += 4;
+    log(s, `A sede foi melhorada para o nível ${s.gangLevel}.`);
+    return done(true, 'Melhoria concluída!');
+  }
+  function doGangOp(s) {
+    if (!s.gangName || s.jail > 0) return refuse('Operação indisponível.');
+    if (s.today.op) return refuse('Apenas uma operação coletiva por dia.');
+    if (crewSize(s) < 2) return refuse('A operação exige pelo menos 2 integrantes.');
+    if (s.energy < 35) return refuse('Energia insuficiente (35).');
+    const d = s.district, odds = gangOdds(s);
+    s.energy -= 35; s.today.op = true;
+    s.dstate[d].vigil = clamp(s.dstate[d].vigil + 15, 0, 100);
+    const olheiro = Math.min(8, roleLevels(s, 'olheiro'));
+    if (roll(odds)) {
+      const reward = Math.round(rand(700, 1350) * s.dstate[d].econ * (1 + crewSize(s) * .05) * (controlled(s, 'cais') ? 1.2 : 1) * (1 + eventMod(s, 'reward', { district: d }) / 200));
+      s.cash += reward; s.respect += 5; addHeat(s, heatGain(s, 14 - olheiro)); addMorale(s, 3); s.successful++; s.gangStats.groupWins++;
+      memberXP(s, 1); turfFriction(s, d, 5);
+      log(s, `Operação de ${s.gangName} concluída (${odds}%): +${money(reward)}.`);
+      return done(true, `Operação concluída! +${money(reward)}`);
+    }
+    const lost = Math.ceil(s.cash * .08);
+    s.cash -= lost; s.failed++; addHeat(s, heatGain(s, 20 - olheiro)); addMorale(s, -8); turfFriction(s, d, 3);
+    log(s, `Operação de ${s.gangName} falhou (${odds}%). Perda: ${money(lost)}.`);
+    return done(false, 'A operação coletiva falhou.');
+  }
+
+  function pickCareer(s, id) {
+    if (s.career) return refuse('A carreira já foi escolhida nesta temporada.');
+    const c = CAREERS.find(x => x.id === id); if (!c) return refuse('Carreira desconhecida.');
+    s.career = id; s.careerXP = 0;
+    log(s, `Você escolheu a especialização ${c.name}.`);
+    return done(true, `Carreira definida: ${c.name}.`);
+  }
+  function chooseGoal(s, id) {
+    if (s.goal || s.day > 5 || !GOALS.some(g => g.id === id)) return refuse('A meta não pode mais ser escolhida.');
+    s.goal = id; log(s, `Meta escolhida: ${GOALS.find(g => g.id === id).name}.`);
+    return done(true, 'Meta da temporada definida.');
+  }
+
+  /* Notícias */
+  const currentNews = s => s.newsPending ? NEWS.find(n => n.id === s.newsPending.id) : null;
+  function newsChoiceCost(s, c) { return (c.cash || 0) + (c.cashPerMember ? c.cashPerMember * crewSize(s) : 0); }
+  function newsChoiceBlocked(s, c) {
+    if (s.jail > 0) return 'Você está detido.';
+    if (s.cash < newsChoiceCost(s, c) || s.energy < (c.energy || 0)) return 'Recursos insuficientes.';
+    if (c.notLastDay && s.day >= MAXDAY) return 'Não há próximo dia nesta temporada.';
+    return '';
+  }
+  function newsChoice(s, id, index) {
+    const n = NEWS.find(x => x.id === id), c = n && n.choices[index];
+    if (!n || !c || !s.newsPending || s.newsPending.id !== id || s.newsPending.day !== s.day) return refuse('Notícia indisponível.');
+    const block = newsChoiceBlocked(s, c); if (block) return refuse(block);
+    const d = s.district, l = leader(s, d);
+    s.cash -= newsChoiceCost(s, c); s.energy -= c.energy || 0; s.cash += c.money || 0;
+    s.respect += c.respect || 0; addHeat(s, c.heat || 0);
+    if (c.influence) addInf(s, d, c.influence * (s.career === 'articulador' ? 1.3 : 1) * eventMod(s, 'influenceMult'));
+    if (c.rival) addPres(s, d, l.id, c.rival);
+    if (c.relation) addRel(s, l.id, c.relation);
+    if (c.tension) addTen(s, l.id, c.tension);
+    if (c.nextBonus) s.nextBonus += c.nextBonus;
+    if (c.tip) s.tip = c.tip;
+    if (c.morale) addMorale(s, c.morale * (s.career === 'articulador' && c.energy ? 2 : 1));
+    if (c.contract) s.contracts.push({ daily: c.contract.daily, days: c.contract.days });
+    const fid = s.newsPending.faction;
+    if (c.allyHelp) { const a = FACTIONS.find(f => s.factions[f.id].allied); if (a) { addRel(s, a.id, 12); const e = FACTION_ENEMY[a.id]; if (e) addTen(s, e, 10); } }
+    if (c.allyRefuse) { const a = FACTIONS.find(f => s.factions[f.id].allied); if (a) { addRel(s, a.id, -20); if (s.factions[a.id].relation < 40) { s.factions[a.id].allied = false; log(s, `${faction(a.id).name} desfez a aliança: “quem não ajuda não é aliado”.`); } } }
+    if (c.acceptOffer && fid) { const r = doPact(s, fid, true); if (!r.ok) { s.newsPending = null; return r; } }
+    if (c.declineOffer && fid) addRel(s, fid, -5);
+    addXP(s, 'articulador', 1);
+    s.newsPending = null;
+    log(s, `${n.name}: ${c.label}.`);
+    return done(true, 'Decisão registrada.');
+  }
+  function skipNews(s) {
+    if (!s.newsPending) return refuse('Não há notícia pendente.');
+    const n = currentNews(s);
+    if (n && n.offer && s.newsPending.faction) addRel(s, s.newsPending.faction, -3);
+    s.newsPending = null;
+    log(s, `${n ? n.name : 'Notícia'}: você preferiu não se envolver.`);
+    return done(true, 'Notícia encerrada.');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 6. Virada do dia: economia, eventos e IA                            */
+  /* ------------------------------------------------------------------ */
+  function startEvent(s, id, districtId) {
+    const def = EVENTS[id];
+    const len = rand(def.dur[0], def.dur[1]);
+    const e = { id, start: s.day, until: Math.min(MAXDAY, s.day + len - 1), district: districtId || def.district || (def.randomDistrict ? pick(DISTRICTS).id : null) };
+    s.events.push(e);
+    if (def.onStart) def.onStart(s, e);
+    return e;
+  }
+  function tickEvents(s, lines) {
+    s.events = s.events.filter(e => e.until >= s.day);
+    for (const [id, def] of Object.entries(EVENTS)) if (def.fixed === s.day && !s.events.some(e => e.id === id)) { const e = startEvent(s, id); lines.push(`Evento: ${eventTitle(e)}.`); }
+    const randomActive = s.events.filter(e => !EVENTS[e.id].fixed && e.id !== 'guerra');
+    if (!randomActive.length) {
+      const last = s.lastEvent;
+      const opts = Object.entries(EVENTS).filter(([id, d]) => d.weight > 0 && id !== last && !(id === 'crise' && s.day > 25)).map(([id, d]) => ({ id, w: d.weight }));
+      const e = startEvent(s, weighted(opts).id);
+      s.lastEvent = e.id;
+      if (e.id !== 'rotina') lines.push(`Evento: ${eventTitle(e)}.`);
+    }
+  }
+
+  /** Um turno de IA para uma facção. Retorna texto explicando a decisão. */
+  function factionTurn(s, f, ctx) {
+    const fs = s.factions[f.id], P = f.persona;
+    const truce = pactActive(s, f.id);
+    // Traição: oportunistas rompem acordos quando você parece fraco.
+    if ((truce || fs.allied) && P.opportunism >= .5) {
+      const weak = (crewSize(s) < 3 ? 1 : 0) + (s.crewMorale < 35 ? 1 : 0) + (s.heat >= 70 ? 1 : 0) + (cityPower(s) < factionCityPower(s, f.id) / 2 ? 1 : 0);
+      const pct = Math.round(P.opportunism * weak * 4);
+      if (pct > 0 && roll(pct)) {
+        const wasAlly = fs.allied;
+        fs.allied = false; fs.truceUntil = 0; addRel(s, f.id, -30); addTen(s, f.id, 15);
+        const best = DISTRICTS.slice().sort((a, b) => s.influence[b.id] - s.influence[a.id])[0];
+        addInf(s, best.id, -8); addPres(s, best.id, f.id, 6);
+        return `Traição! ${f.name} rompeu a ${wasAlly ? 'aliança' : 'trégua'} ao perceber sua fragilidade e avançou em ${best.name}.`;
+      }
+    }
+    const hostile = !truce && !fs.allied && fs.relation <= -30 && fs.tension >= 35;
+    const opts = [];
+    opts.push({ id: 'expand', w: P.expand * (1 + (fs.power - 50) / 100) });
+    opts.push({ id: 'consolidate', w: .3 + Math.max(0, 60 - fs.power) / 60 });
+    if (hostile && !ctx.pressured) opts.push({ id: 'pressure', w: P.aggr * (fs.tension / 55) * (1 + fs.grudge / 5) });
+    const enemy = FACTION_ENEMY[f.id];
+    if (enemy) opts.push({ id: 'war', w: P.aggr * .3 });
+    if (!truce && !fs.allied && fs.relation >= 30 && !ctx.offer && s.day < MAXDAY - 1) opts.push({ id: 'offer', w: P.diplo * .45 });
+    const choice = weighted(opts).id;
+
+    if (choice === 'expand') {
+      const targets = DISTRICTS.filter(d => {
+        if (truce && s.influence[d.id] >= 10) return false;
+        if (fs.allied && controlled(s, d.id)) return false;
+        return true;
+      }).map(d => {
+        const p = s.presence[d.id][f.id];
+        let v = d.tribute / 100 * s.dstate[d.id].econ * (p > 0 ? 1.3 : .8);
+        if (s.district !== d.id) v *= 1 + P.opportunism * .5; else v *= .7;
+        if (controlled(s, d.id)) v *= .5 + P.aggr;
+        if (f.districts.includes(d.id)) v *= 1.4;
+        return { d, w: v * (0.8 + rng() * .4) };
+      });
+      if (!targets.length) return `${f.short} recuou por causa da trégua.`;
+      const t = targets.sort((a, b) => b.w - a.w)[0].d;
+      const before = leader(s, t.id).id;
+      const gain = 2 + rand(0, 3) + Math.floor(fs.power / 40);
+      addPres(s, t.id, f.id, gain);
+      for (const o of FACTIONS) if (o.id !== f.id && !(o.id === enemy)) addPres(s, t.id, o.id, -1);
+      if (enemy) addPres(s, t.id, enemy, -1);
+      const after = leader(s, t.id).id;
+      return `${f.short} ampliou presença em ${t.name} (+${gain})${s.district !== t.id && s.influence[t.id] > 0 ? ', aproveitando sua ausência' : ''}.${before !== after && after === f.id ? ` Agora lidera ${t.name}!` : ''}`;
+    }
+    if (choice === 'consolidate') {
+      fs.power = clamp(fs.power + rand(2, 5), 10, 100); addTen(s, f.id, -3);
+      return `${f.short} reorganizou suas fileiras (força ${fs.power}).`;
+    }
+    if (choice === 'pressure') {
+      ctx.pressured = true; s.gangStats.retaliations++;
+      if (hasPerk(s, 'articulador', 3) && roll(50)) return `${f.short} tentou retaliar, mas sua rede no bairro avisou a tempo.`;
+      addTen(s, f.id, -8);
+      if (P.pressure === 'extorsao') {
+        const target = s.businesses.map(business).filter(b => s.presence[b.district][f.id] >= 10).sort((a, b) => b.net - a.net)[0];
+        if (target) { s.extorted[target.id] = s.day; return `Retaliação de ${f.short}: cobrança sobre ${target.name}. A renda dele cai hoje.`; }
+      }
+      if (P.pressure === 'denuncia') {
+        addHeat(s, 10); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil + 10, 0, 100);
+        return `Retaliação de ${f.short}: denúncia anônima. +10 vigilância e +10 vigilância local.`;
+      }
+      const best = DISTRICTS.filter(d => s.presence[d.id][f.id] > 0).sort((a, b) => s.influence[b.id] - s.influence[a.id])[0] || district(s);
+      const removed = Math.min(rand(5, 9), s.influence[best.id]);
+      addInf(s, best.id, -removed); addPres(s, best.id, f.id, 4); addHeat(s, 4);
+      return `Retaliação de ${f.short}: -${removed} de influência sua em ${best.name}.`;
+    }
+    if (choice === 'war') {
+      const field = DISTRICTS.filter(d => s.presence[d.id][enemy] >= 8 && s.presence[d.id][f.id] >= 5).sort((a, b) => s.presence[b.id][enemy] - s.presence[a.id][enemy])[0];
+      if (!field) { fs.power = clamp(fs.power + 2, 10, 100); return `${f.short} se preparou contra ${faction(enemy).short}.`; }
+      addPres(s, field.id, enemy, -rand(4, 8)); addPres(s, field.id, f.id, -rand(1, 4));
+      s.factions[enemy].power = clamp(s.factions[enemy].power - 3, 10, 100);
+      if (!s.events.some(e => e.id === 'guerra' && e.until >= s.day)) startEvent(s, 'guerra', field.id);
+      return `${f.short} entrou em choque com ${faction(enemy).short} em ${field.name}: brecha para disputas por 2 dias.`;
+    }
+    if (choice === 'offer') {
+      ctx.offer = f.id;
+      return `${f.short} mandou um recado propondo acordo.`;
+    }
+    return '';
+  }
+
+  function nextDay(s) {
+    if (s.day >= MAXDAY) return refuse('Fim de temporada. Acesse Temporada para encerrar.');
+    const lines = [];
+    if (s.newsPending) { const n = currentNews(s); if (n && n.offer && s.newsPending.faction) addRel(s, s.newsPending.faction, -3); lines.push('Uma notícia passou sem resposta.'); }
+    s.day++;
+    s.jail = Math.max(0, s.jail - 1);
+    s.today = emptyToday();
+    if (s.tip > 0) s.tip--;
+    tickEvents(s, lines);
+
+    // Energia e vigilância
+    s.energy = clamp(s.energy + 70 + eventMod(s, 'energy'), 0, 100);
+    const ctrl = controls(s);
+    const decay = 15 + eventMod(s, 'heatDecay') + (controlled(s, 'vila') ? 5 : 0) - ctrl.length * 2;
+    addHeat(s, -decay);
+
+    // Bairros: vigilância local e economia
+    for (const d of DISTRICTS) {
+      const ds = s.dstate[d.id];
+      ds.vigil = clamp(ds.vigil - 10, 0, 100);
+      const target = 1 + eventMod(s, 'econ', { district: d.id }) - ds.vigil * .002;
+      ds.econ = clamp(Math.round((ds.econ + (target - ds.econ) * .25 + (rng() - .5) * .06) * 100) / 100, .6, 1.4);
+    }
+
+    // Receitas
+    const biz = income(s);
+    let trib = 0; for (const d of ctrl) trib += tribute(s, d.id);
+    let contracts = 0;
+    for (const c of s.contracts) { contracts += Math.round(c.daily * s.dstate.centro.econ); c.days--; }
+    s.contracts = s.contracts.filter(c => c.days > 0);
+    let interest = 0; if (hasPerk(s, 'empreendedor', 3)) interest = Math.min(120, Math.floor(s.bank * .004));
+    const bonus = s.nextBonus; s.nextBonus = 0;
+    s.cash += biz + trib + contracts + bonus; s.bank += interest;
+    if (biz) lines.push(`Negócios: +${money(biz)}.`);
+    if (trib) lines.push(`Tributo de ${ctrl.length} bairro(s) liderado(s): +${money(trib)}.`);
+    if (contracts) lines.push(`Sociedades: +${money(contracts)}.`);
+    if (bonus) lines.push(`Bônus do festival: +${money(bonus)}.`);
+    if (interest) lines.push(`Rendimento bancário: +${money(interest)}.`);
+    if (biz >= 150) addXP(s, 'empreendedor', 1);
+
+    // Equipe
+    if (s.gangName) {
+      const cost = groupUpkeep(s);
+      if (s.cash >= cost) { s.cash -= cost; addMorale(s, -2); if (cost) lines.push(`Manutenção da equipe: -${money(cost)}.`); }
+      else { addMorale(s, -12); lines.push('Caixa insuficiente para pagar a equipe: -12 de ânimo.'); }
+      addMorale(s, eventMod(s, 'morale') + (controlled(s, 'jardim') ? 2 : 0));
+      if (s.crewMorale < 25 && crewSize(s) > 1 && roll(35)) {
+        const m = s.crew.splice(rand(0, s.crew.length - 1), 1)[0];
+        const to = FACTIONS.slice().sort((a, b) => s.factions[a.id].relation - s.factions[b.id].relation)[0];
+        s.factions[to.id].power = clamp(s.factions[to.id].power + 3, 10, 100); addHeat(s, 5);
+        lines.push(`${m.name} abandonou a equipe e foi para ${to.short}, levando informações (+5 vigilância).`);
+      }
+      for (const f of FACTIONS) {
+        const r = s.factions[f.id];
+        if (!r.allied) continue;
+        r.allyDays++;
+        const fee = allianceFee(s);
+        if (s.cash >= fee) { s.cash -= fee; lines.push(`Contribuição para ${f.short}: -${money(fee)}.`); }
+        else { addRel(s, f.id, -15); lines.push(`Você não pagou a contribuição a ${f.short}: relação -15.`); if (r.relation < 40) { r.allied = false; lines.push(`${f.name} desfez a aliança.`); } }
+      }
+    }
+
+    // Influência se dissipa onde você não está
+    for (const d of DISTRICTS) if (d.id !== s.district) addInf(s, d.id, -1);
+
+    // Facções: deriva natural + decisões
+    const ctx = { pressured: false, offer: null };
+    for (const f of FACTIONS) {
+      const r = s.factions[f.id];
+      addTen(s, f.id, r.grudge >= 3 ? -1 : -2);
+      // Relações exigem manutenção: sem acordo, voltam aos poucos ao padrão do grupo.
+      if (!agreement(s, f.id) && r.relation !== f.initialRelation) addRel(s, f.id, r.relation > f.initialRelation ? -(r.relation - f.initialRelation > 40 ? 2 : 1) : 1);
+      const target = 30 + factionCityPower(s, f.id) / 4;
+      r.power = clamp(Math.round(r.power + (target - r.power) * .1), 10, 100);
+    }
+    const order = FACTIONS.slice().sort(() => rng() - .5);
+    for (const f of order) {
+      const txt = factionTurn(s, f, ctx);
+      s.factions[f.id].lastMove = txt;
+      if (txt) lines.push(txt);
+    }
+    for (const d of DISTRICTS) {
+      if (controlled(s, d.id)) { s.seasonStats.controlDays[d.id]++; unlock(s, 'dono'); }
+    }
+    if (controls(s).length >= 3) unlock(s, 'tres');
+
+    // Notícias: ofertas de facções têm prioridade; senão a cada 3 dias.
+    s.newsPending = null;
+    if (ctx.offer) s.newsPending = { id: 'oferta', day: s.day, faction: ctx.offer };
+    else if (s.day % 3 === 0) {
+      const pool = NEWS.filter(n => !n.offer && (!n.when || n.when(s)));
+      s.newsPending = { id: pick(pool).id, day: s.day, faction: null };
+    }
+    afterAction(s);
+    log(s, `Dia ${s.day}. ` + (lines.length ? lines.join(' ') : 'Dia tranquilo.'));
+    return done(true, `Dia ${s.day} iniciado.`, { lines });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 7. Metas, conquistas e temporada                                    */
+  /* ------------------------------------------------------------------ */
+  function unlock(s, id) { if (!s.achievements[id] && ACHIEVEMENTS.some(a => a.id === id)) { s.achievements[id] = s.season; log(s, `Conquista desbloqueada: ${ACHIEVEMENTS.find(a => a.id === id).name}.`); } }
+
+  function goalProgress(s, id) {
+    const goodRel = FACTIONS.filter(f => s.factions[f.id].relation >= 50).length;
+    if (id === 'capital') { const v = patrimony(s); return { value: v, max: 18000, unit: 'money', complete: v >= 18000 }; }
+    if (id === 'renome') return { value: Math.min(130, s.respect) / 130 * 50 + Math.min(25, s.successful) / 25 * 50, max: 100, unit: 'pct', complete: s.respect >= 130 && s.successful >= 25 };
+    if (id === 'dominio') { const days = sum(Object.values(s.seasonStats.controlDays)); return { value: Math.min(100, days / 12 * 100), max: 100, unit: 'pct', complete: days >= 12 }; }
+    if (id === 'diplomacia') return { value: Math.min(3, s.gangStats.pacts) / 3 * 50 + Math.min(2, goodRel) * 25, max: 100, unit: 'pct', complete: s.gangStats.pacts >= 3 && goodRel >= 2 };
+    if (id === 'bonde') return { value: Math.min(5, crewSize(s)) * 10 + Math.min(8, s.gangStats.groupWins) / 8 * 50, max: 100, unit: 'pct', complete: crewSize(s) >= 5 && s.gangStats.groupWins >= 8 };
+    return { value: 0, max: 100, unit: 'pct', complete: false };
+  }
+  /** Executado após cada ação: trava metas cumpridas e verifica conquistas. */
+  function afterAction(s) {
+    if (s.goal && !s.goalDone && goalProgress(s, s.goal).complete) { s.goalDone = true; log(s, `Meta da temporada cumprida: ${GOALS.find(g => g.id === s.goal).name}!`); }
+    if (patrimony(s) >= 35000) unlock(s, 'cofrecheio');
+    if (s.crew.some(m => m.level >= 5)) unlock(s, 'veterano');
+    if (careerLevel(s) >= 3) unlock(s, 'mestre');
+    s.seasonStats.bestCash = Math.max(s.seasonStats.bestCash, patrimony(s));
+  }
+
+  function categoryValue(s, id) {
+    if (id === 'fortuna') return patrimony(s);
+    if (id === 'fama') return Math.max(0, s.respect - s.seasonStats.startRespect);
+    if (id === 'territorio') return sum(Object.values(s.seasonStats.controlDays));
+    if (id === 'diplomacia') return Math.min(5, s.gangStats.pacts) * 9 + s.gangStats.alliances * 20 + Math.min(20, sum(FACTIONS.map(f => s.factions[f.id].allyDays))) + FACTIONS.filter(f => s.factions[f.id].relation >= 50).length * 10 - s.gangStats.betrayals * 15;
+    if (id === 'gangue') return s.gangStats.groupWins * 6 + s.gangStats.confrontWins * 10 + sum(s.crew.map(m => m.level)) * 3 + s.gangLevel * 4;
+    return 0;
+  }
+  const medalFor = (c, v) => c.tiers.filter(t => v >= t).length;
+  function seasonScore(s) {
+    const cats = CATEGORIES.map(c => { const v = Math.max(0, Math.round(categoryValue(s, c.id))); return { id: c.id, name: c.name, value: v, medal: medalFor(c, v), pct: Math.min(100, Math.round(v / c.tiers[2] * 100)) }; });
+    const score = sum(cats.map(c => Math.min(150, c.pct))) + sum(cats.map(c => c.medal * 15)) + (s.goalDone ? 40 : 0);
+    const title = score >= 420 ? 'Lenda do Submundo' : score >= 300 ? 'Chefão da cidade' : score >= 200 ? 'Nome respeitado' : score >= 110 ? 'Figura conhecida' : 'Aprendiz da rua';
+    return { cats, score: Math.round(score), title };
+  }
+  function seasonRanking(s) {
+    const rows = [{ id: 'player', name: s.gangName || s.name, power: cityPower(s), player: true }]
+      .concat(FACTIONS.map(f => ({ id: f.id, name: f.name, power: factionCityPower(s, f.id), player: false })));
+    return rows.sort((a, b) => b.power - a.power);
+  }
+
+  function endSeason(s) {
+    if (s.day !== MAXDAY) return refuse('A temporada termina no dia 30.');
+    const sc = seasonScore(s);
+    const medals = Object.fromEntries(sc.cats.map(c => [c.id, c.medal]));
+    const medalCount = sc.cats.filter(c => c.medal > 0).length;
+    if (sc.cats.some(c => c.medal === 3)) unlock(s, 'ouro');
+    if (medalCount >= 3) unlock(s, 'versatil');
+    if (s.seasonStats.arrests === 0) unlock(s, 'fichalimpa');
+    const goalWins = s.goalWins + (s.goalDone ? 1 : 0);
+    if (goalWins >= 3) unlock(s, 'determinado');
+    const money_ = patrimony(s);
+    const record = {
+      season: s.season, respect: s.respect, money: money_, success: s.successful, failed: s.failed, goal: s.goal, goalComplete: s.goalDone,
+      career: s.career, districts: controls(s).length, gangName: s.gangName, confrontWins: s.gangStats.confrontWins, pacts: s.gangStats.pacts,
+      groupWins: s.gangStats.groupWins, score: sc.score, title: sc.title, medals
+    };
+    const records = { ...s.records };
+    for (const c of sc.cats) records[c.id] = Math.max(records[c.id] || 0, c.value);
+    // Rival histórico: a facção com mais rancor (≥3) começa a próxima temporada hostil.
+    const nem = FACTIONS.slice().sort((a, b) => s.factions[b.id].grudge - s.factions[a.id].grudge)[0];
+    const nemesis = s.factions[nem.id].grudge >= 3 ? nem.id : null;
+    const medalBonus = Math.min(800, sum(sc.cats.map(c => [0, 30, 80, 200][c.medal])));
+    const n = defaultState(s.name, s.city);
+    n.season = s.season + 1;
+    n.seasonHistory = [...s.seasonHistory, record].slice(-200);
+    n.goalWins = goalWins;
+    n.achievements = { ...s.achievements };
+    n.prestige = s.prestige + sum(sc.cats.map(c => c.medal));
+    n.records = records;
+    n.nemesis = nemesis;
+    if (nemesis) { n.factions[nemesis].relation -= 25; n.factions[nemesis].tension += 15; n.factions[nemesis].grudge = 2; }
+    n.cash = 1900 + Math.min(1200, Math.floor(money_ * .05)) + (s.goalDone ? 600 : 0) + medalBonus;
+    n.log = [{ day: 1, msg: `Temporada ${n.season} iniciada. Anterior: “${sc.title}” (${sc.score} pontos). Legado: ${money(n.cash - 1900)} extras.${nemesis ? ` ${faction(nemesis).name} não esqueceu a rivalidade.` : ''}` }];
+    return done(true, `Temporada ${s.season} encerrada: ${sc.title}.`, { state: n, record });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* API pública                                                         */
+  /* ------------------------------------------------------------------ */
+  const act = {
+    mission: doMission, train: doTrain, travel: doTravel, gig: doGig, layLow: doLayLow, bail: doBail,
+    bank: doBank, buy: doBuy, sell: doSell, contact: doContact, dispute: doDispute,
+    dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
+    foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
+    career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, nextDay, endSeason
+  };
+  /** Executa uma ação e roda verificações pós-ação. */
+  function perform(s, name, ...args) {
+    const fn = act[name]; if (!fn) return refuse('Ação desconhecida.');
+    const r = fn(s, ...args);
+    if (r.ok && name !== 'endSeason') afterAction(s);
+    return r;
+  }
+
+  const SB = {
+    VERSION, SCHEMA, MAXDAY, STORAGE_KEY, RESALE, CAREER_XP,
+    STATS, MISSIONS, DISTRICTS, BUSINESSES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
+    setRandom, seeded, rand, clamp, money,
+    defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventMod,
+    leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
+    missionScore, missionChance, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
+    gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
+    currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
+    act, perform
+  };
+  root.SB = SB;
+  if (typeof module !== 'undefined' && module.exports) module.exports = SB;
+})(typeof window !== 'undefined' ? window : globalThis);

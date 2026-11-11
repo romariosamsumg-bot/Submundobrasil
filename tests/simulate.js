@@ -1,0 +1,146 @@
+/* Simulador de balanceamento: bots com estratégias distintas jogam
+ * temporadas completas usando o MESMO motor do jogo (extraído do HTML).
+ * Uso: node tests/simulate.js [runs=300] [seed=1]
+ */
+'use strict';
+const SB = require('./load-engine.js')();
+const RUNS = Number(process.argv[2] || 300);
+const SEED = Number(process.argv[3] || 1);
+
+/* ---------- utilidades dos bots ---------- */
+function ev(s, m) {
+  if (SB.missionLock(s, m)) return -Infinity;
+  const p = SB.missionChance(s, m) / 100;
+  const avg = (m.low + m.high) / 2 * SB.missionRewardMult(s, m);
+  const loss = s.cash * SB.failLoss(s, m) + SB.arrestChance(s, m) / 100 * 600;
+  return (p * avg - (1 - p) * loss) / m.cost - s.heat * .4;
+}
+function bestMission(s, minChance = 50) {
+  let best = null, bv = 0;
+  for (const m of SB.MISSIONS) { const v = ev(s, m); if (v > bv && SB.missionChance(s, m) >= minChance) { bv = v; best = m; } }
+  return best;
+}
+function grind(s, minChance, reserve = 0) {
+  for (let i = 0; i < 12; i++) {
+    if (s.energy - reserve < 16) break;
+    if (s.heat >= 65 && s.energy >= 18) { SB.perform(s, 'layLow'); continue; }
+    const m = bestMission(s, minChance);
+    if (!m || s.energy - m.cost < reserve) break;
+    SB.perform(s, 'mission', m.id);
+    if (s.jail) break;
+  }
+}
+function trainBest(s, stat, keep) { while (s.cash - SB.trainCost(s, stat) > keep && SB.perform(s, 'train', stat).ok); }
+function bankSurplus(s, keep) { const v = Math.min(SB.maxDeposit(s), s.cash - keep); if (v > 200) SB.perform(s, 'bank', 'deposit', v); }
+function handleNews(s) {
+  const n = SB.currentNews(s); if (!n) return;
+  // escolhe a primeira opção possível que não seja pura perda
+  for (let i = 0; i < n.choices.length; i++) if (!SB.newsChoiceBlocked(s, n.choices[i])) { if (SB.perform(s, 'news', n.id, i).ok) return; }
+  SB.perform(s, 'skipNews');
+}
+function bail(s) { if (s.jail && s.cash > SB.bailCost(s) * 3) SB.perform(s, 'bail'); }
+
+/* ---------- estratégias ---------- */
+const STRATEGIES = {
+  operador_grind: { career: 'operador', goal: 'renome', day(s) {
+    bail(s); handleNews(s); grind(s, 55, 22); trainBest(s, 'astucia', 900); if (s.stats.astucia > 24) trainBest(s, 'forca', 900); bankSurplus(s, 600); } },
+  empreendedor_negocios: { career: 'empreendedor', goal: 'capital', day(s) {
+    bail(s); handleNews(s);
+    if (s.bank) SB.perform(s, 'bank', 'withdraw', s.bank);
+    for (const b of SB.BUSINESSES.slice().reverse()) if (s.day < 22 && !s.businesses.includes(b.id)) SB.perform(s, 'buy', b.id);
+    grind(s, 65); if (s.day >= 22) bankSurplus(s, 300); } },
+  articulador_territorio: { career: 'articulador', goal: 'dominio', day(s) {
+    bail(s); handleNews(s);
+    const target = SB.DISTRICTS.filter(d => !SB.controlled(s, d.id)).sort((a, b) => (s.influence[b.id] - SB.leader(s, b.id).value) - (s.influence[a.id] - SB.leader(s, a.id).value))[0] || SB.district(s);
+    if (target.id !== s.district && SB.controls(s).length && !SB.controlled(s, s.district)) SB.perform(s, 'travel', target.id);
+    else if (target.id !== s.district && !SB.controls(s).length && s.influence[s.district] < 15) SB.perform(s, 'travel', target.id);
+    if (!s.gangName && s.respect >= 30 && s.cash >= 2300) SB.perform(s, 'foundGang', 'Rede');
+    SB.perform(s, 'contact'); SB.perform(s, 'contact');
+    if (SB.disputeOdds(s, s.district) >= 50) SB.perform(s, 'dispute');
+    if (s.gangName && SB.clashOdds(s, s.district) >= 50) SB.perform(s, 'clash', SB.leader(s, s.district).id);
+    grind(s, 60); trainBest(s, 'influencia', 1200); } },
+  articulador_diplomata: { career: 'articulador', goal: 'diplomacia', day(s) {
+    bail(s); handleNews(s);
+    if (!s.gangName && s.respect >= 30 && s.cash >= 1900) SB.perform(s, 'foundGang', 'Conselho');
+    for (const f of SB.FACTIONS.slice().sort((a, b) => s.factions[b.id].relation - s.factions[a.id].relation)) {
+      const r = s.factions[f.id];
+      if (r.relation >= 60 && s.gangLevel >= 2 && SB.perform(s, 'alliance', f.id).ok) continue;
+      if (r.relation >= 35 && !SB.agreement(s, f.id) && SB.perform(s, 'pact', f.id).ok) continue;
+      if (!SB.agreement(s, f.id) || r.relation < 60) SB.perform(s, 'dialogue', f.id);
+    }
+    if (s.gangName && s.gangLevel < 2 && s.cash > SB.upgradeCost(s) + 800) SB.perform(s, 'upgrade');
+    grind(s, 60); trainBest(s, 'labia', 1000); } },
+  gangue_bonde: { career: 'operador', goal: 'bonde', day(s) {
+    bail(s); handleNews(s);
+    if (!s.gangName && s.respect >= 30 && s.cash >= 1800) SB.perform(s, 'foundGang', 'Bonde');
+    if (s.gangName) {
+      if (s.crewMorale < 45) SB.perform(s, 'rally');
+      if (s.crew.length < 6 && s.cash > SB.recruitCost(s) + 500) SB.perform(s, 'recruit', ['musculo', 'olheiro', 'musculo', 'negociador'][s.crew.length % 4]);
+      SB.perform(s, 'gangOp');
+      if (s.gangLevel < 4 && s.cash > SB.upgradeCost(s) + 1500) SB.perform(s, 'upgrade');
+      if (s.influence[s.district] >= 20 && SB.clashOdds(s, s.district) >= 55) SB.perform(s, 'clash', SB.leader(s, s.district).id);
+      else if (s.influence[s.district] < 20) SB.perform(s, 'contact');
+    }
+    grind(s, 55); trainBest(s, 'forca', 1500); } },
+  exploit_repetir: { career: 'operador', goal: 'capital', day(s) {
+    // Repete sempre a missão de maior recompensa desbloqueada e deposita tudo.
+    if (s.bank) SB.perform(s, 'bank', 'withdraw', s.bank);
+    for (let i = 0; i < 10; i++) {
+      const m = SB.MISSIONS.filter(x => !SB.missionLock(s, x)).sort((a, b) => b.high - a.high)[0];
+      if (!m) break; SB.perform(s, 'mission', m.id);
+    }
+    bankSurplus(s, 0); } },
+  aleatorio: { career: null, goal: null, day(s) {
+    const acts = ['mission', 'train', 'gig', 'contact', 'travel', 'layLow', 'buy', 'dialogue'];
+    for (let i = 0; i < 8; i++) {
+      const a = acts[SB.rand(0, acts.length - 1)];
+      const arg = a === 'mission' ? SB.MISSIONS[SB.rand(0, SB.MISSIONS.length - 1)].id : a === 'train' ? SB.STATS[SB.rand(0, 3)].id :
+        a === 'travel' ? SB.DISTRICTS[SB.rand(0, 4)].id : a === 'buy' ? SB.BUSINESSES[SB.rand(0, 4)].id : a === 'dialogue' ? SB.FACTIONS[SB.rand(0, 2)].id : undefined;
+      SB.perform(s, a, arg);
+    }
+    handleNews(s); } }
+};
+
+function playSeason(strategy, s) {
+  const st = STRATEGIES[strategy];
+  if (st.career) SB.perform(s, 'career', st.career);
+  else SB.perform(s, 'career', SB.CAREERS[SB.rand(0, 2)].id);
+  if (st.goal) SB.perform(s, 'goal', st.goal);
+  while (s.day < SB.MAXDAY) { st.day(s); SB.perform(s, 'nextDay'); }
+  st.day(s);
+  const sc = SB.seasonScore(s);
+  const out = { patrimony: SB.patrimony(s), respect: s.respect, score: sc.score, goal: s.goalDone ? 1 : 0, arrests: s.seasonStats.arrests,
+    controls: SB.controls(s).length, crew: s.crew.length, careerLvl: SB.careerLevel(s), success: s.successful, failed: s.failed };
+  for (const c of sc.cats) { out['v_' + c.id] = c.value; out['m_' + c.id] = c.medal; }
+  return out;
+}
+
+function stats(arr) {
+  const a = arr.slice().sort((x, y) => x - y), n = a.length;
+  const mean = a.reduce((p, c) => p + c, 0) / n;
+  return { mean: Math.round(mean * 10) / 10, p10: a[Math.floor(n * .1)], p50: a[Math.floor(n * .5)], p90: a[Math.floor(n * .9)] };
+}
+
+function runAll() {
+  SB.setRandom(SB.seeded(SEED));
+  const report = {};
+  for (const name of Object.keys(STRATEGIES)) {
+    const rows = [];
+    for (let r = 0; r < RUNS; r++) rows.push(playSeason(name, SB.defaultState('Bot', 'Recife')));
+    const keys = Object.keys(rows[0]);
+    report[name] = Object.fromEntries(keys.map(k => [k, stats(rows.map(x => x[k]))]));
+  }
+  return report;
+}
+
+if (require.main === module) {
+  const t0 = Date.now();
+  const rep = runAll();
+  const cols = ['patrimony', 'respect', 'score', 'goal', 'arrests', 'controls', 'v_fortuna', 'm_fortuna', 'v_fama', 'm_fama', 'v_territorio', 'm_territorio', 'v_diplomacia', 'm_diplomacia', 'v_gangue', 'm_gangue', 'careerLvl'];
+  console.log(`Simulação: ${RUNS} temporadas por estratégia, seed ${SEED} (${Date.now() - t0} ms)\n`);
+  console.log(['estratégia'.padEnd(24)].concat(cols.map(c => c.padStart(12))).join(''));
+  for (const [name, r] of Object.entries(rep)) console.log([name.padEnd(24)].concat(cols.map(c => String(r[c].mean).padStart(12))).join(''));
+  console.log('\nPercentis de patrimônio (p10 / p50 / p90):');
+  for (const [name, r] of Object.entries(rep)) console.log('  ' + name.padEnd(24) + `${r.patrimony.p10} / ${r.patrimony.p50} / ${r.patrimony.p90}`);
+}
+module.exports = { runAll, STRATEGIES, playSeason };

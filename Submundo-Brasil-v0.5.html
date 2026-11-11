@@ -1,0 +1,2018 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111b1e">
+  <meta name="description" content="Submundo Brasil — RPG urbano brasileiro de estratégia por turnos para navegador.">
+  <title>Submundo Brasil | Jogo de estratégia 0.5</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0d1319;--panel:#151e26;--panel2:#1a2630;--line:#30404d;--muted:#9eabb5;--text:#f0f2f1;--accent:#e8a04b;--accent2:#ffbd6e;--green:#81c9a6;--red:#ee948a;--info:#8dbedb;--radius:9px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}a{color:var(--accent)}.hidden{display:none!important}
+    .topbar{position:sticky;z-index:30;top:0;border-bottom:1px solid var(--line);background:#111920ed;backdrop-filter:blur(10px)}.topwrap{max-width:1240px;margin:auto;padding:10px 18px;display:flex;gap:14px;align-items:center;justify-content:space-between}.brand{display:flex;gap:11px;align-items:center;min-width:0}.brandmark{background:var(--accent);color:#101820;font-weight:1000;font-size:15px;letter-spacing:-1px;padding:8px 9px;border-radius:6px;line-height:1}.brand strong{font-weight:900;letter-spacing:.08em;font-size:16px;display:block;line-height:1.1}.brand small{display:block;color:var(--muted);font-size:11px;letter-spacing:.08em;margin-top:4px}.headright{display:flex;gap:15px;align-items:center}.headright .topcell{display:flex;flex-direction:column;line-height:1.25}.topcell span{color:var(--muted);font-size:11px}.topcell strong{font-size:13px;font-variant-numeric:tabular-nums}.menuToggle{display:none;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:7px;padding:7px 11px}
+    .layout{max-width:1240px;min-height:calc(100vh - 64px);margin:auto;display:grid;grid-template-columns:215px minmax(0,1fr);gap:23px;padding:22px 18px 38px}.sidebar{padding-top:6px}.sidehead{color:#7c919f;font-size:10px;letter-spacing:.18em;font-weight:800;margin:12px 12px 9px;text-transform:uppercase}.nav{display:grid;gap:4px}.nav button{background:transparent;border:1px solid transparent;color:#b9c7cf;text-align:left;padding:11px 12px;border-radius:6px;font-weight:650}.nav button.active{background:#23313c;border-color:#445868;color:#ffe0ad}.nav button:hover:not(.active){background:#19242e}.sidefoot{border-top:1px solid var(--line);color:var(--muted);margin-top:24px;padding:15px 12px;font-size:11px;line-height:1.6}.sidefoot strong{color:#c8d4dc}
+    .content{min-width:0}.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:17px}.pagehead h1{margin:0 0 4px;font-size:26px;letter-spacing:-.035em;line-height:1.18;font-weight:850}.pagehead p{margin:0;color:var(--muted);font-size:13px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.16em;font-size:10px;font-weight:900;margin-bottom:6px}.tag{font-size:11px;border:1px solid #475461;color:#b5c4cb;border-radius:4px;padding:4px 7px;white-space:nowrap}.grid{display:grid;gap:13px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:17px;min-width:0}.card h2,.card h3{margin:0}.card h2{font-size:16px;letter-spacing:-.02em}.card h3{font-size:14px}.card p{margin:7px 0;color:var(--muted)}.section{margin:21px 0 12px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}.section h2{margin:0;font-size:16px}.section small{color:var(--muted)}.statgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.stat{padding:14px;background:#1a252e;border:1px solid var(--line);border-radius:7px}.stat span{display:block;color:#a6b5bf;font-size:11px}.stat strong{font-size:21px;line-height:1.25;letter-spacing:-.025em;font-variant-numeric:tabular-nums}.stat strong.small{font-size:16px}.stat em{display:block;font-style:normal;font-size:10px;color:var(--muted)}.flex{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.space{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.space>*{min-width:0}.muted{color:var(--muted)}.quiet{font-size:12px;color:var(--muted)}.strong{font-weight:800}.positive{color:var(--green)}.negative{color:var(--red)}.accent{color:var(--accent)}.pill{color:var(--info);font-size:11px;border:1px solid #385468;background:#1b303c;border-radius:5px;padding:3px 7px;white-space:nowrap}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;border-radius:6px;border:1px solid #546575;background:#273641;color:#f1f5f4;font-weight:750;padding:9px 12px;text-decoration:none;line-height:1.15}.btn:hover:not(:disabled){filter:brightness(1.15)}.btn.primary{background:var(--accent);border-color:var(--accent);color:#181b1a}.btn.ghost{background:transparent;border-color:#485967}.btn.danger{color:#ffb9b4;border-color:#79534f;background:transparent}.btn.small{min-height:32px;padding:7px 10px;font-size:12px}.btn.block{width:100%}.btnbar{display:flex;gap:7px;flex-wrap:wrap}.meter{height:8px;border-radius:9px;background:#2b3842;overflow:hidden}.meter>div{height:100%;background:var(--accent);transition:width .2s}.meter.green>div{background:var(--green)}.meter.red>div{background:var(--red)}.meters{display:grid;gap:13px}.meterlabel{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}.table{width:100%;border-collapse:collapse}.table td,.table th{padding:10px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.table tr:last-child td{border-bottom:0}.table td:last-child,.table th:last-child{text-align:right}.table th{font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}.timeline{list-style:none;padding:0;margin:0}.timeline li{padding:10px 0;border-bottom:1px solid #263742;font-size:12px}.timeline li:last-child{border-bottom:0}.timeline time{display:block;color:var(--muted);font-size:10px;margin-bottom:2px}.mission{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}.mission h3{margin:0 0 4px;font-size:15px}.mission p{margin:0 0 7px;font-size:12px}.mission .details{color:#b6c4cc;font-size:11px}.mission .right{text-align:right}.mission .chance{display:block;font-weight:850;font-size:18px;color:var(--green);margin-bottom:6px}.mission .chance.risky{color:#e9ac7b}.mission .chance.danger{color:var(--red)}.mission .right .btn{min-width:88px}.district.selected{border-color:#aa814e;background:#202a30}.mini{font-size:11px;color:var(--muted)}.notice{padding:12px 14px;border:1px solid #665b40;background:#28271e;color:#f5d9b1;border-radius:7px;margin-bottom:15px;font-size:12px}.notice.ok{border-color:#426658;background:#1d302d;color:#b9e5d0}.notice.error{border-color:#7d4845;background:#311e22;color:#ffd5d2}.input{background:#0d171e;color:var(--text);border:1px solid #526575;border-radius:6px;padding:10px 12px;min-height:41px;width:100%;min-width:0}.input::placeholder{color:#81919d}.formrow{display:flex;gap:10px;align-items:end}.formrow>*{flex:1}.formfield label{display:block;font-size:12px;color:#c5cdd3;font-weight:650;margin:0 0 6px}.formrow .btn{flex:0 0 auto}.empty{padding:20px;border:1px dashed #4e5e69;border-radius:8px;text-align:center;color:var(--muted);font-size:13px}.divider{height:1px;background:var(--line);margin:15px 0}.rank{font-size:22px;font-weight:900;line-height:1.3}.rank small{display:block;font-size:12px;font-weight:500;color:var(--muted)}.brandpanel{border:1px solid #64503a;background:linear-gradient(105deg,#30271e,#151e26 67%);border-radius:var(--radius);padding:20px}.brandpanel h2{margin:0;font-size:23px}.brandpanel p{color:#beaaa0;max-width:580px}.dim{opacity:.68}.result{font-size:13px;color:#d1d9dd;margin-top:10px}.tips{padding:0 0 0 18px;color:#b4c0c8}.tips li{margin:7px 0}.seasonnumber{font-size:37px;font-weight:900;color:var(--accent);letter-spacing:-.04em}.statusbar{display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:12px}.badge{font-size:10px;font-weight:800;background:#2a3c48;border:1px solid #415464;color:#d1dbe0;padding:4px 7px;border-radius:4px}.footer{color:var(--muted);font-size:11px;border-top:1px solid var(--line);padding:14px 0;margin-top:25px}.toast{position:fixed;z-index:60;bottom:20px;right:20px;max-width:min(380px,calc(100vw - 30px));padding:14px 16px;background:#263b36;border:1px solid #4a8069;color:#e8f8ef;border-radius:7px;box-shadow:0 16px 45px #0009;animation:appear .2s ease}.toast.error{background:#422b2a;border-color:#84514b}.toast[hidden]{display:none}@keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    .welcome{position:fixed;inset:0;z-index:70;background:#0b1217f6;display:grid;place-items:center;padding:16px;overflow:auto}.welcome .intro{width:min(520px,100%);padding:28px;background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:10px}.intro h1{margin:10px 0;font-size:30px;letter-spacing:-.04em;line-height:1.13}.intro p{color:var(--muted);line-height:1.65}.intro .formfield{margin:16px 0}.intro .btn{margin-top:10px}.intro small{color:var(--muted);font-size:11px;display:block;margin-top:16px}
+    @media(max-width:930px){.grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:190px minmax(0,1fr);gap:13px;padding:16px 12px}.topwrap{padding:10px 12px}.statgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.layout{display:block;padding:14px 12px 30px;min-height:calc(100vh - 66px)}.sidebar{display:none;position:sticky;top:63px;z-index:25;background:#111b23;border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:13px;box-shadow:0 20px 30px #0008}.sidebar.open{display:block}.nav{grid-template-columns:repeat(2,minmax(0,1fr))}.nav button{padding:11px}.sidehead,.sidefoot{display:none}.menuToggle{display:block}.headright .topcell:nth-child(2){display:none}.brand strong{font-size:14px}.brand small{font-size:10px}.grid.two,.grid.three{grid-template-columns:1fr}.pagehead h1{font-size:23px}.pagehead{margin-bottom:13px}.card{padding:14px}.mission{grid-template-columns:minmax(0,1fr) auto;gap:9px}.mission .right .btn{min-width:78px}.formrow{flex-wrap:wrap}.brandpanel{padding:17px}.brandpanel h2{font-size:20px}}@media(max-width:390px){.topwrap{gap:7px;padding:10px}.headright{gap:7px}.topcell strong{font-size:11px}.brandmark{padding:7px}.brand strong{font-size:13px}.brand small{font-size:9px}.stat strong{font-size:19px}.mission{grid-template-columns:1fr}.mission .right{display:flex;justify-content:space-between;align-items:center;text-align:left}.mission .chance{margin:0}.btnbar .btn{flex:1}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+  
+/* SUBMUNDO BRASIL 0.2 — identidade clássica de RPG brasileiro */
+:root {--bg:#0c1115;--panel:#161d22;--panel2:#1f2a30;--line:#303b41;--muted:#aab6bb;--text:#f5f2e9;--accent:#e4b266;--accent2:#ffcc7d;--green:#86c8aa;--red:#eb8d7e;--info:#a0c5d1;--radius:7px}
+html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70% 2%,#14252a 0%, transparent 68%),#0c1115;font-size:13px;line-height:1.45}
+.topbar{background:#10181aeF;border-bottom:1px solid #384344;box-shadow:0 5px 26px #0005}
+.topwrap{max-width:1170px;padding:11px 20px}
+.brand{gap:10px}.brandmark{position:relative;display:grid;place-items:center;width:38px;height:38px;background:#e0af65;color:#171916;font-family:Georgia,serif;font-size:18px;border-radius:2px;border:1px solid #f5ce8f;box-shadow:inset 0 0 0 2px #1a2527}
+.brand strong{font-family:Georgia,'Times New Roman',serif;letter-spacing:.055em;font-size:17px}.brand small{font:600 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.1em;color:#adb4b2}
+.headright{gap:22px}.topcell span{font-size:9px;font-weight:750;text-transform:uppercase;letter-spacing:.1em}.topcell strong{font-size:13px;color:#f3d09b}.layout{max-width:1170px;grid-template-columns:190px minmax(0,1fr);gap:23px;padding-top:19px}
+.sidebar{border-right:1px solid #30393b;padding-right:12px}.sidehead{color:#cfab74;margin:8px 11px 14px}.nav{gap:3px}.nav button{font-size:13px;padding:11px 12px;border-radius:4px;border-left:2px solid transparent;font-weight:650}.nav button.active{background:linear-gradient(90deg,#31342c,#1d292d);color:#ffd38c;border-color:#eab568}.nav button:hover:not(.active){background:#1d292d}.sidefoot{line-height:1.7}
+.pagehead{align-items:start;margin-bottom:15px;border-bottom:1px solid #324044;padding-bottom:14px}.pagehead h1{font-family:Georgia,serif;letter-spacing:-.025em;font-size:26px;font-weight:700}.pagehead p{font-size:12px}.eyebrow{font:800 10px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.13em;color:#e7af63}
+.card{background:#171e23;border-color:#344248;border-radius:5px;padding:15px}.card h2{font-size:16px;font-family:Georgia,serif;font-weight:700;letter-spacing:-.02em}.card h3{font-size:14px}.card p{font-size:12px;color:#adbac0}.section{margin:18px 0 10px}.section h2{font-size:17px;font-family:Georgia,serif;font-weight:700}.statgrid{gap:8px}.stat{padding:11px;background:#1c262b;border-color:#344348;border-radius:4px}.stat strong{font-size:19px}.stat em{display:none}
+.btn{background:#29363a;border-color:#49575b;color:#f3f3ec;border-radius:3px;font-weight:750;transition:background .14s ease,border-color .14s ease;min-height:39px}.btn:hover:not(:disabled){background:#38484a}.btn.primary{background:#e0ab61;border-color:#e0ab61;color:#172025}.btn.primary:hover:not(:disabled){background:#f1c27c}.btn.ghost{background:transparent}.pill{border-radius:3px;color:#d0bf99;background:#2a302f;border-color:#4b5247}.badge{background:#253238;border-color:#3a4d50;border-radius:3px}.tag{border-radius:2px}.meter{height:5px;background:#344046;border-radius:1px}.meter>div{border-radius:1px}.mission{padding:12px 15px;background:linear-gradient(90deg,#1a2328,#141c21);border-left:3px solid #465b5c}.mission h3{font-size:14px}.mission p{margin:3px 0 4px}.mission .chance{font-size:17px}.mission .details{color:#afbbc0}.mission .right .btn{min-width:89px}.district.selected{background:#242a25;border-color:#b88d57}.brandpanel{background:radial-gradient(ellipse at top right,#3d3326,#192328 72%);border-color:#61533d;border-radius:4px}
+.welcome{background:radial-gradient(circle at 50% 25%,#2a352c,#0a0f13 65%)}.welcome .intro{background:#172025;border-radius:4px;border-top:4px solid #e5b16d;box-shadow:0 22px 80px #0008}.intro h1{font-family:Georgia,serif;font-size:31px;letter-spacing:-.02em}
+.cityHero{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:1fr auto;align-items:end;gap:12px;min-height:146px;padding:19px 22px 16px;background:linear-gradient(94deg,#1c2d32 0%,#193039 48%,#27352d 100%);border:1px solid #506160;border-bottom:3px solid #b48851;margin-bottom:10px;border-radius:4px}
+.cityHero:before{content:'';position:absolute;z-index:-1;inset:0;opacity:.19;background:linear-gradient(0deg,#0008 4px,transparent 5px),repeating-linear-gradient(90deg,transparent 0 26px,#8ca3a8 26px 29px,transparent 29px 47px,#607c85 47px 55px,transparent 55px 76px);background-size:100% 26px,100% 100%;background-position:0 bottom;mask-image:linear-gradient(0deg,#000 1%,transparent 77%)}
+.cityHero::after{content:'';position:absolute;right:-46px;top:-87px;z-index:-1;width:300px;height:300px;background:radial-gradient(circle,#d09c5f37 0%,transparent 65%)}
+.heroLabel{color:#e5be85;text-transform:uppercase;font:800 10px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.15em}.cityHero h1{font:700 clamp(27px,3.5vw,38px)/1.07 Georgia,serif;letter-spacing:-.03em;margin:10px 0 6px;overflow-wrap:anywhere}.cityHero p{margin:0;color:#c5d1ce;font-size:12px}.heroMeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.heroMeta span{font-size:10px;border:1px solid #71808080;background:#09171c55;padding:4px 8px;border-radius:2px;color:#dfe5df}.heroReputation{text-align:right;min-width:68px}.heroReputation strong{font:700 39px/1 Georgia,serif;color:#f6d09b;display:block}.heroReputation small{display:block;text-transform:uppercase;letter-spacing:.1em;color:#d3d7ce;font-size:9px;margin-top:5px}
+.commandHud{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.hudItem{background:#171f24;border:1px solid #354248;padding:10px 13px 11px;border-radius:3px;min-width:0}.hudItem span{display:block;color:#a5b4ba;font-size:10px;letter-spacing:.045em;text-transform:uppercase}.hudItem strong{font-size:19px;line-height:1.3;font-weight:850;font-variant-numeric:tabular-nums;display:block}.hudItem strong.heat{color:#e98e83}.hudItem strong.good{color:#a7d9bc}.hudItem small{display:block;color:#899ca5;font-size:10px}
+.statusStrip{display:flex;align-items:center;gap:12px;padding:10px 13px;border:1px solid #354248;background:#111b1f;margin-top:8px;border-radius:3px}.statusStrip .statusBar{flex:1;min-width:0}.statusBar .meterlabel{font-size:10px;margin-bottom:5px}.statusStrip .btn{flex:none}
+.boardGrid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:10px;margin-top:13px}.boardLead{background:#20252a;border:1px solid #514b3d;border-top:3px solid #ddac69;padding:15px 17px;border-radius:3px}.boardLead .eyebrow{margin-bottom:12px}.boardLead h2{font:700 20px/1.18 Georgia,serif;margin:0 0 6px}.boardLead p{margin:0;color:#bac7c7;font-size:12px}.boardMetrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:15px 0 12px}.boardMetrics .metric{border-top:1px solid #4e5351;padding-top:8px}.metric span{display:block;color:#9da9ad;font-size:9px;text-transform:uppercase;letter-spacing:.07em}.metric strong{font-size:15px;display:block;margin-top:3px;font-weight:800}.boardLead .btn{width:100%;min-height:42px}
+.cityBulletin{border:1px solid #384a4b;background:#172226;padding:15px 15px 12px;border-radius:3px}.cityBulletin .btitle{font:700 17px/1.1 Georgia,serif;margin:13px 0 7px;color:#e6c190}.cityBulletin p{font-size:12px;line-height:1.5;color:#b3c0c1;margin:0}.cityBulletin .bulletinFoot{border-top:1px solid #3a484b;margin-top:16px;padding-top:11px;color:#b7bfbf;font-size:10px}.cityBulletin .bulletinFoot strong{display:block;color:#93c9a8;font-size:14px;margin-top:2px}
+.commandHeader{margin:20px 0 9px;display:flex;gap:9px;justify-content:space-between;align-items:baseline}.commandHeader h2{margin:0;font:700 18px Georgia,serif}.commandHeader small{color:#8ea2a8}.commandGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.commandLink{text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:70px;padding:14px 16px;border:1px solid #3a474b;background:#1b2529;border-radius:3px;color:#f3f0e7}.commandLink:hover{background:#29363a;border-color:#a68352}.commandLink span{display:block;font-size:14px;font-weight:760}.commandLink small{display:block;margin-top:3px;color:#acb9bd;font-size:11px}.commandLink b{font:700 22px Georgia,serif;color:#c59c62;font-weight:600}.recentFeed{margin-top:18px}.recentFeed .card{padding:9px 15px}.recentFeed .timeline{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.recentFeed .timeline li{border:0;margin:0}.recentFeed .timeline li+li{border-left:1px solid #314146;padding-left:13px}
+.mobileNav{display:none}.footer{margin-top:21px;padding-bottom:17px}.notice{margin-top:10px}
+@media(max-width:930px){.layout{grid-template-columns:175px minmax(0,1fr)}.statgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){
+  body{font-size:13px;background:#0e1518}.topwrap{padding:9px 13px}.brandmark{width:34px;height:34px;font-size:17px}.brand strong{font-size:15px}.brand small{font-size:8px;letter-spacing:.06em}.topcell span{font-size:9px}.headright{gap:9px}.headright .topcell:nth-child(2){display:none}.topcell strong{font-size:12px}.menuToggle{display:none}
+  .layout{display:block;padding:12px 10px calc(92px + env(safe-area-inset-bottom));min-height:calc(100dvh - 60px)}.sidebar{display:none!important}.pagehead{padding-bottom:11px;margin-bottom:12px}.pagehead h1{font-size:23px}.pagehead p{font-size:11px}.card{padding:12px}.grid.two,.grid.three{grid-template-columns:1fr}.grid{gap:8px}.statgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mobileNav{position:fixed;z-index:40;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(6,1fr);background:#141e21f5;backdrop-filter:blur(14px);border-top:1px solid #536160;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -9px 29px #0007}
+  .mobileNav button{background:transparent;color:#a5b4b7;border:0;border-top:2px solid transparent;display:grid;place-items:center;gap:0;min-height:58px;padding:6px 0 8px;font-size:9px;font-weight:700;letter-spacing:.01em;min-width:0;white-space:nowrap}.mobileNav button .navSymbol{font-size:17px;font-family:Georgia,serif;height:24px;line-height:22px;color:#a6babd}.mobileNav button.active{color:#f6d39b;background:#2d312823;border-top-color:#e6b36d}.mobileNav button.active .navSymbol{color:#eac18b}
+  .cityHero{padding:16px 15px;min-height:140px}.cityHero h1{font-size:27px}.heroReputation strong{font-size:35px}.heroMeta span{font-size:9px}.commandHud{gap:6px}.hudItem{padding:9px 10px}.hudItem span{font-size:9px}.hudItem strong{font-size:17px}.hudItem small{font-size:9px}.boardGrid{grid-template-columns:1fr;gap:8px}.boardLead{padding:13px}.boardLead h2{font-size:19px}.boardMetrics{margin:12px 0}.cityBulletin{padding:12px}.cityBulletin .btitle{margin:6px 0}.cityBulletin .bulletinFoot{margin-top:8px}.commandHeader{margin-top:17px}.commandGrid{gap:7px}.commandLink{min-height:68px;padding:12px 10px}.commandLink span{font-size:13px}.commandLink small{font-size:10px}.commandLink b{font-size:18px}.recentFeed .timeline{grid-template-columns:1fr;gap:0}.recentFeed .timeline li+li{border-left:0;border-top:1px solid #314146;padding-left:0}
+  .toast{bottom:calc(74px + env(safe-area-inset-bottom));left:12px;right:12px;max-width:none;font-size:13px}
+  .section{margin:16px 0 9px}.section h2{font-size:16px}.intro h1{font-size:29px}
+}
+@media(max-width:370px){.brand strong{font-size:13px}.topwrap{gap:6px}.headright .topcell{display:none}.cityHero h1{font-size:25px}.heroReputation strong{font-size:31px}.statusStrip{gap:7px;padding:9px 10px}.statusStrip .btn{padding:6px 9px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){.btn,.commandLink{transition:none}}
+
+
+    /* Interações v0.3: mantém a linguagem visual do protótipo clássico. */
+    .compactNote{display:flex;gap:6px 10px;flex-wrap:wrap;align-items:center;padding:11px 13px;border:1px solid #4b5f57;background:#1b2b28;border-radius:3px;margin:9px 0;font-size:12px}
+    .compactNote strong{color:#d8e8ca}.compactNote span{color:#a8c4b8}
+    .choiceCard{margin:12px 0}.choiceCard h2{margin-bottom:7px}.choiceCard>p{margin:0 0 13px}
+    .choiceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .choiceGrid article{background:#19252c;border:1px solid #3b4d56;padding:12px;border-radius:5px;display:flex;flex-direction:column;align-items:stretch}
+    .choiceGrid article strong{font-size:13px;color:#f3d6ae}.choiceGrid article p{flex:1;font-size:11px;margin:6px 0 12px;line-height:1.5}.choiceGrid article button{margin-top:auto}
+    .dualMeters{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:13px}
+    .territoryRow{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #374650;background:#19242a;padding:10px;border-radius:5px;font-size:12px}
+    .territoryRow span{color:#a9bdc4;text-align:right;font-size:11px}.territoryRow strong{min-width:0}
+    .seasonObjective{margin-bottom:13px}
+    @media(max-width:700px){.choiceGrid{grid-template-columns:1fr}.choiceGrid article{padding:11px}.choiceGrid article p{margin-bottom:8px}.dualMeters{grid-template-columns:1fr}.territoryRow{padding:10px 8px}}
+    .rivalMetrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+  .rivalMetrics>div{border:1px solid var(--line,rgba(255,255,255,.1));border-radius:10px;padding:9px 7px;min-width:0}
+  .rivalMetrics span{display:block;font-size:11px;color:var(--muted,#a5a5a5);margin-bottom:3px}
+  .rivalMetrics strong{display:block;font-size:14px;overflow-wrap:anywhere}
+  .factionHeader{flex-wrap:wrap;align-items:flex-start;gap:8px}
+  .factionHeader>div{min-width:0;flex:1 1 190px}
+  .factionHeader>.pill{flex-shrink:0;white-space:normal}
+  .rivalCard .space{align-items:flex-start;flex-wrap:wrap;gap:8px}
+  .rivalCard .space>div{min-width:0;flex:1 1 160px}
+  .rivalCard .space .pill{flex-shrink:0;white-space:normal;overflow-wrap:anywhere}
+  .rivalCard .btnbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+  .rivalCard .btnbar .btn{white-space:normal;text-align:center;flex:1 1 138px}
+  @media(max-width:359px){.rivalMetrics{gap:4px}.rivalMetrics>div{padding:7px 4px}.rivalMetrics strong{font-size:12px}}
+
+/* ===== Complementos v0.5 — mesma linguagem visual da 0.4 ===== */
+.resultCard{border:1px solid #426658;background:#1d302d;color:#d6efe2;border-radius:4px;padding:11px 13px;margin:0 0 11px;font-size:12px;border-left:4px solid var(--green)}
+.resultCard.bad{border-color:#7d4845;background:#311e22;color:#ffdcd8;border-left-color:var(--red)}
+.resultCard .rhead{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.resultCard strong{font-size:13px}
+.resultCard ul{margin:7px 0 0;padding-left:17px;color:#c8d3d0}.resultCard li{margin:3px 0}
+.resultCard .close{background:transparent;border:0;color:inherit;font-size:16px;line-height:1;padding:2px 4px;min-height:0}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.chip{font-size:11px;border:1px solid #4b5247;background:#22292a;color:#e3dccb;padding:2px 7px;border-radius:3px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip.up{border-color:#3f6b57;color:#a7e0c3}.chip.down{border-color:#7a4d48;color:#f3b2a9}.chip.warn{border-color:#7b6a3f;color:#f1d39b}
+.filterbar{display:flex;gap:6px;flex-wrap:wrap;margin:-2px 0 10px}
+.filterbar .btn{min-height:32px;padding:6px 10px;font-size:12px}
+.filterbar .btn.on{background:#3a3a2c;border-color:#e0ab61;color:#ffd38c}
+.mission .details+.details{margin-top:2px}
+.mission.locked{opacity:.62}
+.mission .lockline{font-size:11px;color:#e9ac7b;margin-top:4px}
+.memberRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.memberRow:last-child{border-bottom:0}.memberRow strong{font-size:13px}.memberRow .mini{display:block}
+.roleBtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
+.roleBtns .btn{font-size:11px;padding:7px 4px;white-space:normal;min-height:44px}
+.medal{font-size:10px;font-weight:800;padding:3px 7px;border-radius:3px;border:1px solid #4b5247;background:#22292a;color:#b8c0bd;white-space:nowrap}
+.medal.m1{border-color:#8a6643;color:#e6b78a;background:#2d241c}.medal.m2{border-color:#8b979c;color:#e3eaec;background:#262c2f}.medal.m3{border-color:#c9a14f;color:#ffd77f;background:#33291a}
+.catRow{padding:10px 0;border-bottom:1px solid var(--line)}.catRow:last-child{border-bottom:0}
+.catRow .space{align-items:center}.catRow .meter{margin-top:6px}
+.achGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.ach{border:1px solid #344248;background:#151c20;padding:8px 9px;border-radius:3px;font-size:11px;min-width:0}
+.ach strong{display:block;font-size:12px;color:#c9d2d0}.ach span{color:#8e9ea4}.ach.on{border-color:#6a5a3a;background:#211f19}.ach.on strong{color:#f3d6ae}
+.eventList{list-style:none;margin:8px 0 0;padding:0}.eventList li{font-size:12px;color:#c3cfcf;padding:5px 0;border-top:1px solid #2c3a3e}
+.eventList li strong{color:#e6c190}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;margin-top:9px;font-size:12px}
+.kv span{color:var(--muted);display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em}.kv strong{font-size:13px}
+.perkList{margin:6px 0 0;padding-left:17px;font-size:11px;color:#b8c4c6}.perkList li{margin:3px 0}.perkList li.on{color:#a7e0c3}
+.btn.armed{background:#7a4d2a;border-color:#e0ab61;color:#fff}
+.rankRow{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12px}.rankRow:last-child{border-bottom:0}.rankRow.me strong{color:#ffd38c}
+.inlineBtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.inlineBtns .btn{flex:1 1 auto}
+.errorBox{padding:16px;border:1px solid #7d4845;background:#311e22;border-radius:4px;color:#ffdcd8}
+@media(max-width:700px){.kv{grid-template-columns:repeat(2,minmax(0,1fr))}.achGrid{grid-template-columns:1fr 1fr}}
+@media(max-width:370px){.roleBtns .btn{font-size:10px}.ach{padding:7px}}
+
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="topwrap">
+    <div class="brand"><span class="brandmark" aria-hidden="true">SB</span><div><strong>SUBMUNDO BRASIL</strong><small>ESTRATÉGIA URBANA • 0.5</small></div></div>
+    <div class="headright"><div class="topcell"><span>Dinheiro em mãos</span><strong id="topCash">R$ 0</strong></div><div class="topcell"><span>Temporada</span><strong id="topDay">Dia 1</strong></div><button id="menuToggle" class="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">Menu</button></div>
+  </div></header>
+  <div class="layout"><aside class="sidebar" id="sidebar"><div class="sidehead">Jogo</div><nav class="nav" aria-label="Navegação principal">
+    <button type="button" data-view="painel" class="active">Início</button>
+    <button type="button" data-view="acoes">Missões</button>
+    <button type="button" data-view="cidade">Cidade</button>
+    <button type="button" data-view="gestao">Economia</button>
+    <button type="button" data-view="gangue">Gangue</button>
+    <button type="button" data-view="temporada">Temporada</button>
+  </nav><div class="sidefoot"><strong>Versão local 0.5.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.</div></aside>
+  <main class="content" id="content" tabindex="-1" aria-live="polite"></main></div>
+  <nav class="mobileNav" aria-label="Navegação principal no celular">
+    <button type="button" class="active" data-view="painel"><span class="navSymbol" aria-hidden="true">⌂</span>Início</button>
+    <button type="button" data-view="acoes"><span class="navSymbol" aria-hidden="true">✦</span>Missões</button>
+    <button type="button" data-view="cidade"><span class="navSymbol" aria-hidden="true">◇</span>Cidade</button>
+    <button type="button" data-view="gestao"><span class="navSymbol" aria-hidden="true">▣</span>Banco</button>
+    <button type="button" data-view="gangue"><span class="navSymbol" aria-hidden="true">♠</span>Gangue</button>
+    <button type="button" data-view="temporada"><span class="navSymbol" aria-hidden="true">▤</span>Temporada</button>
+  </nav>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <div class="welcome hidden" id="welcome"><form id="newGameForm" class="intro"><div id="welcomeNotice"></div><div class="eyebrow">SUBMUNDO BRASIL / 0.5</div><h1>Faça seu nome.<br>Encare as consequências.</h1><p>Um RPG de navegador inspirado nos clássicos: ações rápidas, riscos, evolução e economia. Tudo em uma cidade brasileira fictícia.</p>
+    <div class="formfield"><label for="playerName">Seu codinome</label><input id="playerName" class="input" name="playerName" required minlength="2" maxlength="22" autocomplete="off" placeholder="Como vão te conhecer?"></div>
+    <div class="formfield"><label for="homeCity">Cidade de origem</label><select id="homeCity" class="input" name="homeCity"><option>Rio de Janeiro</option><option>São Paulo</option><option>Belo Horizonte</option><option>Salvador</option><option>Recife</option><option>Porto Alegre</option></select></div>
+    <button class="btn primary block" type="submit">Começar carreira</button><button class="btn ghost block" type="button" id="welcomeImport" style="margin-top:8px">Importar salvamento (.json)</button><input type="file" id="welcomeImportFile" accept=".json,application/json" class="hidden" aria-label="Selecionar salvamento JSON"><small>Todo o universo, os personagens e as situações são fictícios. Esta versão é offline e salva os dados apenas neste aparelho.</small>
+  </form></div>
+
+  <script id="sb-engine">
+/* =====================================================================
+ * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.5
+ * ---------------------------------------------------------------------
+ * Este módulo NÃO acessa o DOM. Ele contém:
+ *   1. Utilitários e gerador aleatório (substituível nos testes).
+ *   2. Tabelas de dados do jogo (missões, bairros, facções, eventos...).
+ *   3. Criação, validação e migração do estado salvo.
+ *   4. Fórmulas derivadas (chances, rendas, controle de bairros).
+ *   5. Ações do jogador (cada uma valida antes de alterar o estado).
+ *   6. Virada do dia (economia, eventos, IA das facções).
+ *   7. Fim de temporada, pontuação, medalhas e conquistas.
+ *
+ * Convenção das ações: recebem o estado `s`, alteram-no somente se a
+ * ação for permitida e devolvem { ok, good, msg, lines? }.
+ *   ok=false  → ação recusada, estado intacto.
+ *   ok=true   → ação executada; good indica sucesso (true) ou fracasso.
+ * Todo o conteúdo é fictício e abstrato: não há instruções reais.
+ * ===================================================================== */
+(function (root) {
+  'use strict';
+
+  const VERSION = '0.5';
+  const SCHEMA = 2;
+  const MAXDAY = 30;
+  const MAX_LOG = 60;
+  const STORAGE_KEY = 'submundo_brasil_v01'; // mantida desde a 0.1 para ler saves antigos
+
+  /* ------------------------------------------------------------------ */
+  /* 1. Utilitários                                                       */
+  /* ------------------------------------------------------------------ */
+  function cryptoRandom() {
+    if (globalThis.crypto && globalThis.crypto.getRandomValues) {
+      const a = new Uint32Array(1);
+      globalThis.crypto.getRandomValues(a);
+      return a[0] / 4294967296;
+    }
+    return Math.random();
+  }
+  /** Gerador determinístico (mulberry32) usado em testes e simulações. */
+  function seeded(seed) {
+    let t = seed >>> 0;
+    return function () {
+      t += 0x6D2B79F5;
+      let r = Math.imul(t ^ (t >>> 15), 1 | t);
+      r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  let rng = cryptoRandom;
+  function setRandom(fn) { rng = typeof fn === 'function' ? fn : cryptoRandom; }
+  const rand = (min, max) => min + Math.floor(rng() * (max - min + 1));
+  const roll = pct => rand(1, 100) <= pct;
+  const pick = arr => arr[rand(0, arr.length - 1)];
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const isNum = v => typeof v === 'number' && Number.isFinite(v);
+  /** Converte em inteiro limitado; usa `def` se o valor não for número. */
+  const toInt = (v, def, min, max) => isNum(v) ? clamp(Math.round(v), min, max) : def;
+  const toNum = (v, def, min, max) => isNum(v) ? clamp(v, min, max) : def;
+  const sum = arr => arr.reduce((a, b) => a + b, 0);
+  function weighted(options) {
+    const total = sum(options.map(o => Math.max(0, o.w)));
+    if (total <= 0) return options[0];
+    let r = rng() * total;
+    for (const o of options) { r -= Math.max(0, o.w); if (r <= 0) return o; }
+    return options[options.length - 1];
+  }
+  const money = n => 'R$ ' + Math.round(n || 0).toLocaleString('pt-BR');
+
+  /* ------------------------------------------------------------------ */
+  /* 2. Dados do jogo                                                     */
+  /* ------------------------------------------------------------------ */
+  const STATS = [
+    { id: 'astucia', name: 'Astúcia', desc: 'Planejamento e leitura de situação. Base das operações discretas.' },
+    { id: 'forca', name: 'Força', desc: 'Preparo físico e presença. Base das ações de cobrança e escolta.' },
+    { id: 'labia', name: 'Lábia', desc: 'Negociação e convencimento. Base dos acordos e da diplomacia.' },
+    { id: 'influencia', name: 'Influência', desc: 'Rede de contatos. Base da disputa por bairros e da gangue.' }
+  ];
+
+  /* Missões: `stat` define o atributo principal; `district` limita a um bairro.
+     difficulty está na escala do "preparo" (ver missionScore). */
+  const MISSIONS = [
+    { id: 'correria', name: 'Serviço suspeito', desc: 'Uma oportunidade duvidosa para quem está começando.', stat: 'astucia', difficulty: 14, cost: 16, low: 150, high: 290, heat: 6, vigil: 5, respect: 2, unlock: 0, arrest: 28, loss: .10, tension: 1 },
+    { id: 'rolo', name: 'Rolo na feira', desc: 'Convencer um atravessador fictício a fechar negócio fora da tabela.', stat: 'labia', difficulty: 16, cost: 18, low: 190, high: 340, heat: 3, vigil: 3, respect: 2, unlock: 6, arrest: 18, loss: .06, tension: 1 },
+    { id: 'mercadoria', name: 'Mercadoria desaparecida', desc: 'Um intermediário paga para reaver uma carga extraviada.', stat: 'forca', difficulty: 19, cost: 23, low: 300, high: 560, heat: 10, vigil: 7, respect: 3, unlock: 0, arrest: 38, loss: .12, tension: 2 },
+    { id: 'cobranca', name: 'Cobrança atrasada', desc: 'Um comerciante quer receber uma dívida antiga. Exige presença.', stat: 'forca', difficulty: 27, cost: 26, low: 420, high: 740, heat: 12, vigil: 6, respect: 4, unlock: 20, arrest: 38, loss: .10, tension: 3 },
+    { id: 'deposito', name: 'Operação no depósito', desc: 'Um plano maior, com mais recompensa e mais vigilância.', stat: 'astucia', difficulty: 33, cost: 32, low: 580, high: 980, heat: 15, vigil: 10, respect: 5, unlock: 32, arrest: 44, loss: .12, tension: 3 },
+    { id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', stat: 'labia', difficulty: 37, cost: 30, low: 680, high: 1120, heat: 8, vigil: 6, respect: 6, unlock: 50, req: { influence: 25 }, arrest: 28, loss: .08, tension: 2 },
+    { id: 'comboio', name: 'Comboio misterioso', desc: 'Uma operação de alto risco que exige gente de confiança.', stat: 'forca', difficulty: 46, cost: 40, low: 1050, high: 1750, heat: 19, vigil: 12, respect: 8, unlock: 75, req: { gang: true }, arrest: 50, loss: .14, tension: 5 },
+    { id: 'cofre', name: 'O grande cofre', desc: 'A missão mais difícil da temporada. Uma vez por dia.', stat: 'astucia', difficulty: 58, cost: 52, low: 1900, high: 3100, heat: 26, vigil: 18, respect: 13, unlock: 120, req: { stat: ['astucia', 22], oncePerDay: true }, arrest: 55, loss: .15, tension: 6 },
+    // Oportunidades exclusivas de bairro
+    { id: 'camelodromo', district: 'centro', name: 'Esquema do camelódromo', desc: 'Organizar a revenda de um lote sem nota no centro comercial.', stat: 'labia', difficulty: 23, cost: 22, low: 330, high: 560, heat: 7, vigil: 8, respect: 3, unlock: 10, arrest: 30, loss: .08, tension: 2 },
+    { id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Um contêiner esquecido nos galpões do porto. Os Armazéns não vão gostar.', stat: 'forca', difficulty: 29, cost: 28, low: 560, high: 900, heat: 12, vigil: 10, respect: 4, unlock: 15, arrest: 40, loss: .12, tension: 5 },
+    { id: 'favor', district: 'jardim', name: 'Favor de vizinhança', desc: 'Resolver um problema de moradores e ganhar contatos. Pouco dinheiro.', stat: 'influencia', difficulty: 12, cost: 18, low: 90, high: 170, heat: 1, vigil: 2, respect: 3, unlock: 0, arrest: 10, loss: .04, tension: 0, influence: 4 },
+    { id: 'galpao', district: 'industrial', name: 'Galpão desativado', desc: 'Material valioso parado num galpão sob patrulha reforçada.', stat: 'astucia', difficulty: 41, cost: 36, low: 900, high: 1500, heat: 18, vigil: 16, respect: 6, unlock: 40, arrest: 50, loss: .14, tension: 3 },
+    { id: 'baile', district: 'vila', name: 'Bastidores do baile', desc: 'Cuidar da “organização paralela” de um baile de rua.', stat: 'labia', difficulty: 22, cost: 22, low: 300, high: 520, heat: 6, vigil: 6, respect: 4, unlock: 12, arrest: 26, loss: .08, tension: 2, festive: true }
+  ];
+
+  const DISTRICTS = [
+    { id: 'centro', name: 'Centro Antigo', desc: 'Comércio intenso e circulação constante de gente.', risk: 0, bonus: 0, tribute: 110, advantage: 'Diálogos com facções +8 e criar contatos 20% mais barato.' },
+    { id: 'cais', name: 'Cais do Norte', desc: 'Galpões, armazéns e uma região portuária em transformação.', risk: 5, bonus: 15, tribute: 140, advantage: 'Operações coletivas rendem +20%.' },
+    { id: 'jardim', name: 'Jardim União', desc: 'Bairro residencial de trabalhadores e pequenos negócios.', risk: -4, bonus: -10, tribute: 70, advantage: 'Recrutar custa 25% menos e a equipe ganha +2 de ânimo por dia.' },
+    { id: 'industrial', name: 'Distrito Industrial', desc: 'Grandes empresas e patrulhamento reforçado.', risk: 10, bonus: 28, tribute: 160, advantage: 'Todos os seus negócios rendem +12%.' },
+    { id: 'vila', name: 'Vila das Palmeiras', desc: 'Ruas movimentadas e comércio de bairro.', risk: -2, bonus: 4, tribute: 90, advantage: 'Sua vigilância cai 5 pontos extras por dia.' }
+  ];
+
+  /* Negócios: cada um fica em um bairro e sofre a economia e as facções locais. */
+  const BUSINESSES = [
+    { id: 'bar', name: 'Bar da Esquina', district: 'vila', desc: 'Ponto de encontro. Lucra muito em festas e jogos.', cost: 1250, net: 70, respect: 3, tags: ['festa', 'jogo'] },
+    { id: 'oficina', name: 'Oficina de Motos', district: 'jardim', desc: 'Clientela recorrente e estável.', cost: 2850, net: 150, respect: 6, tags: [] },
+    { id: 'mercado', name: 'Mercadinho 24h', district: 'centro', desc: 'Renda regular, sensível a crises.', cost: 5200, net: 270, respect: 10, tags: ['varejo'] },
+    { id: 'logistica', name: 'Depósito de Logística', district: 'industrial', desc: 'Armazenagem para o comércio. Retorno alto, patrulha forte.', cost: 7400, net: 380, respect: 12, tags: [] },
+    { id: 'show', name: 'Casa de Shows', district: 'cais', desc: 'Maior investimento. Explode no Carnaval.', cost: 9700, net: 500, respect: 17, tags: ['festa'] }
+  ];
+  const RESALE = 0.6;
+
+  const CAREERS = [
+    { id: 'operador', name: 'Operador', desc: '+6 de chance nas missões e as falhas custam 30% menos caixa. Vigilância gerada +10% e negócios rendem -10%.',
+      xpDesc: 'Ganha experiência concluindo missões (mais nas difíceis).',
+      perks: ['Rota de fuga: -15 pontos na chance de detenção.', 'Ritmo de rua: penalidade por repetir missões cai pela metade.', 'Sangue frio: a vigilância pesa metade nas chances; o cofre exige Astúcia 18.'] },
+    { id: 'articulador', name: 'Articulador', desc: '+30% de influência, +8 nos diálogos e +5 em disputas e confrontos. Recompensas de missões -10%.',
+      xpDesc: 'Ganha experiência com contatos, diálogos, acordos e notícias.',
+      perks: ['Rede de contatos: criar contatos custa 30% menos.', 'Mediador: tréguas duram 5 dias e alianças custam 40% menos.', 'Voz do bairro: tributo dos bairros +60% e metade das retaliações é evitada.'] },
+    { id: 'empreendedor', name: 'Empreendedor', desc: 'Negócios rendem +25% e custam 12% menos. Chance nas missões -3.',
+      xpDesc: 'Ganha experiência a cada dia lucrativo e a cada negócio comprado.',
+      perks: ['Contador: taxa de depósito bancário cai de 3% para 1%.', 'Fornecedores: crises e extorsões afetam metade dos seus negócios.', 'Sócio oculto: o banco rende 0,4% ao dia (até R$ 120).'] }
+  ];
+  const CAREER_XP = [10, 25, 45];
+
+  const GOALS = [
+    { id: 'capital', name: 'Patrimônio', desc: 'Alcançar R$ 18.000 de patrimônio (caixa, banco e valor de revenda dos negócios).' },
+    { id: 'renome', name: 'Renome', desc: 'Alcançar 130 de respeito e 25 missões concluídas.' },
+    { id: 'dominio', name: 'Territórios', desc: 'Somar 12 dias liderando bairros (um bairro por 12 dias ou vários ao mesmo tempo).' },
+    { id: 'diplomacia', name: 'Diplomacia', desc: 'Firmar 3 acordos (tréguas ou aliança) e terminar com relação +50 com 2 grupos.' },
+    { id: 'bonde', name: 'Bonde forte', desc: 'Ter 5 integrantes e concluir 8 operações coletivas.' }
+  ];
+
+  const ROLES = [
+    { id: 'musculo', name: 'Músculo', desc: '+confrontos e operações coletivas.' },
+    { id: 'olheiro', name: 'Olheiro', desc: '-detenção e -vigilância nas operações.' },
+    { id: 'negociador', name: 'Negociador', desc: '+diálogos e +influência ao criar contatos.' }
+  ];
+  const NICKNAMES = ['Baixinho', 'Magrão', 'Tico', 'Careca', 'Ligeirinho', 'Bigode', 'Dentinho', 'Tatu', 'Pardal', 'Juju', 'Nena', 'Lia', 'Biscoito', 'Coruja', 'Mocotó', 'Faísca', 'Chiclete', 'Tampinha', 'Sabiá', 'Paçoca', 'Quindim', 'Cabeção', 'Maré', 'Brisa', 'Tainha', 'Zóio', 'Gringo', 'Cuíca'];
+
+  /* Facções: personalidade define pesos da IA (0 a 1). */
+  const FACTIONS = [
+    { id: 'esquina', name: 'Círculo da Esquina', short: 'Esquina', districts: ['centro', 'vila'], initialRelation: -10, temperament: 0,
+      desc: 'Grupo antigo que preza reputação e acordos de palavra. Honra tréguas, mas não esquece traições.',
+      persona: { label: 'Tradicional', aggr: .45, expand: .5, diplo: .8, honor: .95, opportunism: .15, pressure: 'extorsao' } },
+    { id: 'docas', name: 'Frente dos Armazéns', short: 'Armazéns', districts: ['cais', 'industrial'], initialRelation: -20, temperament: 10,
+      desc: 'Organização pragmática e expansionista dos galpões. Reage com força e testa quem parece fraco.',
+      persona: { label: 'Expansionista', aggr: .9, expand: .85, diplo: .3, honor: .45, opportunism: .5, pressure: 'ataque' } },
+    { id: 'aurora', name: 'Coletivo Aurora', short: 'Aurora', districts: ['jardim'], initialRelation: 0, temperament: -10,
+      desc: 'Rede de intermediários que prefere influência silenciosa. Avança onde você não está e muda de lado quando convém.',
+      persona: { label: 'Oportunista', aggr: .3, expand: .75, diplo: .6, honor: .25, opportunism: .9, pressure: 'denuncia' } }
+  ];
+  /* Inimizades entre facções (usadas na IA e no apoio de aliados). */
+  const FACTION_ENEMY = { esquina: 'docas', docas: 'esquina', aurora: 'docas' };
+
+  /* Eventos: mods são números ou funções (ctx, evento) → número.
+     Chaves terminadas em Mult multiplicam; demais somam. */
+  const inD = (e, c, v) => (c && c.district === e.district) ? v : 0;
+  const EVENTS = {
+    rotina: { title: 'Rotina normal', desc: 'Sem acontecimentos importantes. A cidade segue seu ritmo.', dur: [1, 1], weight: 4, mods: {} },
+    movimentado: { title: 'Dia movimentado', desc: 'Comércio aquecido: missões rendem +12% em toda a cidade.', dur: [1, 1], weight: 3, mods: { reward: 12 } },
+    fiscalizacao: { title: 'Fiscalização reforçada', desc: 'Missões com -8 de chance e vigilância gerada +20%.', dur: [2, 2], weight: 3, mods: { risk: 8, heatMult: 1.2 } },
+    festival: { title: 'Festival de rua', desc: 'Missões +9%, risco +4. Bar e Casa de Shows lucram +30%.', dur: [1, 1], weight: 2, mods: { reward: 9, risk: 4, bizMult: c => c.biz && c.biz.tags.includes('festa') ? 1.3 : 1 } },
+    patrulhas: { title: 'Patrulhas reduzidas', desc: 'Risco -7 nas missões e vigilância cai 5 extras.', dur: [1, 1], weight: 2, mods: { risk: -7, heatDecay: 5 } },
+    comercio: { title: 'Semana de comércio', desc: 'Missões +6% e todos os negócios +12% por 3 dias.', dur: [3, 3], weight: 2, mods: { reward: 6, bizMult: 1.12 } },
+    carnaval: { title: 'Carnaval', desc: 'Blocos nas ruas: missões no Centro e na Vila +25% (demais +8%), risco +4, multidões escondem (vigilância gerada -10%). Bar +60% e Casa de Shows +80%. Equipe +3 de ânimo por dia.', dur: [3, 3], fixed: 9, weight: 0,
+      mods: { reward: c => (c.district === 'centro' || c.district === 'vila') ? 25 : 8, risk: 4, heatMult: .9, morale: 3, bizMult: c => c.biz ? (c.biz.id === 'show' ? 1.8 : c.biz.id === 'bar' ? 1.6 : 1) : 1, festive: 1 } },
+    classico: { title: 'Clássico no estádio', desc: 'A cidade para pelo futebol: Bar +100%, Casa de Shows +40%, risco +8 no Centro e equipe +5 de ânimo.', dur: [1, 1], fixed: 20, weight: 0,
+      mods: { risk: c => c.district === 'centro' ? 8 : 0, morale: 5, bizMult: c => c.biz ? (c.biz.id === 'bar' ? 2 : c.biz.id === 'show' ? 1.4 : 1) : 1 } },
+    saojoao: { title: 'Arraial no Jardim União', desc: 'Festa junina: missões no Jardim +20%, economia local em alta, Oficina +20% e equipe +2 de ânimo.', dur: [2, 2], weight: 1, district: 'jardim',
+      mods: { reward: (c, e) => inD(e, c, 20), econ: (c, e) => inD(e, c, .15), morale: 2, bizMult: c => c.biz && c.biz.id === 'oficina' ? 1.2 : 1, festive: 1 } },
+    crise: { title: 'Crise no comércio', desc: 'Economia em queda por 4 dias: negócios -25%, missões -8%, bicos -20%. Em compensação, recrutar custa 30% menos.', dur: [4, 4], weight: 1,
+      mods: { econ: -.2, bizMult: .75, reward: -8, recruitMult: .7, gigMult: .8, crisis: 1 } },
+    operacao: { title: 'Operação policial em {d}', desc: 'Vigilância local +35 ao começar e risco +15 no bairro por 2 dias.', dur: [2, 2], weight: 2, randomDistrict: true,
+      onStart: (s, e) => { s.dstate[e.district].vigil = clamp(s.dstate[e.district].vigil + 35, 0, 100); },
+      mods: { risk: (c, e) => inD(e, c, 15), heatMult: 1 } },
+    greve: { title: 'Greve no porto', desc: 'Cais do Norte com economia -30% e missões -20% por 3 dias. A Frente dos Armazéns perde força.', dur: [3, 3], weight: 1, district: 'cais',
+      onStart: s => { s.factions.docas.power = clamp(s.factions.docas.power - 8, 10, 100); },
+      mods: { econ: (c, e) => inD(e, c, -.3), reward: (c, e) => inD(e, c, -20) } },
+    guerra: { title: 'Guerra entre facções em {d}', desc: 'Facções se enfrentam: disputas e confrontos no bairro +12, risco local +6.', dur: [2, 2], weight: 0,
+      mods: { dispute: (c, e) => inD(e, c, 12), risk: (c, e) => inD(e, c, 6) } },
+    feriadao: { title: 'Feriadão prolongado', desc: 'Por 3 dias: +15 de energia ao amanhecer e negócios +15%. Missões -5%.', dur: [3, 3], weight: 1, mods: { energy: 15, bizMult: 1.15, reward: -5 } },
+    eleicao: { title: 'Eleição municipal', desc: 'Por 4 dias: risco +5 e ações de influência +40%.', dur: [4, 4], weight: 1, mods: { risk: 5, influenceMult: 1.4 } },
+    temporal: { title: 'Temporal de verão', desc: 'Chuva forte: missões -10%, risco -5 e -10 de energia ao amanhecer.', dur: [1, 1], weight: 2, mods: { reward: -10, risk: -5, energy: -10 } }
+  };
+  /* Mapeia o antigo eventIndex (0.1–0.4) para os eventos atuais. */
+  const LEGACY_EVENTS = ['movimentado', 'fiscalizacao', 'festival', 'rotina', 'patrulhas', 'comercio'];
+
+  /* Notícias com decisões. `when` limita quando podem aparecer. */
+  const NEWS = [
+    { id: 'feira', name: 'Feira do bairro', desc: 'O comércio local organiza uma feira. Seu apoio pode melhorar seus contatos.', choices: [
+      { label: 'Patrocinar a feira', desc: 'R$ 180 · +14 influência local · +2 respeito', cash: 180, influence: 14, respect: 2 },
+      { label: 'Ajudar na montagem', desc: '25 energia · +R$ 90 · +7 influência local', energy: 25, influence: 7, money: 90 }] },
+    { id: 'fiscalizacao', name: 'Boletim de fiscalização', desc: 'A cidade intensificou a fiscalização. Há caminhos para reduzir sua exposição.', choices: [
+      { label: 'Contratar assessoria jurídica', desc: 'R$ 260 · -24 vigilância', cash: 260, heat: -24 },
+      { label: 'Diminuir o ritmo', desc: '18 energia · -12 vigilância', energy: 18, heat: -12 }] },
+    { id: 'boatos', name: 'Rumores na vizinhança', desc: 'O grupo que lidera o bairro espalha boatos sobre você.', choices: [
+      { label: 'Organizar reunião', desc: 'R$ 160 e 12 energia · +12 influência · presença rival -8 · relação +6', cash: 160, energy: 12, influence: 12, rival: -8, relation: 6 },
+      { label: 'Responder publicamente', desc: '18 energia · +4 respeito · +10 vigilância · presença rival +6 · tensão +8', energy: 18, respect: 4, heat: 10, rival: 6, tension: 8 }] },
+    { id: 'festival', name: 'Festival da cidade', desc: 'Um festival movimenta clientes e abre oportunidades.', choices: [
+      { label: 'Investir em barracas', desc: 'R$ 320 agora · R$ 480 amanhã', cash: 320, nextBonus: 480, notLastDay: true },
+      { label: 'Ajudar na produção', desc: '25 energia · +R$ 150 · +6 influência', energy: 25, money: 150, influence: 6 }] },
+    { id: 'comercio', name: 'Convite de comerciantes', desc: 'Uma associação comercial pede apoio para reorganizar a região.', choices: [
+      { label: 'Apoiar a associação', desc: 'R$ 240 · +10 influência · presença rival -4', cash: 240, influence: 10, rival: -4 },
+      { label: 'Oferecer seu tempo', desc: '20 energia · +6 influência · -5 vigilância', energy: 20, influence: 6, heat: -5 }] },
+    { id: 'informante', name: 'Informante de confiança', desc: 'Alguém oferece dicas sobre a rotina da cidade.', choices: [
+      { label: 'Pagar pela dica', desc: 'R$ 250 · próxima missão hoje ou amanhã +12 de chance', cash: 250, tip: 2 },
+      { label: 'Desconfiar', desc: 'Sem custo · -4 vigilância', heat: -4 }] },
+    { id: 'insatisfacao', name: 'Integrantes reclamam', desc: 'Sua equipe está desanimada e cobra reconhecimento.', when: s => !!s.gangName && s.crewMorale < 50 && s.crew.length > 0, choices: [
+      { label: 'Pagar uma gratificação', desc: 'R$ 60 por integrante · +20 ânimo', cashPerMember: 60, morale: 20 },
+      { label: 'Conversar com o grupo', desc: '15 energia · +8 ânimo (Articulador +16)', energy: 15, morale: 8 }] },
+    { id: 'sociedade', name: 'Proposta de sociedade', desc: 'Um comerciante oferece participação num negócio de bairro.', when: s => s.businesses.length > 0 || s.career === 'empreendedor', choices: [
+      { label: 'Investir R$ 800', desc: '+R$ 95 por dia durante 10 dias (sujeito à economia)', cash: 800, contract: { daily: 95, days: 10 } },
+      { label: 'Recusar', desc: 'Sem custo', none: true }] },
+    { id: 'aliado', name: 'Seu aliado pede apoio', desc: 'Um grupo aliado precisa de ajuda contra um rival.', when: s => FACTIONS.some(f => s.factions[f.id].allied), choices: [
+      { label: 'Mandar ajuda', desc: 'R$ 300 e 15 energia · relação +12 · inimigo do aliado: tensão +10', cash: 300, energy: 15, allyHelp: true },
+      { label: 'Negar ajuda', desc: 'Relação com o aliado -20 (a aliança pode acabar)', allyRefuse: true }] },
+    { id: 'oferta', name: 'Proposta de acordo', desc: 'Um grupo rival manda um recado propondo um acordo.', offer: true, choices: [
+      { label: 'Aceitar o acordo', desc: 'Trégua de 3 dias sem custo · relação +5', acceptOffer: true },
+      { label: 'Recusar', desc: 'Relação -5', declineOffer: true }] }
+  ];
+
+  const CATEGORIES = [
+    { id: 'fortuna', name: 'Fortuna', desc: 'Patrimônio final (caixa, banco e revenda dos negócios).', unit: 'money', tiers: [11000, 17000, 24000] },
+    { id: 'fama', name: 'Fama', desc: 'Respeito acumulado na temporada.', unit: 'num', tiers: [110, 160, 220] },
+    { id: 'territorio', name: 'Território', desc: 'Soma dos dias liderando bairros.', unit: 'num', tiers: [10, 25, 45] },
+    { id: 'diplomacia', name: 'Diplomacia', desc: 'Acordos, alianças, diálogos e boas relações.', unit: 'num', tiers: [35, 70, 110] },
+    { id: 'gangue', name: 'Gangue', desc: 'Operações coletivas, confrontos vencidos e experiência da equipe.', unit: 'num', tiers: [40, 90, 140] }
+  ];
+  const MEDALS = ['—', 'Bronze', 'Prata', 'Ouro'];
+
+  const ACHIEVEMENTS = [
+    { id: 'primeira', name: 'Primeiro passo', desc: 'Concluir a primeira missão.' },
+    { id: 'cofre', name: 'O grande golpe', desc: 'Concluir “O grande cofre”.' },
+    { id: 'dono', name: 'Dono do pedaço', desc: 'Liderar um bairro.' },
+    { id: 'tres', name: 'Três bandeiras', desc: 'Liderar 3 bairros ao mesmo tempo.' },
+    { id: 'diplomata', name: 'Diplomata', desc: 'Firmar 3 tréguas na mesma temporada.' },
+    { id: 'alianca', name: 'Palavra empenhada', desc: 'Formar uma aliança.' },
+    { id: 'traidor', name: 'Sem palavra', desc: 'Romper um acordo com uma facção.' },
+    { id: 'empresario', name: 'Rede de negócios', desc: 'Possuir 4 negócios ao mesmo tempo.' },
+    { id: 'cofrecheio', name: 'Cofre cheio', desc: 'Atingir R$ 35.000 de patrimônio.' },
+    { id: 'bonde', name: 'Bonde completo', desc: 'Ter 8 integrantes.' },
+    { id: 'veterano', name: 'Veterano', desc: 'Ter um integrante no nível 5.' },
+    { id: 'fichalimpa', name: 'Ficha limpa', desc: 'Encerrar uma temporada sem ser detido.' },
+    { id: 'ouro', name: 'Medalha de ouro', desc: 'Ganhar ouro em qualquer categoria.' },
+    { id: 'versatil', name: 'Versátil', desc: 'Medalhas em 3 categorias na mesma temporada.' },
+    { id: 'determinado', name: 'Determinação', desc: 'Cumprir 3 metas de temporada.' },
+    { id: 'fianca', name: 'Porta da frente', desc: 'Pagar fiança para sair da detenção.' },
+    { id: 'virada', name: 'Virada', desc: 'Vencer um confronto com chance de 40% ou menos.' },
+    { id: 'mestre', name: 'Mestre da carreira', desc: 'Alcançar o nível 3 da especialização.' }
+  ];
+
+  /* ------------------------------------------------------------------ */
+  /* 3. Estado: criação, validação e migração                            */
+  /* ------------------------------------------------------------------ */
+  const startFactions = () => Object.fromEntries(FACTIONS.map(f => [f.id, {
+    relation: f.initialRelation, tension: 20 + f.temperament, truceUntil: 0, lastActionDay: 0,
+    power: 50, grudge: 0, allied: false, allyDays: 0, lastMove: '', deals: 0, cooldown: 0
+  }]));
+  const startGangStats = () => ({ confrontWins: 0, confrontLosses: 0, pacts: 0, dialogs: 0, retaliations: 0, groupWins: 0, alliances: 0, betrayals: 0 });
+  const initialInfluence = () => Object.fromEntries(DISTRICTS.map(d => [d.id, d.id === 'centro' ? 8 : 0]));
+  /** Presença das facções por bairro. O dono herda o antigo "rival" da 0.4. */
+  const initialPresence = (legacyRivals) => Object.fromEntries(DISTRICTS.map((d, i) => {
+    const owner = factionFor(d.id).id;
+    return [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, f.id === owner ? (legacyRivals && isNum(legacyRivals[d.id]) ? clamp(Math.round(legacyRivals[d.id]), 0, 100) : 22 + i * 3) : (f.id === 'aurora' ? 4 : 2)]))];
+  }));
+  const initialDistrictState = () => Object.fromEntries(DISTRICTS.map(d => [d.id, { vigil: 0, econ: 1 }]));
+  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0 });
+  const emptySeasonStats = () => ({ arrests: 0, startRespect: 5, bailPaid: 0, controlDays: Object.fromEntries(DISTRICTS.map(d => [d.id, 0])), bestCash: 0 });
+
+  function factionFor(districtId) { return FACTIONS.find(f => f.districts.includes(districtId)) || FACTIONS[0]; }
+
+  function defaultState(name, city) {
+    return {
+      schema: SCHEMA, version: VERSION, name, city, season: 1, day: 1,
+      cash: 1900, bank: 0, energy: 100, heat: 0, respect: 5,
+      stats: { astucia: 6, forca: 4, labia: 4, influencia: 3 },
+      district: 'centro', jail: 0, businesses: [], gangName: null, gangLevel: 0,
+      successful: 0, failed: 0, seasonHistory: [],
+      log: [{ day: 1, msg: 'Você chegou à cidade com algum dinheiro, poucos contatos e muita ambição.' }],
+      career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
+      influence: initialInfluence(), presence: initialPresence(null), dstate: initialDistrictState(),
+      events: [{ id: 'rotina', start: 1, until: 1, district: null }],
+      newsPending: { id: 'feira', day: 1 }, lastEvent: 'rotina', nextBonus: 0, tip: 0, contracts: [], extorted: {},
+      crew: [], crewMorale: 0, crewLastRecruit: 0, crewLastRally: 0, nextMemberId: 1,
+      factions: startFactions(), gangStats: startGangStats(), treachery: 0,
+      today: emptyToday(), seasonStats: emptySeasonStats(),
+      achievements: {}, prestige: 0, nemesis: null, records: {}
+    };
+  }
+
+  /**
+   * Verificação estrutural mínima. Saves que passam aqui são então
+   * higienizados campo a campo por normalizeSave (nada é confiado).
+   * Retorna '' se aceitável ou o motivo da recusa.
+   */
+  function structuralProblem(obj) {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return 'O arquivo não contém um salvamento.';
+    if (obj.schema !== 1 && obj.schema !== 2) return 'Versão de salvamento desconhecida (schema ' + String(obj.schema).slice(0, 10) + ').';
+    if (typeof obj.name !== 'string' || obj.name.trim().length < 2 || obj.name.length > 22) return 'Codinome ausente ou inválido.';
+    if (typeof obj.city !== 'string' || obj.city.length > 40) return 'Cidade de origem inválida.';
+    if (!Number.isInteger(obj.day) || obj.day < 1 || obj.day > MAXDAY) return 'Dia da temporada inválido.';
+    if (!Number.isInteger(obj.season) || obj.season < 1 || obj.season > 9999) return 'Número da temporada inválido.';
+    if (!obj.stats || typeof obj.stats !== 'object') return 'Atributos ausentes.';
+    if (!Array.isArray(obj.businesses) || !Array.isArray(obj.log)) return 'Listas obrigatórias ausentes.';
+    return '';
+  }
+  function validate(obj) { return structuralProblem(obj) === ''; }
+
+  const cleanText = (v, max) => typeof v === 'string' ? v.replace(/[\u0000-\u001f]/g, ' ').slice(0, max) : '';
+
+  /**
+   * Converte qualquer save aceito (schema 1 da 0.1–0.4 ou schema 2) em um
+   * estado 0.5 íntegro. Valores fora de faixa são limitados; campos
+   * desconhecidos são descartados. Retorna { state, notes }.
+   */
+  function normalizeSave(saved) {
+    const notes = [];
+    const base = defaultState(cleanText(saved.name, 22).trim(), cleanText(saved.city, 40) || 'Rio de Janeiro');
+    const s = base;
+    const fromV04 = saved.schema === 1;
+    if (fromV04) notes.push('Salvamento da versão 0.4 (ou anterior) convertido para a 0.5.');
+    s.season = saved.season; s.day = saved.day;
+    const BIG = 1e12;
+    for (const k of ['cash', 'bank', 'respect', 'successful', 'failed', 'goalWins', 'prestige', 'treachery']) {
+      const v = toInt(saved[k], base[k], 0, BIG);
+      if (isNum(saved[k]) && v !== saved[k]) notes.push(`Campo “${k}” ajustado para ${v}.`);
+      s[k] = v;
+    }
+    s.energy = toInt(saved.energy, 100, 0, 100);
+    s.heat = toInt(saved.heat, 0, 0, 100);
+    s.jail = toInt(saved.jail, 0, 0, 5);
+    s.gangLevel = toInt(saved.gangLevel, 0, 0, 8);
+    for (const st of STATS) s.stats[st.id] = toInt(saved.stats[st.id], base.stats[st.id], 1, 1e6);
+    s.district = DISTRICTS.some(d => d.id === saved.district) ? saved.district : 'centro';
+    const biz = [...new Set(saved.businesses.filter(id => BUSINESSES.some(b => b.id === id)))];
+    if (biz.length !== saved.businesses.length) notes.push('Negócios inválidos ou repetidos foram removidos.');
+    s.businesses = biz;
+    s.gangName = typeof saved.gangName === 'string' && saved.gangName.trim().length >= 3 ? cleanText(saved.gangName, 25).trim() : null;
+    if (!s.gangName) s.gangLevel = 0;
+    else s.gangLevel = Math.max(1, s.gangLevel);
+    s.career = CAREERS.some(c => c.id === saved.career) ? saved.career : null;
+    s.careerXP = toInt(saved.careerXP, fromV04 && s.career ? Math.min(20, Math.floor(s.successful / 2)) : 0, 0, 9999);
+    s.goal = GOALS.some(g => g.id === saved.goal) ? saved.goal : null;
+    s.goalDone = s.goal ? saved.goalDone === true : false;
+    s.log = saved.log.filter(x => x && typeof x.msg === 'string').slice(0, MAX_LOG)
+      .map(x => ({ day: toInt(x.day, 1, 1, MAXDAY), msg: cleanText(x.msg, 400) }));
+    if (!s.log.length) s.log = [{ day: s.day, msg: 'Registro restaurado.' }];
+    s.seasonHistory = (Array.isArray(saved.seasonHistory) ? saved.seasonHistory : []).filter(h => h && typeof h === 'object').slice(-200).map(h => ({
+      season: toInt(h.season, 0, 0, 9999), respect: toInt(h.respect, 0, 0, BIG), money: toInt(h.money, 0, 0, BIG),
+      success: toInt(h.success, 0, 0, BIG), failed: toInt(h.failed, 0, 0, BIG),
+      goal: GOALS.some(g => g.id === h.goal) ? h.goal : null, goalComplete: h.goalComplete === true,
+      career: CAREERS.some(c => c.id === h.career) ? h.career : null, districts: toInt(h.districts, 0, 0, 5),
+      gangName: typeof h.gangName === 'string' ? cleanText(h.gangName, 25) : null,
+      confrontWins: toInt(h.confrontWins, 0, 0, BIG), pacts: toInt(h.pacts, 0, 0, BIG), groupWins: toInt(h.groupWins, 0, 0, BIG),
+      score: toInt(h.score, 0, 0, BIG), title: typeof h.title === 'string' ? cleanText(h.title, 40) : '',
+      medals: h.medals && typeof h.medals === 'object' ? Object.fromEntries(CATEGORIES.map(c => [c.id, toInt(h.medals[c.id], 0, 0, 3)])) : null
+    }));
+    s.influence = Object.fromEntries(DISTRICTS.map(d => [d.id, toInt(saved.influence && saved.influence[d.id], base.influence[d.id], 0, 100)]));
+    // Presença das facções: schema 2 usa presence; schema 1 usa rivals.
+    if (saved.presence && typeof saved.presence === 'object') {
+      s.presence = Object.fromEntries(DISTRICTS.map(d => [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, toInt(saved.presence[d.id] && saved.presence[d.id][f.id], base.presence[d.id][f.id], 0, 100)]))]));
+    } else s.presence = initialPresence(saved.rivals);
+    s.dstate = Object.fromEntries(DISTRICTS.map(d => {
+      const o = saved.dstate && saved.dstate[d.id] || {};
+      return [d.id, { vigil: toInt(o.vigil, 0, 0, 100), econ: toNum(o.econ, 1, .6, 1.4) }];
+    }));
+    // Eventos ativos
+    if (Array.isArray(saved.events)) {
+      s.events = saved.events.filter(e => e && EVENTS[e.id]).slice(0, 6).map(e => ({
+        id: e.id, start: toInt(e.start, s.day, 1, MAXDAY), until: toInt(e.until, s.day, 1, MAXDAY),
+        district: DISTRICTS.some(d => d.id === e.district) ? e.district : null
+      })).filter(e => e.until >= s.day);
+      for (const e of s.events) if ((EVENTS[e.id].randomDistrict || EVENTS[e.id].district || e.id === 'guerra') && !e.district) e.district = EVENTS[e.id].district || 'centro';
+    } else {
+      const legacy = LEGACY_EVENTS[toInt(saved.eventIndex, 3, 0, LEGACY_EVENTS.length - 1)];
+      s.events = [{ id: legacy, start: s.day, until: s.day, district: null }];
+    }
+    // Notícias e ofertas
+    const np = saved.newsPending;
+    s.newsPending = (np && NEWS.some(n => n.id === np.id) && np.day === s.day) ? { id: np.id, day: s.day, faction: FACTIONS.some(f => f.id === np.faction) ? np.faction : null } : null;
+    if (s.newsPending && s.newsPending.id === 'oferta' && !s.newsPending.faction) s.newsPending = null;
+    s.lastEvent = EVENTS[saved.lastEvent] ? saved.lastEvent : 'rotina';
+    s.nextBonus = toInt(saved.nextBonus, 0, 0, 100000);
+    s.tip = toInt(saved.tip, 0, 0, 2);
+    s.contracts = (Array.isArray(saved.contracts) ? saved.contracts : []).slice(0, 5).map(c => ({ daily: toInt(c && c.daily, 0, 0, 1000), days: toInt(c && c.days, 0, 0, 30) })).filter(c => c.daily > 0 && c.days > 0);
+    s.extorted = {};
+    if (saved.extorted && typeof saved.extorted === 'object') for (const b of BUSINESSES) if (isNum(saved.extorted[b.id])) s.extorted[b.id] = toInt(saved.extorted[b.id], 0, 0, MAXDAY);
+    // Equipe: schema 1 só tinha crewSize → gera integrantes.
+    s.nextMemberId = toInt(saved.nextMemberId, 1, 1, 1e6);
+    if (s.gangName) {
+      if (Array.isArray(saved.crew)) {
+        s.crew = saved.crew.filter(m => m && ROLES.some(r => r.id === m.role)).slice(0, 8).map((m, i) => ({
+          id: isNum(m.id) ? toInt(m.id, 1, 1, 1e6) : 100000 + i, name: cleanText(m.name, 20) || pick(NICKNAMES), role: m.role,
+          level: toInt(m.level, 1, 1, 5), xp: toInt(m.xp, 0, 0, 100)
+        }));
+      } else {
+        const n = toInt(saved.crewSize, 2, 2, 8);
+        s.crew = [];
+        for (let i = 0; i < n; i++) s.crew.push(newMember(s, ROLES[i % ROLES.length].id, i));
+        notes.push(`Sua equipe de ${n} integrante(s) recebeu nomes e funções.`);
+      }
+      s.crewMorale = toInt(saved.crewMorale, 70, 0, 100);
+      s.nextMemberId = Math.max(s.nextMemberId, ...s.crew.map(m => m.id + 1));
+    } else { s.crew = []; s.crewMorale = 0; }
+    s.crewLastRecruit = toInt(saved.crewLastRecruit, 0, 0, MAXDAY);
+    s.crewLastRally = toInt(saved.crewLastRally, 0, 0, MAXDAY);
+    s.factions = Object.fromEntries(FACTIONS.map(f => {
+      const o = saved.factions && saved.factions[f.id] || {};
+      const b = startFactions()[f.id];
+      return [f.id, {
+        relation: toInt(o.relation, b.relation, -100, 100), tension: toInt(o.tension, b.tension, 0, 100),
+        truceUntil: toInt(o.truceUntil, 0, 0, MAXDAY), lastActionDay: toInt(o.lastActionDay, 0, 0, MAXDAY),
+        power: toInt(o.power, 50, 10, 100), grudge: toInt(o.grudge, 0, 0, 10), allied: o.allied === true && !!s.gangName,
+        allyDays: toInt(o.allyDays, 0, 0, 999), lastMove: cleanText(o.lastMove, 160),
+        deals: toInt(o.deals, 0, 0, 99), cooldown: toInt(o.cooldown, 0, 0, MAXDAY + 5)
+      }];
+    }));
+    s.gangStats = Object.fromEntries(Object.keys(startGangStats()).map(k => [k, toInt(saved.gangStats && saved.gangStats[k], 0, 0, 10000)]));
+    s.today = emptyToday();
+    if (saved.today && typeof saved.today === 'object') {
+      for (const m of MISSIONS) if (isNum(saved.today.missions && saved.today.missions[m.id])) s.today.missions[m.id] = toInt(saved.today.missions[m.id], 0, 0, 99);
+      for (const d of DISTRICTS) if (isNum(saved.today.contacts && saved.today.contacts[d.id])) s.today.contacts[d.id] = toInt(saved.today.contacts[d.id], 0, 0, 9);
+      s.today.op = saved.today.op === true;
+      s.today.training = toInt(saved.today.training, 0, 0, 9);
+    }
+    const ss = saved.seasonStats || {};
+    s.seasonStats = {
+      arrests: toInt(ss.arrests, 0, 0, 999), startRespect: toInt(ss.startRespect, 5, 0, BIG), bailPaid: toInt(ss.bailPaid, 0, 0, 999),
+      controlDays: Object.fromEntries(DISTRICTS.map(d => [d.id, toInt(ss.controlDays && ss.controlDays[d.id], 0, 0, MAXDAY)])),
+      bestCash: toInt(ss.bestCash, 0, 0, BIG)
+    };
+    s.achievements = {};
+    if (saved.achievements && typeof saved.achievements === 'object') for (const a of ACHIEVEMENTS) if (isNum(saved.achievements[a.id])) s.achievements[a.id] = toInt(saved.achievements[a.id], 1, 1, 9999);
+    s.nemesis = FACTIONS.some(f => f.id === saved.nemesis) ? saved.nemesis : null;
+    s.records = {};
+    if (saved.records && typeof saved.records === 'object') for (const c of CATEGORIES) if (isNum(saved.records[c.id])) s.records[c.id] = toInt(saved.records[c.id], 0, 0, BIG);
+    s.schema = SCHEMA; s.version = VERSION;
+    return { state: s, notes };
+  }
+
+  /** Lê um texto JSON (localStorage ou arquivo) e devolve {ok, state, notes, error}. */
+  function parseSave(text) {
+    let obj;
+    try { obj = JSON.parse(text); } catch (e) { return { ok: false, error: 'O conteúdo não é um JSON válido (arquivo corrompido ou incompleto).' }; }
+    if (obj && obj.game === 'Submundo Brasil' && obj.save) obj = obj.save; // formato de exportação
+    const problem = structuralProblem(obj);
+    if (problem) return { ok: false, error: problem };
+    try { const r = normalizeSave(obj); return { ok: true, state: r.state, notes: r.notes }; }
+    catch (e) { return { ok: false, error: 'Falha ao converter o salvamento: ' + e.message }; }
+  }
+  /** Soma de verificação simples (FNV-1a) para detectar arquivos alterados. */
+  function checksum(text) { let h = 0x811c9dc5; for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16); }
+  function exportPayload(s) { const save = JSON.stringify(s); return { game: 'Submundo Brasil', version: VERSION, exportedAt: new Date().toISOString(), checksum: checksum(save), save: s }; }
+
+  /* ------------------------------------------------------------------ */
+  /* 4. Fórmulas derivadas                                                */
+  /* ------------------------------------------------------------------ */
+  const district = (s, id) => DISTRICTS.find(d => d.id === (id || s.district)) || DISTRICTS[0];
+  const faction = id => FACTIONS.find(f => f.id === id);
+  const business = id => BUSINESSES.find(b => b.id === id);
+  const mission = id => MISSIONS.find(m => m.id === id);
+  const careerLevel = s => s.career ? CAREER_XP.filter(x => s.careerXP >= x).length : 0;
+  const hasPerk = (s, c, lvl) => s.career === c && careerLevel(s) >= lvl;
+  const pactActive = (s, fid) => s.day <= s.factions[fid].truceUntil;
+  const agreement = (s, fid) => pactActive(s, fid) || s.factions[fid].allied;
+
+  function log(s, msg) { s.log.unshift({ day: s.day, msg }); s.log = s.log.slice(0, MAX_LOG); }
+
+  /** Eventos válidos hoje, com definição. */
+  function activeEvents(s) { return s.events.filter(e => e.start <= s.day && e.until >= s.day && EVENTS[e.id]).map(e => ({ ...e, def: EVENTS[e.id] })); }
+  function eventTitle(e) { const n = e.district ? district(null, e.district).name : ''; return EVENTS[e.id].title.replace('{d}', n); }
+  function eventMod(s, key, ctx) {
+    const mult = key.endsWith('Mult');
+    let total = mult ? 1 : 0;
+    for (const e of activeEvents(s)) {
+      const m = e.def.mods[key]; if (m === undefined) continue;
+      const v = typeof m === 'function' ? m(ctx || {}, e) : m;
+      total = mult ? total * v : total + v;
+    }
+    return total;
+  }
+
+  /** Líder de um bairro entre as facções. */
+  function leader(s, did) {
+    let best = null;
+    for (const f of FACTIONS) { const v = s.presence[did][f.id]; if (!best || v > best.value) best = { id: f.id, value: v }; }
+    return best;
+  }
+  const controlled = (s, did) => s.influence[did] >= 60 && s.influence[did] >= leader(s, did).value + 10;
+  const controls = s => DISTRICTS.filter(d => controlled(s, d.id));
+  const allyTurf = (s, did) => { const l = leader(s, did); return l.value >= 10 && s.factions[l.id].allied; };
+
+  /* Equipe */
+  function newMember(s, role, i) {
+    const used = new Set((s.crew || []).map(m => m.name));
+    const free = NICKNAMES.filter(n => !used.has(n));
+    return { id: s.nextMemberId++, name: free.length ? pick(free) : 'Novato ' + (i || s.nextMemberId), role, level: 1, xp: 0 };
+  }
+  const roleLevels = (s, role) => sum(s.crew.filter(m => m.role === role).map(m => m.level));
+  const crewSize = s => s.crew.length;
+  const memberUpkeep = m => 20 + m.level * 8;
+  const groupUpkeep = s => s.gangName ? sum(s.crew.map(memberUpkeep)) : 0;
+  const recruitCost = s => Math.round((550 + crewSize(s) * 60) * (controlled(s, 'jardim') ? .75 : 1) * eventMod(s, 'recruitMult'));
+
+  /* Missões */
+  function missionScore(s, m) {
+    const st = s.stats;
+    const total = st.astucia + st.forca + st.labia + st.influencia;
+    return st[m.stat] * 2 + total * .4 + s.gangLevel * 1.5;
+  }
+  function missionChance(s, m) {
+    const d = s.district, ds = s.dstate[d];
+    let heatPen = s.heat * .35 + ds.vigil * .3;
+    if (hasPerk(s, 'operador', 3)) heatPen /= 2;
+    let fatigue = (s.today.missions[m.id] || 0) * 6;
+    if (hasPerk(s, 'operador', 2)) fatigue /= 2;
+    let c = 72 + (missionScore(s, m) - m.difficulty) * 2 - heatPen - district(s).risk - eventMod(s, 'risk', { district: d }) - fatigue;
+    if (s.career === 'operador') c += 6;
+    if (s.career === 'empreendedor') c -= 3;
+    if (s.tip > 0) c += 12;
+    return clamp(Math.round(c), 8, 95);
+  }
+  function missionRewardMult(s, m) {
+    const d = s.district;
+    const pct = district(s).bonus + eventMod(s, 'reward', { district: d }) + (controlled(s, d) ? 12 : 0) + (allyTurf(s, d) ? 10 : 0) + (m.festive && eventMod(s, 'festive') ? 25 : 0);
+    let mult = (1 + pct / 100) * s.dstate[d].econ;
+    mult *= Math.max(.5, 1 - .12 * (s.today.missions[m.id] || 0));
+    if (s.career === 'articulador') mult *= .9;
+    return Math.max(.2, mult);
+  }
+  function arrestChance(s, m) {
+    let a = m.arrest + s.heat * .3 + s.dstate[s.district].vigil * .15 - Math.min(20, roleLevels(s, 'olheiro') * 2);
+    if (hasPerk(s, 'operador', 1)) a -= 15;
+    return clamp(Math.round(a), 5, 90);
+  }
+  const failLoss = (s, m) => s.career === 'operador' ? m.loss * .7 : m.loss;
+  /** Motivo de bloqueio ('' se pode executar). */
+  function missionLock(s, m) {
+    if (m.district && m.district !== s.district) return 'Disponível somente em ' + district(s, m.district).name + '.';
+    if (s.respect < m.unlock) return `Requer ${m.unlock} de respeito.`;
+    const r = m.req || {};
+    if (r.gang && !s.gangName) return 'Requer uma gangue fundada.';
+    if (r.influence && s.influence[s.district] < r.influence) return `Requer ${r.influence} de influência no bairro.`;
+    if (r.stat) { const need = (m.id === 'cofre' && hasPerk(s, 'operador', 3)) ? 18 : r.stat[1]; if (s.stats[r.stat[0]] < need) return `Requer ${STATS.find(x => x.id === r.stat[0]).name} ${need}.`; }
+    if (r.oncePerDay && s.today.missions[m.id]) return 'Já realizada hoje.';
+    if (s.jail > 0) return 'Você está detido.';
+    if (s.energy < m.cost) return 'Energia insuficiente.';
+    return '';
+  }
+  const heatGain = (s, h) => Math.ceil(h * (s.career === 'operador' ? 1.1 : 1) * eventMod(s, 'heatMult'));
+  function respectGain(s, m) { return s.respect > m.unlock + 90 ? Math.ceil(m.respect / 3) : m.respect; }
+
+  /* Economia */
+  function businessIncome(s, b) {
+    let v = b.net * s.dstate[b.district].econ;
+    let em = eventMod(s, 'bizMult', { biz: b, district: b.district });
+    if (em < 1 && hasPerk(s, 'empreendedor', 2)) em = 1 - (1 - em) / 2;
+    v *= em;
+    if (s.career === 'empreendedor') v *= 1.25;
+    if (s.career === 'operador') v *= .9;
+    if (controlled(s, b.district)) v *= 1.15;
+    if (controlled(s, 'industrial')) v *= 1.12;
+    const l = leader(s, b.district);
+    const fs = s.factions[l.id];
+    if (!controlled(s, b.district) && !agreement(s, l.id) && fs.relation < 0 && l.value >= s.influence[b.district] + 25) v *= .85; // pressão rival
+    if (s.extorted[b.id] === s.day) v *= hasPerk(s, 'empreendedor', 2) ? .75 : .5;
+    return Math.max(0, Math.round(v));
+  }
+  const income = s => sum(s.businesses.map(id => businessIncome(s, business(id))));
+  const tribute = (s, did) => Math.round(district(s, did).tribute * s.dstate[did].econ * (hasPerk(s, 'articulador', 3) ? 1.6 : 1));
+  const resaleValue = s => sum(s.businesses.map(id => Math.round(business(id).cost * RESALE)));
+  const patrimony = s => s.cash + s.bank + resaleValue(s);
+  const depositFee = (s, amount) => Math.max(1, Math.ceil(amount * (hasPerk(s, 'empreendedor', 1) ? .01 : .03)));
+  const buyCost = (s, b) => Math.round(b.cost * (s.career === 'empreendedor' ? .88 : 1));
+  const trainCost = (s, id) => { const l = s.stats[id]; return Math.round(250 + l * 40 + l * l * 1.2); };
+  const bailCost = s => s.jail > 0 ? 250 + s.jail * 250 + Math.floor(s.respect * 1.5) : 0;
+  const contactCost = s => Math.round(180 * (hasPerk(s, 'articulador', 1) ? .7 : 1) * (controlled(s, 'centro') ? .8 : 1));
+  const allianceCost = s => Math.round(900 * (hasPerk(s, 'articulador', 2) ? .6 : 1));
+  const allianceFee = s => 50 + s.gangLevel * 15;
+  const upgradeCost = s => 1200 + s.gangLevel * 900;
+  /** Cada nova trégua com o mesmo grupo custa mais: acordos não são gratuitos. */
+  const pactCost = (s, fid) => 400 + s.factions[fid].deals * 200;
+
+  /* Gangue e facções */
+  function gangOdds(s) {
+    const d = s.district;
+    return clamp(Math.round(46 + s.gangLevel * 4 + s.stats.influencia * .6 + crewSize(s) * 1.5 + roleLevels(s, 'musculo') * 1.2 +
+      (s.crewMorale - 50) * .18 - s.heat * .35 - s.dstate[d].vigil * .3 - leader(s, d).value * .08 - eventMod(s, 'risk', { district: d }) * .5), 12, 90);
+  }
+  function enemyHelp(s, fid) { return FACTIONS.some(a => s.factions[a.id].allied && FACTION_ENEMY[a.id] === fid) ? 8 : 0; }
+  function clashOdds(s, did) {
+    const l = leader(s, did), r = s.factions[l.id];
+    return clamp(Math.round(38 + s.stats.influencia * 1.1 + s.stats.labia * .4 + s.gangLevel * 2.5 + crewSize(s) * 1.5 + roleLevels(s, 'musculo') * 1.5 +
+      (s.crewMorale - 50) * .12 - (l.value - s.influence[did]) * .2 - s.heat * .18 - r.tension * .08 - (r.power - 50) * .15 +
+      (s.career === 'articulador' ? 5 : 0) + eventMod(s, 'dispute', { district: did }) + enemyHelp(s, l.id)), 15, 88);
+  }
+  function disputeOdds(s, did) {
+    const l = leader(s, did), r = s.factions[l.id];
+    return clamp(Math.round(40 + s.stats.influencia * 1.2 + s.gangLevel * 3 + roleLevels(s, 'negociador') - s.heat * .15 -
+      (l.value - s.influence[did]) * .22 + (s.career === 'articulador' ? 5 : 0) - r.tension * .07 - (r.power - 50) * .1 + eventMod(s, 'dispute', { district: did }) + enemyHelp(s, l.id)), 18, 85);
+  }
+  function dialogueOdds(s, fid) {
+    const f = faction(fid), r = s.factions[fid];
+    return clamp(Math.round(55 + s.stats.labia * 1.1 + s.stats.influencia * .35 + r.relation * .12 - r.tension * .22 - f.temperament * .45 +
+      roleLevels(s, 'negociador') * 2 + (s.career === 'articulador' ? 8 : 0) + (controlled(s, 'centro') ? 8 : 0) - Math.min(20, s.treachery * 5) - r.grudge * 2), 25, 92);
+  }
+  function factionStatus(s, fid) {
+    const r = s.factions[fid];
+    if (r.allied) return 'Aliado';
+    if (pactActive(s, fid)) return 'Trégua em vigor';
+    return r.relation >= 45 ? 'Relações favoráveis' : r.relation <= -40 ? 'Rivalidade aberta' : r.relation < 0 ? 'Relações tensas' : 'Neutro';
+  }
+  const strength = s => Math.floor(s.respect + sum(Object.values(s.stats)) + s.businesses.length * 5 + s.gangLevel * 9 + crewSize(s) * 3);
+  const cityPower = s => sum(DISTRICTS.map(d => s.influence[d.id])) + controls(s).length * 30;
+  const factionCityPower = (s, fid) => sum(DISTRICTS.map(d => s.presence[d.id][fid])) + DISTRICTS.filter(d => leader(s, d.id).id === fid && !controlled(s, d.id)).length * 30;
+
+  /* ------------------------------------------------------------------ */
+  /* 5. Ações do jogador                                                  */
+  /* ------------------------------------------------------------------ */
+  const refuse = msg => ({ ok: false, good: false, msg });
+  const done = (good, msg, extra) => Object.assign({ ok: true, good, msg }, extra || {});
+  const addHeat = (s, v) => { s.heat = clamp(s.heat + v, 0, 100); };
+  const addInf = (s, did, v) => { s.influence[did] = clamp(Math.round(s.influence[did] + v), 0, 100); };
+  const addPres = (s, did, fid, v) => { s.presence[did][fid] = clamp(Math.round(s.presence[did][fid] + v), 0, 100); };
+  const addRel = (s, fid, v) => { s.factions[fid].relation = clamp(Math.round(s.factions[fid].relation + v), -100, 100); };
+  const addTen = (s, fid, v) => { s.factions[fid].tension = clamp(Math.round(s.factions[fid].tension + v), 0, 100); };
+  const addMorale = (s, v) => { if (s.gangName) s.crewMorale = clamp(Math.round(s.crewMorale + v), 0, 100); };
+  const addXP = (s, career, v) => { if (s.career === career) { const before = careerLevel(s); s.careerXP += v; const after = careerLevel(s); if (after > before) log(s, `Especialização ${CAREERS.find(c => c.id === career).name} nível ${after}: ${CAREERS.find(c => c.id === career).perks[after - 1]}`); } };
+  function memberXP(s, v, role) {
+    for (const m of s.crew) {
+      if (role && m.role !== role) continue;
+      m.xp += v;
+      while (m.level < 5 && m.xp >= m.level * 4) { m.xp -= m.level * 4; m.level++; log(s, `${m.name} (${ROLES.find(r => r.id === m.role).name}) subiu para o nível ${m.level}.`); }
+      if (m.level >= 5) m.xp = 0;
+    }
+  }
+  /** Atrito com a facção que lidera o bairro quando você age no território dela. */
+  function turfFriction(s, did, t) {
+    if (!t) return;
+    const l = leader(s, did);
+    if (l.value < 10 || s.factions[l.id].allied) return;
+    if (pactActive(s, l.id)) {
+      // Compromisso da trégua: agir no território do grupo desgasta o acordo.
+      addRel(s, l.id, -3); addTen(s, l.id, t);
+      if (s.factions[l.id].relation < 15) {
+        s.factions[l.id].truceUntil = 0; addRel(s, l.id, -10);
+        log(s, `${faction(l.id).name} considerou suas ações uma violação e encerrou a trégua.`);
+      }
+      return;
+    }
+    addTen(s, l.id, t);
+    if (t >= 4) addRel(s, l.id, -2);
+  }
+
+  function doMission(s, id) {
+    const m = mission(id); if (!m) return refuse('Missão desconhecida.');
+    const lock = missionLock(s, m); if (lock) return refuse(lock);
+    const odds = missionChance(s, m), mult = missionRewardMult(s, m), d = s.district;
+    s.energy -= m.cost;
+    s.today.missions[m.id] = (s.today.missions[m.id] || 0) + 1;
+    if (s.tip > 0) s.tip = 0;
+    s.dstate[d].vigil = clamp(s.dstate[d].vigil + m.vigil, 0, 100);
+    if (roll(odds)) {
+      const reward = Math.max(1, Math.round(rand(m.low, m.high) * mult));
+      const rg = respectGain(s, m);
+      s.cash += reward; s.respect += rg; addHeat(s, heatGain(s, m.heat)); s.successful++;
+      if (roll(30)) s.stats[m.stat] += 1;
+      if (m.influence) addInf(s, d, m.influence * (s.career === 'articulador' ? 1.3 : 1));
+      addXP(s, 'operador', m.difficulty >= 33 ? 2 : 1);
+      turfFriction(s, d, m.tension);
+      if (m.id === 'cofre') unlock(s, 'cofre');
+      unlock(s, 'primeira');
+      log(s, `${m.name}: sucesso (${odds}%). +${money(reward)} e +${rg} de respeito.`);
+      return done(true, `${m.name}: sucesso! +${money(reward)}`);
+    }
+    const lost = Math.min(s.cash, Math.ceil(s.cash * failLoss(s, m)));
+    s.cash -= lost; addHeat(s, heatGain(s, m.heat + rand(4, 10))); s.failed++;
+    turfFriction(s, d, Math.ceil(m.tension / 2));
+    const ac = arrestChance(s, m);
+    let jailMsg = '';
+    if (roll(ac)) { s.jail = rand(1, 3) + (s.heat >= 70 ? 1 : 0); s.seasonStats.arrests++; jailMsg = ` Você foi detido por ${s.jail} dia(s).`; }
+    log(s, `${m.name}: fracasso (${odds}%). Perda de ${money(lost)} em mãos.${jailMsg}`);
+    return done(false, `${m.name} falhou. -${money(lost)}.${jailMsg}`);
+  }
+
+  function doTrain(s, id) {
+    const st = STATS.find(x => x.id === id); if (!st) return refuse('Atributo desconhecido.');
+    const cost = trainCost(s, id);
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (s.today.training >= 3) return refuse('Limite de 3 treinos por dia. Descanse até amanhã.');
+    if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente para o treino.');
+    s.energy -= 22; s.cash -= cost; s.today.training++;
+    const gain = s.stats[id] < 25 ? 2 : 1;
+    s.stats[id] += gain; s.respect += 1;
+    log(s, `Treinamento em ${st.name}: +${gain} ponto(s) por ${money(cost)}.`);
+    return done(true, `${st.name}: +${gain} ponto(s)!`);
+  }
+
+  function doTravel(s, id) {
+    const d = DISTRICTS.find(x => x.id === id);
+    if (!d || d.id === s.district) return refuse('Destino inválido.');
+    if (s.jail > 0 || s.cash < 90 || s.energy < 5) return refuse('Não foi possível viajar: verifique dinheiro, energia e detenção.');
+    s.cash -= 90; s.energy -= 5; s.district = id;
+    log(s, `Você foi para ${d.name}.`);
+    return done(true, `Agora você está em ${d.name}.`);
+  }
+
+  function doGig(s) {
+    if (s.jail > 0 || s.energy < 28) return refuse('Você não pode fazer o bico agora.');
+    const pay = Math.round(rand(110, 170) * eventMod(s, 'gigMult'));
+    s.energy -= 28; s.cash += pay; addHeat(s, -4);
+    log(s, `Bico realizado: ${money(pay)} recebidos.`);
+    return done(true, `Bico concluído. +${money(pay)}`);
+  }
+  function doLayLow(s) {
+    if (s.jail > 0 || s.energy < 18 || s.heat === 0) return refuse('Não é necessário reduzir exposição agora.');
+    s.energy -= 18; addHeat(s, -20); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil - 10, 0, 100);
+    log(s, 'Você ficou longe dos holofotes: -20 vigilância e -10 vigilância local.');
+    return done(true, 'Vigilância reduzida.');
+  }
+  function doBail(s) {
+    if (s.jail <= 0) return refuse('Você não está detido.');
+    const c = bailCost(s);
+    if (s.cash < c) return refuse(`A fiança custa ${money(c)} em mãos.`);
+    s.cash -= c; s.jail = 0; s.seasonStats.bailPaid++; addHeat(s, 5);
+    unlock(s, 'fianca');
+    log(s, `Fiança paga: ${money(c)}. Você está livre, mas chamou atenção (+5 vigilância).`);
+    return done(true, 'Você saiu pela porta da frente.');
+  }
+
+  function doBank(s, mode, amount) {
+    if (!Number.isSafeInteger(amount) || amount <= 0) return refuse('Digite um valor inteiro maior que zero.');
+    if (mode === 'deposit') {
+      const fee = depositFee(s, amount);
+      if (amount + fee > s.cash) return refuse(`Dinheiro em mãos insuficiente (valor + taxa de ${money(fee)}).`);
+      s.cash -= amount + fee; s.bank += amount;
+      log(s, `Depósito de ${money(amount)} (taxa ${money(fee)}).`);
+      return done(true, `Depositado. Taxa: ${money(fee)}.`);
+    }
+    if (mode === 'withdraw') {
+      if (amount > s.bank) return refuse('Saldo no banco insuficiente.');
+      s.bank -= amount; s.cash += amount;
+      log(s, `Saque de ${money(amount)}.`);
+      return done(true, 'Saque realizado.');
+    }
+    return refuse('Operação bancária inválida.');
+  }
+  /** Maior depósito possível considerando a taxa. */
+  function maxDeposit(s) { let a = Math.floor(s.cash / (hasPerk(s, 'empreendedor', 1) ? 1.01 : 1.03)); while (a > 0 && a + depositFee(s, a) > s.cash) a--; return Math.max(0, a); }
+
+  function doBuy(s, id) {
+    const b = business(id);
+    if (!b || s.businesses.includes(id)) return refuse('Compra indisponível.');
+    if (s.jail > 0) return refuse('Não é possível fechar negócios detido.');
+    const c = buyCost(s, b);
+    if (s.cash < c) return refuse(`Você precisa de ${money(c)} em mãos.`);
+    s.cash -= c; s.businesses.push(id); s.respect += b.respect;
+    addXP(s, 'empreendedor', 3);
+    if (s.businesses.length >= 4) unlock(s, 'empresario');
+    log(s, `Você adquiriu ${b.name} (${district(s, b.district).name}) por ${money(c)}.`);
+    return done(true, `${b.name} adquirido!`);
+  }
+  function doSell(s, id) {
+    const b = business(id);
+    if (!b || !s.businesses.includes(id)) return refuse('Você não possui este negócio.');
+    if (s.jail > 0) return refuse('Não é possível negociar detido.');
+    const v = Math.round(b.cost * RESALE);
+    s.businesses = s.businesses.filter(x => x !== id); s.cash += v;
+    log(s, `Você vendeu ${b.name} por ${money(v)}.`);
+    return done(true, `${b.name} vendido por ${money(v)}.`);
+  }
+
+  function doContact(s) {
+    if (s.jail > 0) return refuse('Você está detido.');
+    const d = s.district, cost = contactCost(s), used = s.today.contacts[d] || 0;
+    if (used >= 2) return refuse('Você já fez 2 contatos neste bairro hoje.');
+    if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente.');
+    s.energy -= 22; s.cash -= cost; s.today.contacts[d] = used + 1;
+    const boost = Math.max(1, Math.round((10 + Math.floor(s.stats.influencia / 5) + roleLevels(s, 'negociador')) * (s.career === 'articulador' ? 1.3 : 1) * eventMod(s, 'influenceMult') * (used ? .5 : 1)));
+    addInf(s, d, boost); s.respect += 1; addHeat(s, 2);
+    addXP(s, 'articulador', 1);
+    log(s, `Contatos em ${district(s).name}: +${boost} de influência.`);
+    return done(true, `+${boost} influência em ${district(s).name}.`);
+  }
+
+  function doDispute(s) {
+    if (s.jail > 0) return refuse('Você está detido.');
+    const d = s.district, l = leader(s, d), fs = s.factions[l.id];
+    if (s.influence[d] < 20) return refuse('Construa pelo menos 20 de influência no bairro antes de disputar.');
+    if (agreement(s, l.id)) return refuse(`Você tem um acordo com ${faction(l.id).short}. Rompa-o na tela Gangue se quiser disputar.`);
+    if (fs.lastActionDay === s.day) return refuse('Você já agiu contra esta facção hoje.');
+    if (s.energy < 33 || s.cash < 320) return refuse('Energia ou dinheiro insuficiente.');
+    const odds = disputeOdds(s, d);
+    s.energy -= 33; s.cash -= 320; fs.lastActionDay = s.day; addRel(s, l.id, -10); addTen(s, l.id, 12);
+    s.dstate[d].econ = clamp(s.dstate[d].econ - .03, .6, 1.4);
+    if (roll(odds)) {
+      addInf(s, d, 15); addPres(s, d, l.id, -12); s.respect += 5; addHeat(s, 8); addXP(s, 'articulador', 1);
+      log(s, `Disputa vencida em ${district(s).name} (${odds}%). ${faction(l.id).short} perdeu espaço.`);
+      return done(true, `Disputa vencida! (${odds}%)`);
+    }
+    addInf(s, d, -6); addPres(s, d, l.id, 8); addHeat(s, 11);
+    log(s, `Disputa perdida em ${district(s).name} (${odds}%). ${faction(l.id).short} avançou.`);
+    return done(false, 'Disputa perdida. O rival avançou.');
+  }
+
+  function doDialogue(s, fid) {
+    const f = faction(fid); if (!f) return refuse('Facção desconhecida.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    const r = s.factions[fid];
+    if (r.lastActionDay === s.day) return refuse('Você já interagiu com este grupo hoje.');
+    if (s.energy < 18 || s.cash < 170) return refuse('Diálogo exige R$ 170 e 18 de energia.');
+    const odds = dialogueOdds(s, fid);
+    s.energy -= 18; s.cash -= 170; r.lastActionDay = s.day;
+    if (roll(odds)) {
+      addRel(s, fid, 14); addTen(s, fid, -12); s.gangStats.dialogs++; addXP(s, 'articulador', 2);
+      log(s, `Conversa com ${f.name}: aproximação bem-sucedida (${odds}%).`);
+      return done(true, `Diálogo positivo com ${f.short}!`);
+    }
+    addRel(s, fid, -6); addTen(s, fid, 5);
+    log(s, `Conversa com ${f.name}: sem acordo (${odds}%). A tensão aumentou.`);
+    return done(false, 'O diálogo não avançou.');
+  }
+
+  function doPact(s, fid, free) {
+    const f = faction(fid); if (!f) return refuse('Facção desconhecida.');
+    const r = s.factions[fid];
+    if (!s.gangName && !free) return refuse('Tréguas exigem uma gangue fundada.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (s.day >= MAXDAY) return refuse('A temporada está no último dia.');
+    if (agreement(s, fid)) return refuse('Já existe um acordo com este grupo.');
+    if (!free) {
+      if (r.lastActionDay === s.day) return refuse('Você já interagiu com este grupo hoje.');
+      if (r.relation < 35) return refuse('A trégua exige relação +35.');
+      if (s.day <= r.cooldown) return refuse(`${f.short} só aceita nova trégua após o dia ${r.cooldown}.`);
+      const c = pactCost(s, fid);
+      if (s.energy < 24 || s.cash < c) return refuse(`A trégua exige ${money(c)} e 24 de energia.`);
+      s.energy -= 24; s.cash -= c; r.lastActionDay = s.day;
+    }
+    r.deals++;
+    const len = hasPerk(s, 'articulador', 2) ? 5 : 3;
+    r.truceUntil = Math.min(MAXDAY, s.day + len);
+    r.cooldown = r.truceUntil + 2;
+    addRel(s, fid, free ? 5 : 3); addTen(s, fid, -15); s.gangStats.pacts++; addXP(s, 'articulador', 3);
+    if (s.gangStats.pacts >= 3) unlock(s, 'diplomata');
+    log(s, `Trégua com ${f.name} até o dia ${r.truceUntil}: sem disputas, avanços ou retaliações entre vocês.`);
+    return done(true, `Trégua com ${f.short} até o dia ${r.truceUntil}.`);
+  }
+
+  function doAlliance(s, fid) {
+    const f = faction(fid); if (!f) return refuse('Facção desconhecida.');
+    const r = s.factions[fid], cost = allianceCost(s);
+    if (!s.gangName || s.gangLevel < 2) return refuse('Alianças exigem gangue com sede nível 2.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (r.allied) return refuse('Vocês já são aliados.');
+    if (FACTIONS.some(x => s.factions[x.id].allied)) return refuse('Você só pode ter uma aliança por vez.');
+    if (r.lastActionDay === s.day) return refuse('Você já interagiu com este grupo hoje.');
+    if (r.relation < 60) return refuse('A aliança exige relação +60.');
+    if (s.energy < 20 || s.cash < cost) return refuse(`A aliança exige ${money(cost)} e 20 de energia.`);
+    s.energy -= 20; s.cash -= cost; r.lastActionDay = s.day; r.allied = true; r.allyDays = 0; r.truceUntil = 0;
+    addTen(s, fid, -20); s.gangStats.alliances++; s.gangStats.pacts++;
+    const enemy = FACTION_ENEMY[fid];
+    if (enemy) { addRel(s, enemy, -12); addTen(s, enemy, 10); }
+    addXP(s, 'articulador', 3); unlock(s, 'alianca');
+    log(s, `Aliança com ${f.name}! Contribuição diária de ${money(allianceFee(s))}. ${enemy ? faction(enemy).short + ' não gostou.' : ''}`);
+    return done(true, `Aliança firmada com ${f.short}.`);
+  }
+
+  /** Romper acordo: traição do jogador. Reduz a confiança de todas as facções. */
+  function betrayPenalty(s, fid) {
+    addRel(s, fid, -40); s.factions[fid].grudge = clamp(s.factions[fid].grudge + 3, 0, 10); addTen(s, fid, 20);
+    for (const f of FACTIONS) if (f.id !== fid) addRel(s, f.id, -8);
+    s.treachery++; s.gangStats.betrayals++; unlock(s, 'traidor');
+  }
+  function doBreak(s, fid) {
+    const f = faction(fid); if (!f) return refuse('Facção desconhecida.');
+    const r = s.factions[fid];
+    if (!agreement(s, fid)) return refuse('Não há acordo para romper.');
+    r.allied = false; r.truceUntil = 0;
+    betrayPenalty(s, fid);
+    log(s, `Você rompeu o acordo com ${f.name}. Todos na cidade souberam: sua palavra vale menos.`);
+    return done(false, `Acordo com ${f.short} rompido.`);
+  }
+
+  function doClash(s, fid) {
+    const f = faction(fid); if (!f) return refuse('Facção desconhecida.');
+    if (!s.gangName) return refuse('Confrontos exigem uma gangue.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    const r = s.factions[fid], d = s.district;
+    if (leader(s, d).id !== fid) return refuse(`${f.short} não lidera este bairro.`);
+    if (s.influence[d] < 20) return refuse('Você precisa de 20 de influência no bairro.');
+    if (agreement(s, fid)) return refuse('Há um acordo ativo. Rompa-o antes de confrontar.');
+    if (r.lastActionDay === s.day) return refuse('Você já interagiu com este grupo hoje.');
+    if (s.energy < 32 || s.cash < 300) return refuse('O confronto exige R$ 300 e 32 de energia.');
+    const odds = clashOdds(s, d);
+    s.energy -= 32; s.cash -= 300; r.lastActionDay = s.day;
+    addRel(s, fid, -18); addTen(s, fid, 19); r.grudge = clamp(r.grudge + 1, 0, 10);
+    s.dstate[d].econ = clamp(s.dstate[d].econ - .04, .6, 1.4); s.dstate[d].vigil = clamp(s.dstate[d].vigil + 10, 0, 100);
+    if (roll(odds)) {
+      addInf(s, d, 16); addPres(s, d, fid, -14); r.power = clamp(r.power - 6, 10, 100);
+      s.respect += 6; addHeat(s, 9); addMorale(s, 5); s.gangStats.confrontWins++; memberXP(s, 2, 'musculo'); memberXP(s, 1);
+      if (odds <= 40) unlock(s, 'virada');
+      log(s, `${s.gangName} venceu ${f.name} em ${district(s).name} (${odds}%).`);
+      return done(true, `Confronto vencido! (${odds}%)`);
+    }
+    addInf(s, d, -9); addPres(s, d, fid, 11); addHeat(s, 16); addMorale(s, -10); s.gangStats.confrontLosses++; memberXP(s, 1, 'musculo');
+    log(s, `${s.gangName} perdeu para ${f.name} em ${district(s).name} (${odds}%). A equipe ficou abalada.`);
+    return done(false, 'Confronto perdido: influência e ânimo reduzidos.');
+  }
+
+  function doFoundGang(s, rawName) {
+    const name = String(rawName || '').trim().replace(/\s+/g, ' ');
+    if (name.length < 3 || name.length > 25) return refuse('Use um nome entre 3 e 25 caracteres.');
+    if (s.gangName) return refuse('Você já lidera um grupo.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (s.respect < 30 || s.cash < 1800) return refuse('Requisitos: 30 de respeito e R$ 1.800 em mãos.');
+    s.cash -= 1800; s.gangName = name; s.gangLevel = 1; s.crewMorale = 70;
+    s.crew = [newMember(s, 'musculo', 0), newMember(s, 'olheiro', 1)];
+    log(s, `Você fundou ${name}, com ${s.crew[0].name} (Músculo) e ${s.crew[1].name} (Olheiro).`);
+    return done(true, 'Seu grupo foi fundado.');
+  }
+  function doRecruit(s, role) {
+    if (!ROLES.some(r => r.id === role)) return refuse('Escolha uma função.');
+    const c = recruitCost(s);
+    if (!s.gangName || s.jail > 0) return refuse('Recrutamento indisponível.');
+    if (crewSize(s) >= 8) return refuse('Sua equipe já tem 8 integrantes.');
+    if (s.crewLastRecruit === s.day) return refuse('Apenas um recrutamento por dia.');
+    if (s.cash < c || s.energy < 18) return refuse(`Recrutar exige ${money(c)} e 18 de energia.`);
+    s.cash -= c; s.energy -= 18; s.crewLastRecruit = s.day;
+    const m = newMember(s, role); s.crew.push(m); addMorale(s, 3);
+    if (crewSize(s) >= 8) unlock(s, 'bonde');
+    log(s, `${m.name} entrou na equipe como ${ROLES.find(r => r.id === role).name}. Manutenção: ${money(groupUpkeep(s))}/dia.`);
+    return done(true, `${m.name} entrou para o grupo.`);
+  }
+  function doDismiss(s, memberId) {
+    const m = s.crew.find(x => x.id === memberId);
+    if (!m) return refuse('Integrante não encontrado.');
+    s.crew = s.crew.filter(x => x.id !== memberId); addMorale(s, -6);
+    log(s, `${m.name} foi dispensado. A equipe ficou apreensiva (-6 ânimo).`);
+    return done(true, `${m.name} dispensado.`);
+  }
+  function doRally(s) {
+    if (!s.gangName || s.jail > 0 || s.crewLastRally === s.day || s.crewMorale >= 100) return refuse('Reunião indisponível agora.');
+    if (s.cash < 180 || s.energy < 12) return refuse('A reunião exige R$ 180 e 12 de energia.');
+    s.cash -= 180; s.energy -= 12; addMorale(s, 18); s.crewLastRally = s.day;
+    log(s, 'A equipe se reuniu e recuperou parte do ânimo.');
+    return done(true, 'Ânimo do grupo recuperado.');
+  }
+  function doUpgrade(s) {
+    const c = upgradeCost(s);
+    if (!s.gangName || s.gangLevel >= 8) return refuse('Melhoria indisponível.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (s.cash < c) return refuse(`A melhoria custa ${money(c)}.`);
+    s.cash -= c; s.gangLevel++; s.respect += 4;
+    log(s, `A sede foi melhorada para o nível ${s.gangLevel}.`);
+    return done(true, 'Melhoria concluída!');
+  }
+  function doGangOp(s) {
+    if (!s.gangName || s.jail > 0) return refuse('Operação indisponível.');
+    if (s.today.op) return refuse('Apenas uma operação coletiva por dia.');
+    if (crewSize(s) < 2) return refuse('A operação exige pelo menos 2 integrantes.');
+    if (s.energy < 35) return refuse('Energia insuficiente (35).');
+    const d = s.district, odds = gangOdds(s);
+    s.energy -= 35; s.today.op = true;
+    s.dstate[d].vigil = clamp(s.dstate[d].vigil + 15, 0, 100);
+    const olheiro = Math.min(8, roleLevels(s, 'olheiro'));
+    if (roll(odds)) {
+      const reward = Math.round(rand(700, 1350) * s.dstate[d].econ * (1 + crewSize(s) * .05) * (controlled(s, 'cais') ? 1.2 : 1) * (1 + eventMod(s, 'reward', { district: d }) / 200));
+      s.cash += reward; s.respect += 5; addHeat(s, heatGain(s, 14 - olheiro)); addMorale(s, 3); s.successful++; s.gangStats.groupWins++;
+      memberXP(s, 1); turfFriction(s, d, 5);
+      log(s, `Operação de ${s.gangName} concluída (${odds}%): +${money(reward)}.`);
+      return done(true, `Operação concluída! +${money(reward)}`);
+    }
+    const lost = Math.ceil(s.cash * .08);
+    s.cash -= lost; s.failed++; addHeat(s, heatGain(s, 20 - olheiro)); addMorale(s, -8); turfFriction(s, d, 3);
+    log(s, `Operação de ${s.gangName} falhou (${odds}%). Perda: ${money(lost)}.`);
+    return done(false, 'A operação coletiva falhou.');
+  }
+
+  function pickCareer(s, id) {
+    if (s.career) return refuse('A carreira já foi escolhida nesta temporada.');
+    const c = CAREERS.find(x => x.id === id); if (!c) return refuse('Carreira desconhecida.');
+    s.career = id; s.careerXP = 0;
+    log(s, `Você escolheu a especialização ${c.name}.`);
+    return done(true, `Carreira definida: ${c.name}.`);
+  }
+  function chooseGoal(s, id) {
+    if (s.goal || s.day > 5 || !GOALS.some(g => g.id === id)) return refuse('A meta não pode mais ser escolhida.');
+    s.goal = id; log(s, `Meta escolhida: ${GOALS.find(g => g.id === id).name}.`);
+    return done(true, 'Meta da temporada definida.');
+  }
+
+  /* Notícias */
+  const currentNews = s => s.newsPending ? NEWS.find(n => n.id === s.newsPending.id) : null;
+  function newsChoiceCost(s, c) { return (c.cash || 0) + (c.cashPerMember ? c.cashPerMember * crewSize(s) : 0); }
+  function newsChoiceBlocked(s, c) {
+    if (s.jail > 0) return 'Você está detido.';
+    if (s.cash < newsChoiceCost(s, c) || s.energy < (c.energy || 0)) return 'Recursos insuficientes.';
+    if (c.notLastDay && s.day >= MAXDAY) return 'Não há próximo dia nesta temporada.';
+    return '';
+  }
+  function newsChoice(s, id, index) {
+    const n = NEWS.find(x => x.id === id), c = n && n.choices[index];
+    if (!n || !c || !s.newsPending || s.newsPending.id !== id || s.newsPending.day !== s.day) return refuse('Notícia indisponível.');
+    const block = newsChoiceBlocked(s, c); if (block) return refuse(block);
+    const d = s.district, l = leader(s, d);
+    s.cash -= newsChoiceCost(s, c); s.energy -= c.energy || 0; s.cash += c.money || 0;
+    s.respect += c.respect || 0; addHeat(s, c.heat || 0);
+    if (c.influence) addInf(s, d, c.influence * (s.career === 'articulador' ? 1.3 : 1) * eventMod(s, 'influenceMult'));
+    if (c.rival) addPres(s, d, l.id, c.rival);
+    if (c.relation) addRel(s, l.id, c.relation);
+    if (c.tension) addTen(s, l.id, c.tension);
+    if (c.nextBonus) s.nextBonus += c.nextBonus;
+    if (c.tip) s.tip = c.tip;
+    if (c.morale) addMorale(s, c.morale * (s.career === 'articulador' && c.energy ? 2 : 1));
+    if (c.contract) s.contracts.push({ daily: c.contract.daily, days: c.contract.days });
+    const fid = s.newsPending.faction;
+    if (c.allyHelp) { const a = FACTIONS.find(f => s.factions[f.id].allied); if (a) { addRel(s, a.id, 12); const e = FACTION_ENEMY[a.id]; if (e) addTen(s, e, 10); } }
+    if (c.allyRefuse) { const a = FACTIONS.find(f => s.factions[f.id].allied); if (a) { addRel(s, a.id, -20); if (s.factions[a.id].relation < 40) { s.factions[a.id].allied = false; log(s, `${faction(a.id).name} desfez a aliança: “quem não ajuda não é aliado”.`); } } }
+    if (c.acceptOffer && fid) { const r = doPact(s, fid, true); if (!r.ok) { s.newsPending = null; return r; } }
+    if (c.declineOffer && fid) addRel(s, fid, -5);
+    addXP(s, 'articulador', 1);
+    s.newsPending = null;
+    log(s, `${n.name}: ${c.label}.`);
+    return done(true, 'Decisão registrada.');
+  }
+  function skipNews(s) {
+    if (!s.newsPending) return refuse('Não há notícia pendente.');
+    const n = currentNews(s);
+    if (n && n.offer && s.newsPending.faction) addRel(s, s.newsPending.faction, -3);
+    s.newsPending = null;
+    log(s, `${n ? n.name : 'Notícia'}: você preferiu não se envolver.`);
+    return done(true, 'Notícia encerrada.');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 6. Virada do dia: economia, eventos e IA                            */
+  /* ------------------------------------------------------------------ */
+  function startEvent(s, id, districtId) {
+    const def = EVENTS[id];
+    const len = rand(def.dur[0], def.dur[1]);
+    const e = { id, start: s.day, until: Math.min(MAXDAY, s.day + len - 1), district: districtId || def.district || (def.randomDistrict ? pick(DISTRICTS).id : null) };
+    s.events.push(e);
+    if (def.onStart) def.onStart(s, e);
+    return e;
+  }
+  function tickEvents(s, lines) {
+    s.events = s.events.filter(e => e.until >= s.day);
+    for (const [id, def] of Object.entries(EVENTS)) if (def.fixed === s.day && !s.events.some(e => e.id === id)) { const e = startEvent(s, id); lines.push(`Evento: ${eventTitle(e)}.`); }
+    const randomActive = s.events.filter(e => !EVENTS[e.id].fixed && e.id !== 'guerra');
+    if (!randomActive.length) {
+      const last = s.lastEvent;
+      const opts = Object.entries(EVENTS).filter(([id, d]) => d.weight > 0 && id !== last && !(id === 'crise' && s.day > 25)).map(([id, d]) => ({ id, w: d.weight }));
+      const e = startEvent(s, weighted(opts).id);
+      s.lastEvent = e.id;
+      if (e.id !== 'rotina') lines.push(`Evento: ${eventTitle(e)}.`);
+    }
+  }
+
+  /** Um turno de IA para uma facção. Retorna texto explicando a decisão. */
+  function factionTurn(s, f, ctx) {
+    const fs = s.factions[f.id], P = f.persona;
+    const truce = pactActive(s, f.id);
+    // Traição: oportunistas rompem acordos quando você parece fraco.
+    if ((truce || fs.allied) && P.opportunism >= .5) {
+      const weak = (crewSize(s) < 3 ? 1 : 0) + (s.crewMorale < 35 ? 1 : 0) + (s.heat >= 70 ? 1 : 0) + (cityPower(s) < factionCityPower(s, f.id) / 2 ? 1 : 0);
+      const pct = Math.round(P.opportunism * weak * 4);
+      if (pct > 0 && roll(pct)) {
+        const wasAlly = fs.allied;
+        fs.allied = false; fs.truceUntil = 0; addRel(s, f.id, -30); addTen(s, f.id, 15);
+        const best = DISTRICTS.slice().sort((a, b) => s.influence[b.id] - s.influence[a.id])[0];
+        addInf(s, best.id, -8); addPres(s, best.id, f.id, 6);
+        return `Traição! ${f.name} rompeu a ${wasAlly ? 'aliança' : 'trégua'} ao perceber sua fragilidade e avançou em ${best.name}.`;
+      }
+    }
+    const hostile = !truce && !fs.allied && fs.relation <= -30 && fs.tension >= 35;
+    const opts = [];
+    opts.push({ id: 'expand', w: P.expand * (1 + (fs.power - 50) / 100) });
+    opts.push({ id: 'consolidate', w: .3 + Math.max(0, 60 - fs.power) / 60 });
+    if (hostile && !ctx.pressured) opts.push({ id: 'pressure', w: P.aggr * (fs.tension / 55) * (1 + fs.grudge / 5) });
+    const enemy = FACTION_ENEMY[f.id];
+    if (enemy) opts.push({ id: 'war', w: P.aggr * .3 });
+    if (!truce && !fs.allied && fs.relation >= 30 && !ctx.offer && s.day < MAXDAY - 1) opts.push({ id: 'offer', w: P.diplo * .45 });
+    const choice = weighted(opts).id;
+
+    if (choice === 'expand') {
+      const targets = DISTRICTS.filter(d => {
+        if (truce && s.influence[d.id] >= 10) return false;
+        if (fs.allied && controlled(s, d.id)) return false;
+        return true;
+      }).map(d => {
+        const p = s.presence[d.id][f.id];
+        let v = d.tribute / 100 * s.dstate[d.id].econ * (p > 0 ? 1.3 : .8);
+        if (s.district !== d.id) v *= 1 + P.opportunism * .5; else v *= .7;
+        if (controlled(s, d.id)) v *= .5 + P.aggr;
+        if (f.districts.includes(d.id)) v *= 1.4;
+        return { d, w: v * (0.8 + rng() * .4) };
+      });
+      if (!targets.length) return `${f.short} recuou por causa da trégua.`;
+      const t = targets.sort((a, b) => b.w - a.w)[0].d;
+      const before = leader(s, t.id).id;
+      const gain = 2 + rand(0, 3) + Math.floor(fs.power / 40);
+      addPres(s, t.id, f.id, gain);
+      for (const o of FACTIONS) if (o.id !== f.id && !(o.id === enemy)) addPres(s, t.id, o.id, -1);
+      if (enemy) addPres(s, t.id, enemy, -1);
+      const after = leader(s, t.id).id;
+      return `${f.short} ampliou presença em ${t.name} (+${gain})${s.district !== t.id && s.influence[t.id] > 0 ? ', aproveitando sua ausência' : ''}.${before !== after && after === f.id ? ` Agora lidera ${t.name}!` : ''}`;
+    }
+    if (choice === 'consolidate') {
+      fs.power = clamp(fs.power + rand(2, 5), 10, 100); addTen(s, f.id, -3);
+      return `${f.short} reorganizou suas fileiras (força ${fs.power}).`;
+    }
+    if (choice === 'pressure') {
+      ctx.pressured = true; s.gangStats.retaliations++;
+      if (hasPerk(s, 'articulador', 3) && roll(50)) return `${f.short} tentou retaliar, mas sua rede no bairro avisou a tempo.`;
+      addTen(s, f.id, -8);
+      if (P.pressure === 'extorsao') {
+        const target = s.businesses.map(business).filter(b => s.presence[b.district][f.id] >= 10).sort((a, b) => b.net - a.net)[0];
+        if (target) { s.extorted[target.id] = s.day; return `Retaliação de ${f.short}: cobrança sobre ${target.name}. A renda dele cai hoje.`; }
+      }
+      if (P.pressure === 'denuncia') {
+        addHeat(s, 10); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil + 10, 0, 100);
+        return `Retaliação de ${f.short}: denúncia anônima. +10 vigilância e +10 vigilância local.`;
+      }
+      const best = DISTRICTS.filter(d => s.presence[d.id][f.id] > 0).sort((a, b) => s.influence[b.id] - s.influence[a.id])[0] || district(s);
+      const removed = Math.min(rand(5, 9), s.influence[best.id]);
+      addInf(s, best.id, -removed); addPres(s, best.id, f.id, 4); addHeat(s, 4);
+      return `Retaliação de ${f.short}: -${removed} de influência sua em ${best.name}.`;
+    }
+    if (choice === 'war') {
+      const field = DISTRICTS.filter(d => s.presence[d.id][enemy] >= 8 && s.presence[d.id][f.id] >= 5).sort((a, b) => s.presence[b.id][enemy] - s.presence[a.id][enemy])[0];
+      if (!field) { fs.power = clamp(fs.power + 2, 10, 100); return `${f.short} se preparou contra ${faction(enemy).short}.`; }
+      addPres(s, field.id, enemy, -rand(4, 8)); addPres(s, field.id, f.id, -rand(1, 4));
+      s.factions[enemy].power = clamp(s.factions[enemy].power - 3, 10, 100);
+      if (!s.events.some(e => e.id === 'guerra' && e.until >= s.day)) startEvent(s, 'guerra', field.id);
+      return `${f.short} entrou em choque com ${faction(enemy).short} em ${field.name}: brecha para disputas por 2 dias.`;
+    }
+    if (choice === 'offer') {
+      ctx.offer = f.id;
+      return `${f.short} mandou um recado propondo acordo.`;
+    }
+    return '';
+  }
+
+  function nextDay(s) {
+    if (s.day >= MAXDAY) return refuse('Fim de temporada. Acesse Temporada para encerrar.');
+    const lines = [];
+    if (s.newsPending) { const n = currentNews(s); if (n && n.offer && s.newsPending.faction) addRel(s, s.newsPending.faction, -3); lines.push('Uma notícia passou sem resposta.'); }
+    s.day++;
+    s.jail = Math.max(0, s.jail - 1);
+    s.today = emptyToday();
+    if (s.tip > 0) s.tip--;
+    tickEvents(s, lines);
+
+    // Energia e vigilância
+    s.energy = clamp(s.energy + 70 + eventMod(s, 'energy'), 0, 100);
+    const ctrl = controls(s);
+    const decay = 15 + eventMod(s, 'heatDecay') + (controlled(s, 'vila') ? 5 : 0) - ctrl.length * 2;
+    addHeat(s, -decay);
+
+    // Bairros: vigilância local e economia
+    for (const d of DISTRICTS) {
+      const ds = s.dstate[d.id];
+      ds.vigil = clamp(ds.vigil - 10, 0, 100);
+      const target = 1 + eventMod(s, 'econ', { district: d.id }) - ds.vigil * .002;
+      ds.econ = clamp(Math.round((ds.econ + (target - ds.econ) * .25 + (rng() - .5) * .06) * 100) / 100, .6, 1.4);
+    }
+
+    // Receitas
+    const biz = income(s);
+    let trib = 0; for (const d of ctrl) trib += tribute(s, d.id);
+    let contracts = 0;
+    for (const c of s.contracts) { contracts += Math.round(c.daily * s.dstate.centro.econ); c.days--; }
+    s.contracts = s.contracts.filter(c => c.days > 0);
+    let interest = 0; if (hasPerk(s, 'empreendedor', 3)) interest = Math.min(120, Math.floor(s.bank * .004));
+    const bonus = s.nextBonus; s.nextBonus = 0;
+    s.cash += biz + trib + contracts + bonus; s.bank += interest;
+    if (biz) lines.push(`Negócios: +${money(biz)}.`);
+    if (trib) lines.push(`Tributo de ${ctrl.length} bairro(s) liderado(s): +${money(trib)}.`);
+    if (contracts) lines.push(`Sociedades: +${money(contracts)}.`);
+    if (bonus) lines.push(`Bônus do festival: +${money(bonus)}.`);
+    if (interest) lines.push(`Rendimento bancário: +${money(interest)}.`);
+    if (biz >= 150) addXP(s, 'empreendedor', 1);
+
+    // Equipe
+    if (s.gangName) {
+      const cost = groupUpkeep(s);
+      if (s.cash >= cost) { s.cash -= cost; addMorale(s, -2); if (cost) lines.push(`Manutenção da equipe: -${money(cost)}.`); }
+      else { addMorale(s, -12); lines.push('Caixa insuficiente para pagar a equipe: -12 de ânimo.'); }
+      addMorale(s, eventMod(s, 'morale') + (controlled(s, 'jardim') ? 2 : 0));
+      if (s.crewMorale < 25 && crewSize(s) > 1 && roll(35)) {
+        const m = s.crew.splice(rand(0, s.crew.length - 1), 1)[0];
+        const to = FACTIONS.slice().sort((a, b) => s.factions[a.id].relation - s.factions[b.id].relation)[0];
+        s.factions[to.id].power = clamp(s.factions[to.id].power + 3, 10, 100); addHeat(s, 5);
+        lines.push(`${m.name} abandonou a equipe e foi para ${to.short}, levando informações (+5 vigilância).`);
+      }
+      for (const f of FACTIONS) {
+        const r = s.factions[f.id];
+        if (!r.allied) continue;
+        r.allyDays++;
+        const fee = allianceFee(s);
+        if (s.cash >= fee) { s.cash -= fee; lines.push(`Contribuição para ${f.short}: -${money(fee)}.`); }
+        else { addRel(s, f.id, -15); lines.push(`Você não pagou a contribuição a ${f.short}: relação -15.`); if (r.relation < 40) { r.allied = false; lines.push(`${f.name} desfez a aliança.`); } }
+      }
+    }
+
+    // Influência se dissipa onde você não está
+    for (const d of DISTRICTS) if (d.id !== s.district) addInf(s, d.id, -1);
+
+    // Facções: deriva natural + decisões
+    const ctx = { pressured: false, offer: null };
+    for (const f of FACTIONS) {
+      const r = s.factions[f.id];
+      addTen(s, f.id, r.grudge >= 3 ? -1 : -2);
+      // Relações exigem manutenção: sem acordo, voltam aos poucos ao padrão do grupo.
+      if (!agreement(s, f.id) && r.relation !== f.initialRelation) addRel(s, f.id, r.relation > f.initialRelation ? -(r.relation - f.initialRelation > 40 ? 2 : 1) : 1);
+      const target = 30 + factionCityPower(s, f.id) / 4;
+      r.power = clamp(Math.round(r.power + (target - r.power) * .1), 10, 100);
+    }
+    const order = FACTIONS.slice().sort(() => rng() - .5);
+    for (const f of order) {
+      const txt = factionTurn(s, f, ctx);
+      s.factions[f.id].lastMove = txt;
+      if (txt) lines.push(txt);
+    }
+    for (const d of DISTRICTS) {
+      if (controlled(s, d.id)) { s.seasonStats.controlDays[d.id]++; unlock(s, 'dono'); }
+    }
+    if (controls(s).length >= 3) unlock(s, 'tres');
+
+    // Notícias: ofertas de facções têm prioridade; senão a cada 3 dias.
+    s.newsPending = null;
+    if (ctx.offer) s.newsPending = { id: 'oferta', day: s.day, faction: ctx.offer };
+    else if (s.day % 3 === 0) {
+      const pool = NEWS.filter(n => !n.offer && (!n.when || n.when(s)));
+      s.newsPending = { id: pick(pool).id, day: s.day, faction: null };
+    }
+    afterAction(s);
+    log(s, `Dia ${s.day}. ` + (lines.length ? lines.join(' ') : 'Dia tranquilo.'));
+    return done(true, `Dia ${s.day} iniciado.`, { lines });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 7. Metas, conquistas e temporada                                    */
+  /* ------------------------------------------------------------------ */
+  function unlock(s, id) { if (!s.achievements[id] && ACHIEVEMENTS.some(a => a.id === id)) { s.achievements[id] = s.season; log(s, `Conquista desbloqueada: ${ACHIEVEMENTS.find(a => a.id === id).name}.`); } }
+
+  function goalProgress(s, id) {
+    const goodRel = FACTIONS.filter(f => s.factions[f.id].relation >= 50).length;
+    if (id === 'capital') { const v = patrimony(s); return { value: v, max: 18000, unit: 'money', complete: v >= 18000 }; }
+    if (id === 'renome') return { value: Math.min(130, s.respect) / 130 * 50 + Math.min(25, s.successful) / 25 * 50, max: 100, unit: 'pct', complete: s.respect >= 130 && s.successful >= 25 };
+    if (id === 'dominio') { const days = sum(Object.values(s.seasonStats.controlDays)); return { value: Math.min(100, days / 12 * 100), max: 100, unit: 'pct', complete: days >= 12 }; }
+    if (id === 'diplomacia') return { value: Math.min(3, s.gangStats.pacts) / 3 * 50 + Math.min(2, goodRel) * 25, max: 100, unit: 'pct', complete: s.gangStats.pacts >= 3 && goodRel >= 2 };
+    if (id === 'bonde') return { value: Math.min(5, crewSize(s)) * 10 + Math.min(8, s.gangStats.groupWins) / 8 * 50, max: 100, unit: 'pct', complete: crewSize(s) >= 5 && s.gangStats.groupWins >= 8 };
+    return { value: 0, max: 100, unit: 'pct', complete: false };
+  }
+  /** Executado após cada ação: trava metas cumpridas e verifica conquistas. */
+  function afterAction(s) {
+    if (s.goal && !s.goalDone && goalProgress(s, s.goal).complete) { s.goalDone = true; log(s, `Meta da temporada cumprida: ${GOALS.find(g => g.id === s.goal).name}!`); }
+    if (patrimony(s) >= 35000) unlock(s, 'cofrecheio');
+    if (s.crew.some(m => m.level >= 5)) unlock(s, 'veterano');
+    if (careerLevel(s) >= 3) unlock(s, 'mestre');
+    s.seasonStats.bestCash = Math.max(s.seasonStats.bestCash, patrimony(s));
+  }
+
+  function categoryValue(s, id) {
+    if (id === 'fortuna') return patrimony(s);
+    if (id === 'fama') return Math.max(0, s.respect - s.seasonStats.startRespect);
+    if (id === 'territorio') return sum(Object.values(s.seasonStats.controlDays));
+    if (id === 'diplomacia') return Math.min(5, s.gangStats.pacts) * 9 + s.gangStats.alliances * 20 + Math.min(20, sum(FACTIONS.map(f => s.factions[f.id].allyDays))) + FACTIONS.filter(f => s.factions[f.id].relation >= 50).length * 10 - s.gangStats.betrayals * 15;
+    if (id === 'gangue') return s.gangStats.groupWins * 6 + s.gangStats.confrontWins * 10 + sum(s.crew.map(m => m.level)) * 3 + s.gangLevel * 4;
+    return 0;
+  }
+  const medalFor = (c, v) => c.tiers.filter(t => v >= t).length;
+  function seasonScore(s) {
+    const cats = CATEGORIES.map(c => { const v = Math.max(0, Math.round(categoryValue(s, c.id))); return { id: c.id, name: c.name, value: v, medal: medalFor(c, v), pct: Math.min(100, Math.round(v / c.tiers[2] * 100)) }; });
+    const score = sum(cats.map(c => Math.min(150, c.pct))) + sum(cats.map(c => c.medal * 15)) + (s.goalDone ? 40 : 0);
+    const title = score >= 420 ? 'Lenda do Submundo' : score >= 300 ? 'Chefão da cidade' : score >= 200 ? 'Nome respeitado' : score >= 110 ? 'Figura conhecida' : 'Aprendiz da rua';
+    return { cats, score: Math.round(score), title };
+  }
+  function seasonRanking(s) {
+    const rows = [{ id: 'player', name: s.gangName || s.name, power: cityPower(s), player: true }]
+      .concat(FACTIONS.map(f => ({ id: f.id, name: f.name, power: factionCityPower(s, f.id), player: false })));
+    return rows.sort((a, b) => b.power - a.power);
+  }
+
+  function endSeason(s) {
+    if (s.day !== MAXDAY) return refuse('A temporada termina no dia 30.');
+    const sc = seasonScore(s);
+    const medals = Object.fromEntries(sc.cats.map(c => [c.id, c.medal]));
+    const medalCount = sc.cats.filter(c => c.medal > 0).length;
+    if (sc.cats.some(c => c.medal === 3)) unlock(s, 'ouro');
+    if (medalCount >= 3) unlock(s, 'versatil');
+    if (s.seasonStats.arrests === 0) unlock(s, 'fichalimpa');
+    const goalWins = s.goalWins + (s.goalDone ? 1 : 0);
+    if (goalWins >= 3) unlock(s, 'determinado');
+    const money_ = patrimony(s);
+    const record = {
+      season: s.season, respect: s.respect, money: money_, success: s.successful, failed: s.failed, goal: s.goal, goalComplete: s.goalDone,
+      career: s.career, districts: controls(s).length, gangName: s.gangName, confrontWins: s.gangStats.confrontWins, pacts: s.gangStats.pacts,
+      groupWins: s.gangStats.groupWins, score: sc.score, title: sc.title, medals
+    };
+    const records = { ...s.records };
+    for (const c of sc.cats) records[c.id] = Math.max(records[c.id] || 0, c.value);
+    // Rival histórico: a facção com mais rancor (≥3) começa a próxima temporada hostil.
+    const nem = FACTIONS.slice().sort((a, b) => s.factions[b.id].grudge - s.factions[a.id].grudge)[0];
+    const nemesis = s.factions[nem.id].grudge >= 3 ? nem.id : null;
+    const medalBonus = Math.min(800, sum(sc.cats.map(c => [0, 30, 80, 200][c.medal])));
+    const n = defaultState(s.name, s.city);
+    n.season = s.season + 1;
+    n.seasonHistory = [...s.seasonHistory, record].slice(-200);
+    n.goalWins = goalWins;
+    n.achievements = { ...s.achievements };
+    n.prestige = s.prestige + sum(sc.cats.map(c => c.medal));
+    n.records = records;
+    n.nemesis = nemesis;
+    if (nemesis) { n.factions[nemesis].relation -= 25; n.factions[nemesis].tension += 15; n.factions[nemesis].grudge = 2; }
+    n.cash = 1900 + Math.min(1200, Math.floor(money_ * .05)) + (s.goalDone ? 600 : 0) + medalBonus;
+    n.log = [{ day: 1, msg: `Temporada ${n.season} iniciada. Anterior: “${sc.title}” (${sc.score} pontos). Legado: ${money(n.cash - 1900)} extras.${nemesis ? ` ${faction(nemesis).name} não esqueceu a rivalidade.` : ''}` }];
+    return done(true, `Temporada ${s.season} encerrada: ${sc.title}.`, { state: n, record });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* API pública                                                         */
+  /* ------------------------------------------------------------------ */
+  const act = {
+    mission: doMission, train: doTrain, travel: doTravel, gig: doGig, layLow: doLayLow, bail: doBail,
+    bank: doBank, buy: doBuy, sell: doSell, contact: doContact, dispute: doDispute,
+    dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
+    foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
+    career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, nextDay, endSeason
+  };
+  /** Executa uma ação e roda verificações pós-ação. */
+  function perform(s, name, ...args) {
+    const fn = act[name]; if (!fn) return refuse('Ação desconhecida.');
+    const r = fn(s, ...args);
+    if (r.ok && name !== 'endSeason') afterAction(s);
+    return r;
+  }
+
+  const SB = {
+    VERSION, SCHEMA, MAXDAY, STORAGE_KEY, RESALE, CAREER_XP,
+    STATS, MISSIONS, DISTRICTS, BUSINESSES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
+    setRandom, seeded, rand, clamp, money,
+    defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventMod,
+    leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
+    missionScore, missionChance, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
+    gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
+    currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
+    act, perform
+  };
+  root.SB = SB;
+  if (typeof module !== 'undefined' && module.exports) module.exports = SB;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+  </script>
+  <script id="sb-ui">
+/* =====================================================================
+ * SUBMUNDO BRASIL — INTERFACE v0.5
+ * Responsável por: persistência (localStorage, backup, importação e
+ * exportação), renderização das telas e tratamento dos cliques.
+ * Todas as regras ficam em window.SB (motor). Esta camada só chama
+ * SB.perform(...) e mostra o resultado.
+ * ===================================================================== */
+(() => {
+  'use strict';
+  const SB = window.SB;
+  const KEY = SB.STORAGE_KEY;
+  const CORRUPT_KEY = 'submundo_brasil_corrupt_backup';
+  const V04_BACKUP_KEY = 'submundo_brasil_v04_backup';
+  const VIEWS = ['painel', 'acoes', 'cidade', 'gestao', 'gangue', 'temporada'];
+  const MAXDAY = SB.MAXDAY;
+
+  let state = null, view = 'painel', result = null, toastTimer = null;
+  let armedNext = false, armTimer = null, missionFilter = 'disponiveis', corrupt = null, saveFailed = false;
+
+  /* ---------- utilidades de apresentação ---------- */
+  const $ = sel => document.querySelector(sel);
+  const $all = sel => Array.from(document.querySelectorAll(sel));
+  const fmt = n => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(Math.round(n || 0));
+  const num = n => new Intl.NumberFormat('pt-BR').format(Math.round(n || 0));
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const signed = n => (n > 0 ? '+' : '') + num(n);
+  const pct = v => Math.max(0, Math.min(100, v));
+  const button = (label, action, attrs = '', disabled = false, cls = '') => `<button type="button" class="btn ${cls}" data-action="${action}" ${attrs} ${disabled ? 'disabled' : ''}>${label}</button>`;
+  const D = id => SB.district(state, id);
+  const F = id => SB.faction(id);
+
+  /* ---------- persistência ---------- */
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); saveFailed = false; }
+    catch (e) { if (!saveFailed) notify('Não foi possível salvar no navegador. Exporte uma cópia em Temporada.', true); saveFailed = true; }
+  }
+  function load() {
+    let raw = null;
+    try { raw = localStorage.getItem(KEY); } catch (e) { notify('O navegador bloqueou o armazenamento local. O jogo funciona, mas não salvará.', true); return null; }
+    if (!raw) return null;
+    const r = SB.parseSave(raw);
+    if (!r.ok) {
+      // Nunca descartar silenciosamente: guarda o conteúdo original.
+      try { localStorage.setItem(CORRUPT_KEY, raw); } catch (e) { /* sem espaço */ }
+      corrupt = { raw, reason: r.error };
+      return null;
+    }
+    try {
+      const schema = JSON.parse(raw).schema;
+      if (schema === 1 && !localStorage.getItem(V04_BACKUP_KEY)) localStorage.setItem(V04_BACKUP_KEY, raw);
+    } catch (e) { /* backup é opcional */ }
+    if (r.notes.length) result = { good: true, msg: 'Salvamento carregado e verificado.', lines: r.notes, deltas: [] };
+    return r.state;
+  }
+  function download(name, text) {
+    const blob = new Blob([text], { type: 'application/json' });
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  function exportSave() {
+    download(`submundo-brasil-v0.5-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
+    notify('Cópia da carreira preparada para download.');
+  }
+  async function importFile(file, fromWelcome) {
+    if (!file) return;
+    if (file.size > 2000000) return notify('Arquivo muito grande para ser um salvamento.', true);
+    let text;
+    try { text = await file.text(); } catch (e) { return notify('Não foi possível ler o arquivo.', true); }
+    const r = SB.parseSave(text);
+    if (!r.ok) return notify('Importação recusada: ' + r.error, true);
+    let warn = '';
+    try { const obj = JSON.parse(text); if (obj.checksum && obj.save && SB.checksum(JSON.stringify(obj.save)) !== obj.checksum) warn = '\n\nAtenção: o arquivo foi alterado depois de exportado. Os valores foram verificados e limitados.'; } catch (e) { /* já validado */ }
+    const summary = `${r.state.name} · temporada ${r.state.season}, dia ${r.state.day} · ${fmt(r.state.cash + r.state.bank)}`;
+    if (!confirm((fromWelcome ? 'Carregar' : 'Substituir sua carreira atual por') + ` este salvamento?\n\n${summary}${r.notes.length ? '\n\n' + r.notes.join('\n') : ''}${warn}`)) return;
+    state = r.state; view = 'painel';
+    result = { good: true, msg: 'Carreira importada.', lines: r.notes.concat(warn ? ['Arquivo alterado após a exportação: valores verificados.'] : []), deltas: [] };
+    $('#welcome').classList.add('hidden');
+    save(); render(); notify('Carreira importada com sucesso.');
+  }
+
+  /* ---------- feedback ---------- */
+  function notify(msg, isError = false) {
+    const node = $('#toast'); node.textContent = msg; node.className = 'toast' + (isError ? ' error' : ''); node.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { node.hidden = true; }, 3800);
+  }
+  const snap = () => state ? { cash: state.cash, bank: state.bank, energy: state.energy, heat: state.heat, respect: state.respect, inf: state.influence[state.district], morale: state.crewMorale, district: state.district } : null;
+  function deltas(a, b) {
+    if (!a || !b) return [];
+    const out = [];
+    const add = (label, v, goodUp = true, money = false) => { if (v) out.push({ label, text: (v > 0 ? '+' : '-') + (money ? fmt(Math.abs(v)) : num(Math.abs(v))), good: goodUp ? v > 0 : v < 0 }); };
+    add('Caixa', b.cash - a.cash, true, true); add('Banco', b.bank - a.bank, true, true); add('Energia', b.energy - a.energy);
+    add('Vigilância', b.heat - a.heat, false); add('Respeito', b.respect - a.respect);
+    if (a.district === b.district) add('Influência', b.inf - a.inf);
+    add('Ânimo', b.morale - a.morale);
+    return out;
+  }
+  /** Executa uma ação do motor, registra o resultado e redesenha. */
+  function run(name, ...args) {
+    if (!state) return null;
+    const before = snap();
+    let r;
+    try { r = SB.perform(state, name, ...args); }
+    catch (e) { console.error(e); notify('Erro inesperado na ação. Seu progresso anterior foi mantido.', true); return null; }
+    if (!r.ok) { notify(r.msg, true); return r; }
+    if (name === 'endSeason') {
+      const rec = r.record;
+      state = r.state;
+      result = { good: true, msg: r.msg, lines: [`Pontuação: ${rec.score}.`, ...SB.CATEGORIES.map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`), `Meta: ${rec.goal ? (rec.goalComplete ? 'cumprida' : 'não cumprida') : 'não escolhida'}.`], deltas: [] };
+    } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()) };
+    notify(r.msg, !r.good);
+    save(); render();
+    return r;
+  }
+
+  /* ---------- componentes ---------- */
+  function heading(label, desc, extra = '') {
+    return `<div class="pagehead"><div><div class="eyebrow">Temporada ${state.season} • Dia ${state.day} de ${MAXDAY}</div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>`;
+  }
+  function resultCard() {
+    if (!result) return '';
+    return `<section class="resultCard ${result.good ? '' : 'bad'}" aria-live="polite"><div class="rhead"><strong>${esc(result.msg)}</strong><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar resultado">×</button></div>
+      ${result.deltas.length ? `<div class="chips">${result.deltas.map(d => `<span class="chip ${d.good ? 'up' : 'down'}">${d.label} ${d.text}</span>`).join('')}</div>` : ''}
+      ${result.lines.length ? `<ul>${result.lines.slice(0, 10).map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}</section>`;
+  }
+  function jailNotice() {
+    if (state.jail <= 0) return '';
+    const c = SB.bailCost(state);
+    return `<div class="notice error"><strong>Você está detido.</strong> Faltam ${state.jail} dia(s). Missões, treinos, viagens e negócios ficam bloqueados; o banco continua disponível.
+      <div class="inlineBtns">${button(`Pagar fiança · ${fmt(c)}`, 'bail', '', state.cash < c, 'small danger')}${nextDayButton('small')}</div></div>`;
+  }
+  function nextDayButton(cls = '') {
+    if (state.day >= MAXDAY) return button('Encerrar temporada', 'switch', 'data-target="temporada"', false, 'primary ' + cls);
+    return button(armedNext ? `Confirmar? Restam ${state.energy} de energia` : 'Avançar dia', 'next-day', '', false, (armedNext ? 'armed ' : 'primary ') + cls);
+  }
+  function eventChips() {
+    return SB.activeEvents(state).map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > state.day ? ` · até o dia ${e.until}` : ''}<br>${esc(e.def.desc)}</li>`).join('');
+  }
+  const statName = id => SB.STATS.find(s => s.id === id).name;
+  const chanceClass = p => p < 55 ? 'danger' : p < 75 ? 'risky' : '';
+
+  /** Sugestão do painel: maior retorno esperado por energia com chance razoável. */
+  function suggestion() {
+    let best = null, bv = -Infinity;
+    for (const m of SB.MISSIONS) {
+      if (SB.missionLock(state, m)) continue;
+      const p = SB.missionChance(state, m) / 100;
+      const v = (p * (m.low + m.high) / 2 * SB.missionRewardMult(state, m) - (1 - p) * state.cash * SB.failLoss(state, m)) / m.cost;
+      if (p >= .5 && v > bv) { bv = v; best = m; }
+    }
+    return best;
+  }
+
+  /* ---------- telas ---------- */
+  function panel() {
+    const s = state, level = Math.min(99, Math.floor(s.respect / 35) + 1);
+    const standing = s.respect < 30 ? 'Desconhecido' : s.respect < 85 ? 'Nome em ascensão' : s.respect < 180 ? 'Figura conhecida' : 'Lenda da cidade';
+    const m = suggestion();
+    const l = SB.leader(s, s.district);
+    return jailNotice() + `
+      <section class="cityHero" aria-label="Personagem e reputação">
+        <div><div class="heroLabel">Temporada ${s.season} · Dia ${s.day} de ${MAXDAY}</div>
+          <h1>${esc(s.name)}</h1><p>${esc(s.city)} / ${esc(D().name)}</p>
+          <div class="heroMeta"><span>${standing}</span><span>Nível ${level}</span>${s.career ? `<span>${SB.CAREERS.find(c => c.id === s.career).name} ${SB.careerLevel(s)}/3</span>` : ''}${s.prestige ? `<span>Prestígio ${s.prestige}</span>` : ''}</div>
+        </div><div class="heroReputation"><strong>${num(s.respect)}</strong><small>Respeito</small></div>
+      </section>
+      <div class="commandHud">
+        <div class="hudItem"><span>Em mãos</span><strong>${fmt(s.cash)}</strong><small>Banco ${fmt(s.bank)}</small></div>
+        <div class="hudItem"><span>Energia</span><strong class="good">${s.energy}<small style="display:inline;font-size:12px">/100</small></strong><small>${s.jail > 0 ? 'Detido por ' + s.jail + ' dia(s)' : '+70 ao amanhecer'}</small></div>
+        <div class="hudItem"><span>Vigilância</span><strong class="${s.heat > 50 ? 'heat' : ''}">${s.heat}<small style="display:inline;font-size:12px">/100</small></strong><small>Local ${s.dstate[s.district].vigil}</small></div>
+      </div>
+      <div class="statusStrip"><div class="statusBar"><div class="meterlabel"><span>Dia ${s.day}/${MAXDAY} · energia</span><strong>${s.energy}%</strong></div><div class="meter green"><div style="width:${s.energy}%"></div></div></div>${nextDayButton('small')}</div>
+      ${resultCard()}${careerCard()}${goalSummary()}${newsCard()}
+      <div class="boardGrid">
+        <section class="boardLead"><div class="eyebrow">Sugestão para agora</div>
+          <h2>${m ? esc(m.name) : 'Recupere-se ou mude de bairro'}</h2>
+          <p>${m ? esc(m.desc) : 'Nenhuma missão com boa chance agora. Treine, reduza a vigilância, viaje ou avance o dia.'}</p>
+          ${m ? `<div class="boardMetrics"><div class="metric"><span>Chance</span><strong>${SB.missionChance(s, m)}%</strong></div><div class="metric"><span>Ganhos</span><strong>${fmt(m.low * SB.missionRewardMult(s, m))}+</strong></div><div class="metric"><span>Energia</span><strong>${m.cost}</strong></div></div>
+          ${button('Executar missão', 'mission', `data-id="${m.id}"`, false, 'primary')}` : button('Ver missões', 'switch', 'data-target="acoes"', false, 'primary')}
+        </section>
+        <section class="cityBulletin"><div class="eyebrow">Boletim da cidade</div><ul class="eventList">${eventChips()}</ul>
+          <div class="bulletinFoot">Renda prevista amanhã<strong>${fmt(SB.income(s) + SB.controls(s).reduce((t, d) => t + SB.tribute(s, d.id), 0) - SB.groupUpkeep(s))} / dia</strong></div>
+          <div class="bulletinFoot">${esc(D().name)}<strong>Você ${s.influence[s.district]} · ${esc(F(l.id).short)} ${l.value}${SB.controlled(s, s.district) ? ' · você lidera' : ''}</strong></div></section>
+      </div>
+      <div class="commandHeader"><h2>Escolha seu caminho</h2><small>Atalhos</small></div>
+      <div class="commandGrid">
+        <button class="commandLink" type="button" data-view="acoes"><div><span>Missões e treinos</span><small>${SB.MISSIONS.filter(x => !SB.missionLock(s, x)).length} disponíveis aqui</small></div><b aria-hidden="true">01</b></button>
+        <button class="commandLink" type="button" data-view="cidade"><div><span>Bairros</span><small>${SB.controls(s).length} liderado(s)</small></div><b aria-hidden="true">02</b></button>
+        <button class="commandLink" type="button" data-view="gestao"><div><span>Banco e negócios</span><small>${s.businesses.length} negócio(s)</small></div><b aria-hidden="true">03</b></button>
+        <button class="commandLink" type="button" data-view="gangue"><div><span>Gangue e facções</span><small>${s.gangName ? esc(s.gangName) + ' · ânimo ' + s.crewMorale : 'Fundar com 30 de respeito'}</small></div><b aria-hidden="true">04</b></button>
+      </div>
+      <div class="recentFeed"><div class="commandHeader"><h2>Últimos acontecimentos</h2><small>Registro</small></div><section class="card">${journal(3)}</section></div>`;
+  }
+  function journal(max) { return `<ul class="timeline">${state.log.slice(0, max).map(i => `<li><time>Dia ${num(i.day)}</time>${esc(i.msg)}</li>`).join('')}</ul>`; }
+
+  function careerCard() {
+    const s = state;
+    if (s.career) {
+      const c = SB.CAREERS.find(x => x.id === s.career), lvl = SB.careerLevel(s), next = SB.CAREER_XP[lvl];
+      return `<details class="compactNote" style="display:block"><summary style="cursor:pointer"><strong>${c.name} · nível ${lvl}/3</strong> <span>${next ? `${s.careerXP}/${next} XP` : 'Especialização completa'}</span></summary>
+        <p class="mini" style="margin:6px 0 0">${esc(c.desc)} ${esc(c.xpDesc)}</p><ul class="perkList">${c.perks.map((p, i) => `<li class="${i < lvl ? 'on' : ''}">${i < lvl ? '✓' : '○'} Nível ${i + 1} (${SB.CAREER_XP[i]} XP): ${esc(p)}</li>`).join('')}</ul></details>`;
+    }
+    return `<section class="card choiceCard"><div class="eyebrow">Decisão permanente nesta temporada</div><h2>Escolha sua especialização</h2><p>Cada caminho tem vantagens, desvantagens e três habilidades desbloqueáveis com experiência.</p>
+      <div class="choiceGrid">${SB.CAREERS.map(c => `<article><strong>${c.name}</strong><p>${esc(c.desc)}<br><em class="mini">${esc(c.xpDesc)}</em></p>${button('Escolher ' + c.name, 'career', `data-id="${c.id}"`, false, 'small primary block')}</article>`).join('')}</div></section>`;
+  }
+  function goalSummary() {
+    if (!state.goal) return state.day <= 5 ? `<div class="compactNote"><strong>Meta da temporada</strong><span>Escolha até o dia 5 em Temporada.</span>${button('Escolher', 'switch', 'data-target="temporada"', false, 'small ghost')}</div>` : '';
+    const g = SB.GOALS.find(x => x.id === state.goal), p = SB.goalProgress(state, state.goal);
+    return `<div class="compactNote"><strong>Meta: ${g.name}</strong><span>${state.goalDone ? 'Cumprida!' : p.unit === 'money' ? fmt(p.value) + ' / ' + fmt(p.max) : Math.round(p.value) + '% do objetivo'}</span></div>`;
+  }
+  function newsCard() {
+    const n = SB.currentNews(state); if (!n) return '';
+    const f = state.newsPending.faction ? F(state.newsPending.faction) : null;
+    return `<section class="card choiceCard"><div class="eyebrow">Decisão da cidade · Dia ${state.day}</div><h2>${esc(n.name)}${f ? ' · ' + esc(f.short) : ''}</h2><p>${esc(n.desc)}</p>
+      <div class="choiceGrid">${n.choices.map((c, i) => { const block = SB.newsChoiceBlocked(state, c); const cost = SB.newsChoiceCost(state, c); return `<article><strong>${esc(c.label)}</strong><p>${esc(c.desc)}${c.cashPerMember ? ` (total ${fmt(cost)})` : ''}${block ? `<br><span class="negative">${esc(block)}</span>` : ''}</p>${button('Tomar decisão', 'news', `data-id="${n.id}" data-choice="${i}"`, !!block, 'small block')}</article>`; }).join('')}</div>
+      <div class="btnbar" style="margin-top:8px">${button('Ignorar notícia', 'skip-news', '', false, 'ghost small')}</div></section>`;
+  }
+
+  function actions() {
+    const s = state, ds = s.dstate[s.district];
+    const list = SB.MISSIONS.filter(m => missionFilter === 'todas' ? true : missionFilter === 'bairro' ? m.district === s.district : ['', 'Energia insuficiente.', 'Você está detido.'].includes(SB.missionLock(s, m)));
+    return heading('Missões e treinamento', 'Cada missão usa um atributo. Repetir a mesma no dia e agir sempre no mesmo bairro aumenta o risco.') + jailNotice() + resultCard() + `
+      <div class="grid two"><section class="card"><div class="meters"><div><div class="meterlabel"><span>Energia</span><strong>${s.energy}/100</strong></div><div class="meter green"><div style="width:${s.energy}%"></div></div></div>
+        <div><div class="meterlabel"><span>Vigilância pessoal</span><strong>${s.heat}/100</strong></div><div class="meter red"><div style="width:${s.heat}%"></div></div></div>
+        <div><div class="meterlabel"><span>Vigilância em ${esc(D().name)}</span><strong>${ds.vigil}/100</strong></div><div class="meter red"><div style="width:${ds.vigil}%"></div></div></div></div></section>
+      <section class="card"><div class="space"><h2>Condições atuais</h2><span class="tag">${esc(D().name)}</span></div><ul class="eventList">${eventChips()}</ul>
+        <div class="kv"><div><span>Economia local</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Recompensa do bairro</span><strong>${signed(D().bonus)}%</strong></div></div></section></div>
+      <div class="section"><h2>Missões</h2><small>Chance entre 8% e 95%</small></div>
+      <div class="filterbar" role="group" aria-label="Filtrar missões">${[['disponiveis', 'Disponíveis'], ['bairro', 'Deste bairro'], ['todas', 'Todas']].map(([id, l]) => `<button type="button" class="btn ghost ${missionFilter === id ? 'on' : ''}" data-action="filter" data-id="${id}" aria-pressed="${missionFilter === id}">${l}</button>`).join('')}</div>
+      <div class="grid">${list.length ? list.map(missionCard).join('') : '<div class="empty">Nenhuma missão neste filtro. Ganhe respeito, viaje ou veja “Todas”.</div>'}</div>
+      ${safeJobs()}
+      <div class="section"><h2>Centro de treinamento</h2><small>Treinos hoje: ${s.today.training}/3</small></div>
+      <div class="grid two">${SB.STATS.map(st => { const lvl = s.stats[st.id], cost = SB.trainCost(s, st.id); return `<section class="card"><div class="space"><h3>${st.name}</h3><strong class="accent">${num(lvl)}</strong></div><p>${esc(st.desc)}</p><div class="space"><span class="mini">+${lvl < 25 ? 2 : 1} • 22 energia • ${fmt(cost)}</span>${button('Treinar', 'train', `data-id="${st.id}"`, s.jail > 0 || s.energy < 22 || s.cash < cost || s.today.training >= 3, 'small')}</div></section>`; }).join('')}</div>`;
+  }
+  function missionCard(m) {
+    const s = state, lock = SB.missionLock(s, m), p = SB.missionChance(s, m), mult = SB.missionRewardMult(s, m), reps = s.today.missions[m.id] || 0;
+    const hard = lock && lock !== 'Energia insuficiente.' && lock !== 'Você está detido.';
+    return `<section class="card mission ${hard ? 'locked' : ''}"><div><h3>${esc(m.name)} <span class="pill">${statName(m.stat)}</span>${m.district ? ` <span class="pill">${esc(D(m.district).name)}</span>` : ''}</h3><p>${esc(m.desc)}</p>
+      <div class="details">${m.cost} energia • ${fmt(m.low * mult)}–${fmt(m.high * mult)} • +${m.heat} vigilância • +${SB.respectGain(s, m)} respeito</div>
+      <div class="details">Se falhar: -${Math.round(SB.failLoss(s, m) * 100)}% do caixa em mãos, detenção ${SB.arrestChance(s, m)}%</div>
+      ${reps ? `<div class="lockline">Repetida ${reps}× hoje: chance e recompensa menores.</div>` : ''}${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div>
+      <div class="right"><span class="chance ${chanceClass(p)}">${p}% <small class="mini">sucesso</small></span>${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary small')}</div></section>`;
+  }
+  function safeJobs() {
+    const s = state;
+    return `<div class="section"><h2>Outras escolhas</h2><small>Menos risco, menor retorno</small></div><div class="grid two">
+      <section class="card"><h3>Bico de ocasião</h3><p>Trabalho simples e garantido, sem reputação.</p><div class="space"><span class="mini">28 energia · ${fmt(110 * SB.eventMod(s, 'gigMult'))}–${fmt(170 * SB.eventMod(s, 'gigMult'))} · -4 vigilância</span>${button('Fazer bico', 'gig', '', s.energy < 28 || s.jail > 0, 'small')}</div></section>
+      <section class="card"><h3>Ficar na sua</h3><p>Evitar movimento para baixar a atenção sobre você e sobre o bairro.</p><div class="space"><span class="mini">18 energia · -20 vigilância · -10 local</span>${button('Reduzir exposição', 'lay-low', '', s.energy < 18 || s.jail > 0 || s.heat === 0, 'small')}</div></section></div>
+      <div class="notice" style="margin-top:9px">Falhas tiram parte do dinheiro <strong>em mãos</strong>. Depositar protege, mas custa ${SB.hasPerk(s, 'empreendedor', 1) ? '1%' : '3%'} de taxa.</div>`;
+  }
+
+  function city() {
+    const s = state, d = D(), ds = s.dstate[d.id], l = SB.leader(s, d.id), lf = F(l.id), lr = s.factions[l.id];
+    const agreed = SB.agreement(s, l.id), cc = SB.contactCost(s), used = s.today.contacts[d.id] || 0;
+    const disputeBlock = s.jail > 0 || s.cash < 320 || s.energy < 33 || s.influence[d.id] < 20 || agreed || lr.lastActionDay === s.day;
+    const special = SB.MISSIONS.find(m => m.district === d.id);
+    return heading('Bairros', 'Cada bairro tem economia, vigilância e facções próprias, que mudam a cada dia.') + jailNotice() + resultCard() + `
+      <section class="card"><div class="space factionHeader"><div><h2>Influência em ${esc(d.name)}</h2><p>Quem lidera: <strong>${SB.controlled(s, d.id) ? 'você' : esc(lf.name)}</strong>. ${esc(SB.factionStatus(s, l.id))}. Liderar exige 60 de influência e 10 acima da maior facção.</p></div>${SB.controlled(s, d.id) ? '<span class="pill">Você lidera</span>' : ''}</div>
+        <div class="dualMeters"><div><div class="meterlabel"><span>Sua influência</span><strong>${s.influence[d.id]}</strong></div><div class="meter green"><div style="width:${s.influence[d.id]}%"></div></div></div>
+        <div><div class="meterlabel"><span>${esc(lf.short)} (maior facção)</span><strong>${l.value}</strong></div><div class="meter red"><div style="width:${l.value}%"></div></div></div></div>
+        <div class="chips">${SB.FACTIONS.map(f => `<span class="chip">${esc(f.short)} ${s.presence[d.id][f.id]}</span>`).join('')}</div>
+        <div class="btnbar" style="margin-top:12px">${button(`Criar contatos · ${fmt(cc)}`, 'contact', '', s.jail > 0 || s.cash < cc || s.energy < 22 || used >= 2, 'small primary')}${button(`Disputar área · R$ 320 (${SB.disputeOdds(s, d.id)}%)`, 'dispute', '', disputeBlock, 'small')}</div>
+        <p class="mini" style="margin-top:8px">Contatos: 22 energia, até 2 por bairro ao dia (o segundo rende metade). Disputa: 33 energia, exige 20 de influência; uma ação por facção ao dia; bloqueada por acordos.${agreed ? ` Você tem acordo com ${esc(lf.short)}.` : ''}</p></section>
+      <section class="brandpanel" style="margin-top:13px"><div class="eyebrow">Você está em</div><h2>${esc(d.name)}</h2><p>${esc(d.desc)}</p>
+        <div class="kv"><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigilância local</span><strong>${ds.vigil}</strong></div><div><span>Recompensas</span><strong>${signed(d.bonus)}%</strong></div><div><span>Risco base</span><strong>${signed(d.risk)}</strong></div><div><span>Tributo se liderar</span><strong>${fmt(SB.tribute(s, d.id))}/dia</strong></div><div><span>Oportunidade</span><strong>${special ? esc(special.name) : '—'}</strong></div></div>
+        <p class="mini" style="margin-top:9px">Vantagem de liderar: ${esc(d.advantage)} Cada bairro liderado também gera +2 de vigilância por dia e atrai as facções.</p></section>
+      <div class="section"><h2>Mapa da cidade</h2><small>Viagem: R$ 90 e 5 energia</small></div>
+      <div class="grid two">${SB.DISTRICTS.map(x => districtCard(x)).join('')}</div>
+      <div class="section"><h2>Poder na cidade</h2><small>Simulado: você contra as facções</small></div>
+      <section class="card">${SB.seasonRanking(s).map((r, i) => `<div class="rankRow ${r.player ? 'me' : ''}"><strong>${i + 1}. ${esc(r.name)}</strong><span>${num(r.power)}</span></div>`).join('')}<p class="mini" style="margin-top:6px">Soma da influência/presença nos bairros, +30 por bairro liderado.</p></section>
+      <p class="quiet" style="margin-top:15px">Bairros, grupos e personagens são inventados e não representam comunidades reais.</p>`;
+  }
+  function districtCard(x) {
+    const s = state, l = SB.leader(s, x.id), here = x.id === s.district, ds = s.dstate[x.id];
+    const evs = SB.activeEvents(s).filter(e => e.district === x.id);
+    return `<section class="card district ${here ? 'selected' : ''}"><div class="space"><h3>${esc(x.name)}</h3>${here ? '<span class="pill">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill">Você lidera</span>' : ''}</div>
+      <div class="kv"><div><span>Líder</span><strong>${SB.controlled(s, x.id) ? 'Você' : esc(F(l.id).short) + ' ' + l.value}</strong></div><div><span>Sua influência</span><strong>${s.influence[x.id]}</strong></div><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigilância</span><strong>${ds.vigil}</strong></div></div>
+      ${evs.length ? `<div class="chips">${evs.map(e => `<span class="chip warn">${esc(SB.eventTitle(e))}</span>`).join('')}</div>` : ''}
+      <div class="statusbar"><span class="mini">${esc(x.advantage)}</span>${here ? '' : button('Viajar', 'travel', `data-id="${x.id}"`, s.cash < 90 || s.energy < 5 || s.jail > 0, 'small')}</div></section>`;
+  }
+
+  function management() {
+    const s = state, fee = SB.hasPerk(s, 'empreendedor', 1) ? 1 : 3;
+    return heading('Banco e negócios', 'Proteja seu dinheiro e monte renda diária. Cada negócio depende da economia e das facções do bairro.') + jailNotice() + resultCard() + `
+      <div class="statgrid"><div class="stat"><span>Em mãos</span><strong class="small">${fmt(s.cash)}</strong></div><div class="stat"><span>Banco</span><strong class="small">${fmt(s.bank)}</strong></div><div class="stat"><span>Respeito</span><strong>${num(s.respect)}</strong></div><div class="stat"><span>Poder total</span><strong>${num(SB.strength(s))}</strong></div></div>
+      <div class="grid two" style="margin-top:13px"><section class="card"><h2>Banco</h2><p>Depósitos ficam protegidos de falhas e retaliações. Taxa de depósito: ${fee}%. Saques são gratuitos.</p>
+        <div class="formfield"><label for="bankAmount">Valor em reais (R$)</label><input class="input" id="bankAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="Ex.: 500"></div>
+        <div class="btnbar" style="margin-top:10px">${button('Depositar', 'bank', 'data-mode="deposit"', false, 'primary small')}${button('Sacar', 'bank', 'data-mode="withdraw"', false, 'small')}${button(`Depositar tudo (${fmt(SB.maxDeposit(s))})`, 'bank-all', '', SB.maxDeposit(s) < 1, 'small ghost')}</div></section>
+      <section class="card"><h2>Patrimônio</h2><table class="table"><tbody><tr><td>Dinheiro em mãos</td><td>${fmt(s.cash)}</td></tr><tr><td>Banco</td><td>${fmt(s.bank)}</td></tr><tr><td>Negócios (revenda 60%)</td><td>${fmt(SB.resaleValue(s))}</td></tr><tr><td><strong>Patrimônio total</strong></td><td><strong>${fmt(SB.patrimony(s))}</strong></td></tr></tbody></table>
+        <div class="statusbar"><span>Negócios hoje</span><strong class="positive">${fmt(SB.income(s))}</strong></div>
+        <div class="statusbar"><span>Manutenção da equipe</span><strong class="negative">${fmt(SB.groupUpkeep(s))}</strong></div>
+        ${s.contracts.length ? `<div class="statusbar"><span>Sociedades ativas</span><strong>${s.contracts.map(c => `${fmt(c.daily)} × ${c.days} dia(s)`).join(', ')}</strong></div>` : ''}</section></div>
+      <div class="section"><h2>Estabelecimentos</h2><small>Renda paga ao avançar o dia</small></div>
+      <div class="grid two">${SB.BUSINESSES.map(b => businessCard(b)).join('')}</div>
+      <p class="quiet" style="margin-top:13px">Renda = valor base × economia do bairro × eventos × especialização. Liderar o bairro dá +15%; uma facção hostil dominante cobra 15%; extorsões cortam a renda do dia.</p>`;
+  }
+  function businessCard(b) {
+    const s = state, owned = s.businesses.includes(b.id), cost = SB.buyCost(s, b), today = SB.businessIncome(s, b);
+    return `<section class="card"><div class="space"><h3>${esc(b.name)}</h3>${owned ? '<span class="pill">Seu</span>' : ''}</div><p>${esc(b.desc)}</p>
+      <table class="table"><tbody><tr><td>Bairro</td><td>${esc(D(b.district).name)}</td></tr><tr><td>Compra</td><td>${fmt(cost)}</td></tr><tr><td>Base / dia</td><td>${fmt(b.net)}</td></tr><tr><td>Renda estimada hoje</td><td class="positive">${fmt(today)}</td></tr><tr><td>Revenda</td><td>${fmt(b.cost * SB.RESALE)}</td></tr></tbody></table>
+      ${s.extorted[b.id] === s.day ? '<p class="negative mini">Sob extorsão hoje: renda reduzida.</p>' : ''}
+      ${owned ? button('Vender negócio', 'sell', `data-id="${b.id}"`, s.jail > 0, 'block ghost small') : button(`Comprar · +${b.respect} respeito`, 'buy', `data-id="${b.id}"`, s.cash < cost || s.jail > 0, 'block primary')}</section>`;
+  }
+
+  function gang() {
+    const s = state, created = !!s.gangName;
+    let top;
+    if (created) {
+      const rc = SB.recruitCost(s), up = SB.upgradeCost(s), odds = SB.gangOdds(s);
+      top = `<section class="brandpanel"><div class="eyebrow">Seu grupo</div><h2>${esc(s.gangName)}</h2><p>Integrantes evoluem com operações e confrontos. Ânimo baixo reduz chances e pode causar deserções para facções rivais.</p>
+        <div class="flex"><span class="badge">Sede nível ${s.gangLevel}</span><span class="badge">${s.crew.length}/8 integrantes</span><span class="badge">Ânimo ${s.crewMorale}/100</span><span class="badge">Manutenção ${fmt(SB.groupUpkeep(s))}/dia</span></div></section>
+      <div class="grid two" style="margin-top:13px"><section class="card"><h2>Equipe</h2>${s.crew.length ? s.crew.map(m => { const r = SB.ROLES.find(x => x.id === m.role); return `<div class="memberRow"><div><strong>${esc(m.name)}</strong> <span class="pill">${r.name}</span><span class="mini">Nível ${m.level}/5${m.level < 5 ? ` · XP ${m.xp}/${m.level * 4}` : ''} · ${fmt(SB.memberUpkeep(m))}/dia · ${esc(r.desc)}</span></div>${button('Dispensar', 'dismiss', `data-id="${m.id}"`, false, 'small ghost')}</div>`; }).join('') : '<div class="empty">Sem integrantes. Recrute para operar.</div>'}
+        <div class="statusbar"><span>Recrutar (1 por dia)</span><strong>${fmt(rc)} · 18 energia</strong></div>
+        <div class="roleBtns">${SB.ROLES.map(r => button(r.name, 'recruit', `data-id="${r.id}"`, s.crew.length >= 8 || s.crewLastRecruit === s.day || s.cash < rc || s.energy < 18 || s.jail > 0, 'small')).join('')}</div>
+        <div class="statusbar"><span>Reunir equipe (+18 ânimo)</span><strong>${fmt(180)} · 12 energia</strong></div>${button('Reunir equipe', 'rally', '', s.crewLastRally === s.day || s.crewMorale >= 100 || s.cash < 180 || s.energy < 12 || s.jail > 0, 'block small')}</section>
+      <section class="card"><h2>Operações do grupo</h2><p>Uma por dia, no bairro atual. Rende conforme a economia local e atrai vigilância. Chance depende de sede, integrantes, funções, ânimo e vigilância.</p>
+        <div class="statusbar"><span>Operação coletiva · 35 energia</span><strong>${odds}% de sucesso</strong></div>${button(s.today.op ? 'Já realizada hoje' : 'Organizar operação', 'gang-op', '', s.jail > 0 || s.energy < 35 || s.today.op || s.crew.length < 2, 'primary block small')}
+        <div class="statusbar"><span>Melhorar a sede (nível ${s.gangLevel + 1})</span><strong>${s.gangLevel >= 8 ? 'Máximo' : fmt(up)}</strong></div>${button('Melhorar sede', 'upgrade', '', s.cash < up || s.gangLevel >= 8 || s.jail > 0, 'block small')}</section></div>`;
+    } else {
+      top = `<section class="brandpanel"><div class="eyebrow">Comece sua história</div><h2>Nenhuma gangue fundada</h2><p>Com um grupo você opera em equipe, confronta facções, firma tréguas e alianças.</p></section>
+      <section class="card" style="margin-top:13px"><h2>Fundar gangue</h2><p>Requisitos: 30 de respeito e ${fmt(1800)} em mãos. Você começa com um Músculo e um Olheiro.</p>
+        <div class="formfield"><label for="gangName">Nome do grupo</label><input id="gangName" class="input" maxlength="25" placeholder="Nome fictício da sua gangue" autocomplete="off"></div>
+        <div style="margin-top:12px">${button('Fundar grupo', 'found-gang', '', s.respect < 30 || s.cash < 1800 || s.jail > 0, 'primary')}</div></section>`;
+    }
+    const brief = `<section class="card"><div class="space"><h2>Disputa na cidade</h2><span class="pill">${s.gangStats.confrontWins} vitórias • ${s.gangStats.confrontLosses} derrotas</span></div>
+      <p>As facções agem todos os dias segundo sua personalidade: expandem, se fortalecem, retaliam, guerreiam entre si ou propõem acordos.${s.nemesis ? ` <strong>Rival histórico:</strong> ${esc(F(s.nemesis).name)}.` : ''}</p>
+      <div class="rivalMetrics"><div><span>Acordos</span><strong>${s.gangStats.pacts}</strong></div><div><span>Retaliações</span><strong>${s.gangStats.retaliations}</strong></div><div><span>Seus bairros</span><strong>${SB.controls(s).length}/${SB.DISTRICTS.length}</strong></div></div>${s.treachery ? `<p class="negative mini">Você rompeu ${s.treachery} acordo(s): diálogos com chance menor.</p>` : ''}</section>`;
+    return heading('Gangue e facções', 'Negocie, fortaleça sua equipe ou enfrente os grupos rivais simulados.') + jailNotice() + resultCard() + top +
+      `<div class="section"><h2>Grupos da cidade</h2><small>Uma interação por grupo ao dia</small></div>` + brief +
+      `<div class="grid two" style="margin-top:13px">${SB.FACTIONS.map(factionCard).join('')}</div><div class="notice" style="margin-top:13px">Simulação individual: não há outros jogadores, chat ou guerra online nesta versão.</div>`;
+  }
+  function factionCard(f) {
+    const s = state, r = s.factions[f.id], truce = SB.pactActive(s, f.id), used = r.lastActionDay === s.day, free = s.jail === 0 && !used;
+    const lead = SB.DISTRICTS.filter(d => SB.leader(s, d.id).id === f.id && !SB.controlled(s, d.id)).map(d => d.name);
+    const inLead = SB.leader(s, s.district).id === f.id;
+    const pc = SB.pactCost(s, f.id), ac = SB.allianceCost(s);
+    const btns = [button(`Dialogar · R$ 170 (${SB.dialogueOdds(s, f.id)}%)`, 'faction-dialogue', `data-id="${f.id}"`, !free || s.cash < 170 || s.energy < 18, 'small')];
+    if (s.gangName) {
+      if (!SB.agreement(s, f.id)) {
+        btns.push(button(`Trégua · ${fmt(pc)}`, 'faction-pact', `data-id="${f.id}"`, !free || r.relation < 35 || s.cash < pc || s.energy < 24 || s.day >= MAXDAY || s.day <= r.cooldown, 'small'));
+        btns.push(button(`Aliança · ${fmt(ac)}`, 'faction-alliance', `data-id="${f.id}"`, !free || r.relation < 60 || s.gangLevel < 2 || s.cash < ac || s.energy < 20 || SB.FACTIONS.some(x => s.factions[x.id].allied), 'small'));
+        btns.push(button(`Confrontar · R$ 300${inLead ? ` (${SB.clashOdds(s, s.district)}%)` : ''}`, 'faction-clash', `data-id="${f.id}"`, !free || !inLead || s.influence[s.district] < 20 || s.cash < 300 || s.energy < 32, 'small danger'));
+      } else btns.push(button(r.allied ? 'Romper aliança' : 'Romper trégua', 'faction-break', `data-id="${f.id}"`, false, 'small danger'));
+    }
+    const hint = used ? 'Interação diária já usada com este grupo.' : r.allied ? `Aliança: +10% nas missões no território dele, sem atrito, apoio contra ${F(SB.FACTION_ENEMY[f.id]).short}. Contribuição de ${fmt(SB.allianceFee(s))}/dia.` :
+      truce ? `Trégua até o dia ${r.truceUntil}. Agir no território do grupo desgasta o acordo.` :
+      `Trégua: relação +35${r.cooldown >= s.day ? ` (disponível após o dia ${r.cooldown})` : ''}. Aliança: relação +60 e sede nível 2. Confronto: ${f.short} deve liderar o bairro onde você está.`;
+    return `<section class="card rivalCard"><div class="space"><div><div class="eyebrow">${esc(f.persona.label)} • ${lead.length ? 'lidera ' + esc(lead.join(', ')) : 'sem bairro liderado'}</div><h3>${esc(f.name)}</h3></div><span class="pill">${esc(SB.factionStatus(s, f.id))}</span></div><p>${esc(f.desc)}</p>
+      <div class="rivalMetrics"><div><span>Relação</span><strong>${signed(r.relation)}</strong></div><div><span>Tensão</span><strong>${r.tension}/100</strong></div><div><span>Força</span><strong>${r.power}</strong></div></div>
+      ${r.lastMove ? `<p class="mini"><strong>Último movimento:</strong> ${esc(r.lastMove)}</p>` : ''}${r.grudge >= 3 ? `<p class="negative mini">Rancor alto (${r.grudge}): pode virar rival histórico.</p>` : ''}
+      <div class="btnbar">${btns.join('')}</div><p class="mini">${esc(hint)}</p></section>`;
+  }
+
+  function seasons() {
+    const s = state, sc = SB.seasonScore(s);
+    return heading('Temporada', 'Trinta dias de decisões. Vença por fortuna, fama, território, diplomacia ou força da gangue.') + resultCard() + `<div class="seasonObjective">${goalCard()}</div>
+      <div class="grid two"><section class="card"><div class="eyebrow">Temporada atual</div><div class="seasonnumber">${String(s.season).padStart(2, '0')}</div><div class="meter"><div style="width:${s.day / MAXDAY * 100}%"></div></div>
+        <div class="statusbar"><span>Dia ${s.day} de ${MAXDAY}</span><strong>${MAXDAY - s.day} dia(s) restante(s)</strong></div><p class="mini">Cada temporada tem 30 dias jogáveis (29 viradas). A renda entra ao virar o dia; o dia 30 é o último para agir.</p><div class="divider"></div>
+        ${s.day === MAXDAY ? button('Encerrar temporada', 'end-season', '', false, 'primary block') : nextDayButton('block')}</section>
+      <section class="card"><h2>Pontuação parcial: ${sc.score}</h2><p>Título atual: <strong>${esc(sc.title)}</strong>. Medalhas valem legado (até ${fmt(800)}) e prestígio.</p>
+        ${sc.cats.map(c => { const cat = SB.CATEGORIES.find(x => x.id === c.id); const next = cat.tiers[c.medal]; return `<div class="catRow"><div class="space"><span><strong>${c.name}</strong> <span class="mini" style="display:inline">${cat.unit === 'money' ? fmt(c.value) : num(c.value)}</span></span><span class="medal m${c.medal}">${SB.MEDALS[c.medal]}</span></div><div class="meter green"><div style="width:${pct(c.pct)}%"></div></div><span class="mini">${esc(cat.desc)}${next ? ` Próxima: ${cat.unit === 'money' ? fmt(next) : num(next)}.` : ''}</span></div>`; }).join('')}</section></div>
+      <div class="section"><h2>Conquistas</h2><small>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length} · permanentes</small></div>
+      <section class="card"><div class="achGrid">${SB.ACHIEVEMENTS.map(a => `<div class="ach ${s.achievements[a.id] ? 'on' : ''}"><strong>${s.achievements[a.id] ? '✓ ' : ''}${esc(a.name)}</strong><span>${esc(a.desc)}${s.achievements[a.id] ? ` (T${s.achievements[a.id]})` : ''}</span></div>`).join('')}</div></section>
+      <div class="section"><h2>Histórico</h2><small>${s.goalWins} meta(s) cumprida(s) · prestígio ${s.prestige}</small></div>
+      <section class="card">${s.seasonHistory.length ? `<table class="table"><thead><tr><th>Temp.</th><th>Resultado</th><th>Patrimônio</th></tr></thead><tbody>${s.seasonHistory.slice(-10).reverse().map(h => `<tr><td>${num(h.season)}</td><td>${h.title ? esc(h.title) + ' · ' + num(h.score) + ' pts' : num(h.respect) + ' respeito'}${h.medals ? `<div class="mini">${SB.CATEGORIES.filter(c => h.medals[c.id]).map(c => c.name + ' ' + SB.MEDALS[h.medals[c.id]]).join(' · ') || 'Sem medalhas'}</div>` : ''}</td><td>${fmt(h.money)}${h.goal ? `<div class="mini">${h.goalComplete ? 'Meta cumprida' : 'Meta não cumprida'}</div>` : ''}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhuma temporada encerrada ainda.</div>'}
+        ${Object.keys(s.records).length ? `<div class="divider"></div><h3>Recordes</h3><div class="kv">${SB.CATEGORIES.filter(c => s.records[c.id] !== undefined).map(c => `<div><span>${c.name}</span><strong>${c.unit === 'money' ? fmt(s.records[c.id]) : num(s.records[c.id])}</strong></div>`).join('')}</div>` : ''}</section>
+      <div class="section"><h2>Salvamento e segurança</h2></div>
+      <section class="card"><h2>Seu progresso</h2><p>Salvo automaticamente neste navegador. Exporte uma cópia para trocar de aparelho ou se proteger de limpezas do navegador.</p>
+        <div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Importar carreira', 'import', '', false, 'small ghost')}${button('Recomeçar tudo', 'reset', '', false, 'small danger')}</div>
+        <input type="file" id="importFile" accept=".json,application/json" class="hidden" aria-label="Selecionar salvamento JSON">
+        ${hasKey(V04_BACKUP_KEY) ? `<div class="divider"></div><p class="mini">Há uma cópia do seu salvamento original da 0.4 guardada neste navegador.</p>${button('Baixar cópia da 0.4', 'download-backup', `data-id="${V04_BACKUP_KEY}"`, false, 'small ghost')}` : ''}
+        ${hasKey(CORRUPT_KEY) ? `<div class="divider"></div><p class="mini">Há um salvamento ilegível guardado (não foi apagado).</p>${button('Baixar salvamento ilegível', 'download-backup', `data-id="${CORRUPT_KEY}"`, false, 'small ghost')}` : ''}
+        <div class="divider"></div><div class="quiet">Salvar no navegador não sincroniza entre dispositivos. Não há servidor nem multiplayer nesta versão.</div></section>`;
+  }
+  function hasKey(k) { try { return !!localStorage.getItem(k); } catch (e) { return false; } }
+  function goalCard() {
+    const s = state;
+    if (!s.goal) {
+      if (s.day > 5) return `<section class="card"><h2>Meta da temporada</h2><p>Você não escolheu uma meta nos primeiros cinco dias. Poderá escolher na próxima temporada.</p></section>`;
+      return `<section class="card choiceCard"><h2>Escolha a meta da temporada</h2><p>Até o dia 5. Cumprir a meta garante ${fmt(600)} na próxima temporada e +40 pontos.</p><div class="choiceGrid">${SB.GOALS.map(g => `<article><strong>${g.name}</strong><p>${esc(g.desc)}</p>${button('Escolher meta', 'goal', `data-id="${g.id}"`, false, 'small block')}</article>`).join('')}</div></section>`;
+    }
+    const g = SB.GOALS.find(x => x.id === s.goal), p = SB.goalProgress(s, s.goal), value = p.unit === 'money' ? fmt(p.value) : `${Math.round(p.value)}%`;
+    return `<section class="card"><div class="space"><div><div class="eyebrow">Sua meta</div><h2>${g.name}</h2></div><span class="pill">${s.goalDone ? 'Cumprida' : 'Em andamento'}</span></div><p>${esc(g.desc)}</p><div class="meter green"><div style="width:${s.goalDone ? 100 : pct(p.value / p.max * 100)}%"></div></div><div class="statusbar"><span>Progresso: ${s.goalDone ? 'concluído' : value}</span><strong>${s.goalDone ? 'Bônus garantido' : 'Bônus: ' + fmt(600)}</strong></div></section>`;
+  }
+
+  /* ---------- renderização ---------- */
+  function render() {
+    if (!state) return;
+    const pages = { painel: panel, acoes: actions, cidade: city, gestao: management, gangue: gang, temporada: seasons };
+    try {
+      $('#content').innerHTML = (pages[view] || panel)() + `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • Universo fictício • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`;
+    } catch (e) {
+      console.error(e);
+      $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
+    }
+    $('#topCash').textContent = fmt(state.cash);
+    $('#topDay').textContent = `Dia ${state.day}/${MAXDAY}`;
+    $all('.nav button, .mobileNav button').forEach(b => { const on = b.dataset.view === view; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  }
+  function switchView(target) {
+    if (!VIEWS.includes(target)) return;
+    if (target !== view) result = null;
+    view = target; disarm();
+    $('#sidebar').classList.remove('open'); $('#menuToggle').setAttribute('aria-expanded', 'false');
+    render(); window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+  function disarm() { armedNext = false; clearTimeout(armTimer); }
+  function nextDayClick() {
+    // Confirmação em dois toques quando ainda há bastante energia (evita perder o dia sem querer).
+    if (!armedNext && state.energy >= 40 && state.jail === 0) {
+      armedNext = true; render();
+      armTimer = setTimeout(() => { armedNext = false; render(); }, 4000);
+      return;
+    }
+    disarm(); run('nextDay');
+  }
+
+  /* ---------- eventos ---------- */
+  document.addEventListener('click', e => {
+    const nav = e.target.closest('[data-view]');
+    if (nav) { switchView(nav.dataset.view); return; }
+    const btn = e.target.closest('[data-action]');
+    if (!btn || !state || btn.disabled) return;
+    const a = btn.dataset.action, id = btn.dataset.id;
+    if (a !== 'next-day') disarm();
+    switch (a) {
+      case 'switch': switchView(btn.dataset.target); break;
+      case 'dismiss-result': result = null; render(); break;
+      case 'filter': missionFilter = id; render(); break;
+      case 'mission': run('mission', id); break;
+      case 'train': run('train', id); break;
+      case 'travel': run('travel', id); break;
+      case 'gig': run('gig'); break;
+      case 'lay-low': run('layLow'); break;
+      case 'bail': run('bail'); break;
+      case 'career': if (confirm('A especialização vale para toda a temporada. Confirmar?')) run('career', id); break;
+      case 'goal': run('goal', id); break;
+      case 'news': run('news', id, Number(btn.dataset.choice)); break;
+      case 'skip-news': run('skipNews'); break;
+      case 'contact': run('contact'); break;
+      case 'dispute': run('dispute'); break;
+      case 'bank': { const v = Number($('#bankAmount') && $('#bankAmount').value); run('bank', btn.dataset.mode, v); break; }
+      case 'bank-all': run('bank', 'deposit', SB.maxDeposit(state)); break;
+      case 'buy': run('buy', id); break;
+      case 'sell': if (confirm(`Vender por ${fmt(SB.business(id).cost * SB.RESALE)} (60% do valor)?`)) run('sell', id); break;
+      case 'next-day': nextDayClick(); break;
+      case 'found-gang': run('foundGang', $('#gangName') && $('#gangName').value); break;
+      case 'recruit': run('recruit', id); break;
+      case 'dismiss': if (confirm('Dispensar este integrante? A equipe perde ânimo.')) run('dismiss', Number(id)); break;
+      case 'rally': run('rally'); break;
+      case 'upgrade': run('upgrade'); break;
+      case 'gang-op': run('gangOp'); break;
+      case 'faction-dialogue': run('dialogue', id); break;
+      case 'faction-pact': run('pact', id); break;
+      case 'faction-alliance': if (confirm(`Firmar aliança? Contribuição diária de ${fmt(SB.allianceFee(state))}. O inimigo do aliado ficará mais hostil.`)) run('alliance', id); break;
+      case 'faction-break': if (confirm('Romper o acordo? Todas as facções confiarão menos em você.')) run('breakDeal', id); break;
+      case 'faction-clash': run('clash', id); break;
+      case 'end-season': { const sc = SB.seasonScore(state); if (confirm(`Encerrar a temporada ${state.season}?\n\nTítulo: ${sc.title} (${sc.score} pts)\n${sc.cats.map(c => c.name + ': ' + SB.MEDALS[c.medal]).join('\n')}\n\nVocê começará uma nova carreira; conquistas, recordes e histórico são mantidos.`)) { run('endSeason'); view = 'temporada'; render(); } break; }
+      case 'export': exportSave(); break;
+      case 'import': $('#importFile') && $('#importFile').click(); break;
+      case 'download-backup': try { const raw = localStorage.getItem(id); if (raw) download(id + '.json', raw); } catch (err) { notify('Não foi possível ler a cópia.', true); } break;
+      case 'reset': reset(); break;
+    }
+  });
+  document.addEventListener('change', e => { if (e.target.id === 'importFile') importFile(e.target.files && e.target.files[0], false); if (e.target.id === 'welcomeImportFile') importFile(e.target.files && e.target.files[0], true); });
+  document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'bankAmount') { e.preventDefault(); run('bank', 'deposit', Number(e.target.value)); } });
+  $('#menuToggle').addEventListener('click', () => { const open = $('#sidebar').classList.toggle('open'); $('#menuToggle').setAttribute('aria-expanded', String(open)); });
+  $('#welcomeImport').addEventListener('click', () => $('#welcomeImportFile').click());
+  $('#newGameForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = $('#playerName').value.trim().replace(/\s+/g, ' ');
+    if (name.length < 2 || name.length > 22) return notify('Escolha um codinome entre 2 e 22 caracteres.', true);
+    state = SB.defaultState(name, $('#homeCity').value); view = 'painel'; result = null;
+    $('#welcome').classList.add('hidden'); save(); render(); notify(`Bem-vindo à cidade, ${name}.`);
+  });
+  // Outra aba alterou o save: recarrega para não sobrescrever progresso.
+  window.addEventListener('storage', e => {
+    if (e.key !== KEY || !e.newValue || !state) return;
+    const r = SB.parseSave(e.newValue);
+    if (r.ok) { state = r.state; render(); notify('Progresso atualizado a partir de outra aba.'); }
+  });
+  window.addEventListener('error', () => notify('Ocorreu um erro inesperado. Exporte seu progresso por segurança.', true));
+
+  function reset() {
+    if (!confirm('Apagar toda a carreira deste navegador? Esta ação não pode ser desfeita.')) return;
+    if (!confirm('Confirme novamente: deseja realmente excluir o progresso? (Considere exportar antes.)')) return;
+    try { localStorage.removeItem(KEY); } catch (e) { /* ignorado */ }
+    state = null; result = null; showWelcome(); notify('Novo início disponível.');
+  }
+  function showWelcome() {
+    const box = $('#welcomeNotice');
+    box.innerHTML = corrupt ? `<div class="notice error"><strong>Não foi possível ler o salvamento encontrado.</strong> ${esc(corrupt.reason)} Uma cópia foi guardada e não será apagada. <button type="button" class="btn small ghost" id="dlCorrupt" style="margin-top:6px">Baixar cópia</button></div>` : '';
+    const dl = $('#dlCorrupt'); if (dl) dl.addEventListener('click', () => download('submundo-salvamento-ilegivel.json', corrupt.raw));
+    $('#welcome').classList.remove('hidden'); $('#playerName').focus();
+  }
+
+  state = load();
+  if (state) { save(); render(); } else showWelcome();
+  window.__SB_UI = { get state() { return state; } }; // apoio a testes automatizados
+})();
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+  <header class="topbar"><div class="topwrap">
+    <div class="brand"><span class="brandmark" aria-hidden="true">SB</span><div><strong>SUBMUNDO BRASIL</strong><small>ESTRATÉGIA URBANA • 0.5</small></div></div>
+    <div class="headright"><div class="topcell"><span>Dinheiro em mãos</span><strong id="topCash">R$ 0</strong></div><div class="topcell"><span>Temporada</span><strong id="topDay">Dia 1</strong></div><button id="menuToggle" class="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">Menu</button></div>
+  </div></header>
+  <div class="layout"><aside class="sidebar" id="sidebar"><div class="sidehead">Jogo</div><nav class="nav" aria-label="Navegação principal">
+    <button type="button" data-view="painel" class="active">Início</button>
+    <button type="button" data-view="acoes">Missões</button>
+    <button type="button" data-view="cidade">Cidade</button>
+    <button type="button" data-view="gestao">Economia</button>
+    <button type="button" data-view="gangue">Gangue</button>
+    <button type="button" data-view="temporada">Temporada</button>
+  </nav><div class="sidefoot"><strong>Versão local 0.5.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.</div></aside>
+  <main class="content" id="content" tabindex="-1" aria-live="polite"></main></div>
+  <nav class="mobileNav" aria-label="Navegação principal no celular">
+    <button type="button" class="active" data-view="painel"><span class="navSymbol" aria-hidden="true">⌂</span>Início</button>
+    <button type="button" data-view="acoes"><span class="navSymbol" aria-hidden="true">✦</span>Missões</button>
+    <button type="button" data-view="cidade"><span class="navSymbol" aria-hidden="true">◇</span>Cidade</button>
+    <button type="button" data-view="gestao"><span class="navSymbol" aria-hidden="true">▣</span>Banco</button>
+    <button type="button" data-view="gangue"><span class="navSymbol" aria-hidden="true">♠</span>Gangue</button>
+    <button type="button" data-view="temporada"><span class="navSymbol" aria-hidden="true">▤</span>Temporada</button>
+  </nav>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <div class="welcome hidden" id="welcome"><form id="newGameForm" class="intro"><div id="welcomeNotice"></div><div class="eyebrow">SUBMUNDO BRASIL / 0.5</div><h1>Faça seu nome.<br>Encare as consequências.</h1><p>Um RPG de navegador inspirado nos clássicos: ações rápidas, riscos, evolução e economia. Tudo em uma cidade brasileira fictícia.</p>
+    <div class="formfield"><label for="playerName">Seu codinome</label><input id="playerName" class="input" name="playerName" required minlength="2" maxlength="22" autocomplete="off" placeholder="Como vão te conhecer?"></div>
+    <div class="formfield"><label for="homeCity">Cidade de origem</label><select id="homeCity" class="input" name="homeCity"><option>Rio de Janeiro</option><option>São Paulo</option><option>Belo Horizonte</option><option>Salvador</option><option>Recife</option><option>Porto Alegre</option></select></div>
+    <button class="btn primary block" type="submit">Começar carreira</button><button class="btn ghost block" type="button" id="welcomeImport" style="margin-top:8px">Importar salvamento (.json)</button><input type="file" id="welcomeImportFile" accept=".json,application/json" class="hidden" aria-label="Selecionar salvamento JSON"><small>Todo o universo, os personagens e as situações são fictícios. Esta versão é offline e salva os dados apenas neste aparelho.</small>
+  </form></div>
