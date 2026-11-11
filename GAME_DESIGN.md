@@ -278,3 +278,33 @@ aliado pede apoio" só com aliança).
 Todas as ações são abstratas ("Operação no depósito", "Rolo na feira"), sem
 métodos, ferramentas ou instruções aplicáveis à realidade. Bairros, facções e
 pessoas são fictícios. Não há monetização.
+
+---
+
+## 11. Direção de arte e interface ("rua brasileira")
+
+Objetivo: parecer um jogo de navegador clássico, não um site. Referência de
+experiência: HUD permanente do personagem, lugares com cara de lugar e lista de
+serviços. Nenhum layout, nome, texto ou arte de outros jogos foi copiado.
+
+| Elemento | Metáfora brasileira | Onde |
+|---|---|---|
+| HUD fixo | Retrato 3×4 do personagem (boné, chapéu ou gravata conforme a carreira), barras inclinadas de Energia e Vigilância, dinheiro em destaque | Todas as telas |
+| Local | Cena SVG do bairro (sobrados e camelôs, guindastes e contêineres, casas com fios e pipa, galpões e chaminés, bar com palmeiras) + **placa de rua azul esmaltada** | Início, Serviços, Bairros |
+| Eventos na cena | Confete e bandeirinhas (Carnaval, festas), chuva (Temporal), giroflex (operação/fiscalização), fumaça (guerra), faixas (greve) | Cenas |
+| Notícias e eventos | **Lambe-lambe**: papel rasgado colado, tipografia de cartaz | Início |
+| Resultado de ação | **Cupom** serrilhado com carimbo "DEU BOM" / "DEU RUIM" e variações | Todas |
+| Detenção | **Fita zebrada** | Aviso de detido |
+| Missões | **Quadro de serviços**: ícone do atributo, chance em destaque, botão grande à direita (polegar) | Serviços |
+| Facções | **Dossiê** em pasta parda com emblema próprio | Gangue |
+| Integrantes | Cartinhas com nível, função por cor e XP | Gangue |
+| Registro | **Diário** de caderno pautado | Início |
+| Virada do dia | Amanhecer de 1 segundo com "Dia N" | Global |
+| Capa | Logo pintado + faixa verde-amarelo-azul sobre a cena do Centro | Tela inicial |
+
+Regras: fundo de asfalto/concreto com âmbar; papel creme para o que é "do
+mundo" (cartaz, cupom, dossiê, diário); botões com relevo e sombra dura; títulos
+em caixa alta condensada (`Impact` → `Roboto Condensed` → sans); tudo em CSS e SVG
+inline, sem arquivos externos. Animações curtas e desligadas com
+`prefers-reduced-motion`. O aviso flutuante só aparece quando o cupom de
+resultado está fora da tela.

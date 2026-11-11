@@ -118,35 +118,280 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
 @media(max-width:700px){.kv{grid-template-columns:repeat(2,minmax(0,1fr))}.achGrid{grid-template-columns:1fr 1fr}}
 @media(max-width:370px){.roleBtns .btn{font-size:10px}.ach{padding:7px}}
 
+/* =====================================================================
+   DIREÇÃO DE ARTE 0.5 — "rua brasileira": concreto, placa esmaltada,
+   lambe-lambe, estêncil, fita zebrada e cupom. Só CSS e SVG inline.
+   ===================================================================== */
+:root{--asfalto:#0b0f12;--concreto:#1a2024;--concreto2:#222a2f;--papel:#e9dcc0;--papel2:#d9c9a6;--tinta:#1b1712;--esmalte:#1c4f9c;--ambar:#e4b266;--stencil:Impact,"Haettenschweiler","Arial Narrow Bold","Roboto Condensed","sans-serif-condensed",sans-serif}
+body{background:
+  radial-gradient(circle at 20% 10%,#ffffff05 0 1px,transparent 1.5px) 0 0/7px 7px,
+  radial-gradient(circle at 70% 60%,#00000030 0 1px,transparent 1.5px) 0 0/5px 5px,
+  linear-gradient(180deg,#10161a,#0b0f12 40%)!important;background-attachment:fixed!important}
+.layout{max-width:1040px;grid-template-columns:170px minmax(0,1fr)}
+.footer{border-top:0;text-align:center;opacity:.7;font-size:10px}
+
+/* ---------- HUD ---------- */
+.topbar.hud{background:linear-gradient(180deg,#141b1f,#0d1316);border-bottom:3px solid #05080a;box-shadow:0 2px 0 #e4b26655,0 8px 22px #000a;backdrop-filter:none}
+.hudwrap{max-width:1040px;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"who money" "bars bars";gap:6px 10px;padding:8px 12px 9px;align-items:center}
+.hudWho{grid-area:who;display:flex;gap:9px;align-items:center;min-width:0}
+.hudAvatar{flex:none;width:44px;height:44px;border:2px solid var(--ambar);box-shadow:0 0 0 2px #05080a,3px 3px 0 #05080a;background:#262b2f;display:block;transform:rotate(-2deg)}
+.hudAvatar svg{display:block;width:100%;height:100%}
+.hudId{min-width:0}.hudId strong{display:block;font:700 17px/1.1 Georgia,serif;color:#f7ecd6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hudId small{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#a9b4b6;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hudMoney{grid-area:money;text-align:right}
+.hudMoney strong{display:inline-block;font:400 22px/1 var(--stencil);letter-spacing:.03em;color:#ffd98f;font-variant-numeric:tabular-nums}
+.hudMoney strong.up{animation:cashUp .7s}.hudMoney strong.down{animation:cashDown .7s}
+.hudMoney small{display:block;font-size:10px;color:#a9b4b6;margin-top:4px;white-space:nowrap}
+.hudBars{grid-area:bars;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hudBar{position:relative;height:17px;background:#05080a;border:1px solid #39464b;overflow:hidden;transform:skewX(-8deg)}
+.hudBar i{position:absolute;inset:0 auto 0 0;width:0;transition:width .35s;background:repeating-linear-gradient(90deg,#5fbf8f 0 7px,#4aa87a 7px 8px)}
+.hudBar.ht i{background:repeating-linear-gradient(90deg,#d9604f 0 7px,#b84a3b 7px 8px)}
+.hudBar b{position:relative;display:block;transform:skewX(8deg);font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;line-height:15px;padding:0 7px;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000}
+.hudBar.ht.alert{animation:pulseHeat 1.1s infinite}
+.menuToggle{display:none!important}
+body.atCover .hud,body.atCover .mobileNav{visibility:hidden}
+@keyframes cashUp{30%{color:#9af0c4;transform:scale(1.18)}}@keyframes cashDown{30%{color:#ff9d8f;transform:scale(.9)}}
+@keyframes pulseHeat{50%{border-color:#ff7b68;box-shadow:0 0 8px #d9604f}}
+
+/* ---------- navegação ---------- */
+.navIcon{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav button{display:flex;align-items:center;gap:9px;font:400 15px/1 var(--stencil);letter-spacing:.06em;text-transform:uppercase}
+.nav button.active{background:#e4b266;color:#15120c;border-color:#e4b266}
+.sidehead{font:400 13px var(--stencil);letter-spacing:.14em}
+.sidebar{border-right:2px dashed #2c383d}
+@media(max-width:700px){
+  .mobileNav{background:#0b1013;border-top:3px solid #05080a;box-shadow:0 -2px 0 #e4b26644,0 -10px 24px #000a;backdrop-filter:none}
+  .mobileNav button{font:400 11px/1 var(--stencil);letter-spacing:.05em;text-transform:uppercase;gap:3px;min-height:60px;color:#8f9c9f;border-top:0;position:relative}
+  .mobileNav button.active{color:#15120c;background:var(--ambar)}
+  .mobileNav button.active::before{content:"";position:absolute;inset:-6px 0 auto 0;height:6px;background:var(--ambar);clip-path:polygon(0 100%,8% 0,92% 0,100% 100%)}
+  .layout{padding-top:10px}
+}
+
+/* ---------- títulos ---------- */
+.pagehead{border-bottom:0;margin:2px 0 10px;padding:0}
+.pagehead h1{font:400 30px/1 var(--stencil)!important;letter-spacing:.04em;text-transform:uppercase;color:transparent;background:repeating-linear-gradient(90deg,#f1e3c6 0 17px,transparent 17px 19px);-webkit-background-clip:text;background-clip:text;display:inline-block;transform:rotate(-1.2deg);margin:0 0 6px}
+.pagehead p{font-size:12px;color:#aab6b8}
+.section,.commandHeader{margin:20px 0 9px;align-items:flex-end;border-bottom:2px solid #05080a;box-shadow:0 1px 0 #2c383d;padding-bottom:5px}
+.section h2,.commandHeader h2{font:400 20px/1 var(--stencil)!important;letter-spacing:.07em;text-transform:uppercase;color:transparent;background:repeating-linear-gradient(90deg,var(--ambar) 0 13px,transparent 13px 15px);-webkit-background-clip:text;background-clip:text}
+.section small{font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+.eyebrow{font:800 9px/1.2 system-ui,sans-serif;letter-spacing:.14em}
+.card h2{font-size:17px}
+
+/* ---------- superfícies ---------- */
+.card,.brandpanel{background:linear-gradient(180deg,var(--concreto2),var(--concreto));border:0;border-radius:2px;box-shadow:inset 0 1px 0 #ffffff12,inset 0 0 0 1px #2f3b40,3px 3px 0 #05080a;padding:13px}
+.brandpanel{background:linear-gradient(180deg,#2a2620,#1c1f20)}
+.btn{border-radius:2px;border:0;background:#33424a;box-shadow:inset 0 1px 0 #ffffff22,0 3px 0 #05080a;font:400 15px/1 var(--stencil);letter-spacing:.06em;text-transform:uppercase;min-height:42px;transition:transform .06s}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:inset 0 1px 0 #ffffff22,0 0 0 #05080a}
+.btn.primary{background:linear-gradient(180deg,#f0c277,#d99f4c);color:#17120a}
+.btn.ghost{background:transparent;box-shadow:inset 0 0 0 1.5px #55666d}
+.btn.danger{background:#3a1f1d;color:#ffb9b0;box-shadow:inset 0 0 0 1.5px #8a4a43,0 3px 0 #05080a}
+.btn.small{min-height:36px;font-size:13px;padding:7px 11px}
+.btn.armed{background:repeating-linear-gradient(-45deg,#e4b266 0 10px,#15120c 10px 20px);color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000;animation:pulseHeat 1s infinite}
+.btn:disabled{box-shadow:inset 0 0 0 1px #39464b;background:#1b2327;color:#7c8a8e;opacity:1}
+.pill{background:#05080a;border:1px solid #4b5a60;color:#e3d3b0;border-radius:0;font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.badge{border-radius:0;background:#05080a;border-color:#3d4a50}
+.meter{height:7px;background:#05080a;border:1px solid #333f44;border-radius:0}
+.input{border-radius:2px;background:#05080a;border:1px solid #4b5a60;font-size:15px}
+.compactNote{border:0;border-left:4px solid #5fbf8f;background:#131b1c;border-radius:0;box-shadow:3px 3px 0 #05080a}
+details.compactNote summary{list-style:none}details.compactNote summary::after{content:" ▾";color:var(--ambar)}
+.table td,.table th{padding:7px 0;border-color:#2c383d}
+.empty{border:2px dashed #3d4a50;border-radius:0}
+.toast{border-radius:2px;border:0;box-shadow:4px 4px 0 #05080a;font-weight:700;background:#17382d}
+.toast.error{background:#4a211d}
+
+/* ---------- local: cena + placa ---------- */
+.scene{display:block;width:100%;height:100%}
+.locale{position:relative;height:88px;margin:0 0 10px;overflow:hidden;box-shadow:inset 0 0 0 2px #05080a,3px 3px 0 #05080a;background:#16252b}
+.locale.tall{height:146px}
+.locale .scene{position:absolute;inset:0}
+.localeTop{position:absolute;left:9px;top:9px;right:9px;display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap}
+.localeBottom{position:absolute;left:0;right:0;bottom:0;display:flex;gap:5px;flex-wrap:wrap;padding:14px 8px 7px;background:linear-gradient(0deg,#05080aee 30%,transparent)}
+.localeBottom span{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:#05080acc;color:#e9dcc0;padding:3px 6px;border-left:2px solid var(--ambar)}
+.localeBottom span.hot{border-color:#d9604f;color:#ffb9b0}
+.plate{display:inline-flex;flex-direction:column;background:linear-gradient(180deg,#2563b8,var(--esmalte));color:#fff;border:2px solid #f4f1e8;border-radius:5px;padding:4px 10px 5px;box-shadow:0 0 0 1px #0c2b57,2px 3px 0 #05080a99;line-height:1.05;max-width:100%}
+.plate b{font:700 15px/1.1 "Arial Narrow","Roboto Condensed","sans-serif-condensed",Arial,sans-serif;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plate small{font-size:8px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;margin-top:2px}
+.flyer{background:var(--papel);color:var(--tinta);font:400 11px/1 var(--stencil);letter-spacing:.05em;text-transform:uppercase;padding:5px 7px;transform:rotate(2deg);box-shadow:2px 2px 0 #05080a99}
+.flyer:nth-of-type(even){transform:rotate(-2deg);background:#e4b266}
+.miniScene{position:relative;height:64px;margin:-13px -13px 9px;overflow:hidden;background:#16252b}
+.miniScene .scene{position:absolute;inset:0}.miniScene .plate{position:absolute;left:8px;top:8px;max-width:70%}.miniScene .plate b{font-size:12px}
+.miniScene .pill.here{position:absolute;right:6px;bottom:6px;background:var(--ambar);color:#15120c;border:0}
+.district.selected{box-shadow:inset 0 0 0 2px var(--ambar),3px 3px 0 #05080a;background:linear-gradient(180deg,var(--concreto2),var(--concreto))}
+.cf{animation:fall 2.8s linear infinite}.rain{animation:rain .5s linear infinite}.siren{animation:siren .9s steps(2) infinite}
+@keyframes fall{to{transform:translateY(120px) rotate(200deg)}}@keyframes rain{to{transform:translate(-8px,24px)}}@keyframes siren{50%{opacity:.25}}
+
+/* ---------- barra do dia ---------- */
+.dayBar{display:flex;gap:10px;align-items:center;margin:0 0 11px}
+.dayInfo{flex:1;min-width:0}.dayInfo b{font:400 24px/1 var(--stencil);color:#f1e3c6;letter-spacing:.03em}.dayInfo b small{font-size:13px;color:#8f9c9f}
+.dayInfo span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#a9b4b6;margin:2px 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dayTrack{height:6px;background:repeating-linear-gradient(90deg,#05080a 0 calc(100%/29 - 1px),#2c383d calc(100%/29 - 1px) calc(100%/29))}
+.dayTrack i{display:block;height:100%;background:var(--ambar);opacity:.85}
+.dayBar .btn{flex:none;min-height:50px;padding:0 16px;font-size:16px;max-width:58%;white-space:normal}
+.dawn{position:fixed;inset:0;z-index:90;pointer-events:none;display:grid;place-items:center;background:linear-gradient(0deg,#f0b55c 0%,#b5563a 35%,#1b2430 75%);animation:dawn 1.05s ease forwards}
+.dawn b{font:400 54px/1 var(--stencil);letter-spacing:.06em;color:#fff3da;text-shadow:4px 4px 0 #05080a;text-transform:uppercase}
+@keyframes dawn{0%{opacity:0}25%{opacity:.96}70%{opacity:.96}100%{opacity:0}}
+
+/* ---------- quadro de serviços ---------- */
+.jobs{display:grid;gap:7px}
+@media(min-width:900px){.jobs{grid-template-columns:1fr 1fr}}
+.job{display:grid;grid-template-columns:48px minmax(0,1fr) 84px;gap:10px;align-items:center;padding:9px 9px 9px 0;background:linear-gradient(90deg,#20282d,#171d21);box-shadow:inset 0 0 0 1px #2f3b40,3px 3px 0 #05080a;min-width:0}
+.jobIcon{align-self:stretch;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:#05080a;color:var(--ambar);border-right:3px solid var(--ambar);min-height:64px}
+.jobIcon small{font-size:8px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#c9bfa6}
+.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.jobMain{min-width:0}.jobMain h3{margin:0 0 2px;font:700 15px/1.2 Georgia,serif;color:#f7ecd6}
+.jobDesc{margin:0 0 4px;font-size:11px;color:#9fabad;line-height:1.35}
+.jobMeta{margin:0;font-size:11px;color:#c5cfd0}.jobMeta b{color:#ffd98f;font-size:13px}
+.jobRisk{margin:2px 0 0;font-size:10px;color:#c98f86}
+.jobAct{display:flex;flex-direction:column;gap:6px;align-items:stretch;text-align:center}
+.jobAct .btn{min-height:44px;padding:6px 4px;font-size:14px;width:100%}
+.seal{display:block;font:400 22px/1 var(--stencil);color:#7fd6a8;letter-spacing:.02em}
+.seal.risky{color:#f0c06e}.seal.danger{color:#ff8d7c}
+.job.locked{opacity:.55}.job.locked .jobIcon{color:#7c8a8e;border-color:#4b5a60}
+.job.train .jobIcon small{font:400 15px/1 var(--stencil);color:#fff}
+.boardLead.job{border:0;border-radius:0;margin:0 0 9px;background:linear-gradient(90deg,#2b2519,#171d21);padding:9px 9px 9px 0}
+.boardLead.job .eyebrow{margin:0 0 3px}.boardLead.job .btn{width:100%;min-height:44px}
+.filterbar .btn{min-height:34px;box-shadow:inset 0 0 0 1.5px #4b5a60}.filterbar .btn.on{background:var(--ambar);color:#15120c;box-shadow:0 3px 0 #05080a}
+
+/* ---------- atalhos em fichas ---------- */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.tile{background:#131a1d;border:0;box-shadow:inset 0 0 0 1px #2f3b40,2px 2px 0 #05080a;color:#f1e3c6;padding:9px 4px 8px;text-align:center;min-width:0}
+.tile b{display:block;font:400 19px/1 var(--stencil);color:#ffd98f;white-space:nowrap}.tile b small{font-size:11px;color:#8f9c9f}.tile b.neg{color:#ff8d7c}
+.tile span{display:block;font-size:9px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;color:#a9b4b6;margin-top:4px}
+
+/* ---------- lambe-lambe (notícias e eventos) ---------- */
+.poster{position:relative;background:linear-gradient(180deg,var(--papel),var(--papel2));color:var(--tinta);padding:13px 13px 12px;margin:10px 2px 12px;transform:rotate(-.5deg);box-shadow:4px 5px 0 #05080a;clip-path:polygon(0 3px,6% 0,13% 3px,24% 0,38% 2px,52% 0,66% 3px,80% 0,93% 2px,100% 0,100% 100%,0 100%)}
+.poster::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 30% 20%,#0000000d 0 1px,transparent 1.5px) 0 0/4px 4px}
+.posterHead{font:400 11px/1 var(--stencil);letter-spacing:.2em;border-bottom:3px double var(--tinta);padding-bottom:5px;margin-bottom:8px}
+.poster h2{font:900 21px/1.1 Georgia,serif;color:var(--tinta);margin:0 0 5px;letter-spacing:-.02em}
+.poster>p{color:#3c342a;font-size:12px;margin:0 0 9px}
+.poster .choiceGrid article{background:#fff8e6aa;border:1.5px solid var(--tinta);border-radius:0}
+.poster .choiceGrid article strong{color:var(--tinta);font-size:13px}.poster .choiceGrid article p{color:#3c342a}
+.poster .negative{color:#a3271b;font-weight:700}
+.poster .btn{background:var(--tinta);color:var(--papel);box-shadow:0 3px 0 #0006}.poster .btn.ghost{background:transparent;color:var(--tinta);box-shadow:inset 0 0 0 1.5px var(--tinta)}
+.poster .btn:disabled{background:#b9ab8c;color:#6d6250;box-shadow:none}
+.poster .eventList{margin:0}.poster .eventList li{color:#3c342a;border-color:#1b171233}.poster .eventList li:first-child{border-top:0;padding-top:0}.poster .eventList li strong{color:var(--tinta);font:400 14px var(--stencil);letter-spacing:.05em;text-transform:uppercase}
+.choiceCard:not(.poster) .choiceGrid article{background:#131a1d;border:0;border-radius:0;box-shadow:inset 0 0 0 1px #3a474d}
+
+/* ---------- cupom de resultado ---------- */
+.resultCard{position:relative;background:#efe6cf;color:var(--tinta);border:0;border-left:0;border-radius:0;padding:11px 12px 13px;margin:0 2px 12px;font-family:ui-monospace,"Courier New",monospace;box-shadow:3px 4px 0 #05080a;border-top:5px solid #3f9a6d;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 5px),97% 100%,94% calc(100% - 5px),91% 100%,88% calc(100% - 5px),85% 100%,82% calc(100% - 5px),79% 100%,76% calc(100% - 5px),73% 100%,70% calc(100% - 5px),67% 100%,64% calc(100% - 5px),61% 100%,58% calc(100% - 5px),55% 100%,52% calc(100% - 5px),49% 100%,46% calc(100% - 5px),43% 100%,40% calc(100% - 5px),37% 100%,34% calc(100% - 5px),31% 100%,28% calc(100% - 5px),25% 100%,22% calc(100% - 5px),19% 100%,16% calc(100% - 5px),13% 100%,10% calc(100% - 5px),7% 100%,4% calc(100% - 5px),0 100%)}
+.resultCard.bad{background:#efe6cf;color:var(--tinta);border-top-color:#c0392b}
+.resultCard strong{font-size:13px;line-height:1.3}
+.resultCard ul{color:#3c342a;border-top:1px dashed #1b171266;padding-top:6px}
+.resultCard .close{color:var(--tinta);font-size:20px;padding:0 4px}
+.resultCard .chip{background:transparent;border:1.5px solid #1b1712;color:var(--tinta);font-weight:700;border-radius:0}
+.resultCard .chip.up{border-color:#1f7a4d;color:#14613a}.resultCard .chip.down{border-color:#b03426;color:#9b2318}
+.stamp{position:absolute;right:34px;top:26px;font:400 22px/1 var(--stencil);letter-spacing:.06em;color:#1f7a4d;border:3px solid currentColor;padding:4px 8px 3px;transform:rotate(-9deg);opacity:.8;pointer-events:none;border-radius:3px;mix-blend-mode:multiply}
+.resultCard.bad .stamp{color:#b03426}
+.resultCard:has(.stamp) .chips{padding-right:118px;min-height:34px}
+.resultCard.fresh{animation:slipIn .28s ease-out}.resultCard.fresh .stamp{animation:stamp .38s .12s cubic-bezier(.2,1.6,.4,1) both}
+.resultCard.bad.fresh{animation:slipIn .28s ease-out,shake .32s .25s}
+@keyframes slipIn{from{transform:translateY(-14px);opacity:0}}@keyframes stamp{from{transform:rotate(-9deg) scale(2.6);opacity:0}}
+@keyframes shake{20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+/* ---------- fita zebrada ---------- */
+.notice{border-radius:0;border:0;border-left:4px solid var(--ambar);background:#231f16;box-shadow:3px 3px 0 #05080a}
+.notice.tape{border:0;background:#2a1513;color:#ffe1dc;padding:16px 12px 16px;position:relative;margin-bottom:12px}
+.notice.tape strong{display:block;font:400 20px/1 var(--stencil);letter-spacing:.08em;color:#fff;margin-bottom:4px}
+.notice.tape::before,.notice.tape::after{content:"";position:absolute;left:0;right:0;height:7px;background:repeating-linear-gradient(-45deg,#f0c23b 0 10px,#12100b 10px 20px)}
+.notice.tape::before{top:0}.notice.tape::after{bottom:0}
+body.jailed .hudAvatar{filter:grayscale(1);background-image:none;box-shadow:0 0 0 2px #05080a}
+body.jailed .hudAvatar::after{content:"";position:absolute}
+
+/* ---------- diário ---------- */
+.diary{background:linear-gradient(#0000 0 calc(100% - 1px),#1b171222 0) 0 0/100% 21px,#e6dcc4;color:#2a241b;padding:8px 12px 8px 34px;position:relative;box-shadow:3px 3px 0 #05080a;transform:rotate(.3deg)}
+.diary::before{content:"";position:absolute;left:24px;top:0;bottom:0;width:1.5px;background:#c0392b88}
+.diary .timeline li{border-color:transparent;padding:4px 0;font:12px/1.4 Georgia,serif;color:#2a241b}.diary .timeline time{color:#8a4a2a;font:700 9px system-ui;text-transform:uppercase;letter-spacing:.08em}
+
+/* ---------- gangue e dossiês ---------- */
+.crewGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:7px;margin:9px 0 6px}
+.memberCard{position:relative;background:#efe6cf;color:var(--tinta);padding:20px 6px 6px;text-align:center;box-shadow:2px 3px 0 #05080a;border-top:16px solid #7a3b2b;min-width:0}
+.memberCard.role-olheiro{border-top-color:#2c6a6c}.memberCard.role-negociador{border-top-color:#b08a2e}
+.memberCard strong{display:block;font:700 13px/1.1 Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.memberCard em{display:block;font:400 10px var(--stencil);letter-spacing:.08em;text-transform:uppercase;font-style:normal;color:#5a4f3e;margin:2px 0 5px}
+.memberCard .lvl{position:absolute;left:50%;top:-14px;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:#12100b;color:#ffd98f;font:400 16px/28px var(--stencil);border:2px solid #efe6cf}
+.memberCard .meter{background:#cbbd9b;border:0;height:4px}.memberCard .meter>div{background:#1b1712}
+.memberCard .mini{color:#5a4f3e;font-size:10px;margin-top:3px;display:block}
+.memberCard .x{position:absolute;right:0;top:-16px;width:24px;height:24px;background:transparent;border:0;color:#fff;font-size:15px;line-height:1;opacity:.7}
+.dossier{background:linear-gradient(180deg,#d9c9a6,#cdbb93);color:var(--tinta);box-shadow:3px 4px 0 #05080a;border-top:10px solid #b79f6e;position:relative}
+.dossier::before{content:"";position:absolute;top:-10px;left:14px;width:88px;height:10px;background:#cdbb93;border-radius:5px 5px 0 0;transform:translateY(-8px)}
+.dossierHead{display:grid;grid-template-columns:44px minmax(0,1fr);gap:9px;align-items:center}
+.dossierHead .pill{grid-column:1/-1;justify-self:start;background:var(--tinta);color:var(--papel);border:0;transform:rotate(-1.5deg)}
+.emblem{width:44px;height:44px;filter:drop-shadow(2px 2px 0 #0006)}
+.dossier h3{font:900 17px/1.1 Georgia,serif;color:var(--tinta)}.dossier .eyebrow{color:#6b4a1f;margin:3px 0 0}
+.dossier p,.dossier .mini{color:#3c342a}.dossier .negative{color:#a3271b}
+.dossier .rivalMetrics>div{border:1.5px solid #1b171266;border-radius:0;background:#fff8e655}.dossier .rivalMetrics span{color:#5a4f3e}.dossier .rivalMetrics strong{color:var(--tinta);font:400 17px var(--stencil)}
+.dossier .btn{background:var(--tinta);color:var(--papel);box-shadow:0 3px 0 #0006}.dossier .btn.danger{background:#7d2218;color:#fff}
+.dossier .btn:disabled{background:#b3a380;color:#6d6250;box-shadow:none}
+.roleBtns .btn{min-height:42px}
+.rivalMetrics>div{border-radius:0}
+.medal{border-radius:0}.ach{border-radius:0;border:0;box-shadow:inset 0 0 0 1px #2f3b40}.ach.on{box-shadow:inset 0 0 0 1.5px var(--ambar)}
+.seasonnumber{font:400 52px/1 var(--stencil)}
+
+/* ---------- capa ---------- */
+.welcome{background:#0b0f12;padding:0;place-items:stretch;display:block}
+.welcome .intro{width:min(480px,100%);min-height:100%;margin:0 auto;padding:0 20px 24px;background:linear-gradient(180deg,#0b0f12,#141b1f);border:0;border-radius:0;box-shadow:none;position:relative}
+.cover{height:210px;margin:0 -20px;position:relative;overflow:hidden}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#0b0f12 4%,transparent 55%)}
+.logo{position:relative;margin:-74px 0 4px;text-align:center;transform:rotate(-3deg)}
+.logoTop{display:block;font:400 clamp(52px,17vw,76px)/.86 var(--stencil);letter-spacing:.02em;color:transparent;background:repeating-linear-gradient(90deg,#f6ead0 0 26px,transparent 26px 29px);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(4px 4px 0 #05080a)}
+.logoBottom{display:inline-block;font:400 clamp(26px,8.5vw,38px)/1 var(--stencil);letter-spacing:.42em;color:#15120c;background:var(--ambar);padding:5px 4px 3px 16px;margin-top:6px;box-shadow:4px 4px 0 #05080a}
+.logoStripe{display:block;height:5px;width:150px;margin:10px auto 0;background:linear-gradient(90deg,#2f8a56 0 33%,#e6c23a 33% 66%,#2a5fa8 66%)}
+.tagline{text-align:center;font:italic 15px Georgia,serif;color:#d6c9ac!important;margin:14px 0 4px}
+.intro .formfield label{font:400 13px var(--stencil);letter-spacing:.1em;text-transform:uppercase;color:var(--ambar)}
+.intro .btn.primary{min-height:54px;font-size:20px}
+.intro small{text-align:center}
+
+@media(max-width:700px){.card{padding:12px}.miniScene{margin:-12px -12px 9px}.choiceGrid{gap:6px}}
+@media(max-width:370px){.job{grid-template-columns:44px minmax(0,1fr) 76px;gap:8px}.hudMoney strong{font-size:20px}.dayBar .btn{padding:0 12px;font-size:15px}}
+@media(min-width:701px){.hudwrap{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"who bars money";gap:18px}.hudBars{max-width:420px}.locale.tall{height:190px}.tiles{gap:10px}.cover{height:260px}}
+@media(prefers-reduced-motion:reduce){.cf,.rain,.siren,.dawn,.resultCard.fresh,.resultCard.fresh .stamp,.hudBar.ht.alert,.btn.armed{animation:none!important}.dawn{display:none}}
+
+/* ---------- ajustes da 2ª rodada (legibilidade a 360 px) ---------- */
+.pagehead h1{font-size:25px!important;color:#f1e3c6;background:none;-webkit-background-clip:border-box;background-clip:border-box;text-shadow:2px 2px 0 #05080a,3px 3px 0 #e4b26633}
+.section h2,.commandHeader h2{font-size:18px!important;color:var(--ambar);background:none;-webkit-background-clip:border-box;background-clip:border-box;text-shadow:2px 2px 0 #05080a;white-space:nowrap}
+.section small{max-width:48%;text-align:right;line-height:1.25}
+.logoTop{font-size:clamp(40px,13.5vw,68px);color:#f6ead0;background:none;-webkit-background-clip:border-box;background-clip:border-box;text-shadow:4px 4px 0 #05080a,6px 6px 0 #e4b26644;filter:none}
+.localeBottom{flex-wrap:nowrap;overflow:hidden;padding:16px 6px 6px}.localeBottom span{white-space:nowrap;font-size:9px;padding:3px 5px;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis}
+.locale{height:96px}
+.job{grid-template-columns:48px minmax(0,1fr) 88px}.jobAct .btn,.boardLead.job .btn{font-size:13px;letter-spacing:.02em;padding:6px 2px}
+@media(max-width:700px){.mobileNav button{font-size:9.5px;letter-spacing:0}.mobileNav button.active{font-size:9.5px}}
+@media(max-width:370px){.job{grid-template-columns:44px minmax(0,1fr) 82px}}
+
   </style>
 </head>
 <body>
-  <header class="topbar"><div class="topwrap">
-    <div class="brand"><span class="brandmark" aria-hidden="true">SB</span><div><strong>SUBMUNDO BRASIL</strong><small>ESTRATÉGIA URBANA • 0.5</small></div></div>
-    <div class="headright"><div class="topcell"><span>Dinheiro em mãos</span><strong id="topCash">R$ 0</strong></div><div class="topcell"><span>Temporada</span><strong id="topDay">Dia 1</strong></div><button id="menuToggle" class="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">Menu</button></div>
+  <header class="topbar hud" id="hud"><div class="topwrap hudwrap">
+    <div class="hudWho"><span class="hudAvatar" id="hudAvatar" aria-hidden="true"></span><div class="hudId"><strong id="hudName">SUBMUNDO BRASIL</strong><small id="hudSub">v0.5</small></div></div>
+    <div class="hudMoney"><strong id="topCash" title="Dinheiro em mãos">R$ 0</strong><small><span id="hudRespect">0</span> respeito · <span id="topDay">Dia 1</span></small></div>
+    <div class="hudBars">
+      <div class="hudBar en" role="img" id="hudEnergyBox" aria-label="Energia"><i id="hudEnergy"></i><b id="hudEnergyTxt">Energia</b></div>
+      <div class="hudBar ht" role="img" id="hudHeatBox" aria-label="Vigilância"><i id="hudHeat"></i><b id="hudHeatTxt">Vigilância</b></div>
+    </div>
+    <button id="menuToggle" class="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">Menu</button>
   </div></header>
-  <div class="layout"><aside class="sidebar" id="sidebar"><div class="sidehead">Jogo</div><nav class="nav" aria-label="Navegação principal">
-    <button type="button" data-view="painel" class="active">Início</button>
-    <button type="button" data-view="acoes">Missões</button>
-    <button type="button" data-view="cidade">Cidade</button>
-    <button type="button" data-view="gestao">Economia</button>
-    <button type="button" data-view="gangue">Gangue</button>
-    <button type="button" data-view="temporada">Temporada</button>
+  <div class="layout"><aside class="sidebar" id="sidebar"><div class="sidehead">Submundo Brasil</div><nav class="nav" aria-label="Navegação principal">
+    <button type="button" data-view="painel" class="active"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v9h5v-5h4v5h5v-9"/></svg>Início</button>
+    <button type="button" data-view="acoes"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Missões</button>
+    <button type="button" data-view="cidade"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V10l5-3v14M8 21V4l7 3v14M15 21v-9l6 2v7M2 21h20"/></svg>Bairros</button>
+    <button type="button" data-view="gestao"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>Economia</button>
+    <button type="button" data-view="gangue"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="4.5" cy="10" r="2"/><circle cx="19.5" cy="10" r="2"/></svg>Gangue</button>
+    <button type="button" data-view="temporada"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4c0 3 1.5 4.5 3.5 4.5M17 6h3c0 3-1.5 4.5-3.5 4.5M12 14v4M8 20h8"/></svg>Temporada</button>
   </nav><div class="sidefoot"><strong>Versão local 0.5.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.</div></aside>
   <main class="content" id="content" tabindex="-1" aria-live="polite"></main></div>
   <nav class="mobileNav" aria-label="Navegação principal no celular">
-    <button type="button" class="active" data-view="painel"><span class="navSymbol" aria-hidden="true">⌂</span>Início</button>
-    <button type="button" data-view="acoes"><span class="navSymbol" aria-hidden="true">✦</span>Missões</button>
-    <button type="button" data-view="cidade"><span class="navSymbol" aria-hidden="true">◇</span>Cidade</button>
-    <button type="button" data-view="gestao"><span class="navSymbol" aria-hidden="true">▣</span>Banco</button>
-    <button type="button" data-view="gangue"><span class="navSymbol" aria-hidden="true">♠</span>Gangue</button>
-    <button type="button" data-view="temporada"><span class="navSymbol" aria-hidden="true">▤</span>Temporada</button>
+    <button type="button" class="active" data-view="painel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v9h5v-5h4v5h5v-9"/></svg>Início</button>
+    <button type="button" data-view="acoes"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Missões</button>
+    <button type="button" data-view="cidade"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V10l5-3v14M8 21V4l7 3v14M15 21v-9l6 2v7M2 21h20"/></svg>Bairros</button>
+    <button type="button" data-view="gestao"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>Banco</button>
+    <button type="button" data-view="gangue"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="4.5" cy="10" r="2"/><circle cx="19.5" cy="10" r="2"/></svg>Gangue</button>
+    <button type="button" data-view="temporada"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4c0 3 1.5 4.5 3.5 4.5M17 6h3c0 3-1.5 4.5-3.5 4.5M12 14v4M8 20h8"/></svg>Temporada</button>
   </nav>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-  <div class="welcome hidden" id="welcome"><form id="newGameForm" class="intro"><div id="welcomeNotice"></div><div class="eyebrow">SUBMUNDO BRASIL / 0.5</div><h1>Faça seu nome.<br>Encare as consequências.</h1><p>Um RPG de navegador inspirado nos clássicos: ações rápidas, riscos, evolução e economia. Tudo em uma cidade brasileira fictícia.</p>
+  <div class="welcome hidden" id="welcome"><form id="newGameForm" class="intro"><div id="welcomeNotice"></div><div class="cover" id="coverArt" aria-hidden="true"></div><div class="logo"><span class="logoTop">SUBMUNDO</span><span class="logoBottom">BRASIL</span><i class="logoStripe"></i></div><p class="tagline">Faça seu nome. Encare as consequências.</p>
     <div class="formfield"><label for="playerName">Seu codinome</label><input id="playerName" class="input" name="playerName" required minlength="2" maxlength="22" autocomplete="off" placeholder="Como vão te conhecer?"></div>
     <div class="formfield"><label for="homeCity">Cidade de origem</label><select id="homeCity" class="input" name="homeCity"><option>Rio de Janeiro</option><option>São Paulo</option><option>Belo Horizonte</option><option>Salvador</option><option>Recife</option><option>Porto Alegre</option></select></div>
-    <button class="btn primary block" type="submit">Começar carreira</button><button class="btn ghost block" type="button" id="welcomeImport" style="margin-top:8px">Importar salvamento (.json)</button><input type="file" id="welcomeImportFile" accept=".json,application/json" class="hidden" aria-label="Selecionar salvamento JSON"><small>Todo o universo, os personagens e as situações são fictícios. Esta versão é offline e salva os dados apenas neste aparelho.</small>
+    <button class="btn primary block" type="submit">Entrar na cidade</button><button class="btn ghost block" type="button" id="welcomeImport" style="margin-top:8px">Importar salvamento (.json)</button><input type="file" id="welcomeImportFile" accept=".json,application/json" class="hidden" aria-label="Selecionar salvamento JSON"><small>Todo o universo, os personagens e as situações são fictícios. Esta versão é offline e salva os dados apenas neste aparelho.</small>
   </form></div>
 
   <script id="sb-engine">
@@ -1543,6 +1788,124 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
   const D = id => SB.district(state, id);
   const F = id => SB.faction(id);
 
+  /* ---------- arte gerada (SVG inline, sem arquivos externos) ---------- */
+  const R = (x, y, w, h, f, extra = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" ${extra}/>`;
+  /** Janelas acesas em grade; padrão determinístico para não "piscar" a cada render. */
+  function wins(x, y, cols, rows, seed, dx = 7, dy = 9) {
+    let o = '';
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { seed = (seed * 31 + 7) % 97; if (seed % 3 === 0) o += R(x + c * dx, y + r * dy, 3, 4, seed % 2 ? '#f0c06e' : '#c9873f'); }
+    return o;
+  }
+  const INK = '#0a0f12', FAR = '#1b2c33';
+  const SCENES = {
+    centro: () => {
+      let o = '';
+      [[0, 52, 30], [28, 40, 26], [70, 58, 34], [130, 34, 24], [186, 50, 40], [250, 44, 30], [300, 60, 60]].forEach(([x, y, w], i) => { o += R(x, y, w, 120 - y, FAR); });
+      const b = [[4, 58, 46], [52, 44, 40], [94, 62, 50], [146, 36, 34], [182, 54, 56], [240, 48, 44], [286, 64, 70]];
+      b.forEach(([x, y, w], i) => {
+        o += R(x, y, w, 120 - y, INK) + R(x - 2, y, w + 4, 3, INK) + wins(x + 6, y + 10, Math.floor((w - 8) / 7), 4, i * 13 + 5);
+        if (i % 2 === 0) o += `<path d="M${x + w / 2 - 8} ${y} q8 -12 16 0z" fill="${INK}"/>`;
+      });
+      o += R(162, 14, 4, 24, INK) + `<path d="M158 16h12M164 8v8" stroke="${INK}" stroke-width="2"/>`;
+      [[18, '#b5482f'], [76, '#d9a441'], [128, '#2f7d5b'], [204, '#b5482f'], [262, '#d9a441'], [318, '#2e5f9e']].forEach(([x, c]) => { o += `<path d="M${x} 100h30l4 8h-38z" fill="${c}"/>` + R(x + 2, 108, 2, 12, '#05080a') + R(x + 26, 108, 2, 12, '#05080a') + R(x + 5, 110, 20, 4, '#3a2c1c'); });
+      return o;
+    },
+    cais: () => {
+      let o = R(0, 70, 360, 50, '#10242d');
+      o += `<path d="M190 78h120l-10 16h-96z" fill="${FAR}"/>` + R(250, 62, 30, 16, FAR) + R(262, 50, 6, 12, FAR);
+      for (let i = 0; i < 9; i++) o += R(i * 44, 96 + (i % 2) * 4, 26, 1.5, '#27485a');
+      o += R(0, 92, 190, 28, INK);
+      o += R(40, 18, 5, 76, INK) + R(20, 22, 92, 5, INK) + `<path d="M42 22 30 10h24zM100 27v26M45 27l40 0M42 50 100 27" stroke="${INK}" stroke-width="2" fill="${INK}"/>` + R(94, 52, 12, 9, '#a5532f');
+      [[112, 78, '#a5532f'], [144, 78, '#2c6a6c'], [112, 64, '#c79a3d'], [128, 50, '#2e5f9e'], [144, 64, '#7d3b2b'], [6, 78, '#2c6a6c']].forEach(([x, y, c]) => { o += R(x, y, 30, 13, c) + R(x + 9, y, 1, 13, '#0007') + R(x + 19, y, 1, 13, '#0007'); });
+      o += R(330, 30, 4, 62, INK) + R(300, 34, 46, 4, INK) + R(318, 92, 42, 28, INK);
+      return o;
+    },
+    jardim: () => {
+      let o = '';
+      for (let i = 0; i < 8; i++) o += R(i * 48 - 6, 62 - (i % 3) * 8, 44, 60, FAR);
+      const hs = [[6, 78, 44], [58, 70, 38], [104, 82, 50], [162, 72, 40], [210, 80, 46], [264, 68, 40], [310, 78, 50]];
+      hs.forEach(([x, y, w], i) => {
+        o += R(x, y, w, 120 - y, INK) + `<path d="M${x - 3} ${y}l${w / 2 + 3} -12l${w / 2 + 3} 12z" fill="${INK}"/>` + wins(x + 6, y + 8, Math.floor((w - 8) / 9), 2, i * 7 + 3, 9, 12);
+        if (i % 2) o += R(x + w - 14, y - 16, 10, 8, '#2e5f9e') + R(x + w - 12, y - 8, 2, 6, INK) + R(x + w - 8, y - 8, 2, 6, INK);
+      });
+      [30, 150, 270].forEach(x => { o += R(x, 30, 3, 90, INK) + R(x - 8, 34, 19, 2, INK); });
+      o += `<path d="M31 35q60 16 120 0M151 35q60 16 120 0M271 35q50 14 90 4M-10 42q20 4 41 -7" stroke="${INK}" stroke-width="1.2" fill="none"/>`;
+      o += `<path d="M228 14l7 9-7 9-7-9z" fill="#c9503a"/><path d="M228 32q4 8 -2 14" stroke="#c9503a" stroke-width="1" fill="none"/>`;
+      return o;
+    },
+    industrial: () => {
+      let o = '';
+      [[20, 30], [200, 22], [290, 36]].forEach(([x, y]) => { o += R(x, y, 12, 90, FAR) + `<ellipse cx="${x + 14}" cy="${y - 8}" rx="16" ry="7" fill="#3a4a50" opacity=".55"/><ellipse cx="${x + 30}" cy="${y - 18}" rx="20" ry="8" fill="#3a4a50" opacity=".35"/>`; });
+      o += R(60, 56, 110, 64, FAR) + R(230, 60, 50, 60, FAR);
+      let x = 0;
+      for (let i = 0; i < 6; i++) { o += `<path d="M${x} 120V78l22 -14v14l22 -14v14l22 -14v56z" fill="${INK}"/>` + wins(x + 6, 90, 8, 2, i * 5 + 2, 7, 11); x += 66; }
+      o += R(120, 26, 9, 60, INK) + R(118, 24, 13, 4, '#a5532f') + R(318, 34, 9, 50, INK) + R(316, 32, 13, 4, '#a5532f');
+      o += `<ellipse cx="136" cy="14" rx="18" ry="7" fill="#4a5a60" opacity=".6"/><ellipse cx="336" cy="22" rx="16" ry="6" fill="#4a5a60" opacity=".6"/>`;
+      o += R(248, 40, 24, 16, INK) + `<path d="M252 56l-4 30M268 56l4 30M260 56v30" stroke="${INK}" stroke-width="2.500"/>`.replace('.500', '.5');
+      return o;
+    },
+    vila: () => {
+      let o = '';
+      for (let i = 0; i < 7; i++) o += R(i * 56 - 4, 66 - (i % 2) * 10, 50, 60, FAR);
+      const palm = (x, h) => `<path d="M${x} 120q-4 -${h / 2} 2 -${h}" stroke="${INK}" stroke-width="4" fill="none"/>` + [[-26, -4], [-20, -16], [-4, -22], [14, -18], [24, -6], [18, 8], [-18, 8]].map(([dx, dy]) => `<path d="M${x + 2} ${120 - h}q${dx / 2} ${dy - 6} ${dx} ${dy + 4}" stroke="${INK}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`).join('');
+      o += palm(40, 78) + palm(318, 88) + palm(286, 60);
+      o += R(96, 62, 150, 58, INK) + R(90, 58, 162, 5, INK) + `<path d="M96 76h150l8 12H88z" fill="#b5482f"/>` + [0, 1, 2, 3, 4].map(i => `<path d="M${104 + i * 32} 76h16l2 12h-20z" fill="#e7d9b8"/>`).join('');
+      o += R(140, 40, 62, 18, '#102a1e') + `<text x="171" y="54" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="13" fill="#f0c06e">BAR</text>`;
+      o += wins(106, 96, 4, 1, 4, 9) + R(196, 94, 20, 26, '#2a1d12') + R(150, 100, 22, 3, '#3a2c1c') + R(158, 103, 3, 17, '#05080a');
+      o += `<path d="M0 30q90 26 180 6t180 4" stroke="${INK}" stroke-width="1" fill="none"/>` + [20, 56, 92, 128, 168, 208, 248, 290, 330].map((x, i) => `<circle cx="${x}" cy="${[33, 38, 41, 40, 37, 33, 31, 31, 35][i]}" r="2.2" fill="${['#f0c06e', '#c9503a', '#7fc8a4'][i % 3]}"/>`).join('');
+      return o;
+    }
+  };
+  const SKY = { centro: ['#2b3a44', '#7a5a3c'], cais: ['#1c3340', '#4d6a70'], jardim: ['#2a3550', '#b0704a'], industrial: ['#2c2f36', '#6a5444'], vila: ['#23344a', '#c2824a'] };
+  /** Cena do bairro; reage aos eventos ativos (festa, chuva, operação, greve, guerra). */
+  function scene(id, withEvents = true) {
+    const evs = withEvents && state ? SB.activeEvents(state) : [];
+    const has = k => evs.some(e => e.id === k && (!e.district || e.district === id));
+    const [a, b] = SKY[id] || SKY.centro;
+    let o = `<svg class="scene" viewBox="0 0 360 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="sky-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>`;
+    o += R(0, 0, 360, 120, `url(#sky-${id})`) + `<circle cx="${id === 'cais' ? 300 : 78}" cy="${id === 'industrial' ? 40 : 30}" r="13" fill="#f3d9a4" opacity="${has('temporal') ? .15 : .8}"/>`;
+    o += (SCENES[id] || SCENES.centro)();
+    if (has('carnaval') || has('festival') || has('saojoao')) {
+      const cols = ['#f0c06e', '#c9503a', '#7fc8a4', '#5c8fd6', '#e7d9b8'];
+      let seed = 11; for (let i = 0; i < 46; i++) { seed = (seed * 37 + 11) % 359; o += `<rect class="cf" x="${seed}" y="${(seed * 7) % 96}" width="3" height="5" fill="${cols[i % 5]}" transform="rotate(${seed % 90} ${seed} ${(seed * 7) % 96})" style="animation-delay:-${i % 7 * .4}s"/>`; }
+      o += `<path d="M0 8q90 22 180 4t180 6" stroke="#0a0f12" stroke-width="1" fill="none"/>` + Array.from({ length: 15 }, (_, i) => `<path d="M${8 + i * 24} ${10 + Math.sin(i / 2.3) * 5 + 4}l5 0-2.5 7z" fill="${cols[i % 5]}"/>`).join('');
+    }
+    if (has('temporal')) { o += R(0, 0, 360, 120, '#0b1420', 'opacity=".45"'); for (let i = 0; i < 40; i++) o += `<path class="rain" d="M${(i * 53) % 360} ${(i * 29) % 110}l-4 12" stroke="#9fc0d6" stroke-width="1" opacity=".55" style="animation-delay:-${i % 5 * .12}s"/>`; }
+    if (has('operacao') || has('fiscalizacao')) o += `<g class="siren"><circle cx="300" cy="104" r="30" fill="#d0463a" opacity=".35"/><circle cx="330" cy="104" r="30" fill="#3f6fd0" opacity=".3"/></g>` + R(296, 104, 40, 9, '#05080a') + R(304, 99, 22, 6, '#05080a') + R(311, 96, 4, 3, '#e0564a') + R(316, 96, 4, 3, '#5c8fd6');
+    if (has('guerra')) o += `<g class="siren"><circle cx="180" cy="96" r="44" fill="#d0463a" opacity=".22"/></g><path d="M150 60q8 -14 4 -26M172 54q10 -16 2 -34" stroke="#55606a" stroke-width="5" fill="none" opacity=".6" stroke-linecap="round"/>`;
+    if (has('greve')) o += [120, 150, 180].map((x, i) => R(x, 96, 14, 9, '#e7d9b8') + R(x + 6, 105, 2, 12, '#05080a')).join('');
+    if (has('crise')) o += R(0, 0, 360, 120, '#1a1410', 'opacity=".35"');
+    return o + R(0, 118, 360, 2, '#05080a') + '</svg>';
+  }
+  /** Placa de rua esmaltada. */
+  const plate = (name, sub = '') => `<span class="plate"><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span>`;
+  /** Retrato do personagem: silhueta muda com a especialização. */
+  function avatar(career) {
+    const bg = { operador: '#3a2f25', articulador: '#22343a', empreendedor: '#2c3327' }[career] || '#262b2f';
+    let o = `<svg viewBox="0 0 48 48" aria-hidden="true">${R(0, 0, 48, 48, bg)}<path d="M0 34l48 -20v34H0z" fill="#0003"/>`;
+    o += `<path d="M6 48c1-11 8-15 18-15s17 4 18 15z" fill="#0b1013"/><ellipse cx="24" cy="21" rx="9" ry="10.500" fill="#0b1013"/>`.replace('.500', '.5');
+    if (career === 'operador') o += `<path d="M14 17c1-8 19-8 20 0z" fill="#b5482f"/><path d="M13 17h26l1 3H13z" fill="#8a3421"/>`;
+    else if (career === 'articulador') o += `<path d="M8 16h32l-2 3H10z" fill="#e7d9b8"/><path d="M15 16c0-9 18-9 18 0z" fill="#e7d9b8"/><path d="M15 14h18v2H15z" fill="#22343a"/>`;
+    else if (career === 'empreendedor') o += `<path d="M15 16c2-9 16-9 18 0-5-3-13-3-18 0z" fill="#1b1410"/><path d="M19 34l5 5 5-5 2 14H17z" fill="#e7d9b8"/><path d="M23 38h2l1.500 9h-5z" fill="#c79a3d"/>`.replace('.500', '.5');
+    else o += `<path d="M12 24c-2-16 26-16 24 0-2-8-22-8-24 0z" fill="#3a4348"/>`;
+    return o + '</svg>';
+  }
+  const EMBLEM = {
+    esquina: `<circle cx="20" cy="20" r="18" fill="#3a2a1c" stroke="#d9a441" stroke-width="2"/><path d="M12 30V12h16M12 12l16 18" stroke="#e7d9b8" stroke-width="3" fill="none" stroke-linecap="square"/><circle cx="28" cy="12" r="3" fill="#d9a441"/>`,
+    docas: `<path d="M20 2l16 9v18l-16 9-16-9V11z" fill="#1d2f3a" stroke="#7fa6bd" stroke-width="2"/><path d="M20 9v20M13 15h14M11 24c1 7 17 7 18 0" stroke="#e7d9b8" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="20" cy="9" r="2.500" fill="#7fa6bd"/>`.replace('.500', '.5'),
+    aurora: `<path d="M3 20a17 17 0 0 1 34 0v14H3z" fill="#3a2540" stroke="#d98a6a" stroke-width="2"/><path d="M10 28a10 10 0 0 1 20 0z" fill="#f0c06e"/><path d="M20 8v6M9 13l4 5M31 13l-4 5M5 28h30" stroke="#f0c06e" stroke-width="2.500" stroke-linecap="round"/>`.replace('.500', '.5')
+  };
+  const emblem = id => `<svg class="emblem" viewBox="0 0 40 40" aria-hidden="true">${EMBLEM[id] || ''}</svg>`;
+  const STAT_ICON = {
+    astucia: `<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>`,
+    forca: `<path d="M3 9v6M6 6v12M18 6v12M21 9v6M6 12h12"/>`,
+    labia: `<path d="M4 5h16v11H11l-5 4v-4H4z"/><path d="M8 9h8M8 12h5"/>`,
+    influencia: `<circle cx="12" cy="5" r="2.500"/><circle cx="5" cy="18" r="2.500"/><circle cx="19" cy="18" r="2.500"/><path d="M11 7 6 16M13 7l5 9M7.500 18h9"/>`.replace(/\.500/g, '.5')
+  };
+  const statIcon = id => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${STAT_ICON[id] || ''}</svg>`;
+  /** Título de seção em estêncil. */
+  const stencil = (title, small = '') => `<div class="section"><h2>${title}</h2>${small ? `<small>${small}</small>` : ''}</div>`;
+
   /* ---------- persistência ---------- */
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); saveFailed = false; }
@@ -1589,7 +1952,7 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
     if (!confirm((fromWelcome ? 'Carregar' : 'Substituir sua carreira atual por') + ` este salvamento?\n\n${summary}${r.notes.length ? '\n\n' + r.notes.join('\n') : ''}${warn}`)) return;
     state = r.state; view = 'painel';
     result = { good: true, msg: 'Carreira importada.', lines: r.notes.concat(warn ? ['Arquivo alterado após a exportação: valores verificados.'] : []), deltas: [] };
-    $('#welcome').classList.add('hidden');
+    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover');
     save(); render(); notify('Carreira importada com sucesso.');
   }
 
@@ -1609,6 +1972,29 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
     add('Ânimo', b.morale - a.morale);
     return out;
   }
+  const STAMPED = ['mission', 'gangOp', 'clash', 'dispute', 'dialogue'];
+  /** Transição curta de amanhecer ao virar o dia (ignorada com movimento reduzido). */
+  function dawn() {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const el = document.createElement('div'); el.className = 'dawn'; el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = `<b>Dia ${state.day}</b>`; document.body.appendChild(el); setTimeout(() => el.remove(), 1100);
+  }
+  let lastCash = null;
+  function renderHud() {
+    const s = state, lvl = Math.min(99, Math.floor(s.respect / 35) + 1), c = s.career ? SB.CAREERS.find(x => x.id === s.career).name : 'Sem especialização';
+    if ($('#hudAvatar').dataset.career !== String(s.career)) { $('#hudAvatar').innerHTML = avatar(s.career); $('#hudAvatar').dataset.career = String(s.career); }
+    $('#hudName').textContent = s.name; $('#hudSub').textContent = `Nível ${lvl} · ${c}`;
+    $('#hudRespect').textContent = num(s.respect);
+    $('#hudEnergy').style.width = s.energy + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`;
+    $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Vigilância ${s.heat}`;
+    $('#hudEnergyBox').setAttribute('aria-label', `Energia ${s.energy} de 100`); $('#hudHeatBox').setAttribute('aria-label', `Vigilância ${s.heat} de 100`);
+    $('#hudHeatBox').classList.toggle('alert', s.heat >= 60);
+    const cash = $('#topCash'); cash.textContent = fmt(s.cash);
+    if (lastCash !== null && lastCash !== s.cash) { cash.classList.remove('up', 'down'); void cash.offsetWidth; cash.classList.add(s.cash > lastCash ? 'up' : 'down'); }
+    lastCash = s.cash;
+    $('#topDay').textContent = `Dia ${s.day}/${MAXDAY}`;
+    document.body.classList.toggle('jailed', s.jail > 0);
+  }
   /** Executa uma ação do motor, registra o resultado e redesenha. */
   function run(name, ...args) {
     if (!state) return null;
@@ -1621,26 +2007,31 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
       const rec = r.record;
       state = r.state;
       result = { good: true, msg: r.msg, lines: [`Pontuação: ${rec.score}.`, ...SB.CATEGORIES.map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`), `Meta: ${rec.goal ? (rec.goalComplete ? 'cumprida' : 'não cumprida') : 'não escolhida'}.`], deltas: [] };
-    } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()) };
-    notify(r.msg, !r.good);
+    } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()), fresh: true, stamp: STAMPED.includes(name) };
+    if (name === 'nextDay') dawn();
     save(); render();
+    // O cupom de resultado já informa; o aviso flutuante só aparece se ele estiver fora da tela.
+    const card = $('.resultCard'), box = card && card.getBoundingClientRect();
+    if (!box || box.bottom < 70 || box.top > window.innerHeight - 70) notify(r.msg, !r.good); else $('#toast').hidden = true;
     return r;
   }
 
   /* ---------- componentes ---------- */
   function heading(label, desc, extra = '') {
-    return `<div class="pagehead"><div><div class="eyebrow">Temporada ${state.season} • Dia ${state.day} de ${MAXDAY}</div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>`;
+    return `<div class="pagehead"><div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>`;
   }
   function resultCard() {
     if (!result) return '';
-    return `<section class="resultCard ${result.good ? '' : 'bad'}" aria-live="polite"><div class="rhead"><strong>${esc(result.msg)}</strong><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar resultado">×</button></div>
+    const fresh = result.fresh; result.fresh = false;
+    return `<section class="resultCard ${result.good ? '' : 'bad'} ${fresh ? 'fresh' : ''}" aria-live="polite"><div class="rhead"><strong>${esc(result.msg)}</strong><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar resultado">×</button></div>
+      ${result.stamp ? `<span class="stamp" aria-hidden="true">${result.good ? 'DEU BOM' : 'DEU RUIM'}</span>` : ''}
       ${result.deltas.length ? `<div class="chips">${result.deltas.map(d => `<span class="chip ${d.good ? 'up' : 'down'}">${d.label} ${d.text}</span>`).join('')}</div>` : ''}
       ${result.lines.length ? `<ul>${result.lines.slice(0, 10).map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}</section>`;
   }
   function jailNotice() {
     if (state.jail <= 0) return '';
     const c = SB.bailCost(state);
-    return `<div class="notice error"><strong>Você está detido.</strong> Faltam ${state.jail} dia(s). Missões, treinos, viagens e negócios ficam bloqueados; o banco continua disponível.
+    return `<div class="notice error tape"><strong>DETIDO · ${state.jail} dia(s)</strong> Missões, treinos, viagens e negócios ficam bloqueados; o banco continua disponível.
       <div class="inlineBtns">${button(`Pagar fiança · ${fmt(c)}`, 'bail', '', state.cash < c, 'small danger')}${nextDayButton('small')}</div></div>`;
   }
   function nextDayButton(cls = '') {
@@ -1650,9 +2041,16 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
   function eventChips() {
     return SB.activeEvents(state).map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > state.day ? ` · até o dia ${e.until}` : ''}<br>${esc(e.def.desc)}</li>`).join('');
   }
-  const statName = id => SB.STATS.find(s => s.id === id).name;
+  /** Faixa do local atual: cena do bairro, placa de rua e condições. */
+  function localeStrip(tall) {
+    const s = state, d = D(), ds = s.dstate[d.id], l = SB.leader(s, d.id);
+    const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
+    return `<section class="locale ${tall ? 'tall' : ''}" aria-label="Onde você está">${scene(d.id)}
+      <div class="localeTop">${plate(d.name, s.city)}${evs.map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
+      <div class="localeBottom"><span>${SB.controlled(s, d.id) ? 'Você lidera' : esc(F(l.id).short) + ' ' + l.value + ' × você ' + s.influence[d.id]}</span><span>Economia ${Math.round(ds.econ * 100)}%</span><span class="${ds.vigil >= 40 ? 'hot' : ''}">Vigia local ${ds.vigil}</span></div></section>`;
+  }
+  const statName = id => SB.STATS.find(x => x.id === id).name;
   const chanceClass = p => p < 55 ? 'danger' : p < 75 ? 'risky' : '';
-
   /** Sugestão do painel: maior retorno esperado por energia com chance razoável. */
   function suggestion() {
     let best = null, bv = -Infinity;
@@ -1667,43 +2065,25 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
 
   /* ---------- telas ---------- */
   function panel() {
-    const s = state, level = Math.min(99, Math.floor(s.respect / 35) + 1);
+    const s = state;
     const standing = s.respect < 30 ? 'Desconhecido' : s.respect < 85 ? 'Nome em ascensão' : s.respect < 180 ? 'Figura conhecida' : 'Lenda da cidade';
     const m = suggestion();
-    const l = SB.leader(s, s.district);
-    return jailNotice() + `
-      <section class="cityHero" aria-label="Personagem e reputação">
-        <div><div class="heroLabel">Temporada ${s.season} · Dia ${s.day} de ${MAXDAY}</div>
-          <h1>${esc(s.name)}</h1><p>${esc(s.city)} / ${esc(D().name)}</p>
-          <div class="heroMeta"><span>${standing}</span><span>Nível ${level}</span>${s.career ? `<span>${SB.CAREERS.find(c => c.id === s.career).name} ${SB.careerLevel(s)}/3</span>` : ''}${s.prestige ? `<span>Prestígio ${s.prestige}</span>` : ''}</div>
-        </div><div class="heroReputation"><strong>${num(s.respect)}</strong><small>Respeito</small></div>
-      </section>
-      <div class="commandHud">
-        <div class="hudItem"><span>Em mãos</span><strong>${fmt(s.cash)}</strong><small>Banco ${fmt(s.bank)}</small></div>
-        <div class="hudItem"><span>Energia</span><strong class="good">${s.energy}<small style="display:inline;font-size:12px">/100</small></strong><small>${s.jail > 0 ? 'Detido por ' + s.jail + ' dia(s)' : '+70 ao amanhecer'}</small></div>
-        <div class="hudItem"><span>Vigilância</span><strong class="${s.heat > 50 ? 'heat' : ''}">${s.heat}<small style="display:inline;font-size:12px">/100</small></strong><small>Local ${s.dstate[s.district].vigil}</small></div>
-      </div>
-      <div class="statusStrip"><div class="statusBar"><div class="meterlabel"><span>Dia ${s.day}/${MAXDAY} · energia</span><strong>${s.energy}%</strong></div><div class="meter green"><div style="width:${s.energy}%"></div></div></div>${nextDayButton('small')}</div>
+    const net = SB.income(s) + SB.controls(s).reduce((t, d) => t + SB.tribute(s, d.id), 0) - SB.groupUpkeep(s);
+    return jailNotice() + localeStrip(true) + `
+      <div class="dayBar"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>Temporada ${s.season} · ${standing}</span><div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></div>${nextDayButton('')}</div>
       ${resultCard()}${careerCard()}${goalSummary()}${newsCard()}
-      <div class="boardGrid">
-        <section class="boardLead"><div class="eyebrow">Sugestão para agora</div>
-          <h2>${m ? esc(m.name) : 'Recupere-se ou mude de bairro'}</h2>
-          <p>${m ? esc(m.desc) : 'Nenhuma missão com boa chance agora. Treine, reduza a vigilância, viaje ou avance o dia.'}</p>
-          ${m ? `<div class="boardMetrics"><div class="metric"><span>Chance</span><strong>${SB.missionChance(s, m)}%</strong></div><div class="metric"><span>Ganhos</span><strong>${fmt(m.low * SB.missionRewardMult(s, m))}+</strong></div><div class="metric"><span>Energia</span><strong>${m.cost}</strong></div></div>
-          ${button('Executar missão', 'mission', `data-id="${m.id}"`, false, 'primary')}` : button('Ver missões', 'switch', 'data-target="acoes"', false, 'primary')}
-        </section>
-        <section class="cityBulletin"><div class="eyebrow">Boletim da cidade</div><ul class="eventList">${eventChips()}</ul>
-          <div class="bulletinFoot">Renda prevista amanhã<strong>${fmt(SB.income(s) + SB.controls(s).reduce((t, d) => t + SB.tribute(s, d.id), 0) - SB.groupUpkeep(s))} / dia</strong></div>
-          <div class="bulletinFoot">${esc(D().name)}<strong>Você ${s.influence[s.district]} · ${esc(F(l.id).short)} ${l.value}${SB.controlled(s, s.district) ? ' · você lidera' : ''}</strong></div></section>
+      <section class="boardLead job ${m ? '' : 'idle'}"><div class="jobIcon">${m ? statIcon(m.stat) : statIcon('astucia')}</div>
+        <div class="jobMain"><div class="eyebrow">Serviço da vez</div><h3>${m ? esc(m.name) : 'Nada com boa chance agora'}</h3>
+          <p class="jobMeta">${m ? `${m.cost} energia · ${fmt(m.low * SB.missionRewardMult(s, m))}–${fmt(m.high * SB.missionRewardMult(s, m))}` : 'Treine, baixe a vigilância, viaje ou vire o dia.'}</p></div>
+        <div class="jobAct">${m ? `<span class="seal ${chanceClass(SB.missionChance(s, m))}">${SB.missionChance(s, m)}%</span>${button('Executar', 'mission', `data-id="${m.id}"`, false, 'primary')}` : button('Ver quadro', 'switch', 'data-target="acoes"', false, 'primary')}</div></section>
+      <div class="tiles">
+        <button class="tile" type="button" data-view="acoes"><b>${SB.MISSIONS.filter(x => !SB.missionLock(s, x)).length}</b><span>serviços aqui</span></button>
+        <button class="tile" type="button" data-view="cidade"><b>${SB.controls(s).length}<small>/5</small></b><span>bairros seus</span></button>
+        <button class="tile" type="button" data-view="gestao"><b class="${net < 0 ? 'neg' : ''}">${fmt(net)}</b><span>saldo por dia</span></button>
+        <button class="tile" type="button" data-view="gangue"><b>${s.gangName ? s.crew.length : '—'}</b><span>${s.gangName ? 'no bonde · ânimo ' + s.crewMorale : 'sem gangue'}</span></button>
       </div>
-      <div class="commandHeader"><h2>Escolha seu caminho</h2><small>Atalhos</small></div>
-      <div class="commandGrid">
-        <button class="commandLink" type="button" data-view="acoes"><div><span>Missões e treinos</span><small>${SB.MISSIONS.filter(x => !SB.missionLock(s, x)).length} disponíveis aqui</small></div><b aria-hidden="true">01</b></button>
-        <button class="commandLink" type="button" data-view="cidade"><div><span>Bairros</span><small>${SB.controls(s).length} liderado(s)</small></div><b aria-hidden="true">02</b></button>
-        <button class="commandLink" type="button" data-view="gestao"><div><span>Banco e negócios</span><small>${s.businesses.length} negócio(s)</small></div><b aria-hidden="true">03</b></button>
-        <button class="commandLink" type="button" data-view="gangue"><div><span>Gangue e facções</span><small>${s.gangName ? esc(s.gangName) + ' · ânimo ' + s.crewMorale : 'Fundar com 30 de respeito'}</small></div><b aria-hidden="true">04</b></button>
-      </div>
-      <div class="recentFeed"><div class="commandHeader"><h2>Últimos acontecimentos</h2><small>Registro</small></div><section class="card">${journal(3)}</section></div>`;
+      ${SB.activeEvents(s).some(e => e.id !== 'rotina') ? stencil('Na cidade hoje') + `<section class="poster"><ul class="eventList">${SB.activeEvents(s).filter(e => e.id !== 'rotina').map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(e.def.desc)}</li>`).join('')}</ul></section>` : ''}
+      ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(3)}</section>`;
   }
   function journal(max) { return `<ul class="timeline">${state.log.slice(0, max).map(i => `<li><time>Dia ${num(i.day)}</time>${esc(i.msg)}</li>`).join('')}</ul>`; }
 
@@ -1725,35 +2105,31 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
   function newsCard() {
     const n = SB.currentNews(state); if (!n) return '';
     const f = state.newsPending.faction ? F(state.newsPending.faction) : null;
-    return `<section class="card choiceCard"><div class="eyebrow">Decisão da cidade · Dia ${state.day}</div><h2>${esc(n.name)}${f ? ' · ' + esc(f.short) : ''}</h2><p>${esc(n.desc)}</p>
-      <div class="choiceGrid">${n.choices.map((c, i) => { const block = SB.newsChoiceBlocked(state, c); const cost = SB.newsChoiceCost(state, c); return `<article><strong>${esc(c.label)}</strong><p>${esc(c.desc)}${c.cashPerMember ? ` (total ${fmt(cost)})` : ''}${block ? `<br><span class="negative">${esc(block)}</span>` : ''}</p>${button('Tomar decisão', 'news', `data-id="${n.id}" data-choice="${i}"`, !!block, 'small block')}</article>`; }).join('')}</div>
-      <div class="btnbar" style="margin-top:8px">${button('Ignorar notícia', 'skip-news', '', false, 'ghost small')}</div></section>`;
+    return `<section class="poster choiceCard"><div class="posterHead">EXTRA · DIA ${state.day}</div><h2>${esc(n.name)}${f ? ' · ' + esc(f.short) : ''}</h2><p>${esc(n.desc)}</p>
+      <div class="choiceGrid">${n.choices.map((c, i) => { const block = SB.newsChoiceBlocked(state, c); const cost = SB.newsChoiceCost(state, c); return `<article><strong>${esc(c.label)}</strong><p>${esc(c.desc)}${c.cashPerMember ? ` (total ${fmt(cost)})` : ''}${block ? `<br><span class="negative">${esc(block)}</span>` : ''}</p>${button('Decidir', 'news', `data-id="${n.id}" data-choice="${i}"`, !!block, 'small block')}</article>`; }).join('')}</div>
+      <div class="btnbar" style="margin-top:8px">${button('Ignorar', 'skip-news', '', false, 'ghost small')}</div></section>`;
   }
-
   function actions() {
     const s = state, ds = s.dstate[s.district];
     const list = SB.MISSIONS.filter(m => missionFilter === 'todas' ? true : missionFilter === 'bairro' ? m.district === s.district : ['', 'Energia insuficiente.', 'Você está detido.'].includes(SB.missionLock(s, m)));
-    return heading('Missões e treinamento', 'Cada missão usa um atributo. Repetir a mesma no dia e agir sempre no mesmo bairro aumenta o risco.') + jailNotice() + resultCard() + `
-      <div class="grid two"><section class="card"><div class="meters"><div><div class="meterlabel"><span>Energia</span><strong>${s.energy}/100</strong></div><div class="meter green"><div style="width:${s.energy}%"></div></div></div>
-        <div><div class="meterlabel"><span>Vigilância pessoal</span><strong>${s.heat}/100</strong></div><div class="meter red"><div style="width:${s.heat}%"></div></div></div>
-        <div><div class="meterlabel"><span>Vigilância em ${esc(D().name)}</span><strong>${ds.vigil}/100</strong></div><div class="meter red"><div style="width:${ds.vigil}%"></div></div></div></div></section>
-      <section class="card"><div class="space"><h2>Condições atuais</h2><span class="tag">${esc(D().name)}</span></div><ul class="eventList">${eventChips()}</ul>
-        <div class="kv"><div><span>Economia local</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Recompensa do bairro</span><strong>${signed(D().bonus)}%</strong></div></div></section></div>
-      <div class="section"><h2>Missões</h2><small>Chance entre 8% e 95%</small></div>
+    return heading('Quadro de serviços', 'Cada serviço usa um atributo. Repetir no mesmo dia ou no mesmo bairro aumenta o risco.') + jailNotice() + resultCard() + `
+      ${localeStrip(false)}
+      ${stencil('Serviços', 'chance entre 8% e 95%')}
       <div class="filterbar" role="group" aria-label="Filtrar missões">${[['disponiveis', 'Disponíveis'], ['bairro', 'Deste bairro'], ['todas', 'Todas']].map(([id, l]) => `<button type="button" class="btn ghost ${missionFilter === id ? 'on' : ''}" data-action="filter" data-id="${id}" aria-pressed="${missionFilter === id}">${l}</button>`).join('')}</div>
-      <div class="grid">${list.length ? list.map(missionCard).join('') : '<div class="empty">Nenhuma missão neste filtro. Ganhe respeito, viaje ou veja “Todas”.</div>'}</div>
+      <div class="jobs">${list.length ? list.map(missionCard).join('') : '<div class="empty">Nenhuma missão neste filtro. Ganhe respeito, viaje ou veja “Todas”.</div>'}</div>
       ${safeJobs()}
-      <div class="section"><h2>Centro de treinamento</h2><small>Treinos hoje: ${s.today.training}/3</small></div>
-      <div class="grid two">${SB.STATS.map(st => { const lvl = s.stats[st.id], cost = SB.trainCost(s, st.id); return `<section class="card"><div class="space"><h3>${st.name}</h3><strong class="accent">${num(lvl)}</strong></div><p>${esc(st.desc)}</p><div class="space"><span class="mini">+${lvl < 25 ? 2 : 1} • 22 energia • ${fmt(cost)}</span>${button('Treinar', 'train', `data-id="${st.id}"`, s.jail > 0 || s.energy < 22 || s.cash < cost || s.today.training >= 3, 'small')}</div></section>`; }).join('')}</div>`;
+      ${stencil('Academia', `treinos hoje: ${s.today.training}/3`)}
+      <div class="jobs">${SB.STATS.map(st => { const lvl = s.stats[st.id], cost = SB.trainCost(s, st.id); return `<section class="job train"><div class="jobIcon">${statIcon(st.id)}<small>${num(lvl)}</small></div><div class="jobMain"><h3>${st.name}</h3><p class="jobDesc">${esc(st.desc)}</p><p class="jobMeta"><b>+${lvl < 25 ? 2 : 1}</b> · 22 energia · ${fmt(cost)}</p></div><div class="jobAct">${button('Treinar', 'train', `data-id="${st.id}"`, s.jail > 0 || s.energy < 22 || s.cash < cost || s.today.training >= 3, '')}</div></section>`; }).join('')}</div>`;
   }
   function missionCard(m) {
     const s = state, lock = SB.missionLock(s, m), p = SB.missionChance(s, m), mult = SB.missionRewardMult(s, m), reps = s.today.missions[m.id] || 0;
     const hard = lock && lock !== 'Energia insuficiente.' && lock !== 'Você está detido.';
-    return `<section class="card mission ${hard ? 'locked' : ''}"><div><h3>${esc(m.name)} <span class="pill">${statName(m.stat)}</span>${m.district ? ` <span class="pill">${esc(D(m.district).name)}</span>` : ''}</h3><p>${esc(m.desc)}</p>
-      <div class="details">${m.cost} energia • ${fmt(m.low * mult)}–${fmt(m.high * mult)} • +${m.heat} vigilância • +${SB.respectGain(s, m)} respeito</div>
-      <div class="details">Se falhar: -${Math.round(SB.failLoss(s, m) * 100)}% do caixa em mãos, detenção ${SB.arrestChance(s, m)}%</div>
+    return `<section class="job ${hard ? 'locked' : ''}"><div class="jobIcon" title="${statName(m.stat)}">${statIcon(m.stat)}<small>${statName(m.stat)}</small></div>
+      <div class="jobMain"><h3>${esc(m.name)}${m.district ? ` <span class="pill">só aqui</span>` : ''}</h3><p class="jobDesc">${esc(m.desc)}</p>
+      <p class="jobMeta"><b>${fmt(m.low * mult)}–${fmt(m.high * mult)}</b> · ${m.cost} energia · +${m.heat} vigilância · +${SB.respectGain(s, m)} respeito</p>
+      <p class="jobRisk">Se falhar: -${Math.round(SB.failLoss(s, m) * 100)}% do caixa em mãos, detenção ${SB.arrestChance(s, m)}%</p>
       ${reps ? `<div class="lockline">Repetida ${reps}× hoje: chance e recompensa menores.</div>` : ''}${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div>
-      <div class="right"><span class="chance ${chanceClass(p)}">${p}% <small class="mini">sucesso</small></span>${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary small')}</div></section>`;
+      <div class="jobAct"><span class="seal ${chanceClass(p)}">${p}%</span>${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary')}</div></section>`;
   }
   function safeJobs() {
     const s = state;
@@ -1768,14 +2144,14 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
     const agreed = SB.agreement(s, l.id), cc = SB.contactCost(s), used = s.today.contacts[d.id] || 0;
     const disputeBlock = s.jail > 0 || s.cash < 320 || s.energy < 33 || s.influence[d.id] < 20 || agreed || lr.lastActionDay === s.day;
     const special = SB.MISSIONS.find(m => m.district === d.id);
-    return heading('Bairros', 'Cada bairro tem economia, vigilância e facções próprias, que mudam a cada dia.') + jailNotice() + resultCard() + `
+    return heading('Bairros', 'Cada bairro tem economia, vigilância e facções próprias, que mudam a cada dia.') + jailNotice() + resultCard() + localeStrip(true) + `
       <section class="card"><div class="space factionHeader"><div><h2>Influência em ${esc(d.name)}</h2><p>Quem lidera: <strong>${SB.controlled(s, d.id) ? 'você' : esc(lf.name)}</strong>. ${esc(SB.factionStatus(s, l.id))}. Liderar exige 60 de influência e 10 acima da maior facção.</p></div>${SB.controlled(s, d.id) ? '<span class="pill">Você lidera</span>' : ''}</div>
         <div class="dualMeters"><div><div class="meterlabel"><span>Sua influência</span><strong>${s.influence[d.id]}</strong></div><div class="meter green"><div style="width:${s.influence[d.id]}%"></div></div></div>
         <div><div class="meterlabel"><span>${esc(lf.short)} (maior facção)</span><strong>${l.value}</strong></div><div class="meter red"><div style="width:${l.value}%"></div></div></div></div>
         <div class="chips">${SB.FACTIONS.map(f => `<span class="chip">${esc(f.short)} ${s.presence[d.id][f.id]}</span>`).join('')}</div>
         <div class="btnbar" style="margin-top:12px">${button(`Criar contatos · ${fmt(cc)}`, 'contact', '', s.jail > 0 || s.cash < cc || s.energy < 22 || used >= 2, 'small primary')}${button(`Disputar área · R$ 320 (${SB.disputeOdds(s, d.id)}%)`, 'dispute', '', disputeBlock, 'small')}</div>
         <p class="mini" style="margin-top:8px">Contatos: 22 energia, até 2 por bairro ao dia (o segundo rende metade). Disputa: 33 energia, exige 20 de influência; uma ação por facção ao dia; bloqueada por acordos.${agreed ? ` Você tem acordo com ${esc(lf.short)}.` : ''}</p></section>
-      <section class="brandpanel" style="margin-top:13px"><div class="eyebrow">Você está em</div><h2>${esc(d.name)}</h2><p>${esc(d.desc)}</p>
+      <section class="brandpanel" style="margin-top:13px"><p>${esc(d.desc)}</p>
         <div class="kv"><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigilância local</span><strong>${ds.vigil}</strong></div><div><span>Recompensas</span><strong>${signed(d.bonus)}%</strong></div><div><span>Risco base</span><strong>${signed(d.risk)}</strong></div><div><span>Tributo se liderar</span><strong>${fmt(SB.tribute(s, d.id))}/dia</strong></div><div><span>Oportunidade</span><strong>${special ? esc(special.name) : '—'}</strong></div></div>
         <p class="mini" style="margin-top:9px">Vantagem de liderar: ${esc(d.advantage)} Cada bairro liderado também gera +2 de vigilância por dia e atrai as facções.</p></section>
       <div class="section"><h2>Mapa da cidade</h2><small>Viagem: R$ 90 e 5 energia</small></div>
@@ -1787,7 +2163,7 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
   function districtCard(x) {
     const s = state, l = SB.leader(s, x.id), here = x.id === s.district, ds = s.dstate[x.id];
     const evs = SB.activeEvents(s).filter(e => e.district === x.id);
-    return `<section class="card district ${here ? 'selected' : ''}"><div class="space"><h3>${esc(x.name)}</h3>${here ? '<span class="pill">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill">Você lidera</span>' : ''}</div>
+    return `<section class="card district ${here ? 'selected' : ''}"><div class="miniScene">${scene(x.id)}${plate(x.name)}${here ? '<span class="pill here">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill here">Você lidera</span>' : ''}</div>
       <div class="kv"><div><span>Líder</span><strong>${SB.controlled(s, x.id) ? 'Você' : esc(F(l.id).short) + ' ' + l.value}</strong></div><div><span>Sua influência</span><strong>${s.influence[x.id]}</strong></div><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigilância</span><strong>${ds.vigil}</strong></div></div>
       ${evs.length ? `<div class="chips">${evs.map(e => `<span class="chip warn">${esc(SB.eventTitle(e))}</span>`).join('')}</div>` : ''}
       <div class="statusbar"><span class="mini">${esc(x.advantage)}</span>${here ? '' : button('Viajar', 'travel', `data-id="${x.id}"`, s.cash < 90 || s.energy < 5 || s.jail > 0, 'small')}</div></section>`;
@@ -1796,7 +2172,6 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
   function management() {
     const s = state, fee = SB.hasPerk(s, 'empreendedor', 1) ? 1 : 3;
     return heading('Banco e negócios', 'Proteja seu dinheiro e monte renda diária. Cada negócio depende da economia e das facções do bairro.') + jailNotice() + resultCard() + `
-      <div class="statgrid"><div class="stat"><span>Em mãos</span><strong class="small">${fmt(s.cash)}</strong></div><div class="stat"><span>Banco</span><strong class="small">${fmt(s.bank)}</strong></div><div class="stat"><span>Respeito</span><strong>${num(s.respect)}</strong></div><div class="stat"><span>Poder total</span><strong>${num(SB.strength(s))}</strong></div></div>
       <div class="grid two" style="margin-top:13px"><section class="card"><h2>Banco</h2><p>Depósitos ficam protegidos de falhas e retaliações. Taxa de depósito: ${fee}%. Saques são gratuitos.</p>
         <div class="formfield"><label for="bankAmount">Valor em reais (R$)</label><input class="input" id="bankAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="Ex.: 500"></div>
         <div class="btnbar" style="margin-top:10px">${button('Depositar', 'bank', 'data-mode="deposit"', false, 'primary small')}${button('Sacar', 'bank', 'data-mode="withdraw"', false, 'small')}${button(`Depositar tudo (${fmt(SB.maxDeposit(s))})`, 'bank-all', '', SB.maxDeposit(s) < 1, 'small ghost')}</div></section>
@@ -1823,7 +2198,7 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
       const rc = SB.recruitCost(s), up = SB.upgradeCost(s), odds = SB.gangOdds(s);
       top = `<section class="brandpanel"><div class="eyebrow">Seu grupo</div><h2>${esc(s.gangName)}</h2><p>Integrantes evoluem com operações e confrontos. Ânimo baixo reduz chances e pode causar deserções para facções rivais.</p>
         <div class="flex"><span class="badge">Sede nível ${s.gangLevel}</span><span class="badge">${s.crew.length}/8 integrantes</span><span class="badge">Ânimo ${s.crewMorale}/100</span><span class="badge">Manutenção ${fmt(SB.groupUpkeep(s))}/dia</span></div></section>
-      <div class="grid two" style="margin-top:13px"><section class="card"><h2>Equipe</h2>${s.crew.length ? s.crew.map(m => { const r = SB.ROLES.find(x => x.id === m.role); return `<div class="memberRow"><div><strong>${esc(m.name)}</strong> <span class="pill">${r.name}</span><span class="mini">Nível ${m.level}/5${m.level < 5 ? ` · XP ${m.xp}/${m.level * 4}` : ''} · ${fmt(SB.memberUpkeep(m))}/dia · ${esc(r.desc)}</span></div>${button('Dispensar', 'dismiss', `data-id="${m.id}"`, false, 'small ghost')}</div>`; }).join('') : '<div class="empty">Sem integrantes. Recrute para operar.</div>'}
+      <div class="grid two" style="margin-top:13px"><section class="card"><h2>Equipe</h2>${s.crew.length ? `<div class="crewGrid">${s.crew.map(m => { const r = SB.ROLES.find(x => x.id === m.role); return `<div class="memberCard role-${m.role}" title="${esc(r.desc)}"><span class="lvl">${m.level}</span><strong>${esc(m.name)}</strong><em>${r.name}</em><div class="meter"><div style="width:${m.level >= 5 ? 100 : m.xp / (m.level * 4) * 100}%"></div></div><span class="mini">${fmt(SB.memberUpkeep(m))}/dia</span><button type="button" class="x" data-action="dismiss" data-id="${m.id}" aria-label="Dispensar ${esc(m.name)}">×</button></div>`; }).join('')}</div><p class="mini">${SB.ROLES.map(r => r.name + ': ' + r.desc).join(' ')}</p>` : '<div class="empty">Sem integrantes. Recrute para operar.</div>'}
         <div class="statusbar"><span>Recrutar (1 por dia)</span><strong>${fmt(rc)} · 18 energia</strong></div>
         <div class="roleBtns">${SB.ROLES.map(r => button(r.name, 'recruit', `data-id="${r.id}"`, s.crew.length >= 8 || s.crewLastRecruit === s.day || s.cash < rc || s.energy < 18 || s.jail > 0, 'small')).join('')}</div>
         <div class="statusbar"><span>Reunir equipe (+18 ânimo)</span><strong>${fmt(180)} · 12 energia</strong></div>${button('Reunir equipe', 'rally', '', s.crewLastRally === s.day || s.crewMorale >= 100 || s.cash < 180 || s.energy < 12 || s.jail > 0, 'block small')}</section>
@@ -1859,7 +2234,7 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
     const hint = used ? 'Interação diária já usada com este grupo.' : r.allied ? `Aliança: +10% nas missões no território dele, sem atrito, apoio contra ${F(SB.FACTION_ENEMY[f.id]).short}. Contribuição de ${fmt(SB.allianceFee(s))}/dia.` :
       truce ? `Trégua até o dia ${r.truceUntil}. Agir no território do grupo desgasta o acordo.` :
       `Trégua: relação +35${r.cooldown >= s.day ? ` (disponível após o dia ${r.cooldown})` : ''}. Aliança: relação +60 e sede nível 2. Confronto: ${f.short} deve liderar o bairro onde você está.`;
-    return `<section class="card rivalCard"><div class="space"><div><div class="eyebrow">${esc(f.persona.label)} • ${lead.length ? 'lidera ' + esc(lead.join(', ')) : 'sem bairro liderado'}</div><h3>${esc(f.name)}</h3></div><span class="pill">${esc(SB.factionStatus(s, f.id))}</span></div><p>${esc(f.desc)}</p>
+    return `<section class="card rivalCard dossier"><div class="dossierHead">${emblem(f.id)}<div><h3>${esc(f.name)}</h3><div class="eyebrow">${esc(f.persona.label)} • ${lead.length ? 'lidera ' + esc(lead.join(', ')) : 'sem bairro liderado'}</div></div><span class="pill">${esc(SB.factionStatus(s, f.id))}</span></div><p>${esc(f.desc)}</p>
       <div class="rivalMetrics"><div><span>Relação</span><strong>${signed(r.relation)}</strong></div><div><span>Tensão</span><strong>${r.tension}/100</strong></div><div><span>Força</span><strong>${r.power}</strong></div></div>
       ${r.lastMove ? `<p class="mini"><strong>Último movimento:</strong> ${esc(r.lastMove)}</p>` : ''}${r.grudge >= 3 ? `<p class="negative mini">Rancor alto (${r.grudge}): pode virar rival histórico.</p>` : ''}
       <div class="btnbar">${btns.join('')}</div><p class="mini">${esc(hint)}</p></section>`;
@@ -1907,14 +2282,13 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
       console.error(e);
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
     }
-    $('#topCash').textContent = fmt(state.cash);
-    $('#topDay').textContent = `Dia ${state.day}/${MAXDAY}`;
+    renderHud();
     $all('.nav button, .mobileNav button').forEach(b => { const on = b.dataset.view === view; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   }
   function switchView(target) {
     if (!VIEWS.includes(target)) return;
     if (target !== view) result = null;
-    view = target; disarm();
+    view = target; disarm(); $('#toast').hidden = true;
     $('#sidebar').classList.remove('open'); $('#menuToggle').setAttribute('aria-expanded', 'false');
     render(); window.scrollTo({ top: 0, behavior: 'instant' });
   }
@@ -1985,7 +2359,7 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
     const name = $('#playerName').value.trim().replace(/\s+/g, ' ');
     if (name.length < 2 || name.length > 22) return notify('Escolha um codinome entre 2 e 22 caracteres.', true);
     state = SB.defaultState(name, $('#homeCity').value); view = 'painel'; result = null;
-    $('#welcome').classList.add('hidden'); save(); render(); notify(`Bem-vindo à cidade, ${name}.`);
+    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); save(); render(); notify(`Bem-vindo à cidade, ${name}.`);
   });
   // Outra aba alterou o save: recarrega para não sobrescrever progresso.
   window.addEventListener('storage', e => {
@@ -2005,6 +2379,8 @@ html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70%
     const box = $('#welcomeNotice');
     box.innerHTML = corrupt ? `<div class="notice error"><strong>Não foi possível ler o salvamento encontrado.</strong> ${esc(corrupt.reason)} Uma cópia foi guardada e não será apagada. <button type="button" class="btn small ghost" id="dlCorrupt" style="margin-top:6px">Baixar cópia</button></div>` : '';
     const dl = $('#dlCorrupt'); if (dl) dl.addEventListener('click', () => download('submundo-salvamento-ilegivel.json', corrupt.raw));
+    $('#coverArt').innerHTML = scene('centro', false);
+    document.body.classList.add('atCover');
     $('#welcome').classList.remove('hidden'); $('#playerName').focus();
   }
 

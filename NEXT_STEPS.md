@@ -19,6 +19,7 @@
 - [x] Pontuação em 5 categorias com medalhas, títulos, ranking de poder simulado, 18 conquistas, recordes, prestígio, rival histórico
 - [x] Confirmação de dois toques em "Avançar dia", cartão de resultado com variações e resumo do dia
 - [x] Simulação de balanceamento e testes automatizados
+- [x] Direção de arte "rua brasileira": HUD fixo com retrato, cenas SVG por bairro que reagem a eventos, placa de rua, lambe-lambe, cupom com carimbo, fita zebrada, dossiês de facção, cartinhas de integrantes, capa e transição de amanhecer
 
 ## Pendências de balanceamento (prioridade alta)
 
@@ -40,7 +41,10 @@
 ## Interface (prioridade média)
 
 - Testar em Safari/iOS e Firefox Android.
-- Painel: recolher a escolha de carreira em um cartão compacto após o dia 1.
+- Fonte de títulos: sem arquivo de fonte embutido, o visual condensado depende do aparelho (Impact/Roboto Condensed); avaliar embutir uma fonte livre em base64 (~20 KB).
+- Cenas: variação dia/noite conforme o dia da temporada e pequenos personagens; retratos para integrantes e líderes de facção.
+- Sons curtos opcionais (carimbo, moedas) com botão de mudo.
+- Telas Banco e Temporada ainda são as mais "cartão"; dar a elas metáforas próprias (caderneta, quadro de troféus).
 - Gráfico simples da evolução da influência por bairro na tela Bairros.
 - Leitor de tela: revisar a ordem de foco e os anúncios do cartão de resultado.
 

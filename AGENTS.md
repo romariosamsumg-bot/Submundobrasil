@@ -17,7 +17,7 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 7. **Atualize `GAME_DESIGN.md`** quando mudar uma regra ou um número exibido ao jogador.
 8. **Conteúdo fictício e abstrato**: nenhuma instrução aplicável a crimes reais; nada de bairros, facções ou pessoas reais.
 9. **Sem pay-to-win, sem dependência externa para jogar, sem simular multiplayer.**
-10. **Não refaça o visual por inteiro**: preserve a paleta, as serifas nos títulos e a navegação inferior no celular. Teste em 360×780 sem rolagem horizontal.
+10. **Siga a direção de arte "rua brasileira"** (GAME_DESIGN.md §11): HUD fixo do personagem, cena SVG do bairro com placa esmaltada, lambe-lambe para notícias/eventos, cupom com carimbo para resultados, fita zebrada para detenção, dossiês para facções e títulos em caixa alta condensada. Só CSS e SVG inline (nada externo), fundo escuro com âmbar, sem neon e sem cara de dashboard. Não apague os ganchos usados pelos testes (`data-action`, `data-view`, ids e `.resultCard`). Animações precisam respeitar `prefers-reduced-motion`. Teste em 360×780 sem rolagem horizontal e olhe as capturas.
 
 ## Checklist ao adicionar uma mecânica
 

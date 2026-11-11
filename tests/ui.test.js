@@ -41,6 +41,9 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check(after.energy === before.energy - 16, 'missão consome 16 de energia');
   check(await page.isVisible('.resultCard'), 'cartão de resultado exibido');
   await page.screenshot({ path: path.join(__dirname, 'screens', '360-resultado.png') });
+  // a missão acima pode falhar e prender o personagem (sem confirmação nesse caso): normaliza antes de testar
+  await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.jail = 0; s.energy = 80; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
+  await page.reload();
   await page.click('.mobileNav [data-view=painel]');
   await page.click('[data-action=next-day]');
   check((await st()).day === 1, 'primeiro toque em "Avançar dia" pede confirmação');

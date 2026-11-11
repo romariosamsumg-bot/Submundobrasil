@@ -29,6 +29,124 @@
   const D = id => SB.district(state, id);
   const F = id => SB.faction(id);
 
+  /* ---------- arte gerada (SVG inline, sem arquivos externos) ---------- */
+  const R = (x, y, w, h, f, extra = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" ${extra}/>`;
+  /** Janelas acesas em grade; padrão determinístico para não "piscar" a cada render. */
+  function wins(x, y, cols, rows, seed, dx = 7, dy = 9) {
+    let o = '';
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { seed = (seed * 31 + 7) % 97; if (seed % 3 === 0) o += R(x + c * dx, y + r * dy, 3, 4, seed % 2 ? '#f0c06e' : '#c9873f'); }
+    return o;
+  }
+  const INK = '#0a0f12', FAR = '#1b2c33';
+  const SCENES = {
+    centro: () => {
+      let o = '';
+      [[0, 52, 30], [28, 40, 26], [70, 58, 34], [130, 34, 24], [186, 50, 40], [250, 44, 30], [300, 60, 60]].forEach(([x, y, w], i) => { o += R(x, y, w, 120 - y, FAR); });
+      const b = [[4, 58, 46], [52, 44, 40], [94, 62, 50], [146, 36, 34], [182, 54, 56], [240, 48, 44], [286, 64, 70]];
+      b.forEach(([x, y, w], i) => {
+        o += R(x, y, w, 120 - y, INK) + R(x - 2, y, w + 4, 3, INK) + wins(x + 6, y + 10, Math.floor((w - 8) / 7), 4, i * 13 + 5);
+        if (i % 2 === 0) o += `<path d="M${x + w / 2 - 8} ${y} q8 -12 16 0z" fill="${INK}"/>`;
+      });
+      o += R(162, 14, 4, 24, INK) + `<path d="M158 16h12M164 8v8" stroke="${INK}" stroke-width="2"/>`;
+      [[18, '#b5482f'], [76, '#d9a441'], [128, '#2f7d5b'], [204, '#b5482f'], [262, '#d9a441'], [318, '#2e5f9e']].forEach(([x, c]) => { o += `<path d="M${x} 100h30l4 8h-38z" fill="${c}"/>` + R(x + 2, 108, 2, 12, '#05080a') + R(x + 26, 108, 2, 12, '#05080a') + R(x + 5, 110, 20, 4, '#3a2c1c'); });
+      return o;
+    },
+    cais: () => {
+      let o = R(0, 70, 360, 50, '#10242d');
+      o += `<path d="M190 78h120l-10 16h-96z" fill="${FAR}"/>` + R(250, 62, 30, 16, FAR) + R(262, 50, 6, 12, FAR);
+      for (let i = 0; i < 9; i++) o += R(i * 44, 96 + (i % 2) * 4, 26, 1.5, '#27485a');
+      o += R(0, 92, 190, 28, INK);
+      o += R(40, 18, 5, 76, INK) + R(20, 22, 92, 5, INK) + `<path d="M42 22 30 10h24zM100 27v26M45 27l40 0M42 50 100 27" stroke="${INK}" stroke-width="2" fill="${INK}"/>` + R(94, 52, 12, 9, '#a5532f');
+      [[112, 78, '#a5532f'], [144, 78, '#2c6a6c'], [112, 64, '#c79a3d'], [128, 50, '#2e5f9e'], [144, 64, '#7d3b2b'], [6, 78, '#2c6a6c']].forEach(([x, y, c]) => { o += R(x, y, 30, 13, c) + R(x + 9, y, 1, 13, '#0007') + R(x + 19, y, 1, 13, '#0007'); });
+      o += R(330, 30, 4, 62, INK) + R(300, 34, 46, 4, INK) + R(318, 92, 42, 28, INK);
+      return o;
+    },
+    jardim: () => {
+      let o = '';
+      for (let i = 0; i < 8; i++) o += R(i * 48 - 6, 62 - (i % 3) * 8, 44, 60, FAR);
+      const hs = [[6, 78, 44], [58, 70, 38], [104, 82, 50], [162, 72, 40], [210, 80, 46], [264, 68, 40], [310, 78, 50]];
+      hs.forEach(([x, y, w], i) => {
+        o += R(x, y, w, 120 - y, INK) + `<path d="M${x - 3} ${y}l${w / 2 + 3} -12l${w / 2 + 3} 12z" fill="${INK}"/>` + wins(x + 6, y + 8, Math.floor((w - 8) / 9), 2, i * 7 + 3, 9, 12);
+        if (i % 2) o += R(x + w - 14, y - 16, 10, 8, '#2e5f9e') + R(x + w - 12, y - 8, 2, 6, INK) + R(x + w - 8, y - 8, 2, 6, INK);
+      });
+      [30, 150, 270].forEach(x => { o += R(x, 30, 3, 90, INK) + R(x - 8, 34, 19, 2, INK); });
+      o += `<path d="M31 35q60 16 120 0M151 35q60 16 120 0M271 35q50 14 90 4M-10 42q20 4 41 -7" stroke="${INK}" stroke-width="1.2" fill="none"/>`;
+      o += `<path d="M228 14l7 9-7 9-7-9z" fill="#c9503a"/><path d="M228 32q4 8 -2 14" stroke="#c9503a" stroke-width="1" fill="none"/>`;
+      return o;
+    },
+    industrial: () => {
+      let o = '';
+      [[20, 30], [200, 22], [290, 36]].forEach(([x, y]) => { o += R(x, y, 12, 90, FAR) + `<ellipse cx="${x + 14}" cy="${y - 8}" rx="16" ry="7" fill="#3a4a50" opacity=".55"/><ellipse cx="${x + 30}" cy="${y - 18}" rx="20" ry="8" fill="#3a4a50" opacity=".35"/>`; });
+      o += R(60, 56, 110, 64, FAR) + R(230, 60, 50, 60, FAR);
+      let x = 0;
+      for (let i = 0; i < 6; i++) { o += `<path d="M${x} 120V78l22 -14v14l22 -14v14l22 -14v56z" fill="${INK}"/>` + wins(x + 6, 90, 8, 2, i * 5 + 2, 7, 11); x += 66; }
+      o += R(120, 26, 9, 60, INK) + R(118, 24, 13, 4, '#a5532f') + R(318, 34, 9, 50, INK) + R(316, 32, 13, 4, '#a5532f');
+      o += `<ellipse cx="136" cy="14" rx="18" ry="7" fill="#4a5a60" opacity=".6"/><ellipse cx="336" cy="22" rx="16" ry="6" fill="#4a5a60" opacity=".6"/>`;
+      o += R(248, 40, 24, 16, INK) + `<path d="M252 56l-4 30M268 56l4 30M260 56v30" stroke="${INK}" stroke-width="2.500"/>`.replace('.500', '.5');
+      return o;
+    },
+    vila: () => {
+      let o = '';
+      for (let i = 0; i < 7; i++) o += R(i * 56 - 4, 66 - (i % 2) * 10, 50, 60, FAR);
+      const palm = (x, h) => `<path d="M${x} 120q-4 -${h / 2} 2 -${h}" stroke="${INK}" stroke-width="4" fill="none"/>` + [[-26, -4], [-20, -16], [-4, -22], [14, -18], [24, -6], [18, 8], [-18, 8]].map(([dx, dy]) => `<path d="M${x + 2} ${120 - h}q${dx / 2} ${dy - 6} ${dx} ${dy + 4}" stroke="${INK}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`).join('');
+      o += palm(40, 78) + palm(318, 88) + palm(286, 60);
+      o += R(96, 62, 150, 58, INK) + R(90, 58, 162, 5, INK) + `<path d="M96 76h150l8 12H88z" fill="#b5482f"/>` + [0, 1, 2, 3, 4].map(i => `<path d="M${104 + i * 32} 76h16l2 12h-20z" fill="#e7d9b8"/>`).join('');
+      o += R(140, 40, 62, 18, '#102a1e') + `<text x="171" y="54" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="13" fill="#f0c06e">BAR</text>`;
+      o += wins(106, 96, 4, 1, 4, 9) + R(196, 94, 20, 26, '#2a1d12') + R(150, 100, 22, 3, '#3a2c1c') + R(158, 103, 3, 17, '#05080a');
+      o += `<path d="M0 30q90 26 180 6t180 4" stroke="${INK}" stroke-width="1" fill="none"/>` + [20, 56, 92, 128, 168, 208, 248, 290, 330].map((x, i) => `<circle cx="${x}" cy="${[33, 38, 41, 40, 37, 33, 31, 31, 35][i]}" r="2.2" fill="${['#f0c06e', '#c9503a', '#7fc8a4'][i % 3]}"/>`).join('');
+      return o;
+    }
+  };
+  const SKY = { centro: ['#2b3a44', '#7a5a3c'], cais: ['#1c3340', '#4d6a70'], jardim: ['#2a3550', '#b0704a'], industrial: ['#2c2f36', '#6a5444'], vila: ['#23344a', '#c2824a'] };
+  /** Cena do bairro; reage aos eventos ativos (festa, chuva, operação, greve, guerra). */
+  function scene(id, withEvents = true) {
+    const evs = withEvents && state ? SB.activeEvents(state) : [];
+    const has = k => evs.some(e => e.id === k && (!e.district || e.district === id));
+    const [a, b] = SKY[id] || SKY.centro;
+    let o = `<svg class="scene" viewBox="0 0 360 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="sky-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>`;
+    o += R(0, 0, 360, 120, `url(#sky-${id})`) + `<circle cx="${id === 'cais' ? 300 : 78}" cy="${id === 'industrial' ? 40 : 30}" r="13" fill="#f3d9a4" opacity="${has('temporal') ? .15 : .8}"/>`;
+    o += (SCENES[id] || SCENES.centro)();
+    if (has('carnaval') || has('festival') || has('saojoao')) {
+      const cols = ['#f0c06e', '#c9503a', '#7fc8a4', '#5c8fd6', '#e7d9b8'];
+      let seed = 11; for (let i = 0; i < 46; i++) { seed = (seed * 37 + 11) % 359; o += `<rect class="cf" x="${seed}" y="${(seed * 7) % 96}" width="3" height="5" fill="${cols[i % 5]}" transform="rotate(${seed % 90} ${seed} ${(seed * 7) % 96})" style="animation-delay:-${i % 7 * .4}s"/>`; }
+      o += `<path d="M0 8q90 22 180 4t180 6" stroke="#0a0f12" stroke-width="1" fill="none"/>` + Array.from({ length: 15 }, (_, i) => `<path d="M${8 + i * 24} ${10 + Math.sin(i / 2.3) * 5 + 4}l5 0-2.5 7z" fill="${cols[i % 5]}"/>`).join('');
+    }
+    if (has('temporal')) { o += R(0, 0, 360, 120, '#0b1420', 'opacity=".45"'); for (let i = 0; i < 40; i++) o += `<path class="rain" d="M${(i * 53) % 360} ${(i * 29) % 110}l-4 12" stroke="#9fc0d6" stroke-width="1" opacity=".55" style="animation-delay:-${i % 5 * .12}s"/>`; }
+    if (has('operacao') || has('fiscalizacao')) o += `<g class="siren"><circle cx="300" cy="104" r="30" fill="#d0463a" opacity=".35"/><circle cx="330" cy="104" r="30" fill="#3f6fd0" opacity=".3"/></g>` + R(296, 104, 40, 9, '#05080a') + R(304, 99, 22, 6, '#05080a') + R(311, 96, 4, 3, '#e0564a') + R(316, 96, 4, 3, '#5c8fd6');
+    if (has('guerra')) o += `<g class="siren"><circle cx="180" cy="96" r="44" fill="#d0463a" opacity=".22"/></g><path d="M150 60q8 -14 4 -26M172 54q10 -16 2 -34" stroke="#55606a" stroke-width="5" fill="none" opacity=".6" stroke-linecap="round"/>`;
+    if (has('greve')) o += [120, 150, 180].map((x, i) => R(x, 96, 14, 9, '#e7d9b8') + R(x + 6, 105, 2, 12, '#05080a')).join('');
+    if (has('crise')) o += R(0, 0, 360, 120, '#1a1410', 'opacity=".35"');
+    return o + R(0, 118, 360, 2, '#05080a') + '</svg>';
+  }
+  /** Placa de rua esmaltada. */
+  const plate = (name, sub = '') => `<span class="plate"><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span>`;
+  /** Retrato do personagem: silhueta muda com a especialização. */
+  function avatar(career) {
+    const bg = { operador: '#3a2f25', articulador: '#22343a', empreendedor: '#2c3327' }[career] || '#262b2f';
+    let o = `<svg viewBox="0 0 48 48" aria-hidden="true">${R(0, 0, 48, 48, bg)}<path d="M0 34l48 -20v34H0z" fill="#0003"/>`;
+    o += `<path d="M6 48c1-11 8-15 18-15s17 4 18 15z" fill="#0b1013"/><ellipse cx="24" cy="21" rx="9" ry="10.500" fill="#0b1013"/>`.replace('.500', '.5');
+    if (career === 'operador') o += `<path d="M14 17c1-8 19-8 20 0z" fill="#b5482f"/><path d="M13 17h26l1 3H13z" fill="#8a3421"/>`;
+    else if (career === 'articulador') o += `<path d="M8 16h32l-2 3H10z" fill="#e7d9b8"/><path d="M15 16c0-9 18-9 18 0z" fill="#e7d9b8"/><path d="M15 14h18v2H15z" fill="#22343a"/>`;
+    else if (career === 'empreendedor') o += `<path d="M15 16c2-9 16-9 18 0-5-3-13-3-18 0z" fill="#1b1410"/><path d="M19 34l5 5 5-5 2 14H17z" fill="#e7d9b8"/><path d="M23 38h2l1.500 9h-5z" fill="#c79a3d"/>`.replace('.500', '.5');
+    else o += `<path d="M12 24c-2-16 26-16 24 0-2-8-22-8-24 0z" fill="#3a4348"/>`;
+    return o + '</svg>';
+  }
+  const EMBLEM = {
+    esquina: `<circle cx="20" cy="20" r="18" fill="#3a2a1c" stroke="#d9a441" stroke-width="2"/><path d="M12 30V12h16M12 12l16 18" stroke="#e7d9b8" stroke-width="3" fill="none" stroke-linecap="square"/><circle cx="28" cy="12" r="3" fill="#d9a441"/>`,
+    docas: `<path d="M20 2l16 9v18l-16 9-16-9V11z" fill="#1d2f3a" stroke="#7fa6bd" stroke-width="2"/><path d="M20 9v20M13 15h14M11 24c1 7 17 7 18 0" stroke="#e7d9b8" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="20" cy="9" r="2.500" fill="#7fa6bd"/>`.replace('.500', '.5'),
+    aurora: `<path d="M3 20a17 17 0 0 1 34 0v14H3z" fill="#3a2540" stroke="#d98a6a" stroke-width="2"/><path d="M10 28a10 10 0 0 1 20 0z" fill="#f0c06e"/><path d="M20 8v6M9 13l4 5M31 13l-4 5M5 28h30" stroke="#f0c06e" stroke-width="2.500" stroke-linecap="round"/>`.replace('.500', '.5')
+  };
+  const emblem = id => `<svg class="emblem" viewBox="0 0 40 40" aria-hidden="true">${EMBLEM[id] || ''}</svg>`;
+  const STAT_ICON = {
+    astucia: `<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>`,
+    forca: `<path d="M3 9v6M6 6v12M18 6v12M21 9v6M6 12h12"/>`,
+    labia: `<path d="M4 5h16v11H11l-5 4v-4H4z"/><path d="M8 9h8M8 12h5"/>`,
+    influencia: `<circle cx="12" cy="5" r="2.500"/><circle cx="5" cy="18" r="2.500"/><circle cx="19" cy="18" r="2.500"/><path d="M11 7 6 16M13 7l5 9M7.500 18h9"/>`.replace(/\.500/g, '.5')
+  };
+  const statIcon = id => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${STAT_ICON[id] || ''}</svg>`;
+  /** Título de seção em estêncil. */
+  const stencil = (title, small = '') => `<div class="section"><h2>${title}</h2>${small ? `<small>${small}</small>` : ''}</div>`;
+
   /* ---------- persistência ---------- */
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); saveFailed = false; }
@@ -75,7 +193,7 @@
     if (!confirm((fromWelcome ? 'Carregar' : 'Substituir sua carreira atual por') + ` este salvamento?\n\n${summary}${r.notes.length ? '\n\n' + r.notes.join('\n') : ''}${warn}`)) return;
     state = r.state; view = 'painel';
     result = { good: true, msg: 'Carreira importada.', lines: r.notes.concat(warn ? ['Arquivo alterado após a exportação: valores verificados.'] : []), deltas: [] };
-    $('#welcome').classList.add('hidden');
+    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover');
     save(); render(); notify('Carreira importada com sucesso.');
   }
 
@@ -95,6 +213,29 @@
     add('Ânimo', b.morale - a.morale);
     return out;
   }
+  const STAMPED = ['mission', 'gangOp', 'clash', 'dispute', 'dialogue'];
+  /** Transição curta de amanhecer ao virar o dia (ignorada com movimento reduzido). */
+  function dawn() {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const el = document.createElement('div'); el.className = 'dawn'; el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = `<b>Dia ${state.day}</b>`; document.body.appendChild(el); setTimeout(() => el.remove(), 1100);
+  }
+  let lastCash = null;
+  function renderHud() {
+    const s = state, lvl = Math.min(99, Math.floor(s.respect / 35) + 1), c = s.career ? SB.CAREERS.find(x => x.id === s.career).name : 'Sem especialização';
+    if ($('#hudAvatar').dataset.career !== String(s.career)) { $('#hudAvatar').innerHTML = avatar(s.career); $('#hudAvatar').dataset.career = String(s.career); }
+    $('#hudName').textContent = s.name; $('#hudSub').textContent = `Nível ${lvl} · ${c}`;
+    $('#hudRespect').textContent = num(s.respect);
+    $('#hudEnergy').style.width = s.energy + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`;
+    $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Vigilância ${s.heat}`;
+    $('#hudEnergyBox').setAttribute('aria-label', `Energia ${s.energy} de 100`); $('#hudHeatBox').setAttribute('aria-label', `Vigilância ${s.heat} de 100`);
+    $('#hudHeatBox').classList.toggle('alert', s.heat >= 60);
+    const cash = $('#topCash'); cash.textContent = fmt(s.cash);
+    if (lastCash !== null && lastCash !== s.cash) { cash.classList.remove('up', 'down'); void cash.offsetWidth; cash.classList.add(s.cash > lastCash ? 'up' : 'down'); }
+    lastCash = s.cash;
+    $('#topDay').textContent = `Dia ${s.day}/${MAXDAY}`;
+    document.body.classList.toggle('jailed', s.jail > 0);
+  }
   /** Executa uma ação do motor, registra o resultado e redesenha. */
   function run(name, ...args) {
     if (!state) return null;
@@ -107,26 +248,31 @@
       const rec = r.record;
       state = r.state;
       result = { good: true, msg: r.msg, lines: [`Pontuação: ${rec.score}.`, ...SB.CATEGORIES.map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`), `Meta: ${rec.goal ? (rec.goalComplete ? 'cumprida' : 'não cumprida') : 'não escolhida'}.`], deltas: [] };
-    } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()) };
-    notify(r.msg, !r.good);
+    } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()), fresh: true, stamp: STAMPED.includes(name) };
+    if (name === 'nextDay') dawn();
     save(); render();
+    // O cupom de resultado já informa; o aviso flutuante só aparece se ele estiver fora da tela.
+    const card = $('.resultCard'), box = card && card.getBoundingClientRect();
+    if (!box || box.bottom < 70 || box.top > window.innerHeight - 70) notify(r.msg, !r.good); else $('#toast').hidden = true;
     return r;
   }
 
   /* ---------- componentes ---------- */
   function heading(label, desc, extra = '') {
-    return `<div class="pagehead"><div><div class="eyebrow">Temporada ${state.season} • Dia ${state.day} de ${MAXDAY}</div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>`;
+    return `<div class="pagehead"><div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>`;
   }
   function resultCard() {
     if (!result) return '';
-    return `<section class="resultCard ${result.good ? '' : 'bad'}" aria-live="polite"><div class="rhead"><strong>${esc(result.msg)}</strong><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar resultado">×</button></div>
+    const fresh = result.fresh; result.fresh = false;
+    return `<section class="resultCard ${result.good ? '' : 'bad'} ${fresh ? 'fresh' : ''}" aria-live="polite"><div class="rhead"><strong>${esc(result.msg)}</strong><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar resultado">×</button></div>
+      ${result.stamp ? `<span class="stamp" aria-hidden="true">${result.good ? 'DEU BOM' : 'DEU RUIM'}</span>` : ''}
       ${result.deltas.length ? `<div class="chips">${result.deltas.map(d => `<span class="chip ${d.good ? 'up' : 'down'}">${d.label} ${d.text}</span>`).join('')}</div>` : ''}
       ${result.lines.length ? `<ul>${result.lines.slice(0, 10).map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}</section>`;
   }
   function jailNotice() {
     if (state.jail <= 0) return '';
     const c = SB.bailCost(state);
-    return `<div class="notice error"><strong>Você está detido.</strong> Faltam ${state.jail} dia(s). Missões, treinos, viagens e negócios ficam bloqueados; o banco continua disponível.
+    return `<div class="notice error tape"><strong>DETIDO · ${state.jail} dia(s)</strong> Missões, treinos, viagens e negócios ficam bloqueados; o banco continua disponível.
       <div class="inlineBtns">${button(`Pagar fiança · ${fmt(c)}`, 'bail', '', state.cash < c, 'small danger')}${nextDayButton('small')}</div></div>`;
   }
   function nextDayButton(cls = '') {
@@ -136,9 +282,16 @@
   function eventChips() {
     return SB.activeEvents(state).map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > state.day ? ` · até o dia ${e.until}` : ''}<br>${esc(e.def.desc)}</li>`).join('');
   }
-  const statName = id => SB.STATS.find(s => s.id === id).name;
+  /** Faixa do local atual: cena do bairro, placa de rua e condições. */
+  function localeStrip(tall) {
+    const s = state, d = D(), ds = s.dstate[d.id], l = SB.leader(s, d.id);
+    const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
+    return `<section class="locale ${tall ? 'tall' : ''}" aria-label="Onde você está">${scene(d.id)}
+      <div class="localeTop">${plate(d.name, s.city)}${evs.map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
+      <div class="localeBottom"><span>${SB.controlled(s, d.id) ? 'Você lidera' : esc(F(l.id).short) + ' ' + l.value + ' × você ' + s.influence[d.id]}</span><span>Economia ${Math.round(ds.econ * 100)}%</span><span class="${ds.vigil >= 40 ? 'hot' : ''}">Vigia local ${ds.vigil}</span></div></section>`;
+  }
+  const statName = id => SB.STATS.find(x => x.id === id).name;
   const chanceClass = p => p < 55 ? 'danger' : p < 75 ? 'risky' : '';
-
   /** Sugestão do painel: maior retorno esperado por energia com chance razoável. */
   function suggestion() {
     let best = null, bv = -Infinity;
@@ -153,43 +306,25 @@
 
   /* ---------- telas ---------- */
   function panel() {
-    const s = state, level = Math.min(99, Math.floor(s.respect / 35) + 1);
+    const s = state;
     const standing = s.respect < 30 ? 'Desconhecido' : s.respect < 85 ? 'Nome em ascensão' : s.respect < 180 ? 'Figura conhecida' : 'Lenda da cidade';
     const m = suggestion();
-    const l = SB.leader(s, s.district);
-    return jailNotice() + `
-      <section class="cityHero" aria-label="Personagem e reputação">
-        <div><div class="heroLabel">Temporada ${s.season} · Dia ${s.day} de ${MAXDAY}</div>
-          <h1>${esc(s.name)}</h1><p>${esc(s.city)} / ${esc(D().name)}</p>
-          <div class="heroMeta"><span>${standing}</span><span>Nível ${level}</span>${s.career ? `<span>${SB.CAREERS.find(c => c.id === s.career).name} ${SB.careerLevel(s)}/3</span>` : ''}${s.prestige ? `<span>Prestígio ${s.prestige}</span>` : ''}</div>
-        </div><div class="heroReputation"><strong>${num(s.respect)}</strong><small>Respeito</small></div>
-      </section>
-      <div class="commandHud">
-        <div class="hudItem"><span>Em mãos</span><strong>${fmt(s.cash)}</strong><small>Banco ${fmt(s.bank)}</small></div>
-        <div class="hudItem"><span>Energia</span><strong class="good">${s.energy}<small style="display:inline;font-size:12px">/100</small></strong><small>${s.jail > 0 ? 'Detido por ' + s.jail + ' dia(s)' : '+70 ao amanhecer'}</small></div>
-        <div class="hudItem"><span>Vigilância</span><strong class="${s.heat > 50 ? 'heat' : ''}">${s.heat}<small style="display:inline;font-size:12px">/100</small></strong><small>Local ${s.dstate[s.district].vigil}</small></div>
-      </div>
-      <div class="statusStrip"><div class="statusBar"><div class="meterlabel"><span>Dia ${s.day}/${MAXDAY} · energia</span><strong>${s.energy}%</strong></div><div class="meter green"><div style="width:${s.energy}%"></div></div></div>${nextDayButton('small')}</div>
+    const net = SB.income(s) + SB.controls(s).reduce((t, d) => t + SB.tribute(s, d.id), 0) - SB.groupUpkeep(s);
+    return jailNotice() + localeStrip(true) + `
+      <div class="dayBar"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>Temporada ${s.season} · ${standing}</span><div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></div>${nextDayButton('')}</div>
       ${resultCard()}${careerCard()}${goalSummary()}${newsCard()}
-      <div class="boardGrid">
-        <section class="boardLead"><div class="eyebrow">Sugestão para agora</div>
-          <h2>${m ? esc(m.name) : 'Recupere-se ou mude de bairro'}</h2>
-          <p>${m ? esc(m.desc) : 'Nenhuma missão com boa chance agora. Treine, reduza a vigilância, viaje ou avance o dia.'}</p>
-          ${m ? `<div class="boardMetrics"><div class="metric"><span>Chance</span><strong>${SB.missionChance(s, m)}%</strong></div><div class="metric"><span>Ganhos</span><strong>${fmt(m.low * SB.missionRewardMult(s, m))}+</strong></div><div class="metric"><span>Energia</span><strong>${m.cost}</strong></div></div>
-          ${button('Executar missão', 'mission', `data-id="${m.id}"`, false, 'primary')}` : button('Ver missões', 'switch', 'data-target="acoes"', false, 'primary')}
-        </section>
-        <section class="cityBulletin"><div class="eyebrow">Boletim da cidade</div><ul class="eventList">${eventChips()}</ul>
-          <div class="bulletinFoot">Renda prevista amanhã<strong>${fmt(SB.income(s) + SB.controls(s).reduce((t, d) => t + SB.tribute(s, d.id), 0) - SB.groupUpkeep(s))} / dia</strong></div>
-          <div class="bulletinFoot">${esc(D().name)}<strong>Você ${s.influence[s.district]} · ${esc(F(l.id).short)} ${l.value}${SB.controlled(s, s.district) ? ' · você lidera' : ''}</strong></div></section>
+      <section class="boardLead job ${m ? '' : 'idle'}"><div class="jobIcon">${m ? statIcon(m.stat) : statIcon('astucia')}</div>
+        <div class="jobMain"><div class="eyebrow">Serviço da vez</div><h3>${m ? esc(m.name) : 'Nada com boa chance agora'}</h3>
+          <p class="jobMeta">${m ? `${m.cost} energia · ${fmt(m.low * SB.missionRewardMult(s, m))}–${fmt(m.high * SB.missionRewardMult(s, m))}` : 'Treine, baixe a vigilância, viaje ou vire o dia.'}</p></div>
+        <div class="jobAct">${m ? `<span class="seal ${chanceClass(SB.missionChance(s, m))}">${SB.missionChance(s, m)}%</span>${button('Executar', 'mission', `data-id="${m.id}"`, false, 'primary')}` : button('Ver quadro', 'switch', 'data-target="acoes"', false, 'primary')}</div></section>
+      <div class="tiles">
+        <button class="tile" type="button" data-view="acoes"><b>${SB.MISSIONS.filter(x => !SB.missionLock(s, x)).length}</b><span>serviços aqui</span></button>
+        <button class="tile" type="button" data-view="cidade"><b>${SB.controls(s).length}<small>/5</small></b><span>bairros seus</span></button>
+        <button class="tile" type="button" data-view="gestao"><b class="${net < 0 ? 'neg' : ''}">${fmt(net)}</b><span>saldo por dia</span></button>
+        <button class="tile" type="button" data-view="gangue"><b>${s.gangName ? s.crew.length : '—'}</b><span>${s.gangName ? 'no bonde · ânimo ' + s.crewMorale : 'sem gangue'}</span></button>
       </div>
-      <div class="commandHeader"><h2>Escolha seu caminho</h2><small>Atalhos</small></div>
-      <div class="commandGrid">
-        <button class="commandLink" type="button" data-view="acoes"><div><span>Missões e treinos</span><small>${SB.MISSIONS.filter(x => !SB.missionLock(s, x)).length} disponíveis aqui</small></div><b aria-hidden="true">01</b></button>
-        <button class="commandLink" type="button" data-view="cidade"><div><span>Bairros</span><small>${SB.controls(s).length} liderado(s)</small></div><b aria-hidden="true">02</b></button>
-        <button class="commandLink" type="button" data-view="gestao"><div><span>Banco e negócios</span><small>${s.businesses.length} negócio(s)</small></div><b aria-hidden="true">03</b></button>
-        <button class="commandLink" type="button" data-view="gangue"><div><span>Gangue e facções</span><small>${s.gangName ? esc(s.gangName) + ' · ânimo ' + s.crewMorale : 'Fundar com 30 de respeito'}</small></div><b aria-hidden="true">04</b></button>
-      </div>
-      <div class="recentFeed"><div class="commandHeader"><h2>Últimos acontecimentos</h2><small>Registro</small></div><section class="card">${journal(3)}</section></div>`;
+      ${SB.activeEvents(s).some(e => e.id !== 'rotina') ? stencil('Na cidade hoje') + `<section class="poster"><ul class="eventList">${SB.activeEvents(s).filter(e => e.id !== 'rotina').map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(e.def.desc)}</li>`).join('')}</ul></section>` : ''}
+      ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(3)}</section>`;
   }
   function journal(max) { return `<ul class="timeline">${state.log.slice(0, max).map(i => `<li><time>Dia ${num(i.day)}</time>${esc(i.msg)}</li>`).join('')}</ul>`; }
 
@@ -211,35 +346,31 @@
   function newsCard() {
     const n = SB.currentNews(state); if (!n) return '';
     const f = state.newsPending.faction ? F(state.newsPending.faction) : null;
-    return `<section class="card choiceCard"><div class="eyebrow">Decisão da cidade · Dia ${state.day}</div><h2>${esc(n.name)}${f ? ' · ' + esc(f.short) : ''}</h2><p>${esc(n.desc)}</p>
-      <div class="choiceGrid">${n.choices.map((c, i) => { const block = SB.newsChoiceBlocked(state, c); const cost = SB.newsChoiceCost(state, c); return `<article><strong>${esc(c.label)}</strong><p>${esc(c.desc)}${c.cashPerMember ? ` (total ${fmt(cost)})` : ''}${block ? `<br><span class="negative">${esc(block)}</span>` : ''}</p>${button('Tomar decisão', 'news', `data-id="${n.id}" data-choice="${i}"`, !!block, 'small block')}</article>`; }).join('')}</div>
-      <div class="btnbar" style="margin-top:8px">${button('Ignorar notícia', 'skip-news', '', false, 'ghost small')}</div></section>`;
+    return `<section class="poster choiceCard"><div class="posterHead">EXTRA · DIA ${state.day}</div><h2>${esc(n.name)}${f ? ' · ' + esc(f.short) : ''}</h2><p>${esc(n.desc)}</p>
+      <div class="choiceGrid">${n.choices.map((c, i) => { const block = SB.newsChoiceBlocked(state, c); const cost = SB.newsChoiceCost(state, c); return `<article><strong>${esc(c.label)}</strong><p>${esc(c.desc)}${c.cashPerMember ? ` (total ${fmt(cost)})` : ''}${block ? `<br><span class="negative">${esc(block)}</span>` : ''}</p>${button('Decidir', 'news', `data-id="${n.id}" data-choice="${i}"`, !!block, 'small block')}</article>`; }).join('')}</div>
+      <div class="btnbar" style="margin-top:8px">${button('Ignorar', 'skip-news', '', false, 'ghost small')}</div></section>`;
   }
-
   function actions() {
     const s = state, ds = s.dstate[s.district];
     const list = SB.MISSIONS.filter(m => missionFilter === 'todas' ? true : missionFilter === 'bairro' ? m.district === s.district : ['', 'Energia insuficiente.', 'Você está detido.'].includes(SB.missionLock(s, m)));
-    return heading('Missões e treinamento', 'Cada missão usa um atributo. Repetir a mesma no dia e agir sempre no mesmo bairro aumenta o risco.') + jailNotice() + resultCard() + `
-      <div class="grid two"><section class="card"><div class="meters"><div><div class="meterlabel"><span>Energia</span><strong>${s.energy}/100</strong></div><div class="meter green"><div style="width:${s.energy}%"></div></div></div>
-        <div><div class="meterlabel"><span>Vigilância pessoal</span><strong>${s.heat}/100</strong></div><div class="meter red"><div style="width:${s.heat}%"></div></div></div>
-        <div><div class="meterlabel"><span>Vigilância em ${esc(D().name)}</span><strong>${ds.vigil}/100</strong></div><div class="meter red"><div style="width:${ds.vigil}%"></div></div></div></div></section>
-      <section class="card"><div class="space"><h2>Condições atuais</h2><span class="tag">${esc(D().name)}</span></div><ul class="eventList">${eventChips()}</ul>
-        <div class="kv"><div><span>Economia local</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Recompensa do bairro</span><strong>${signed(D().bonus)}%</strong></div></div></section></div>
-      <div class="section"><h2>Missões</h2><small>Chance entre 8% e 95%</small></div>
+    return heading('Quadro de serviços', 'Cada serviço usa um atributo. Repetir no mesmo dia ou no mesmo bairro aumenta o risco.') + jailNotice() + resultCard() + `
+      ${localeStrip(false)}
+      ${stencil('Serviços', 'chance entre 8% e 95%')}
       <div class="filterbar" role="group" aria-label="Filtrar missões">${[['disponiveis', 'Disponíveis'], ['bairro', 'Deste bairro'], ['todas', 'Todas']].map(([id, l]) => `<button type="button" class="btn ghost ${missionFilter === id ? 'on' : ''}" data-action="filter" data-id="${id}" aria-pressed="${missionFilter === id}">${l}</button>`).join('')}</div>
-      <div class="grid">${list.length ? list.map(missionCard).join('') : '<div class="empty">Nenhuma missão neste filtro. Ganhe respeito, viaje ou veja “Todas”.</div>'}</div>
+      <div class="jobs">${list.length ? list.map(missionCard).join('') : '<div class="empty">Nenhuma missão neste filtro. Ganhe respeito, viaje ou veja “Todas”.</div>'}</div>
       ${safeJobs()}
-      <div class="section"><h2>Centro de treinamento</h2><small>Treinos hoje: ${s.today.training}/3</small></div>
-      <div class="grid two">${SB.STATS.map(st => { const lvl = s.stats[st.id], cost = SB.trainCost(s, st.id); return `<section class="card"><div class="space"><h3>${st.name}</h3><strong class="accent">${num(lvl)}</strong></div><p>${esc(st.desc)}</p><div class="space"><span class="mini">+${lvl < 25 ? 2 : 1} • 22 energia • ${fmt(cost)}</span>${button('Treinar', 'train', `data-id="${st.id}"`, s.jail > 0 || s.energy < 22 || s.cash < cost || s.today.training >= 3, 'small')}</div></section>`; }).join('')}</div>`;
+      ${stencil('Academia', `treinos hoje: ${s.today.training}/3`)}
+      <div class="jobs">${SB.STATS.map(st => { const lvl = s.stats[st.id], cost = SB.trainCost(s, st.id); return `<section class="job train"><div class="jobIcon">${statIcon(st.id)}<small>${num(lvl)}</small></div><div class="jobMain"><h3>${st.name}</h3><p class="jobDesc">${esc(st.desc)}</p><p class="jobMeta"><b>+${lvl < 25 ? 2 : 1}</b> · 22 energia · ${fmt(cost)}</p></div><div class="jobAct">${button('Treinar', 'train', `data-id="${st.id}"`, s.jail > 0 || s.energy < 22 || s.cash < cost || s.today.training >= 3, '')}</div></section>`; }).join('')}</div>`;
   }
   function missionCard(m) {
     const s = state, lock = SB.missionLock(s, m), p = SB.missionChance(s, m), mult = SB.missionRewardMult(s, m), reps = s.today.missions[m.id] || 0;
     const hard = lock && lock !== 'Energia insuficiente.' && lock !== 'Você está detido.';
-    return `<section class="card mission ${hard ? 'locked' : ''}"><div><h3>${esc(m.name)} <span class="pill">${statName(m.stat)}</span>${m.district ? ` <span class="pill">${esc(D(m.district).name)}</span>` : ''}</h3><p>${esc(m.desc)}</p>
-      <div class="details">${m.cost} energia • ${fmt(m.low * mult)}–${fmt(m.high * mult)} • +${m.heat} vigilância • +${SB.respectGain(s, m)} respeito</div>
-      <div class="details">Se falhar: -${Math.round(SB.failLoss(s, m) * 100)}% do caixa em mãos, detenção ${SB.arrestChance(s, m)}%</div>
+    return `<section class="job ${hard ? 'locked' : ''}"><div class="jobIcon" title="${statName(m.stat)}">${statIcon(m.stat)}<small>${statName(m.stat)}</small></div>
+      <div class="jobMain"><h3>${esc(m.name)}${m.district ? ` <span class="pill">só aqui</span>` : ''}</h3><p class="jobDesc">${esc(m.desc)}</p>
+      <p class="jobMeta"><b>${fmt(m.low * mult)}–${fmt(m.high * mult)}</b> · ${m.cost} energia · +${m.heat} vigilância · +${SB.respectGain(s, m)} respeito</p>
+      <p class="jobRisk">Se falhar: -${Math.round(SB.failLoss(s, m) * 100)}% do caixa em mãos, detenção ${SB.arrestChance(s, m)}%</p>
       ${reps ? `<div class="lockline">Repetida ${reps}× hoje: chance e recompensa menores.</div>` : ''}${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div>
-      <div class="right"><span class="chance ${chanceClass(p)}">${p}% <small class="mini">sucesso</small></span>${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary small')}</div></section>`;
+      <div class="jobAct"><span class="seal ${chanceClass(p)}">${p}%</span>${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary')}</div></section>`;
   }
   function safeJobs() {
     const s = state;
@@ -254,14 +385,14 @@
     const agreed = SB.agreement(s, l.id), cc = SB.contactCost(s), used = s.today.contacts[d.id] || 0;
     const disputeBlock = s.jail > 0 || s.cash < 320 || s.energy < 33 || s.influence[d.id] < 20 || agreed || lr.lastActionDay === s.day;
     const special = SB.MISSIONS.find(m => m.district === d.id);
-    return heading('Bairros', 'Cada bairro tem economia, vigilância e facções próprias, que mudam a cada dia.') + jailNotice() + resultCard() + `
+    return heading('Bairros', 'Cada bairro tem economia, vigilância e facções próprias, que mudam a cada dia.') + jailNotice() + resultCard() + localeStrip(true) + `
       <section class="card"><div class="space factionHeader"><div><h2>Influência em ${esc(d.name)}</h2><p>Quem lidera: <strong>${SB.controlled(s, d.id) ? 'você' : esc(lf.name)}</strong>. ${esc(SB.factionStatus(s, l.id))}. Liderar exige 60 de influência e 10 acima da maior facção.</p></div>${SB.controlled(s, d.id) ? '<span class="pill">Você lidera</span>' : ''}</div>
         <div class="dualMeters"><div><div class="meterlabel"><span>Sua influência</span><strong>${s.influence[d.id]}</strong></div><div class="meter green"><div style="width:${s.influence[d.id]}%"></div></div></div>
         <div><div class="meterlabel"><span>${esc(lf.short)} (maior facção)</span><strong>${l.value}</strong></div><div class="meter red"><div style="width:${l.value}%"></div></div></div></div>
         <div class="chips">${SB.FACTIONS.map(f => `<span class="chip">${esc(f.short)} ${s.presence[d.id][f.id]}</span>`).join('')}</div>
         <div class="btnbar" style="margin-top:12px">${button(`Criar contatos · ${fmt(cc)}`, 'contact', '', s.jail > 0 || s.cash < cc || s.energy < 22 || used >= 2, 'small primary')}${button(`Disputar área · R$ 320 (${SB.disputeOdds(s, d.id)}%)`, 'dispute', '', disputeBlock, 'small')}</div>
         <p class="mini" style="margin-top:8px">Contatos: 22 energia, até 2 por bairro ao dia (o segundo rende metade). Disputa: 33 energia, exige 20 de influência; uma ação por facção ao dia; bloqueada por acordos.${agreed ? ` Você tem acordo com ${esc(lf.short)}.` : ''}</p></section>
-      <section class="brandpanel" style="margin-top:13px"><div class="eyebrow">Você está em</div><h2>${esc(d.name)}</h2><p>${esc(d.desc)}</p>
+      <section class="brandpanel" style="margin-top:13px"><p>${esc(d.desc)}</p>
         <div class="kv"><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigilância local</span><strong>${ds.vigil}</strong></div><div><span>Recompensas</span><strong>${signed(d.bonus)}%</strong></div><div><span>Risco base</span><strong>${signed(d.risk)}</strong></div><div><span>Tributo se liderar</span><strong>${fmt(SB.tribute(s, d.id))}/dia</strong></div><div><span>Oportunidade</span><strong>${special ? esc(special.name) : '—'}</strong></div></div>
         <p class="mini" style="margin-top:9px">Vantagem de liderar: ${esc(d.advantage)} Cada bairro liderado também gera +2 de vigilância por dia e atrai as facções.</p></section>
       <div class="section"><h2>Mapa da cidade</h2><small>Viagem: R$ 90 e 5 energia</small></div>
@@ -273,7 +404,7 @@
   function districtCard(x) {
     const s = state, l = SB.leader(s, x.id), here = x.id === s.district, ds = s.dstate[x.id];
     const evs = SB.activeEvents(s).filter(e => e.district === x.id);
-    return `<section class="card district ${here ? 'selected' : ''}"><div class="space"><h3>${esc(x.name)}</h3>${here ? '<span class="pill">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill">Você lidera</span>' : ''}</div>
+    return `<section class="card district ${here ? 'selected' : ''}"><div class="miniScene">${scene(x.id)}${plate(x.name)}${here ? '<span class="pill here">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill here">Você lidera</span>' : ''}</div>
       <div class="kv"><div><span>Líder</span><strong>${SB.controlled(s, x.id) ? 'Você' : esc(F(l.id).short) + ' ' + l.value}</strong></div><div><span>Sua influência</span><strong>${s.influence[x.id]}</strong></div><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigilância</span><strong>${ds.vigil}</strong></div></div>
       ${evs.length ? `<div class="chips">${evs.map(e => `<span class="chip warn">${esc(SB.eventTitle(e))}</span>`).join('')}</div>` : ''}
       <div class="statusbar"><span class="mini">${esc(x.advantage)}</span>${here ? '' : button('Viajar', 'travel', `data-id="${x.id}"`, s.cash < 90 || s.energy < 5 || s.jail > 0, 'small')}</div></section>`;
@@ -282,7 +413,6 @@
   function management() {
     const s = state, fee = SB.hasPerk(s, 'empreendedor', 1) ? 1 : 3;
     return heading('Banco e negócios', 'Proteja seu dinheiro e monte renda diária. Cada negócio depende da economia e das facções do bairro.') + jailNotice() + resultCard() + `
-      <div class="statgrid"><div class="stat"><span>Em mãos</span><strong class="small">${fmt(s.cash)}</strong></div><div class="stat"><span>Banco</span><strong class="small">${fmt(s.bank)}</strong></div><div class="stat"><span>Respeito</span><strong>${num(s.respect)}</strong></div><div class="stat"><span>Poder total</span><strong>${num(SB.strength(s))}</strong></div></div>
       <div class="grid two" style="margin-top:13px"><section class="card"><h2>Banco</h2><p>Depósitos ficam protegidos de falhas e retaliações. Taxa de depósito: ${fee}%. Saques são gratuitos.</p>
         <div class="formfield"><label for="bankAmount">Valor em reais (R$)</label><input class="input" id="bankAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="Ex.: 500"></div>
         <div class="btnbar" style="margin-top:10px">${button('Depositar', 'bank', 'data-mode="deposit"', false, 'primary small')}${button('Sacar', 'bank', 'data-mode="withdraw"', false, 'small')}${button(`Depositar tudo (${fmt(SB.maxDeposit(s))})`, 'bank-all', '', SB.maxDeposit(s) < 1, 'small ghost')}</div></section>
@@ -309,7 +439,7 @@
       const rc = SB.recruitCost(s), up = SB.upgradeCost(s), odds = SB.gangOdds(s);
       top = `<section class="brandpanel"><div class="eyebrow">Seu grupo</div><h2>${esc(s.gangName)}</h2><p>Integrantes evoluem com operações e confrontos. Ânimo baixo reduz chances e pode causar deserções para facções rivais.</p>
         <div class="flex"><span class="badge">Sede nível ${s.gangLevel}</span><span class="badge">${s.crew.length}/8 integrantes</span><span class="badge">Ânimo ${s.crewMorale}/100</span><span class="badge">Manutenção ${fmt(SB.groupUpkeep(s))}/dia</span></div></section>
-      <div class="grid two" style="margin-top:13px"><section class="card"><h2>Equipe</h2>${s.crew.length ? s.crew.map(m => { const r = SB.ROLES.find(x => x.id === m.role); return `<div class="memberRow"><div><strong>${esc(m.name)}</strong> <span class="pill">${r.name}</span><span class="mini">Nível ${m.level}/5${m.level < 5 ? ` · XP ${m.xp}/${m.level * 4}` : ''} · ${fmt(SB.memberUpkeep(m))}/dia · ${esc(r.desc)}</span></div>${button('Dispensar', 'dismiss', `data-id="${m.id}"`, false, 'small ghost')}</div>`; }).join('') : '<div class="empty">Sem integrantes. Recrute para operar.</div>'}
+      <div class="grid two" style="margin-top:13px"><section class="card"><h2>Equipe</h2>${s.crew.length ? `<div class="crewGrid">${s.crew.map(m => { const r = SB.ROLES.find(x => x.id === m.role); return `<div class="memberCard role-${m.role}" title="${esc(r.desc)}"><span class="lvl">${m.level}</span><strong>${esc(m.name)}</strong><em>${r.name}</em><div class="meter"><div style="width:${m.level >= 5 ? 100 : m.xp / (m.level * 4) * 100}%"></div></div><span class="mini">${fmt(SB.memberUpkeep(m))}/dia</span><button type="button" class="x" data-action="dismiss" data-id="${m.id}" aria-label="Dispensar ${esc(m.name)}">×</button></div>`; }).join('')}</div><p class="mini">${SB.ROLES.map(r => r.name + ': ' + r.desc).join(' ')}</p>` : '<div class="empty">Sem integrantes. Recrute para operar.</div>'}
         <div class="statusbar"><span>Recrutar (1 por dia)</span><strong>${fmt(rc)} · 18 energia</strong></div>
         <div class="roleBtns">${SB.ROLES.map(r => button(r.name, 'recruit', `data-id="${r.id}"`, s.crew.length >= 8 || s.crewLastRecruit === s.day || s.cash < rc || s.energy < 18 || s.jail > 0, 'small')).join('')}</div>
         <div class="statusbar"><span>Reunir equipe (+18 ânimo)</span><strong>${fmt(180)} · 12 energia</strong></div>${button('Reunir equipe', 'rally', '', s.crewLastRally === s.day || s.crewMorale >= 100 || s.cash < 180 || s.energy < 12 || s.jail > 0, 'block small')}</section>
@@ -345,7 +475,7 @@
     const hint = used ? 'Interação diária já usada com este grupo.' : r.allied ? `Aliança: +10% nas missões no território dele, sem atrito, apoio contra ${F(SB.FACTION_ENEMY[f.id]).short}. Contribuição de ${fmt(SB.allianceFee(s))}/dia.` :
       truce ? `Trégua até o dia ${r.truceUntil}. Agir no território do grupo desgasta o acordo.` :
       `Trégua: relação +35${r.cooldown >= s.day ? ` (disponível após o dia ${r.cooldown})` : ''}. Aliança: relação +60 e sede nível 2. Confronto: ${f.short} deve liderar o bairro onde você está.`;
-    return `<section class="card rivalCard"><div class="space"><div><div class="eyebrow">${esc(f.persona.label)} • ${lead.length ? 'lidera ' + esc(lead.join(', ')) : 'sem bairro liderado'}</div><h3>${esc(f.name)}</h3></div><span class="pill">${esc(SB.factionStatus(s, f.id))}</span></div><p>${esc(f.desc)}</p>
+    return `<section class="card rivalCard dossier"><div class="dossierHead">${emblem(f.id)}<div><h3>${esc(f.name)}</h3><div class="eyebrow">${esc(f.persona.label)} • ${lead.length ? 'lidera ' + esc(lead.join(', ')) : 'sem bairro liderado'}</div></div><span class="pill">${esc(SB.factionStatus(s, f.id))}</span></div><p>${esc(f.desc)}</p>
       <div class="rivalMetrics"><div><span>Relação</span><strong>${signed(r.relation)}</strong></div><div><span>Tensão</span><strong>${r.tension}/100</strong></div><div><span>Força</span><strong>${r.power}</strong></div></div>
       ${r.lastMove ? `<p class="mini"><strong>Último movimento:</strong> ${esc(r.lastMove)}</p>` : ''}${r.grudge >= 3 ? `<p class="negative mini">Rancor alto (${r.grudge}): pode virar rival histórico.</p>` : ''}
       <div class="btnbar">${btns.join('')}</div><p class="mini">${esc(hint)}</p></section>`;
@@ -393,14 +523,13 @@
       console.error(e);
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
     }
-    $('#topCash').textContent = fmt(state.cash);
-    $('#topDay').textContent = `Dia ${state.day}/${MAXDAY}`;
+    renderHud();
     $all('.nav button, .mobileNav button').forEach(b => { const on = b.dataset.view === view; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   }
   function switchView(target) {
     if (!VIEWS.includes(target)) return;
     if (target !== view) result = null;
-    view = target; disarm();
+    view = target; disarm(); $('#toast').hidden = true;
     $('#sidebar').classList.remove('open'); $('#menuToggle').setAttribute('aria-expanded', 'false');
     render(); window.scrollTo({ top: 0, behavior: 'instant' });
   }
@@ -471,7 +600,7 @@
     const name = $('#playerName').value.trim().replace(/\s+/g, ' ');
     if (name.length < 2 || name.length > 22) return notify('Escolha um codinome entre 2 e 22 caracteres.', true);
     state = SB.defaultState(name, $('#homeCity').value); view = 'painel'; result = null;
-    $('#welcome').classList.add('hidden'); save(); render(); notify(`Bem-vindo à cidade, ${name}.`);
+    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); save(); render(); notify(`Bem-vindo à cidade, ${name}.`);
   });
   // Outra aba alterou o save: recarrega para não sobrescrever progresso.
   window.addEventListener('storage', e => {
@@ -491,6 +620,8 @@
     const box = $('#welcomeNotice');
     box.innerHTML = corrupt ? `<div class="notice error"><strong>Não foi possível ler o salvamento encontrado.</strong> ${esc(corrupt.reason)} Uma cópia foi guardada e não será apagada. <button type="button" class="btn small ghost" id="dlCorrupt" style="margin-top:6px">Baixar cópia</button></div>` : '';
     const dl = $('#dlCorrupt'); if (dl) dl.addEventListener('click', () => download('submundo-salvamento-ilegivel.json', corrupt.raw));
+    $('#coverArt').innerHTML = scene('centro', false);
+    document.body.classList.add('atCover');
     $('#welcome').classList.remove('hidden'); $('#playerName').focus();
   }
 
