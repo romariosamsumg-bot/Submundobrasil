@@ -177,10 +177,14 @@ await page.click('[data-action=duel][data-id=marrento]');
   console.log('3c. Arte (v1.1)');
   await go('hub');
   check(await page.locator('.place .placeScene .art').count() === 8, 'os 8 lugares da Cidade têm cena ilustrada');
-  check(await page.evaluate(() => { window.SB_ART = { 'place-galpao': 'data:image/png;base64,iVBORw0KGgo=' }; return window.SBArt.place('galpao').startsWith('<img') && window.SBArt.place('feira').startsWith('<svg'); }), 'imagem pintada substitui só a chave correspondente');
-  await page.evaluate(() => { window.SB_ART = {}; });
+  check(await page.evaluate(() => { window.__ART = window.SB_ART; window.SB_ART = { 'place-galpao': 'data:image/png;base64,iVBORw0KGgo=' }; return window.SBArt.place('galpao').startsWith('<img') && window.SBArt.place('feira').startsWith('<svg'); }), 'imagem pintada substitui só a chave correspondente');
+  await page.evaluate(() => { window.SB_ART = window.__ART; });
   check(await page.evaluate(() => window.SBArt.keys().length) === 24, '24 chaves de arte (10 lugares, 8 adversários, 6 assaltos)');
 
+  await go('perfil');
+  check(await page.locator('.avatarPick').count() === 11, 'Perfil oferece 10 retratos e a silhueta da classe');
+  await page.click('[data-action=avatar][data-id=capoeirista]');
+  check(await page.evaluate(() => !!document.querySelector('#hudAvatar img') && JSON.parse(localStorage.getItem('submundo_brasil_v01')).avatar === 'capoeirista'), 'retrato escolhido aparece no topo e fica salvo');
   console.log('4. Save inválido e XSS');
   await page.evaluate(() => localStorage.setItem('submundo_brasil_v01', '{"schema":1,"name":"Quebrado"'));
   await page.reload();

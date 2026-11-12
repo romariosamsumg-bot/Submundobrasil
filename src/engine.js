@@ -508,7 +508,7 @@
       district: 'centro', jail: 0, businesses: [], gangName: null, gangLevel: 0,
       successful: 0, failed: 0, seasonHistory: [],
       log: [{ day: 1, msg: 'Você chegou à cidade com algum dinheiro, poucos contatos e muita ambição.' }],
-      career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
+      avatar: null, career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
       influence: initialInfluence(), presence: initialPresence(null), dstate: initialDistrictState(),
       events: [{ id: 'rotina', start: 1, until: 1, district: null }],
       newsPending: { id: 'feira', day: 1, faction: null }, lastEvent: 'rotina', nextBonus: 0, tip: 0, contracts: [], extorted: {},
@@ -576,6 +576,7 @@
     if (!s.gangName) s.gangLevel = 0;
     else s.gangLevel = Math.max(1, s.gangLevel);
     s.career = CAREERS.some(c => c.id === saved.career) ? saved.career : null;
+    s.avatar = AVATARS.some(a => a.id === saved.avatar) ? saved.avatar : null;
     s.careerXP = toInt(saved.careerXP, fromV04 && s.career ? Math.min(20, Math.floor(s.successful / 2)) : 0, 0, 9999);
     s.goal = GOALS.some(g => g.id === saved.goal) ? saved.goal : null;
     s.goalDone = s.goal ? saved.goalDone === true : false;
@@ -1698,6 +1699,20 @@
     return done(false, `${label}: perdeu ${money(stake)}.`);
   }
 
+  /** Retratos que o jogador pode escolher no Perfil (só aparência; não mudam regras). */
+  const AVATARS = [
+    { id: 'malandro', name: 'Malandro' }, { id: 'funkeira', name: 'Funkeira' }, { id: 'motoboy', name: 'Motoboy' },
+    { id: 'sertanejo', name: 'Sertanejo' }, { id: 'gaucho', name: 'Gaúcho' }, { id: 'coroa', name: 'Coroa' },
+    { id: 'skatista', name: 'Skatista' }, { id: 'capoeirista', name: 'Capoeirista' }, { id: 'golpista', name: 'Golpista' },
+    { id: 'marombeiro', name: 'Marombeiro' }
+  ];
+  function doAvatar(s, id) {
+    const pick = id === 'none' ? null : AVATARS.find(a => a.id === id);
+    if (pick === undefined) return refuse('Retrato desconhecido.');
+    if ((pick ? pick.id : null) === s.avatar) return refuse('Esse já é o seu retrato.');
+    s.avatar = pick ? pick.id : null;
+    return done(true, pick ? `Retrato trocado: ${pick.name}.` : 'Retrato da classe de volta.');
+  }
   function pickCareer(s, id) {
     if (s.career) return refuse('A carreira já foi escolhida nesta temporada.');
     const c = CAREERS.find(x => x.id === id); if (!c) return refuse('Carreira desconhecida.');
@@ -2081,7 +2096,7 @@
     const nem = FACTIONS.slice().sort((a, b) => s.factions[b.id].grudge - s.factions[a.id].grudge)[0];
     const nemesis = s.factions[nem.id].grudge >= 3 ? nem.id : null;
     const medalBonus = Math.min(800, sum(sc.cats.map(c => [0, 30, 80, 200][c.medal])));
-    const n = defaultState(s.name, s.city);
+    const n = defaultState(s.name, s.city); n.avatar = s.avatar;
     n.season = s.season + 1;
     n.seasonHistory = [...s.seasonHistory, record].slice(-200);
     n.goalWins = goalWins;
@@ -2105,7 +2120,7 @@
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
     duel: doDuel, clinic: doClinic, bribe: doBribe, detox: doDetox, cleanRecord: doCleanRecord, bet: doBet, heistPlan: doHeistPlan, heistScout: doHeistScout, heistRun: doHeistRun, heistCancel: doHeistCancel, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, night: doNight,
-    career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay, endSeason
+    avatar: doAvatar, career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay, endSeason
   };
   /** Executa uma ação e roda verificações pós-ação. */
   function perform(s, name, ...args) {
@@ -2122,7 +2137,7 @@
 
   const SB = {
     VERSION, SCHEMA, MAXDAY, STORAGE_KEY, RESALE, CAREER_XP,
-    STATS, MISSIONS, DISTRICTS, BUSINESSES, HEISTS, HEIST_MAX_HIRES, HEIST_WINDOW, HEIST_COOLDOWN, HEIST_CUT, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
+    STATS, MISSIONS, DISTRICTS, BUSINESSES, HEISTS, HEIST_MAX_HIRES, HEIST_WINDOW, HEIST_COOLDOWN, HEIST_CUT, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, AVATARS, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,

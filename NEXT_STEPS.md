@@ -37,7 +37,7 @@
 
 - [x] **v1.3**: cinco classes, casas da noite e banca do bicho, Termas própria, vício e desintoxicação, batida policial, apostas, colete na trocação, despachante, calendário do mês com quatro semanas e patentes
 
-- [x] **v1.4**: 24 imagens pintadas do autor embutidas (10 lugares, 8 adversários, 6 assaltos) e cena no topo de Galpão, Duelos, Hospital, Assaltos, Banco e Temporada. O SVG fica como reserva.
+- [x] **v1.4**: 24 imagens pintadas do autor embutidas (10 lugares, 8 adversários, 6 assaltos) e cena no topo de Galpão, Duelos, Hospital, Assaltos, Banco e Temporada. O SVG fica como reserva. Escolha de retrato no Perfil, com 10 perfis brasileiros.
 
 O que falta para lançar está em **LANCAMENTO.md**.
 

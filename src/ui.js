@@ -135,6 +135,8 @@
   /** Placa de rua esmaltada. */
   const plate = (name, sub = '') => `<span class="plate"><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span>`;
   /** Retrato do personagem: silhueta muda com a especialização. */
+  /** Retrato escolhido (imagem pintada) ou a silhueta da classe. */
+  const portrait = s => (s.avatar && window.SBArt.avatar(s.avatar)) || avatar(s.career);
   function avatar(career) {
     const bg = { operador: '#3a2f25', articulador: '#22343a', empreendedor: '#2c3327', traficante: '#22301f', barao: '#33202a' }[career] || '#262b2f';
     let o = `<svg viewBox="0 0 48 48" aria-hidden="true">${R(0, 0, 48, 48, bg)}<path d="M0 34l48 -20v34H0z" fill="#0003"/>`;
@@ -239,7 +241,7 @@
   let lastCash = null;
   function renderHud() {
     const s = state, lvl = Math.min(99, Math.floor(s.respect / 35) + 1), c = s.career ? SB.CAREERS.find(x => x.id === s.career).name : 'Sem especialização';
-    if ($('#hudAvatar').dataset.career !== String(s.career)) { $('#hudAvatar').innerHTML = avatar(s.career); $('#hudAvatar').dataset.career = String(s.career); }
+    const pk = s.career + '|' + s.avatar; if ($('#hudAvatar').dataset.pic !== pk) { $('#hudAvatar').innerHTML = portrait(s); $('#hudAvatar').dataset.pic = pk; }
     $('#hudName').textContent = s.name; $('#hudSub').textContent = `${SB.phase(s).name} · ${c}`;
     $('#hudRespect').textContent = num(s.respect);
     $('#hudEnergy').style.width = s.energy + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`;
@@ -374,6 +376,7 @@
         <p><strong>Vício</strong>: cada saída na noite sobe o vício; alto, a noite recarrega menos e pode dar overdose. O Hospital limpa.</p>
         <p><strong>Colete</strong>: roubo armado que dá errado vira trocação com a segurança. O colete decide se você sai ferido ou vai para a UPA. Ser preso custa respeito.</p>
         <p><strong>Saúde</strong> (barra azul) cai em confrontos, duelos e serviços de força que dão errado. Abaixo de 60 suas chances caem; a zero, você é internado. Cure no Hospital ou esperando.</p>
+        <p>Toque no seu retrato, no topo, para abrir o <strong>Perfil</strong> e escolher outra foto.</p>
         <p><strong>Repetir</strong> o mesmo serviço no dia ou insistir no mesmo bairro piora chance e pagamento. Varie.</p>
         <p>Os <strong>grupos rivais</strong> reagem: agir no território deles gera atrito, retaliação e extorsão. Dá para conversar, firmar trégua ou aliança.</p>`],
       ['Sua cidade', `<p><strong>${esc(c.name)} — ${esc(c.trait)}.</strong> ${esc(c.traitDesc)}</p>
@@ -769,7 +772,8 @@
     const s = state, sc = SB.seasonScore(s), lvl = Math.min(99, Math.floor(s.respect / 35) + 1), c = s.career ? SB.CAREERS.find(x => x.id === s.career) : null;
     const top = Math.max(20, ...SB.STATS.map(st => s.stats[st.id]));
     return heading('Perfil', 'Sua ficha no submundo.') + resultCard() + `
-      <section class="sheet"><span class="sheetAvatar">${avatar(s.career)}</span><div><h2>${esc(s.name)}</h2><p>${esc(sc.title)} · nível ${lvl}</p><p class="mini">${esc(s.city)}${c ? ' · ' + c.name + ' ' + SB.careerLevel(s) + '/3' : ''}${s.gangName ? ' · ' + esc(s.gangName) : ''}${s.prestige ? ' · prestígio ' + s.prestige : ''}</p></div></section>
+      <section class="sheet"><span class="sheetAvatar">${portrait(s)}</span><div><h2>${esc(s.name)}</h2><p>${esc(sc.title)} · nível ${lvl}</p><p class="mini">${esc(s.city)}${c ? ' · ' + c.name + ' ' + SB.careerLevel(s) + '/3' : ''}${s.gangName ? ' · ' + esc(s.gangName) : ''}${s.prestige ? ' · prestígio ' + s.prestige : ''}</p></div></section>
+      ${stencil('Retrato', 'só aparência, troque quando quiser')}<div class="avatarGrid" role="group" aria-label="Escolher retrato">${SB.AVATARS.filter(a => window.SBArt.avatar(a.id)).map(a => `<button type="button" class="avatarPick ${s.avatar === a.id ? 'on' : ''}" data-action="avatar" data-id="${a.id}" aria-pressed="${s.avatar === a.id}" title="${a.name}">${window.SBArt.avatar(a.id)}<small>${a.name}</small></button>`).join('')}<button type="button" class="avatarPick ${s.avatar ? '' : 'on'}" data-action="avatar" data-id="none" aria-pressed="${!s.avatar}" title="Silhueta da classe">${avatar(s.career)}<small>Classe</small></button></div>
       ${stencil('Atributos')}<section class="card">${SB.STATS.map(st => `<div class="statRow">${statIcon(st.id)}<span>${st.name}</span><div class="meter"><div style="width:${pct(s.stats[st.id] / top * 100)}%"></div></div><strong>${num(s.stats[st.id])}</strong></div>`).join('')}</section>
       ${stencil('Equipamento', 'troque na Feira do Rolo')}<div class="gearGrid">${SB.SLOTS.map(sl => { const it = SB.item(s.gear[sl.id]); return `<button type="button" class="gearSlot ${it ? 'on' : ''}" data-view="feira"><span>${sl.name}</span><b>${it ? esc(it.name) : '—'}</b><small>${it ? esc(it.slot === 'arma' ? 'poder ' + it.power : it.slot === 'protecao' ? 'defesa ' + it.def : 'carga +' + it.cargo) : 'vazio'}</small></button>`; }).join('')}</div>
       ${stencil('Nesta temporada')}<section class="card"><div class="kv"><div><span>Respeito</span><strong>${num(s.respect)}</strong></div><div><span>Patrimônio</span><strong>${fmt(SB.patrimony(s))}</strong></div><div><span>Serviços</span><strong>${num(s.successful)} certos · ${num(s.failed)} falhos</strong></div><div><span>Detenções</span><strong>${s.seasonStats.arrests}</strong></div><div><span>Saúde</span><strong>${s.health}/100${s.hospital ? ' · internado' : ''}</strong></div><div><span>Duelos</span><strong>${s.duelStats.wins} vitórias · ${s.duelStats.losses} derrotas</strong></div><div><span>Mercadoria vendida</span><strong>${fmt(s.trade.sold)}</strong></div><div><span>Remessas / blitze</span><strong>${num(s.trade.exported)} un. · ${s.trade.blitz}</strong></div><div><span>Bairros liderados</span><strong>${SB.controls(s).length}/5</strong></div><div><span>Conquistas</span><strong>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length}</strong></div></div></section>
@@ -828,6 +832,7 @@
       case 'build-lab': run('buildLab', id); break;
       case 'night': run('night', id); break;
       case 'duel': run('duel', id); break;
+      case 'avatar': run('avatar', id); break;
       case 'detox': run('detox', id); break;
       case 'clean-record': run('cleanRecord'); break;
       case 'bet-stake': betStake = Number(id) || 10; render(); break;

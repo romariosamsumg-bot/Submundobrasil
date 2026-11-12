@@ -556,6 +556,8 @@ O serviço solo que se chamava "Carro-forte na serra" passou a se chamar **Cofre
 
 - **SVG em código** (`src/art.js`): cena para cada lugar da Cidade (Bairros, Galpão, Feira do Rolo, Vida noturna, Duelos, Hospital, Banco, Temporada) e para Assaltos do bando; retrato de busto para os 8 adversários de duelo; cena para os 6 assaltos, também no cartaz do plano em andamento. Itens bloqueados aparecem dessaturados.
 - **Imagens pintadas opcionais**: arquivos em `art/` com as chaves `place-<id>`, `rival-<id>` e `heist-<id>` substituem o SVG correspondente no build. As que faltarem continuam em SVG. Guia de estilo e prompts em `PROMPTS_ARTE.md`.
+- **v1.4**: as 24 imagens pintadas estão no jogo, e Galpão, Duelos, Hospital, Assaltos, Banco e Temporada ganharam cena no topo.
+- **Retrato do jogador (v1.4)**: no Perfil, o jogador escolhe 1 de 10 retratos (Malandro, Funkeira, Motoboy, Sertanejo, Gaúcho, Coroa, Skatista, Capoeirista, Golpista, Marombeiro) ou volta à silhueta da classe. É só aparência: grátis, sem efeito nas regras, guardado no save (`avatar`) e mantido na temporada seguinte. Imagens `art/avatar-<id>`.
 
 ---
 

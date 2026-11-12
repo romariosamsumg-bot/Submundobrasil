@@ -401,3 +401,14 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 .art.painted{object-position:50% 45%}
 @media(min-width:701px){.screenArt{height:auto;aspect-ratio:3/1}}
 @media(max-width:390px){.rivalRow{grid-template-columns:64px minmax(0,1fr)!important}.rivalPic{width:64px;height:64px}}
+
+/* v1.4: retratos escolhidos */
+.hudAvatar img,.sheetAvatar img{display:block;width:100%;height:100%;object-fit:cover}
+.hudAvatar{overflow:hidden}
+.avatarGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
+@media(min-width:701px){.avatarGrid{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.avatarPick{position:relative;display:block;padding:0;aspect-ratio:1;border:2px solid #3d4a4f;border-radius:4px;overflow:hidden;background:#0b1013;cursor:pointer}
+.avatarPick .art,.avatarPick svg{display:block;width:100%;height:100%}
+.avatarPick small{position:absolute;left:0;right:0;bottom:0;padding:2px 3px;font-size:10px;line-height:1.2;color:#f3e6c8;background:#05080acc;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.avatarPick.on{border-color:var(--ambar);box-shadow:0 0 0 2px #05080a,0 0 0 4px var(--ambar)}
+.avatarPick:focus-visible{outline:3px solid var(--ambar);outline-offset:2px}

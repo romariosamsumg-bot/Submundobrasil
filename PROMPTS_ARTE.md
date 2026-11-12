@@ -64,7 +64,7 @@ Mantenha sempre o mesmo modelo e, se a ferramenta permitir, a mesma "seed" ou im
 
 ## Fotos de perfil do jogador (512 × 512, retrato de busto, fundo liso escuro)
 
-Ainda não usadas pelo jogo: quando chegarem, viram a escolha de retrato no Perfil.
+Já no jogo (v1.4): escolha de retrato no Perfil, reduzidas para 256 px. Novo retrato → entrada em `AVATARS` (`engine.js`) e arquivo `art/avatar-<id>`.
 
 | Arquivo | Prompt (depois do bloco de estilo) |
 |---|---|
