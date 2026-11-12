@@ -119,7 +119,7 @@ Também sugerido: rebelião na cadeia com a gangue.
 - **Estouro de esquema**: polícia fechar casa ou banca de quem não paga propina (pedido pelo autor) ainda não existe.
 - **Rebelião na cadeia** e **guerra de território entre bandos** como eventos jogáveis.
 - **Caça-níquel** e outras casas de jogo como negócio.
-- Rótulo "Vigilância" continua; o autor chama de Calor / Procurado / Ficha suja. Decidir o nome e trocar em todo o jogo de uma vez.
+- [x] Rótulo decidido pelo autor (v1.4): a vigilância pessoal virou **Procurado** em todo o jogo; a do bairro aparece como **Vigia local**.
 - Atributos continuam Astúcia, Força, Lábia e Influência.
 
 ## Depende de servidor (visão do autor para o jogo online)

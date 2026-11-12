@@ -173,6 +173,9 @@ await page.click('[data-action=duel][data-id=marrento]');
   check((await page.textContent('#content')).includes('Vício'), 'tela da Noite mostra o vício');
   await go('painel');
   check((await page.textContent('.dayBar')).includes('Semana'), 'Rua mostra a semana do mês');
+  check(await page.evaluate(() => document.querySelector('#hudHeatTxt').textContent.startsWith('Procurado') && document.querySelector('#hudVicioTxt').textContent.startsWith('Vício')), 'topo mostra Procurado e Vício');
+  check(await page.locator('.loop .loopStep .loopArt').count() === 4, 'Rua mostra o ciclo em 4 cartões ilustrados');
+  check(await page.locator('.ficha .fichaRow').count() >= 2, 'ficha da temporada reúne patente, classe, meta e título');
 
   console.log('3c. Arte (v1.1)');
   await go('hub');

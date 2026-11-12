@@ -412,3 +412,43 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 .avatarPick small{position:absolute;left:0;right:0;bottom:0;padding:2px 3px;font-size:10px;line-height:1.2;color:#f3e6c8;background:#05080acc;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .avatarPick.on{border-color:var(--ambar);box-shadow:0 0 0 2px #05080a,0 0 0 4px var(--ambar)}
 .avatarPick:focus-visible{outline:3px solid var(--ambar);outline-offset:2px}
+
+/* v1.4: topo com 4 barras (energia e saúde em cima; procurado e vício embaixo) */
+.hudBars{grid-template-columns:1fr 1fr!important;gap:5px 8px}
+.hudBar.vc i{background:repeating-linear-gradient(90deg,#a0659a 0 7px,#84507e 7px 8px)}
+.hudBar.vc.alert{animation:pulseHeat 1.1s infinite}
+@media(max-width:400px){.hudBar b{font-size:10px;letter-spacing:.05em}}
+@media(min-width:701px){.hudBars{grid-template-columns:repeat(4,minmax(0,1fr))!important;max-width:600px}}
+@media(prefers-reduced-motion:reduce){.hudBar.vc.alert{animation:none!important}}
+
+/* v1.4: tela Rua reorganizada */
+.dayCard{display:block;margin:0 0 10px;padding:10px 12px 11px;background:linear-gradient(120deg,#22201a,#141b1f 70%);border:1px solid #3d4a4f;border-top:3px solid var(--ambar);border-radius:4px;box-shadow:3px 3px 0 #05080a}
+.dayTop{display:flex;gap:10px;align-items:center}
+.dayCard .dayInfo b{font-size:30px}
+.dayCard .dayInfo span{font-size:11px;margin:4px 0 0;color:#e2c48f}
+.dayCard .dayTrack{margin-top:10px}
+.dayCard .btn{min-height:48px}
+.dayNews{margin:4px 2px 12px;padding:10px 12px}
+.dayNews .eventList li{font-size:12px;line-height:1.4}
+.loop{grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px}
+.loopStep{min-height:92px;justify-content:flex-end;overflow:hidden;padding:9px 10px;background:#0b1013;border-color:#3d4a4f}
+.loopStep+.loopStep::before{content:none}
+.loopArt{position:absolute;inset:0;z-index:0}.loopArt .art{display:block;width:100%;height:100%;object-fit:cover}
+.loopStep::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,#0b101322 0%,#0b1013bb 55%,#0b1013f2 100%)}
+.loopStep i{z-index:1;top:7px;left:8px;right:auto;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:var(--ambar);color:#1b1712;font:800 12px/1 system-ui,sans-serif;box-shadow:2px 2px 0 #05080a}
+.loopStep b,.loopStep small{position:relative;z-index:1}
+.loopStep b{font-size:18px;text-shadow:0 2px 3px #000}.loopStep small{font-size:11px;color:#e6dcc6;text-shadow:0 1px 2px #000}
+.loopStep:hover,.loopStep:focus-visible{border-color:var(--ambar)}
+@media(min-width:701px){.loop{grid-template-columns:repeat(4,minmax(0,1fr))}.loopStep{min-height:120px}}
+.ficha{margin:4px 0 14px}
+.fichaRow{padding:10px 0 9px;border-top:1px solid #2c3a3e}.rumoHead+.fichaRow{border-top:0;padding-top:8px}
+.fichaLabel{display:block;font:800 9px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:#8f9c9f}
+.fichaLine{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:3px 0 6px}
+.fichaLine b{font:700 16px/1.15 Georgia,serif;color:#f3d6ae;min-width:0}
+.fichaLine em{flex:none;max-width:55%;font-style:normal;font-size:11px;line-height:1.3;color:#a9b7bb;text-align:right}
+.ficha .meter{height:6px}
+.fichaMore{margin-top:6px}.fichaMore summary{cursor:pointer;font-size:11px;color:var(--ambar);list-style:none}.fichaMore summary::after{content:" ▾"}
+.fichaMore .mini{margin:6px 0 0}
+.fichaTip{margin:7px 0 0!important}
+.fichaBtn{margin-top:2px}
+.localeBottom span.fix{flex:none}

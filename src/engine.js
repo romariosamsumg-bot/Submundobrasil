@@ -106,7 +106,7 @@
     { id: 'cais', name: 'Cais do Norte', desc: 'Galpões, armazéns e uma região portuária em transformação.', risk: 5, bonus: 15, tribute: 140, advantage: 'Operações coletivas rendem +20%.' },
     { id: 'jardim', name: 'Jardim União', desc: 'Bairro residencial de trabalhadores e pequenos negócios.', risk: -4, bonus: -10, tribute: 70, advantage: 'Recrutar custa 25% menos e a equipe ganha +2 de ânimo por dia.' },
     { id: 'industrial', name: 'Distrito Industrial', desc: 'Grandes empresas e patrulhamento reforçado.', risk: 10, bonus: 28, tribute: 160, advantage: 'Todos os seus negócios rendem +12%.' },
-    { id: 'vila', name: 'Vila das Palmeiras', desc: 'Ruas movimentadas e comércio de bairro.', risk: -2, bonus: 4, tribute: 90, advantage: 'Sua vigilância cai 5 pontos extras por dia.' }
+    { id: 'vila', name: 'Vila das Palmeiras', desc: 'Ruas movimentadas e comércio de bairro.', risk: -2, bonus: 4, tribute: 90, advantage: 'Seu Procurado cai 5 pontos extras por dia.' }
   ];
 
   /* Negócios: cada um fica em um bairro e sofre a economia e as facções locais. */
@@ -124,9 +124,9 @@
   const RESALE = 0.6;
 
   const CAREERS = [
-    { id: 'operador', name: 'Assaltante', desc: '+6 de chance nas missões, +8% de recompensa nos serviços grandes e falhas custam 30% menos caixa. Vigilância gerada +10% e negócios rendem -10%.',
+    { id: 'operador', name: 'Assaltante', desc: '+6 de chance nas missões, +8% de recompensa nos serviços grandes e falhas custam 30% menos caixa. Procurado gerado +10% e negócios rendem -10%.',
       xpDesc: 'Ganha experiência concluindo missões (mais nas difíceis).',
-      perks: ['Rota de fuga: -15 pontos na chance de detenção.', 'Ritmo de rua: penalidade por repetir missões cai pela metade.', 'Sangue frio: a vigilância pesa metade nas chances; o cofre exige Astúcia 18.'] },
+      perks: ['Rota de fuga: -15 pontos na chance de detenção.', 'Ritmo de rua: penalidade por repetir missões cai pela metade.', 'Sangue frio: o Procurado pesa metade nas chances; o cofre exige Astúcia 18.'] },
     { id: 'articulador', name: 'Articulador', desc: '+30% de influência, +8 nos diálogos e +5 em disputas e confrontos. Recompensas de missões -10%.',
       xpDesc: 'Ganha experiência com contatos, diálogos, acordos e notícias.',
       perks: ['Rede de contatos: criar contatos custa 30% menos.', 'Mediador: tréguas duram 5 dias e alianças custam 40% menos.', 'Voz do bairro: tributo dos bairros +60% e metade das retaliações é evitada.'] },
@@ -152,7 +152,7 @@
 
   const ROLES = [
     { id: 'musculo', name: 'Músculo', desc: '+confrontos e operações coletivas.' },
-    { id: 'olheiro', name: 'Olheiro', desc: '-detenção e -vigilância nas operações.' },
+    { id: 'olheiro', name: 'Olheiro', desc: '-detenção e -Procurado nas operações.' },
     { id: 'negociador', name: 'Negociador', desc: '+diálogos e +influência ao criar contatos.' }
   ];
   const NICKNAMES = ['Baixinho', 'Magrão', 'Tico', 'Careca', 'Ligeirinho', 'Bigode', 'Dentinho', 'Tatu', 'Pardal', 'Juju', 'Nena', 'Lia', 'Biscoito', 'Coruja', 'Mocotó', 'Faísca', 'Chiclete', 'Tampinha', 'Sabiá', 'Paçoca', 'Quindim', 'Cabeção', 'Maré', 'Brisa', 'Tainha', 'Zóio', 'Gringo', 'Cuíca'];
@@ -362,7 +362,7 @@
     { id: 'gear', title: 'Compre sua primeira arma', text: 'Arma é o que abre os roubos maiores. Comece com o que o bolso permite: um pedaço de pau já serve.', view: 'feira', cta: 'Ir à Feira do Rolo', reward: 60, check: s => !!s.gear.arma },
     { id: 'night', title: 'Recarregue na noitada', text: 'Acabou a energia? A noite troca dinheiro por energia para você continuar agindo hoje. Amanhã vem a ressaca.', view: 'noite', cta: 'Ir para a noite', reward: 40, check: s => s.tutorial.nighted },
     { id: 'train', title: 'Treine um atributo', text: 'Cada roubo usa um atributo. Treinar aumenta a chance e o seu poder de luta.', view: 'acoes', cta: 'Ir treinar', reward: 60, check: s => s.tutorial.trained },
-    { id: 'day', title: 'Durma: vire o dia', text: 'Sem energia e sem saída na noite, durma: +70 de energia, a vigilância cai, a renda entra e os grupos se movem. A temporada tem 30 dias.', view: 'painel', cta: 'Voltar para a rua', reward: 60, check: s => s.day >= 2 },
+    { id: 'day', title: 'Durma: vire o dia', text: 'Sem energia e sem saída na noite, durma: +70 de energia, o Procurado cai, a renda entra e os grupos se movem. A temporada tem 30 dias.', view: 'painel', cta: 'Voltar para a rua', reward: 60, check: s => s.day >= 2 },
     { id: 'goal', title: 'Escolha a meta da temporada', text: 'A meta é o seu norte: cumprir rende bônus e pontos. Escolha até o dia 5.', view: 'temporada', cta: 'Escolher meta', reward: 0, check: s => !!s.goal || s.day > 5 },
     { id: 'bank', title: 'Guarde dinheiro no banco', text: 'Falhas tiram parte do dinheiro em mãos. O banco protege, cobrando uma taxa pequena.', view: 'gestao', cta: 'Abrir banco', reward: 40, check: s => s.tutorial.banked },
     { id: 'gang', title: 'Chegue a 30 de respeito e funde seu bando', text: 'Sozinho você não chega ao dinheiro de verdade. Com o bando vêm os assaltos planejados, os confrontos e os acordos.', view: 'gangue', cta: 'Abrir bando', reward: 200, check: s => !!s.gangName }
@@ -374,11 +374,11 @@
   const EVENTS = {
     rotina: { title: 'Rotina normal', desc: 'Sem acontecimentos importantes. A cidade segue seu ritmo.', dur: [1, 1], weight: 4, mods: {} },
     movimentado: { title: 'Dia movimentado', desc: 'Comércio aquecido: missões rendem +12% em toda a cidade.', dur: [1, 1], weight: 3, mods: { reward: 12 } },
-    fiscalizacao: { title: 'Fiscalização reforçada', desc: 'Missões com -8 de chance e vigilância gerada +20%.', dur: [2, 2], weight: 3, mods: { risk: 8, heatMult: 1.2 } },
+    fiscalizacao: { title: 'Fiscalização reforçada', desc: 'Missões com -8 de chance e Procurado gerado +20%.', dur: [2, 2], weight: 3, mods: { risk: 8, heatMult: 1.2 } },
     festival: { title: 'Festival de rua', desc: 'Missões +9%, risco +4. {bar} e {show} lucram +30%.', dur: [1, 1], weight: 2, mods: { reward: 9, risk: 4, bizMult: c => c.biz && c.biz.tags.includes('festa') ? 1.3 : 1 } },
-    patrulhas: { title: 'Patrulhas reduzidas', desc: 'Risco -7 nas missões e vigilância cai 5 extras.', dur: [1, 1], weight: 2, mods: { risk: -7, heatDecay: 5 } },
+    patrulhas: { title: 'Patrulhas reduzidas', desc: 'Risco -7 nas missões e Procurado cai 5 extras.', dur: [1, 1], weight: 2, mods: { risk: -7, heatDecay: 5 } },
     comercio: { title: 'Semana de comércio', desc: 'Missões +6% e todos os negócios +12% por 3 dias.', dur: [3, 3], weight: 2, mods: { reward: 6, bizMult: 1.12 } },
-    carnaval: { title: 'Carnaval', desc: 'Blocos nas ruas: missões em {centro} e {vila} +25% (demais +8%), risco +4, multidões escondem (vigilância gerada -10%). {bar} +60% e {show} +80%. Equipe +3 de ânimo por dia.', dur: [3, 3], fixed: 9, weight: 0,
+    carnaval: { title: 'Carnaval', desc: 'Blocos nas ruas: missões em {centro} e {vila} +25% (demais +8%), risco +4, multidões escondem (Procurado gerado -10%). {bar} +60% e {show} +80%. Equipe +3 de ânimo por dia.', dur: [3, 3], fixed: 9, weight: 0,
       mods: { reward: c => (c.district === 'centro' || c.district === 'vila') ? 25 : 8, risk: 4, heatMult: .9, morale: 3, bizMult: c => c.biz ? (c.biz.id === 'show' ? 1.8 : c.biz.id === 'bar' ? 1.6 : 1) : 1, festive: 1 } },
     classico: { title: 'Clássico no estádio', desc: 'A cidade para pelo futebol: {bar} +100%, {show} +40%, risco +8 em {centro} e equipe +5 de ânimo.', dur: [1, 1], fixed: 20, weight: 0,
       mods: { risk: c => c.district === 'centro' ? 8 : 0, morale: 5, bizMult: c => c.biz ? (c.biz.id === 'bar' ? 2 : c.biz.id === 'show' ? 1.4 : 1) : 1 } },
@@ -386,7 +386,7 @@
       mods: { reward: (c, e) => inD(e, c, 20), econ: (c, e) => inD(e, c, .15), morale: 2, bizMult: c => c.biz && c.biz.id === 'oficina' ? 1.2 : 1, festive: 1 } },
     crise: { title: 'Crise no comércio', desc: 'Economia em queda por 4 dias: negócios -25%, missões -8%, bicos -20%. Em compensação, recrutar custa 30% menos.', dur: [4, 4], weight: 1,
       mods: { econ: -.2, bizMult: .75, reward: -8, recruitMult: .7, gigMult: .8, crisis: 1 } },
-    operacao: { title: 'Operação policial em {d}', desc: 'Vigilância local +35 ao começar e risco +15 no bairro por 2 dias.', dur: [2, 2], weight: 2, randomDistrict: true,
+    operacao: { title: 'Operação policial em {d}', desc: 'Vigia local +35 ao começar e risco +15 no bairro por 2 dias.', dur: [2, 2], weight: 2, randomDistrict: true,
       onStart: (s, e) => { s.dstate[e.district].vigil = clamp(s.dstate[e.district].vigil + 35, 0, 100); },
       mods: { risk: (c, e) => inD(e, c, 15), heatMult: 1 } },
     greve: { title: 'Greve em {d}', desc: '{cais} com economia -30% e missões -20% por 3 dias. {docas} perde força.', dur: [3, 3], weight: 1, district: 'cais',
@@ -398,7 +398,7 @@
     eleicao: { title: 'Eleição municipal', desc: 'Por 4 dias: risco +5 e ações de influência +40%.', dur: [4, 4], weight: 1, mods: { risk: 5, influenceMult: 1.4 } },
     pagamento: { title: 'Dia de pagamento', desc: 'A cidade está cheia de dinheiro vivo: Mercadinho, Caixa eletrônico, Lotérica, Cofre da joalheria e os assaltos do bando rendem +30%.', dur: [1, 1], fixedDays: [5, 20], weight: 0, mods: { payday: 1 } },
     fluxo: { title: 'Noite de fluxo', desc: 'Fim de semana: seus negócios da noite rendem o dobro, mas a chance de batida nos lugares baratos sobe.', dur: [1, 1], fixedDays: [6, 7, 13, 14, 21, 27], weight: 0, mods: { bizMult: c => c.biz && c.biz.tags.includes('noite') ? 2 : 1, nightRiskMult: 1.6 } },
-    fechames: { title: 'Operação Fecha-Mês', desc: 'A polícia quer bater meta: risco +8 nos roubos e vigilância gerada +15% até o fim do mês. No dia 30 atraca o Último Navio, pagando 25% a mais.', dur: [3, 3], fixed: 28, weight: 0, mods: { risk: 8, heatMult: 1.15 } },
+    fechames: { title: 'Operação Fecha-Mês', desc: 'A polícia quer bater meta: risco +8 nos roubos e Procurado gerado +15% até o fim do mês. No dia 30 atraca o Último Navio, pagando 25% a mais.', dur: [3, 3], fixed: 28, weight: 0, mods: { risk: 8, heatMult: 1.15 } },
     temporal: { title: 'Temporal de verão', desc: 'Chuva forte: missões -10%, risco -5 e -10 de energia ao amanhecer.', dur: [1, 1], weight: 2, mods: { reward: -10, risk: -5, energy: -10 } }
   };
   /* Mapeia o antigo eventIndex (0.1–0.4) para os eventos atuais. */
@@ -410,20 +410,20 @@
       { label: 'Patrocinar a feira', desc: 'R$ 180 · +14 influência local · +2 respeito', cash: 180, influence: 14, respect: 2 },
       { label: 'Ajudar na montagem', desc: '25 energia · +R$ 90 · +7 influência local', energy: 25, influence: 7, money: 90 }] },
     { id: 'fiscalizacao', name: 'Boletim de fiscalização', desc: 'A cidade intensificou a fiscalização. Há caminhos para reduzir sua exposição.', choices: [
-      { label: 'Contratar assessoria jurídica', desc: 'R$ 260 · -24 vigilância', cash: 260, heat: -24 },
-      { label: 'Diminuir o ritmo', desc: '18 energia · -12 vigilância', energy: 18, heat: -12 }] },
+      { label: 'Contratar assessoria jurídica', desc: 'R$ 260 · -24 de Procurado', cash: 260, heat: -24 },
+      { label: 'Diminuir o ritmo', desc: '18 energia · -12 de Procurado', energy: 18, heat: -12 }] },
     { id: 'boatos', name: 'Rumores na vizinhança', desc: 'O grupo que lidera o bairro espalha boatos sobre você.', choices: [
       { label: 'Organizar reunião', desc: 'R$ 160 e 12 energia · +12 influência · presença rival -8 · relação +6', cash: 160, energy: 12, influence: 12, rival: -8, relation: 6 },
-      { label: 'Responder publicamente', desc: '18 energia · +4 respeito · +10 vigilância · presença rival +6 · tensão +8', energy: 18, respect: 4, heat: 10, rival: 6, tension: 8 }] },
+      { label: 'Responder publicamente', desc: '18 energia · +4 respeito · +10 de Procurado · presença rival +6 · tensão +8', energy: 18, respect: 4, heat: 10, rival: 6, tension: 8 }] },
     { id: 'festival', name: 'Festival da cidade', desc: 'Um festival movimenta clientes e abre oportunidades.', choices: [
       { label: 'Investir em barracas', desc: 'R$ 320 agora · R$ 480 amanhã', cash: 320, nextBonus: 480, notLastDay: true },
       { label: 'Ajudar na produção', desc: '25 energia · +R$ 150 · +6 influência', energy: 25, money: 150, influence: 6 }] },
     { id: 'comercio', name: 'Convite de comerciantes', desc: 'Uma associação comercial pede apoio para reorganizar a região.', choices: [
       { label: 'Apoiar a associação', desc: 'R$ 240 · +10 influência · presença rival -4', cash: 240, influence: 10, rival: -4 },
-      { label: 'Oferecer seu tempo', desc: '20 energia · +6 influência · -5 vigilância', energy: 20, influence: 6, heat: -5 }] },
+      { label: 'Oferecer seu tempo', desc: '20 energia · +6 influência · -5 de Procurado', energy: 20, influence: 6, heat: -5 }] },
     { id: 'informante', name: 'Informante de confiança', desc: 'Alguém oferece dicas sobre a rotina da cidade.', choices: [
       { label: 'Pagar pela dica', desc: 'R$ 250 · próxima missão hoje ou amanhã +12 de chance', cash: 250, tip: 2 },
-      { label: 'Desconfiar', desc: 'Sem custo · -4 vigilância', heat: -4 }] },
+      { label: 'Desconfiar', desc: 'Sem custo · -4 de Procurado', heat: -4 }] },
     { id: 'insatisfacao', name: 'Integrantes reclamam', desc: 'Sua equipe está desanimada e cobra reconhecimento.', when: s => !!s.gangName && s.crewMorale < 50 && s.crew.length > 0, choices: [
       { label: 'Pagar uma gratificação', desc: 'R$ 60 por integrante · +20 ânimo', cashPerMember: 60, morale: 20 },
       { label: 'Conversar com o grupo', desc: '15 energia · +8 ânimo (Articulador +16)', energy: 15, morale: 8 }] },
@@ -1118,8 +1118,8 @@
     if (blocked(s)) return refuse(blocked(s));
     if (s.energy < 18 || s.heat === 0) return refuse('Não é necessário reduzir exposição agora.');
     s.energy -= 18; addHeat(s, -20); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil - 10, 0, 100);
-    log(s, 'Você ficou longe dos holofotes: -20 vigilância e -10 vigilância local.');
-    return done(true, 'Vigilância reduzida.');
+    log(s, 'Você ficou longe dos holofotes: -20 de Procurado e -10 vigia local.');
+    return done(true, 'Procurado reduzido.');
   }
   function doBail(s) {
     if (s.jail <= 0) return refuse('Você não está detido.');
@@ -1127,7 +1127,7 @@
     if (s.cash < c) return refuse(`A fiança custa ${money(c)} em mãos.`);
     s.cash -= c; s.jail = 0; s.seasonStats.bailPaid++; addHeat(s, 5);
     unlock(s, 'fianca');
-    log(s, `Advogado de porta de cadeia: ${money(c)}. Você está livre, mas chamou atenção (+5 vigilância).`);
+    log(s, `Advogado de porta de cadeia: ${money(c)}. Você está livre, mas chamou atenção (+5 de Procurado).`);
     return done(true, 'O advogado de porta de cadeia te tirou.');
   }
   /** Suborno: mais barato que o advogado, mas pode dar errado (+1 dia e mais vigilância). */
@@ -1141,7 +1141,7 @@
     const odds = clamp(55 + s.stats.labia - s.heat * .3, 15, 85);
     if (roll(odds)) { s.jail = 0; addHeat(s, 3); log(s, `Carcereiro molhado com ${money(c)}: você saiu pelos fundos.`); return done(true, 'O carcereiro aceitou. Você saiu pelos fundos.'); }
     s.jail = Math.min(5, s.jail + 1); addHeat(s, 8);
-    log(s, `O carcereiro pegou ${money(c)} e te dedurou: +1 dia e +8 de vigilância.`);
+    log(s, `O carcereiro pegou ${money(c)} e te dedurou: +1 dia e +8 de Procurado.`);
     return done(false, 'O carcereiro te dedurou: +1 dia de cadeia.');
   }
 
@@ -1502,7 +1502,7 @@
     let extra = '';
     if (n.contact && roll(n.contact)) { const b = 3 + Math.floor(s.stats.labia / 8); addInf(s, s.district, b); extra += ` Você firmou contatos: +${b} de influência em ${district(s).name}.`; }
     if (n.brawl && !nightSafe(s, n) && !barao2 && roll(n.brawl)) { addHeat(s, 5); extra += ` Cruzou com gente de outra gangue e saiu na mão:${hurt(s, rand(8, 16))}`; }
-    if (n.raid && !barao2 && !s.hospital && roll(Math.round(n.raid * eventMod(s, 'nightRiskMult')))) { const fine = Math.min(s.cash, 500, Math.ceil(s.cash * .05)); s.cash -= fine; addHeat(s, 8); extra += ` Batida policial: ${money(fine)} de "cafezinho" e +8 de vigilância.`; }
+    if (n.raid && !barao2 && !s.hospital && roll(Math.round(n.raid * eventMod(s, 'nightRiskMult')))) { const fine = Math.min(s.cash, 500, Math.ceil(s.cash * .05)); s.cash -= fine; addHeat(s, 8); extra += ` Batida policial: ${money(fine)} de "cafezinho" e +8 de Procurado.`; }
     if (n.boss) { const l = leader(s, s.district); addRel(s, l.id, 5); extra += ` Negócio fechado com ${faction(l.id).short}: relação +5.`; }
     if (od && !s.hospital && roll(od)) {
       s.hospital = 1; s.health = clamp(s.health - 25, 1, 100); const lostR = loseRespect(s, .03); s.overdoses++;
@@ -1668,7 +1668,7 @@
     const c = cleanCost(s);
     if (s.cash < c) return refuse(`O despachante cobra ${money(c)} em mãos.`);
     s.cash -= c; s.today.despachante = true; addHeat(s, -35);
-    log(s, `Despachante: ficha aliviada por ${money(c)} (-35 de vigilância).`);
+    log(s, `Despachante: ficha aliviada por ${money(c)} (-35 de Procurado).`);
     return done(true, 'O despachante deu um jeito na sua ficha.');
   }
   const sinucaOdds = s => clamp(Math.round(34 + s.stats.astucia * .5 + s.stats.labia * .2), 34, 49);
@@ -1857,7 +1857,7 @@
       }
       if (P.pressure === 'denuncia') {
         addHeat(s, 10); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil + 10, 0, 100);
-        return `Retaliação de ${f.short}: denúncia anônima. +10 vigilância e +10 vigilância local.`;
+        return `Retaliação de ${f.short}: denúncia anônima. +10 de Procurado e +10 vigia local.`;
       }
       const best = DISTRICTS.filter(d => s.presence[d.id][f.id] > 0).sort((a, b) => s.influence[b.id] - s.influence[a.id])[0] || district(s);
       const removed = Math.min(rand(5, 9), s.influence[best.id]);
@@ -1897,7 +1897,7 @@
     if (s.vicio > 0) s.vicio = clamp(s.vicio - 3, 0, 100);
     s.ressaca = 0;
     const ctrl = controls(s);
-    if (gearVal(s, 'heavy')) { addHeat(s, 3); lines.push('Arma pesada não passa despercebida: +3 de vigilância.'); }
+    if (gearVal(s, 'heavy')) { addHeat(s, 3); lines.push('Arma pesada não passa despercebida: +3 de Procurado.'); }
     const decay = 15 + eventMod(s, 'heatDecay') + (controlled(s, 'vila') ? 5 : 0) - ctrl.length * 2;
     addHeat(s, -decay);
 
@@ -1936,7 +1936,7 @@
         const m = s.crew.splice(rand(0, s.crew.length - 1), 1)[0];
         const to = FACTIONS.slice().sort((a, b) => s.factions[a.id].relation - s.factions[b.id].relation)[0];
         s.factions[to.id].power = clamp(s.factions[to.id].power + 3, 10, 100); addHeat(s, 5);
-        lines.push(`${m.name} abandonou a equipe e foi para ${to.short}, levando informações (+5 vigilância).`);
+        lines.push(`${m.name} abandonou a equipe e foi para ${to.short}, levando informações (+5 de Procurado).`);
       }
       for (const f of FACTIONS) {
         const r = s.factions[f.id];

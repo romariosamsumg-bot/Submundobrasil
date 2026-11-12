@@ -220,13 +220,13 @@
     const node = $('#toast'); node.textContent = msg; node.className = 'toast' + (isError ? ' error' : ''); node.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(() => { node.hidden = true; }, 3800);
   }
-  const snap = () => state ? { health: state.health, cash: state.cash, bank: state.bank, energy: state.energy, heat: state.heat, respect: state.respect, inf: state.influence[state.district], morale: state.crewMorale, district: state.district } : null;
+  const snap = () => state ? { health: state.health, cash: state.cash, bank: state.bank, energy: state.energy, heat: state.heat, vicio: state.vicio, respect: state.respect, inf: state.influence[state.district], morale: state.crewMorale, district: state.district } : null;
   function deltas(a, b) {
     if (!a || !b) return [];
     const out = [];
     const add = (label, v, goodUp = true, money = false) => { if (v) out.push({ label, text: (v > 0 ? '+' : '-') + (money ? fmt(Math.abs(v)) : num(Math.abs(v))), good: goodUp ? v > 0 : v < 0 }); };
     add('Caixa', b.cash - a.cash, true, true); add('Banco', b.bank - a.bank, true, true); add('Energia', b.energy - a.energy);
-    add('Vigilância', b.heat - a.heat, false); add('Saúde', b.health - a.health); add('Respeito', b.respect - a.respect);
+    add('Procurado', b.heat - a.heat, false); add('Vício', b.vicio - a.vicio, false); add('Saúde', b.health - a.health); add('Respeito', b.respect - a.respect);
     if (a.district === b.district) add('Influência', b.inf - a.inf);
     add('Ânimo', b.morale - a.morale);
     return out;
@@ -245,8 +245,9 @@
     $('#hudName').textContent = s.name; $('#hudSub').textContent = `${SB.phase(s).name} · ${c}`;
     $('#hudRespect').textContent = num(s.respect);
     $('#hudEnergy').style.width = s.energy + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`;
-    $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Vigilância ${s.heat}`;
-    $('#hudEnergyBox').setAttribute('aria-label', `Energia ${s.energy} de 100`); $('#hudHeatBox').setAttribute('aria-label', `Vigilância ${s.heat} de 100`);
+    $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Procurado ${s.heat}`;
+    $('#hudEnergyBox').setAttribute('aria-label', `Energia ${s.energy} de 100`); $('#hudHeatBox').setAttribute('aria-label', `Procurado ${s.heat} de 100`);
+    $('#hudVicio').style.width = s.vicio + '%'; $('#hudVicioTxt').textContent = `Vício ${s.vicio}`; $('#hudVicioBox').setAttribute('aria-label', `Vício ${s.vicio} de 100`); $('#hudVicioBox').classList.toggle('alert', s.vicio >= 70);
     $('#hudHeatBox').classList.toggle('alert', s.heat >= 60);
     $('#hudHealth').style.width = s.health + '%'; $('#hudHealthTxt').textContent = s.hospital ? 'Internado' : `Saúde ${s.health}`;
     $('#hudHealthBox').setAttribute('aria-label', `Saúde ${s.health} de 100`); $('#hudHealthBox').classList.toggle('alert', s.health < 25);
@@ -306,12 +307,12 @@
     return SB.activeEvents(state).map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > state.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('');
   }
   /** Faixa do local atual: cena do bairro, placa de rua e condições. */
-  function localeStrip(tall) {
+  function localeStrip(tall, flyers = true) {
     const s = state, d = D(), ds = s.dstate[d.id], l = SB.leader(s, d.id);
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
     return `<section class="locale ${tall ? 'tall' : ''}" aria-label="Onde você está">${scene(d.id)}
-      <div class="localeTop">${plate(d.name, s.city)}${evs.map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
-      <div class="localeBottom"><span>${SB.controlled(s, d.id) ? 'Você lidera' : esc(F(l.id).short) + ' ' + l.value + ' × você ' + s.influence[d.id]}</span><span>Economia ${Math.round(ds.econ * 100)}%</span><span class="${ds.vigil >= 40 ? 'hot' : ''}">Vigia local ${ds.vigil}</span></div></section>`;
+      <div class="localeTop">${plate(d.name, s.city)}${(flyers ? evs : []).map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
+      <div class="localeBottom"><span>${SB.controlled(s, d.id) ? 'Você lidera' : esc(F(l.id).short) + ' ' + l.value + ' × você ' + s.influence[d.id]}</span><span class="fix">Econ. ${Math.round(ds.econ * 100)}%</span><span class="fix ${ds.vigil >= 40 ? 'hot' : ''}">Vigia ${ds.vigil}</span></div></section>`;
   }
   const statName = id => SB.STATS.find(x => x.id === id).name;
   const chanceClass = p => p < 55 ? 'danger' : p < 75 ? 'risky' : '';
@@ -349,17 +350,6 @@
     comercio: 'no Galpão, compre onde está barato, venda onde está caro e guarde o que o comprador de fora quer'
   };
   /** Rumo: onde você está, o próximo título e a medalha mais próxima, com o caminho. */
-  function rumoCard() {
-    const s = state, sc = SB.seasonScore(s);
-    let best = null;
-    for (const c of sc.cats) { const cat = SB.CATEGORIES.find(x => x.id === c.id), next = cat.tiers[c.medal]; if (!next) continue; const prev = c.medal ? cat.tiers[c.medal - 1] : 0, gap = (next - c.value) / (next - prev); if (!best || gap < best.gap) best = { c, cat, next, gap }; }
-    const span = sc.next ? pct((sc.score - (SB.TITLES.find(t => t[1] === sc.title) || [0])[0]) / (sc.next.at - (SB.TITLES.find(t => t[1] === sc.title) || [0])[0]) * 100) : 100;
-    return `<section class="rumo" aria-label="Seu rumo na temporada"><div class="rumoHead"><span>Seu rumo</span><b>${num(sc.score)} pts</b></div>
-      <div class="rumoTitles"><strong>${esc(sc.title)}</strong>${sc.next ? `<span>→ ${esc(sc.next.title)} com ${num(sc.next.at)}</span>` : '<span>título máximo</span>'}</div>
-      <div class="meter"><div style="width:${span}%"></div></div>
-      ${best ? `<p><b>Medalha mais próxima:</b> ${best.c.name} ${SB.MEDALS[best.c.medal + 1]} — faltam ${best.cat.unit === 'money' ? fmt(best.next - best.c.value) : num(best.next - best.c.value)}. Para chegar: ${CAT_TIPS[best.c.id]}.</p>` : '<p>Todas as medalhas de ouro conquistadas.</p>'}
-      ${s.day >= 25 && s.day < MAXDAY ? `<p class="warn">Reta final: faltam ${MAXDAY - s.day} dia(s).</p>` : ''}</section>`;
-  }
   let helpPage = 0;
   function helpPages() {
     const c = state ? SB.cityOf(state.city) : SB.CITIES[0];
@@ -370,10 +360,10 @@
       ['Seu dia', `<p>Tudo gasta <strong>energia</strong> (barra verde). Um dia típico:</p>
         <ol><li><strong>Serviços</strong> rendem dinheiro e respeito. Veja a chance antes.</li><li><strong>Treino</strong> melhora atributos e libera serviços maiores.</li><li><strong>Contatos</strong> nos bairros viram influência e tributo.</li><li>O ciclo fica nas abas: <strong>Roubar</strong>, <strong>Noite</strong> (recarrega energia) e <strong>Feira</strong> (arma abre roubo maior). Na <strong>Cidade</strong> ficam o bando, o banco e o resto, que vão se abrindo com o respeito: Galpão (comprar barato, vender caro, produzir e despachar), a noite (energia extra, com ressaca), os Duelos de rua e o Hospital.</li><li>Sem energia? <strong>Avance o dia</strong>: +70 de energia, a renda entra e os grupos se movem.</li></ol>
         <p>Respeito libera serviços, a gangue (30) e mais. Dinheiro compra treino, negócios e equipe.</p>`],
-      ['Os riscos', `<p><strong>Vigilância</strong> (barra vermelha) sobe a cada serviço e derruba suas chances. Ela cai sozinha ao virar o dia, ou com “Ficar na sua”.</p>
+      ['Os riscos', `<p><strong>Procurado</strong> (barra vermelha) sobe a cada serviço e derruba suas chances. Ele cai sozinha ao virar o dia, ou com “Ficar na sua”.</p>
         <p><strong>Falhar</strong> tira parte do dinheiro <em>em mãos</em> e pode dar <strong>detenção</strong> (dias perdidos, ou fiança). O banco protege o dinheiro por uma taxa.</p>
         <p><strong>Assaltos do bando</strong> (Cidade → Bando): planeje, estude o terreno nos dias seguintes e execute dentro do prazo. Do arrastão no shopping ao cofre central; os maiores pedem bando grande e arma pesada.</p>
-        <p><strong>Vício</strong>: cada saída na noite sobe o vício; alto, a noite recarrega menos e pode dar overdose. O Hospital limpa.</p>
+        <p><strong>Vício</strong> (barra roxa): cada saída na noite sobe o vício; alto, a noite recarrega menos e pode dar overdose. O Hospital limpa.</p>
         <p><strong>Colete</strong>: roubo armado que dá errado vira trocação com a segurança. O colete decide se você sai ferido ou vai para a UPA. Ser preso custa respeito.</p>
         <p><strong>Saúde</strong> (barra azul) cai em confrontos, duelos e serviços de força que dão errado. Abaixo de 60 suas chances caem; a zero, você é internado. Cure no Hospital ou esperando.</p>
         <p>Toque no seu retrato, no topo, para abrir o <strong>Perfil</strong> e escolher outra foto.</p>
@@ -404,49 +394,64 @@
     const lockedByGun = SB.MISSIONS.find(m => (SB.missionLock(s, m) || '').startsWith('Requer arma'));
     if (s.health < 40) return { tag: 'Saúde baixa', title: 'Passe no Hospital', text: `Com ${s.health} de saúde suas chances caem em tudo.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
     if (s.vicio >= 70) return { tag: 'Vício alto', title: 'Hora de desintoxicar', text: `Vício ${s.vicio}/100: a noite recarrega menos e há ${SB.overdoseChance(s)}% de chance de overdose a cada saída.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
-    if (s.heat >= 65 && s.energy >= 18) return { tag: 'Vigilância alta', title: 'Fique na sua', text: 'A polícia está de olho: cada roubo agora tem mais chance de dar cadeia.', btn: button('Reduzir exposição · 18 energia', 'lay-low', '', false, 'primary') };
+    if (s.heat >= 65 && s.energy >= 18) return { tag: 'Procurado alto', title: 'Fique na sua', text: 'A polícia está de olho: cada roubo agora tem mais chance de dar cadeia.', btn: button('Reduzir exposição · 18 energia', 'lay-low', '', false, 'primary') };
     if (upgrade && (lockedByGun || !s.gear.arma)) return { tag: 'Dinheiro no bolso', title: `Dá para comprar: ${upgrade.name}`, text: lockedByGun ? `Arma melhor abre roubo maior, como “${lockedByGun.name}”.` : 'Arma é o que abre os roubos maiores.', btn: button('Ir à Feira do Rolo', 'switch', 'data-target="feira"', false, 'primary') };
     if (lowEnergy && canNight) { const n = SB.NIGHT.filter(x => (!x.unlock || s.respect >= x.unlock) && SB.nightCost(s, x) <= s.cash).pop(); if (n) return { tag: 'Sem energia', title: 'Hora da noitada', text: `Recarregue e continue hoje. Saídas: ${s.today.night}/${SB.NIGHT_LIMIT}.`, btn: button('Ir para a noite', 'switch', 'data-target="noite"', false, 'primary') }; }
-    if (lowEnergy) return { tag: 'Sem energia', title: s.day >= MAXDAY ? 'Fim da temporada' : 'Durma e vire o dia', text: s.day >= MAXDAY ? 'Último dia: encerre a temporada.' : '+70 de energia, a vigilância cai e a renda entra.', btn: nextDayButton('') };
+    if (lowEnergy) return { tag: 'Sem energia', title: s.day >= MAXDAY ? 'Fim da temporada' : 'Durma e vire o dia', text: s.day >= MAXDAY ? 'Último dia: encerre a temporada.' : '+70 de energia, o Procurado cai e a renda entra.', btn: nextDayButton('') };
     if (best) { const p = SB.missionChance(s, best); return { tag: 'Roubo da vez', title: best.name, text: `${best.cost} energia · ${fmt(best.low * SB.missionRewardMult(s, best))}–${fmt(best.high * SB.missionRewardMult(s, best))} · ${p}% de chance`, btn: button('Executar', 'mission', `data-id="${best.id}"`, false, 'primary'), icon: best.stat }; }
-    return { tag: 'Nada com boa chance', title: 'Treine ou mude de ares', text: 'Treine um atributo, baixe a vigilância ou vá a outro bairro.', btn: button('Ver roubos e treino', 'switch', 'data-target="acoes"', false, 'primary') };
+    return { tag: 'Nada com boa chance', title: 'Treine ou mude de ares', text: 'Treine um atributo, baixe o Procurado ou vá a outro bairro.', btn: button('Ver roubos e treino', 'switch', 'data-target="acoes"', false, 'primary') };
   }
   function panel() {
-    const s = state, ph = SB.phase(s), pi = SB.phaseIndex(s), nextPh = SB.PHASES[pi + 1], mv = nextMove();
+    const s = state, mv = nextMove(), guide = guideCard();
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
     const w = SB.item(s.gear.arma);
-    const guide = guideCard();
-    return jailNotice() + localeStrip(false) + `
-      <div class="dayBar"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}<br>${esc(ph.name)}${nextPh ? ` · próxima patente com ${nextPh.at} de respeito` : ''}</span><div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></div>${nextDayButton('')}</div>
-      ${resultCard()}${guide}${careerCard()}
+    const free = SB.MISSIONS.filter(x => !SB.missionLock(s, x)).length;
+    const step = (v, n, name, info, art) => `<button type="button" class="loopStep" data-view="${v}"><span class="loopArt" aria-hidden="true">${window.SBArt.place(art)}</span><i>${n}</i><b>${name}</b><small>${info}</small></button>`;
+    return jailNotice() + localeStrip(false, false) + `
+      <section class="dayBar dayCard"><div class="dayTop"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span></div>${nextDayButton('')}</div>
+        <div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></section>
+      ${resultCard()}
+      ${evs.length ? `<section class="poster dayNews"><div class="posterHead">HOJE NA CIDADE</div><ul class="eventList">${evs.map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
+      ${guide}${s.career ? '' : careerCard()}
       ${mv && !guide ? `<section class="boardLead job nextMove"><div class="jobIcon">${statIcon(mv.icon || 'astucia')}</div><div class="jobMain"><div class="eyebrow">E agora? · ${esc(mv.tag)}</div><h3>${esc(mv.title)}</h3><p class="jobMeta">${esc(mv.text)}</p></div><div class="jobAct">${mv.btn}</div></section>` : ''}
-      <div class="loop" aria-label="Seu ciclo">
-        <button type="button" class="loopStep" data-view="acoes"><i>1</i><b>Roubar</b><small>${SB.MISSIONS.filter(x => !SB.missionLock(s, x)).length} disponíveis</small></button>
-        <button type="button" class="loopStep" data-view="noite"><i>2</i><b>Noite</b><small>saídas ${s.today.night}/${SB.NIGHT_LIMIT}</small></button>
-        <button type="button" class="loopStep" data-view="feira"><i>3</i><b>Feira</b><small>${w ? esc(w.name) : 'sem arma'}</small></button>
-        <button type="button" class="loopStep" data-view="hub"><i>4</i><b>Cidade</b><small>${s.gangName ? 'bando · ânimo ' + s.crewMorale : 'bando, banco, bairros'}</small></button>
-      </div>
-      ${s.career || s.tutorial.done ? newsCard() + goalSummary() : ''}
-      ${evs.length ? `<section class="poster"><div class="posterHead">NA CIDADE HOJE</div><ul class="eventList">${evs.map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
-      ${rumoCard()}
+      ${stencil('Seu ciclo', 'roubar → noite → feira → dormir')}
+      <nav class="loop" aria-label="Seu ciclo">
+        ${step('acoes', 1, 'Roubar', `${free} disponíveis`, 'assaltos')}
+        ${step('noite', 2, 'Noite', `saídas ${s.today.night}/${SB.NIGHT_LIMIT}`, 'noite')}
+        ${step('feira', 3, 'Feira', w ? esc(w.name) : 'sem arma', 'feira')}
+        ${step('hub', 4, 'Cidade', s.gangName ? 'bando · ânimo ' + s.crewMorale : 'bando, banco, bairros', 'cidade')}
+      </nav>
+      ${s.career || s.tutorial.done ? newsCard() : ''}
+      ${fichaCard()}
       ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(3)}</section>`;
+  }
+  /** Ficha da temporada: patente, classe, meta e título num cartão só. */
+  function fichaCard() {
+    const s = state, sc = SB.seasonScore(s), pi = SB.phaseIndex(s), ph = SB.PHASES[pi], nx = SB.PHASES[pi + 1];
+    const row = (label, main, side, fill, extra = '') => `<div class="fichaRow"><span class="fichaLabel">${label}</span><div class="fichaLine"><b>${main}</b><em>${side}</em></div>${fill === null ? '' : `<div class="meter"><div style="width:${pct(fill)}%"></div></div>`}${extra}</div>`;
+    let o = row('Patente', esc(ph.name), nx ? `${num(s.respect)}/${nx.at} respeito → ${esc(nx.name)}` : 'patente máxima', nx ? (s.respect - ph.at) / (nx.at - ph.at) * 100 : 100);
+    if (s.career) {
+      const c = SB.CAREERS.find(x => x.id === s.career), lvl = SB.careerLevel(s), next = SB.CAREER_XP[lvl];
+      o += row('Classe', `${c.name} · nível ${lvl}/3`, next ? `${s.careerXP}/${next} XP` : 'completa', next ? s.careerXP / next * 100 : 100,
+        `<details class="fichaMore"><summary>Habilidades da classe</summary><p class="mini">${esc(c.desc)} ${esc(c.xpDesc)}</p><ul class="perkList">${c.perks.map((p, i) => `<li class="${i < lvl ? 'on' : ''}">${i < lvl ? '✓' : '○'} Nível ${i + 1} (${SB.CAREER_XP[i]} XP): ${esc(p)}</li>`).join('')}</ul></details>`);
+    }
+    if (s.goal) {
+      const g = SB.GOALS.find(x => x.id === s.goal), p = SB.goalProgress(s, s.goal);
+      o += row('Meta', esc(g.name), s.goalDone ? 'cumprida ✓' : p.unit === 'money' ? fmt(p.value) + ' / ' + fmt(p.max) : Math.round(p.value) + '%', s.goalDone ? 100 : p.value / p.max * 100);
+    } else if (s.day <= 5) o += row('Meta', 'Ainda sem meta', 'escolha até o dia 5', null, `<div class="fichaBtn">${button('Escolher meta', 'switch', 'data-target="temporada"', false, 'small ghost')}</div>`);
+    let best = null;
+    for (const c of sc.cats) { const cat = SB.CATEGORIES.find(x => x.id === c.id), next = cat.tiers[c.medal]; if (!next) continue; const prev = c.medal ? cat.tiers[c.medal - 1] : 0, gap = (next - c.value) / (next - prev); if (!best || gap < best.gap) best = { c, cat, next, gap }; }
+    const base = (SB.TITLES.find(t => t[1] === sc.title) || [0])[0];
+    o += row('Título', esc(sc.title), sc.next ? `→ ${esc(sc.next.title)} com ${num(sc.next.at)} pts` : 'título máximo', sc.next ? (sc.score - base) / (sc.next.at - base) * 100 : 100,
+      best ? `<p class="fichaTip"><b>Medalha mais perto:</b> ${best.c.name} ${SB.MEDALS[best.c.medal + 1]}, faltam ${best.cat.unit === 'money' ? fmt(best.next - best.c.value) : num(best.next - best.c.value)}. ${CAT_TIPS[best.c.id].charAt(0).toUpperCase() + CAT_TIPS[best.c.id].slice(1)}.</p>` : '<p class="fichaTip">Todas as medalhas de ouro conquistadas.</p>');
+    return `<section class="rumo ficha" aria-label="Sua temporada"><div class="rumoHead"><span>Sua temporada</span><b>${num(sc.score)} pts</b></div>${o}
+      ${s.day >= 25 && s.day < MAXDAY ? `<p class="warn">Reta final: faltam ${MAXDAY - s.day} dia(s).</p>` : ''}</section>`;
   }
   function journal(max) { return `<ul class="timeline">${state.log.slice(0, max).map(i => `<li><time>Dia ${num(i.day)}</time>${esc(i.msg)}</li>`).join('')}</ul>`; }
 
   function careerCard() {
-    const s = state;
-    if (s.career) {
-      const c = SB.CAREERS.find(x => x.id === s.career), lvl = SB.careerLevel(s), next = SB.CAREER_XP[lvl];
-      return `<details class="compactNote" style="display:block"><summary style="cursor:pointer"><strong>${c.name} · nível ${lvl}/3</strong> <span>${next ? `${s.careerXP}/${next} XP` : 'Especialização completa'}</span></summary>
-        <p class="mini" style="margin:6px 0 0">${esc(c.desc)} ${esc(c.xpDesc)}</p><ul class="perkList">${c.perks.map((p, i) => `<li class="${i < lvl ? 'on' : ''}">${i < lvl ? '✓' : '○'} Nível ${i + 1} (${SB.CAREER_XP[i]} XP): ${esc(p)}</li>`).join('')}</ul></details>`;
-    }
     return `<section class="card choiceCard"><div class="eyebrow">Decisão permanente nesta temporada</div><h2>Escolha sua especialização</h2><p>Cada caminho tem vantagens, desvantagens e três habilidades desbloqueáveis com experiência.</p>
       <div class="choiceGrid">${SB.CAREERS.map(c => `<article><strong>${c.name}</strong><p>${esc(c.desc)}<br><em class="mini">${esc(c.xpDesc)}</em></p>${button('Escolher ' + c.name, 'career', `data-id="${c.id}"`, false, 'small primary block')}</article>`).join('')}</div></section>`;
-  }
-  function goalSummary() {
-    if (!state.goal) return state.day <= 5 ? `<div class="compactNote"><strong>Meta da temporada</strong><span>Escolha até o dia 5 em Temporada.</span>${button('Escolher', 'switch', 'data-target="temporada"', false, 'small ghost')}</div>` : '';
-    const g = SB.GOALS.find(x => x.id === state.goal), p = SB.goalProgress(state, state.goal);
-    return `<div class="compactNote"><strong>Meta: ${g.name}</strong><span>${state.goalDone ? 'Cumprida!' : p.unit === 'money' ? fmt(p.value) + ' / ' + fmt(p.max) : Math.round(p.value) + '% do objetivo'}</span></div>`;
   }
   function newsCard() {
     const n = SB.currentNews(state); if (!n) return '';
@@ -463,7 +468,7 @@
       <div class="filterbar" role="group" aria-label="Filtrar missões">${[['disponiveis', 'Disponíveis'], ['bairro', 'Deste bairro'], ['todas', 'Todas']].map(([id, l]) => `<button type="button" class="btn ghost ${missionFilter === id ? 'on' : ''}" data-action="filter" data-id="${id}" aria-pressed="${missionFilter === id}">${l}</button>`).join('')}</div>
       <div class="jobs">${list.length ? list.map(missionCard).join('') : '<div class="empty">Nenhum roubo neste filtro. Ganhe respeito, compre arma na Feira ou veja “Todas”.</div>'}</div>
       ${safeJobs()}
-      <section class="card shopRow" style="margin-top:8px"><div><h3>Despachante</h3><p class="mini">Limpa a ficha na delegacia: -35 de vigilância na hora, uma vez por dia.</p></div><div class="shopAct"><strong>${fmt(SB.cleanCost(s))}</strong>${button('Limpar a ficha', 'clean-record', '', s.heat < 20 || s.today.despachante || s.cash < SB.cleanCost(s) || s.jail > 0, 'small primary')}</div></section>
+      <section class="card shopRow" style="margin-top:8px"><div><h3>Despachante</h3><p class="mini">Limpa a ficha na delegacia: -35 de Procurado na hora, uma vez por dia.</p></div><div class="shopAct"><strong>${fmt(SB.cleanCost(s))}</strong>${button('Limpar a ficha', 'clean-record', '', s.heat < 20 || s.today.despachante || s.cash < SB.cleanCost(s) || s.jail > 0, 'small primary')}</div></section>
       ${stencil('Treino', `hoje: ${s.today.training}/3`)}
       <div class="jobs">${SB.STATS.map(st => { const lvl = s.stats[st.id], cost = SB.trainCost(s, st.id); return `<section class="job train"><div class="jobIcon">${statIcon(st.id)}<small>${num(lvl)}</small></div><div class="jobMain"><h3>${st.name}</h3><p class="jobDesc">${esc(st.desc)}</p><p class="jobMeta"><b>+${lvl < 25 ? 2 : 1}</b> · 22 energia · ${fmt(cost)}</p></div><div class="jobAct">${button('Treinar', 'train', `data-id="${st.id}"`, s.jail > 0 || s.energy < 22 || s.cash < cost || s.today.training >= 3, '')}</div></section>`; }).join('')}</div>`;
   }
@@ -472,7 +477,7 @@
     const hard = lock && !['Energia insuficiente.', 'Você está detido.', 'Você está internado.'].includes(lock);
     return `<section class="job ${hard ? 'locked' : ''}"><div class="jobIcon" title="${statName(m.stat)}">${statIcon(m.stat)}<small>${statName(m.stat)}</small></div>
       <div class="jobMain"><h3>${esc(m.name)}${m.district ? ` <span class="pill">só aqui</span>` : ''}</h3><p class="jobDesc">${esc(m.desc)}</p>
-      <p class="jobMeta"><b>${fmt(m.low * mult)}–${fmt(m.high * mult)}</b> · ${m.cost} energia · +${m.heat} vigilância · +${SB.respectGain(s, m)} respeito</p>
+      <p class="jobMeta"><b>${fmt(m.low * mult)}–${fmt(m.high * mult)}</b> · ${m.cost} energia · +${m.heat} Procurado · +${SB.respectGain(s, m)} respeito</p>
       <p class="jobRisk">Se falhar: -${Math.round(SB.failLoss(s, m) * 100)}% do caixa em mãos, detenção ${SB.arrestChance(s, m)}%</p>
       ${reps ? `<div class="lockline">Repetida ${reps}× hoje: chance e recompensa menores.</div>` : ''}${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div>
       <div class="jobAct"><span class="seal ${chanceClass(p)}">${p}%</span>${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary')}</div></section>`;
@@ -480,8 +485,8 @@
   function safeJobs() {
     const s = state;
     return `<div class="section"><h2>Outras escolhas</h2><small>Menos risco, menor retorno</small></div><div class="grid two">
-      <section class="card"><h3>Bico de ocasião</h3><p>Trabalho simples e garantido, sem reputação.</p><div class="space"><span class="mini">28 energia · ${fmt(110 * SB.eventMod(s, 'gigMult'))}–${fmt(170 * SB.eventMod(s, 'gigMult'))} · -4 vigilância</span>${button('Fazer bico', 'gig', '', s.energy < 28 || s.jail > 0, 'small')}</div></section>
-      <section class="card"><h3>Ficar na sua</h3><p>Evitar movimento para baixar a atenção sobre você e sobre o bairro.</p><div class="space"><span class="mini">18 energia · -20 vigilância · -10 local</span>${button('Reduzir exposição', 'lay-low', '', s.energy < 18 || s.jail > 0 || s.heat === 0, 'small')}</div></section></div>
+      <section class="card"><h3>Bico de ocasião</h3><p>Trabalho simples e garantido, sem reputação.</p><div class="space"><span class="mini">28 energia · ${fmt(110 * SB.eventMod(s, 'gigMult'))}–${fmt(170 * SB.eventMod(s, 'gigMult'))} · -4 de Procurado</span>${button('Fazer bico', 'gig', '', s.energy < 28 || s.jail > 0, 'small')}</div></section>
+      <section class="card"><h3>Ficar na sua</h3><p>Evitar movimento para baixar a atenção sobre você e sobre o bairro.</p><div class="space"><span class="mini">18 energia · -20 de Procurado · -10 local</span>${button('Reduzir exposição', 'lay-low', '', s.energy < 18 || s.jail > 0 || s.heat === 0, 'small')}</div></section></div>
       <div class="notice" style="margin-top:9px">Falhas tiram parte do dinheiro <strong>em mãos</strong>. Depositar protege, mas custa ${SB.hasPerk(s, 'empreendedor', 1) ? '1%' : '3%'} de taxa.</div>`;
   }
 
@@ -490,7 +495,7 @@
     const agreed = SB.agreement(s, l.id), cc = SB.contactCost(s), used = s.today.contacts[d.id] || 0;
     const disputeBlock = s.jail > 0 || s.cash < 320 || s.energy < 33 || s.influence[d.id] < 20 || agreed || lr.lastActionDay === s.day;
     const special = SB.MISSIONS.find(m => m.district === d.id);
-    return heading('Bairros', 'Cada bairro tem economia, vigilância e facções próprias, que mudam a cada dia.') + jailNotice() + resultCard() + localeStrip(true) + `
+    return heading('Bairros', 'Cada bairro tem economia, vigia local e facções próprias, que mudam a cada dia.') + jailNotice() + resultCard() + localeStrip(true) + `
       <section class="card"><div class="space factionHeader"><div><h2>Influência em ${esc(d.name)}</h2><p>Quem lidera: <strong>${SB.controlled(s, d.id) ? 'você' : esc(lf.name)}</strong>. ${esc(SB.factionStatus(s, l.id))}. Liderar exige 60 de influência e 10 acima da maior facção.</p></div>${SB.controlled(s, d.id) ? '<span class="pill">Você lidera</span>' : ''}</div>
         <div class="dualMeters"><div><div class="meterlabel"><span>Sua influência</span><strong>${s.influence[d.id]}</strong></div><div class="meter green"><div style="width:${s.influence[d.id]}%"></div></div></div>
         <div><div class="meterlabel"><span>${esc(lf.short)} (maior facção)</span><strong>${l.value}</strong></div><div class="meter red"><div style="width:${l.value}%"></div></div></div></div>
@@ -498,8 +503,8 @@
         <div class="btnbar" style="margin-top:12px">${button(`Criar contatos · ${fmt(cc)}`, 'contact', '', s.jail > 0 || s.cash < cc || s.energy < 22 || used >= 2, 'small primary')}${button(`Disputar área · R$ 320 (${SB.disputeOdds(s, d.id)}%)`, 'dispute', '', disputeBlock, 'small')}</div>
         <p class="mini" style="margin-top:8px">Contatos: 22 energia, até 2 por bairro ao dia (o segundo rende metade). Disputa: 33 energia, exige 20 de influência; uma ação por facção ao dia; bloqueada por acordos.${agreed ? ` Você tem acordo com ${esc(lf.short)}.` : ''}</p></section>
       <section class="brandpanel" style="margin-top:13px"><p>${esc(d.desc)}</p>
-        <div class="kv"><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigilância local</span><strong>${ds.vigil}</strong></div><div><span>Recompensas</span><strong>${signed(d.bonus)}%</strong></div><div><span>Risco base</span><strong>${signed(d.risk)}</strong></div><div><span>Tributo se liderar</span><strong>${fmt(SB.tribute(s, d.id))}/dia</strong></div><div><span>Oportunidade</span><strong>${special ? esc(special.name) : '—'}</strong></div></div>
-        <p class="mini" style="margin-top:9px">Vantagem de liderar: ${esc(d.advantage)} Cada bairro liderado também gera +2 de vigilância por dia e atrai as facções.</p></section>
+        <div class="kv"><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigia local</span><strong>${ds.vigil}</strong></div><div><span>Recompensas</span><strong>${signed(d.bonus)}%</strong></div><div><span>Risco base</span><strong>${signed(d.risk)}</strong></div><div><span>Tributo se liderar</span><strong>${fmt(SB.tribute(s, d.id))}/dia</strong></div><div><span>Oportunidade</span><strong>${special ? esc(special.name) : '—'}</strong></div></div>
+        <p class="mini" style="margin-top:9px">Vantagem de liderar: ${esc(d.advantage)} Cada bairro liderado também gera +2 de Procurado por dia e atrai as facções.</p></section>
       <div class="section"><h2>Mapa da cidade</h2><small>Viagem: ${fmt(SB.travelCost(s).cash)}${SB.travelCost(s).energy ? ' e ' + SB.travelCost(s).energy + ' energia' : ''}</small></div>
       <div class="grid two">${SB.DISTRICTS.map(x => districtCard(x)).join('')}</div>
       <div class="section"><h2>Poder na cidade</h2><small>Simulado: você contra as facções</small></div>
@@ -510,7 +515,7 @@
     const s = state, l = SB.leader(s, x.id), here = x.id === s.district, ds = s.dstate[x.id];
     const evs = SB.activeEvents(s).filter(e => e.district === x.id);
     return `<section class="card district ${here ? 'selected' : ''}"><div class="miniScene">${scene(x.id)}${plate(x.name)}${here ? '<span class="pill here">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill here">Você lidera</span>' : ''}</div>
-      <div class="kv"><div><span>Líder</span><strong>${SB.controlled(s, x.id) ? 'Você' : esc(F(l.id).short) + ' ' + l.value}</strong></div><div><span>Sua influência</span><strong>${s.influence[x.id]}</strong></div><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigilância</span><strong>${ds.vigil}</strong></div></div>
+      <div class="kv"><div><span>Líder</span><strong>${SB.controlled(s, x.id) ? 'Você' : esc(F(l.id).short) + ' ' + l.value}</strong></div><div><span>Sua influência</span><strong>${s.influence[x.id]}</strong></div><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigia local</span><strong>${ds.vigil}</strong></div></div>
       ${evs.length ? `<div class="chips">${evs.map(e => `<span class="chip warn">${esc(SB.eventTitle(e))}</span>`).join('')}</div>` : ''}
       <div class="statusbar"><span class="mini">${esc(x.advantage)}</span>${here ? '' : button('Viajar', 'travel', `data-id="${x.id}"`, s.cash < SB.travelCost(s).cash || s.energy < SB.travelCost(s).energy || s.jail > 0, 'small')}</div></section>`;
   }
@@ -548,7 +553,7 @@
         <div class="statusbar"><span>Recrutar (1 por dia)</span><strong>${fmt(rc)} · 18 energia</strong></div>
         <div class="roleBtns">${SB.ROLES.map(r => button(r.name, 'recruit', `data-id="${r.id}"`, s.crew.length >= 8 || s.crewLastRecruit === s.day || s.cash < rc || s.energy < 18 || s.jail > 0, 'small')).join('')}</div>
         <div class="statusbar"><span>Reunir equipe (+18 ânimo)</span><strong>${fmt(180)} · 12 energia</strong></div>${button('Reunir equipe', 'rally', '', s.crewLastRally === s.day || s.crewMorale >= 100 || s.cash < 180 || s.energy < 12 || s.jail > 0, 'block small')}</section>
-      <section class="card"><h2>Operações do grupo</h2><p>Uma por dia, no bairro atual. Rende conforme a economia local e atrai vigilância. Chance depende de sede, integrantes, funções, ânimo e vigilância.</p>
+      <section class="card"><h2>Operações do grupo</h2><p>Uma por dia, no bairro atual. Rende conforme a economia local e aumenta o Procurado. Chance depende de sede, integrantes, funções, ânimo e Procurado.</p>
         <div class="statusbar"><span>Operação coletiva · 35 energia</span><strong>${odds}% de sucesso</strong></div>${button(s.today.op ? 'Já realizada hoje' : 'Organizar operação', 'gang-op', '', s.jail > 0 || s.energy < 35 || s.today.op || s.crew.length < 2, 'primary block small')}
         <div class="statusbar"><span>Melhorar a sede (nível ${s.gangLevel + 1})</span><strong>${s.gangLevel >= 8 ? 'Máximo' : fmt(up)}</strong></div>${button('Melhorar sede', 'upgrade', '', s.cash < up || s.gangLevel >= 8 || s.jail > 0, 'block small')}</section></div>`;
     } else {
@@ -652,7 +657,7 @@
     </div>`;
   }
   function itemEffect(it) {
-    if (it.slot === 'arma') return `Poder ${it.power}: confrontos +${it.power}, operações +${Math.round(it.power * .6)}, serviços de Força +${Math.round(it.power * .5)}${it.power >= 7 ? ' · arma de fogo: +1 dia se for detido' : ''}${it.heavy ? ' · pesada: +3 de vigilância por dia' : ''}`;
+    if (it.slot === 'arma') return `Poder ${it.power}: confrontos +${it.power}, operações +${Math.round(it.power * .6)}, serviços de Força +${Math.round(it.power * .5)}${it.power >= 7 ? ' · arma de fogo: +1 dia se for detido' : ''}${it.heavy ? ' · pesada: +3 de Procurado por dia' : ''}`;
     if (it.slot === 'protecao') return `Defesa ${it.def}: chance de detenção -${it.def}`;
     return `Carga +${it.cargo} · fuga ${it.escape} (detenção e blitz)${it.freeRide ? ' · viagem sem gastar energia' : ''}`;
   }
@@ -682,7 +687,7 @@
       ${stencil('Produção própria', `batida hoje: ${SB.raidChance(s)}% por ponto`)}<div class="grid">${SB.LABS.map(l => { const lvl = s.labs[l.id], c = SB.labCost(s, l), locked = s.respect < l.unlock, down = s.labDown[l.id] >= s.day, g = SB.good(l.good);
         return `<section class="card shopRow ${locked ? 'locked' : ''}"><div><h3>${esc(l.name)} <span class="pill">Nível ${lvl}/3</span></h3><p class="mini">${lvl ? `Rende ${SB.labOutput(s, l)} × ${esc(g.name)} por dia · custo ${fmt(lvl * 30)}/dia · +40 de espaço` : `Produz ${l.out} × ${esc(g.name)} por dia e dá +40 de espaço`}${down ? ` · <span class="negative">fechado até o dia ${s.labDown[l.id]}</span>` : ''}</p>${locked ? `<div class="lockline">Requer ${l.unlock} de respeito.</div>` : ''}</div>
           <div class="shopAct">${lvl >= 3 ? '<strong>Máximo</strong>' : `<strong>${fmt(c)}</strong>${button(lvl ? 'Ampliar' : 'Montar', 'build-lab', `data-id="${l.id}"`, locked || s.cash < c || s.jail > 0, 'small primary')}`}</div></section>`; }).join('')}</div>
-      <p class="mini" style="margin-top:6px">Com vigilância acima de 40, a polícia pode estourar um ponto: perde o estoque daquela mercadoria e fica 2 dias fechado.</p>`;
+      <p class="mini" style="margin-top:6px">Com Procurado acima de 40, a polícia pode estourar um ponto: perde o estoque daquela mercadoria e fica 2 dias fechado.</p>`;
   }
   function noite() {
     const s = state;
@@ -691,7 +696,7 @@
         <div class="meterlabel" style="margin-top:10px"><span>Vício</span><strong>${s.vicio}/100</strong></div><div class="meter red"><div style="width:${s.vicio}%"></div></div>
         <p class="mini" style="margin-top:6px">Cada saída sobe o vício; quanto maior, menos a noite recarrega. ${s.vicio >= 70 ? `<span class="negative">Acima de 70: ${SB.overdoseChance(s)}% de overdose por saída.</span>` : 'A partir de 70 há risco de overdose.'} Cai 3 por dia; o Hospital limpa.</p></section>
       <div class="grid" style="margin-top:10px">${SB.NIGHT.map(n => { const c = SB.nightCost(s, n);
-        return `<section class="card shopRow"><div><h3>${esc(n.name)}${SB.ownTermas(s, n) ? ' <span class="pill">Sua casa</span>' : n.unlock && s.respect < n.unlock ? ` <span class="pill">Requer ${n.unlock} de respeito</span>` : ''}</h3><p class="mini">${esc(n.desc)}</p><p class="mini"><strong>${SB.ownTermas(s, n) ? 'energia cheia, na sua casa' : '+' + SB.nightEnergy(s, n) + ' de energia'}</strong>${SB.ownTermas(s, n) ? ' · sem vício' : ` · vício +${Math.ceil(n.vicio * (s.career === 'barao' ? .5 : 1))}`}${n.raid && !SB.hasPerk(s, 'barao', 2) ? ` · ${Math.round(n.raid * SB.eventMod(s, 'nightRiskMult'))}% de batida` : ''} · ressaca -${n.ressaca}${n.morale ? ` · equipe +${n.morale} de ânimo` : ''}${n.heat ? ` · +${n.heat} de vigilância` : ''}${n.contact ? ` · ${n.contact}% de firmar contatos` : ''}${n.brawl ? (SB.nightSafe(s, n) ? ' · sem risco: a casa é sua' : ` · <span class="negative">${n.brawl}% de briga (fere)</span>`) : ''}${n.boss ? ' · sem risco · relação +5 com quem manda no bairro' : ''}</p></div>
+        return `<section class="card shopRow"><div><h3>${esc(n.name)}${SB.ownTermas(s, n) ? ' <span class="pill">Sua casa</span>' : n.unlock && s.respect < n.unlock ? ` <span class="pill">Requer ${n.unlock} de respeito</span>` : ''}</h3><p class="mini">${esc(n.desc)}</p><p class="mini"><strong>${SB.ownTermas(s, n) ? 'energia cheia, na sua casa' : '+' + SB.nightEnergy(s, n) + ' de energia'}</strong>${SB.ownTermas(s, n) ? ' · sem vício' : ` · vício +${Math.ceil(n.vicio * (s.career === 'barao' ? .5 : 1))}`}${n.raid && !SB.hasPerk(s, 'barao', 2) ? ` · ${Math.round(n.raid * SB.eventMod(s, 'nightRiskMult'))}% de batida` : ''} · ressaca -${n.ressaca}${n.morale ? ` · equipe +${n.morale} de ânimo` : ''}${n.heat ? ` · +${n.heat} de Procurado` : ''}${n.contact ? ` · ${n.contact}% de firmar contatos` : ''}${n.brawl ? (SB.nightSafe(s, n) ? ' · sem risco: a casa é sua' : ` · <span class="negative">${n.brawl}% de briga (fere)</span>`) : ''}${n.boss ? ' · sem risco · relação +5 com quem manda no bairro' : ''}</p></div>
           <div class="shopAct"><strong>${fmt(c)}</strong>${button('Ir', 'night', `data-id="${n.id}"`, s.cash < c || s.today.night >= SB.NIGHT_LIMIT || s.energy >= 100 || !!SB.blocked(s) || (n.unlock && s.respect < n.unlock && !SB.ownTermas(s, n)), 'small primary')}</div></section>`; }).join('')}</div>
       <p class="mini" style="margin-top:6px">Cada saída a mais no dia custa 50% a mais. Dono do Bar bebe de graça no Boteco; dono da Casa de Shows não corre risco de briga no Baile.</p>${s.energy < 16 && s.today.night >= SB.NIGHT_LIMIT ? `<div class="btnbar" style="margin-top:10px">${nextDayButton('')}</div>` : ''}`;
   }
@@ -700,7 +705,7 @@
     const s = state, cr = SB.combatRating(s), w = SB.item(s.gear.arma), pr = SB.item(s.gear.protecao), hp = SB.healthPenalty(s);
     return heading('Duelos de rua', 'Encare nomes conhecidos da rua. Vencer dá dinheiro e fama; perder custa saúde.') + `<div class="screenArt">${window.SBArt.place('duelos')}</div>` + jailNotice() + resultCard() + `
       <section class="card"><div class="kv"><div><span>Seu poder de luta</span><strong>${cr}</strong></div><div><span>Duelos hoje</span><strong>${s.today.duels}/${SB.DUEL_LIMIT}</strong></div><div><span>Arma</span><strong>${w ? esc(w.name) : 'Mãos nuas'}</strong></div><div><span>Proteção</span><strong>${pr ? esc(pr.name) : 'Nenhuma'}</strong></div></div>
-        <p class="mini" style="margin-top:8px">Poder = Força, Astúcia, arma, proteção e sede. A proteção também reduz o dano. ${hp ? `<span class="negative">Saúde baixa: -${hp} de chance.</span>` : ''}${SB.injured(s) ? ' <span class="negative">Ferido demais para duelar: vá ao Hospital.</span>' : ''}${SB.gearVal(s, 'power') >= 7 ? ' Arma de fogo faz barulho: +4 de vigilância por duelo.' : ''}</p></section>
+        <p class="mini" style="margin-top:8px">Poder = Força, Astúcia, arma, proteção e sede. A proteção também reduz o dano. ${hp ? `<span class="negative">Saúde baixa: -${hp} de chance.</span>` : ''}${SB.injured(s) ? ' <span class="negative">Ferido demais para duelar: vá ao Hospital.</span>' : ''}${SB.gearVal(s, 'power') >= 7 ? ' Arma de fogo faz barulho: +4 de Procurado por duelo.' : ''}</p></section>
       <div class="grid" style="margin-top:10px">${SB.RIVALS.map(r => { const locked = s.respect < r.unlock, odds = SB.duelOdds(s, r), beat = s.beaten[r.id] || 0;
         const off = locked || !!SB.blocked(s) || SB.injured(s) || s.today.duels >= SB.DUEL_LIMIT || s.energy < SB.DUEL_ENERGY;
         return `<section class="card mission rivalRow ${locked ? 'locked' : ''}"><span class="rivalPic">${window.SBArt.rival(r.id)}</span><div><h3>${esc(r.name)} ${beat ? `<span class="pill">Vencido ${beat}×</span>` : ''}</h3><p>${esc(r.desc)}</p>
@@ -763,7 +768,7 @@
         const off = !!lock || !!cur || s.day < s.heistReady || !!SB.blocked(s) || s.cash < cost || s.energy < 15 || s.day >= SB.MAXDAY;
         return `<section class="card mission heistRow ${lock ? 'locked' : ''}"><span class="heistPic">${window.SBArt.heist(h.id)}</span><div><h3>${esc(h.name)}</h3><p>${esc(h.desc)}</p>
           <div class="details">Bando ${h.need} · sede ${h.sede} · arma ${h.minPower}+ · ${h.unlock} de respeito</div>
-          <div class="details">Rende ${fmt(h.low)}–${fmt(h.high)} (sua parte: 75%) · +${h.respect} respeito · +${h.heat} vigilância</div>
+          <div class="details">Rende ${fmt(h.low)}–${fmt(h.high)} (sua parte: 75%) · +${h.respect} respeito · +${h.heat} Procurado</div>
           <div class="details">Plano: ${fmt(cost)}${hires ? ` (inclui ${hires} avulso(s) a ${fmt(h.hire)})` : ''} · se der errado: 10% do caixa, saúde, prisão ${h.arrest}%+, um integrante pode rodar</div>
           ${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div>
           <div class="right"><span class="chance ${chanceClass(odds)}">${odds}% <small class="mini">sem reconhecer</small></span>${button('Planejar', 'heist-plan', `data-id="${h.id}"`, off, 'primary small')}</div></section>`; }).join('')}</div>`;
