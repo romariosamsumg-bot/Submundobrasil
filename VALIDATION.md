@@ -1,4 +1,4 @@
-# Validação — Submundo Brasil v0.9
+# Validação — Submundo Brasil v1.0
 
 Tudo abaixo foi **executado** neste ambiente (Node.js + Chromium/Playwright).
 Para reproduzir: `npm test` (build + motor + fuzz + interface), `npm run simulate`
@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**105 de 105 passaram** (v0.9; 7 novos sobre arsenal, troféu, arma pesada, serviços com exigência de arma, Termas VIP, briga no baile e carcereiro). Cenários cobertos:
+**114 de 114 passaram** (v1.0; 9 novos sobre assaltos: requisitos, avulsos, noite de espera, reconhecimento, sucesso e fracasso, prazo, cancelamento e categoria Gangue). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**77 de 77 verificações passaram** (v0.9: inclui aviso 18+ na capa e para jogadores antigos, advogado e carcereiro), com **0 erros de console**:
+**81 de 81 verificações passaram** (v1.0: inclui planejar, reconhecer e executar um assalto pela interface), com **0 erros de console**:
 
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
 - A missão consome energia e mostra o cartão de resultado com as variações.
@@ -72,14 +72,16 @@ Bots com estratégias fixas jogam temporadas completas. Resultado da **v0.9** em
 | Comerciante (Galpão, produção, remessas) | 12.210 | 119 | 208 | 20% | 2,9 |
 | Operador com arsenal e noite | 16.563 | 128 | 194 | 40% | 3,0 |
 | Brigão (arsenal, duelos, hospital) | 15.001 | 139 | 186 | 10% | 2,0 |
+| **Bando de assaltos (v1.0)** | 2.321 | 92 | 191 | 40% | 1,2 |
 | **Exploit: repetir a melhor e depositar tudo** | 2.236 | 47 | **29** | 0% | **11,0** |
 | Aleatório | 620 | 49 | 55 | 0% | 1,0 |
 
 Leitura:
 - **Calibração da v0.9:** com os 5 serviços novos nas recompensas propostas, o farm de missões e os negócios subiram para 224 e 233 pontos (o espaço entre as estratégias foi de 56 para 65). Com mais opções, a penalidade por repetir quase sumia. Recompensas e dificuldade dos 5 serviços novos foram reduzidas; o resultado acima é depois do ajuste (166 a 217).
+- **Assaltos (v1.0):** um robô que vive de assaltos faz 186 a 191 pontos (duas sementes), contra 166 a 179 da gangue sem assaltos. Faz cerca de 2 assaltos certos e 0,5 errado por temporada e não passa do 2º degrau (o respeito médio dele é 92). As tabelas das outras estratégias não mudaram, porque elas não fazem assaltos.
 - O exploit da 0.4 continua a pior estratégia.
 
-### Especializações — `tests/careers.js` (150 temporadas por célula, v0.9)
+### Especializações — `tests/careers.js` (150 temporadas por célula, v0.9; idênticas na v1.0)
 
 | Estratégia | Operador | Articulador | Empreendedor |
 |---|---|---|---|

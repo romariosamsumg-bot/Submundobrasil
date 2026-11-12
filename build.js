@@ -1,4 +1,4 @@
-/* Gera Submundo-Brasil-v0.9.html (arquivo único, offline) a partir de src/.
+/* Gera Submundo-Brasil-v1.0.html (arquivo único, offline) a partir de src/.
  * Uso: node build.js */
 'use strict';
 const fs = require('fs');
@@ -13,7 +13,7 @@ const html = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111b1e">
   <meta name="description" content="Submundo Brasil — RPG urbano brasileiro de estratégia por turnos para navegador.">
-  <title>Submundo Brasil | Jogo de estratégia 0.9</title>
+  <title>Submundo Brasil | Jogo de estratégia 1.0</title>
   <style>
 ${src('style.css')}
 ${src('extra.css')}
@@ -30,5 +30,5 @@ ${src('ui.js')}
 </body>
 </html>
 `;
-fs.writeFileSync(path.join(__dirname, 'Submundo-Brasil-v0.9.html'), html);
-console.log('Gerado Submundo-Brasil-v0.9.html (' + Math.round(html.length / 1024) + ' KB)');
+fs.writeFileSync(path.join(__dirname, 'Submundo-Brasil-v1.0.html'), html);
+console.log('Gerado Submundo-Brasil-v1.0.html (' + Math.round(html.length / 1024) + ' KB)');

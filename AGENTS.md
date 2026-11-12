@@ -4,7 +4,7 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 
 ## Regras obrigatórias
 
-1. **Nunca edite `Submundo-Brasil-v0.9.html` à mão.** Edite `src/` e rode `node build.js`.
+1. **Nunca edite `Submundo-Brasil-v1.0.html` à mão.** Edite `src/` e rode `node build.js`.
 2. **Regras só em `src/engine.js`; nada de DOM lá.** A interface (`src/ui.js`) só chama `SB.perform(...)` e lê funções derivadas.
 3. **Toda ação recusada não pode alterar o estado.** Valide tudo antes da primeira mutação. Existe teste para isso.
 4. **Compatibilidade de saves é sagrada.**

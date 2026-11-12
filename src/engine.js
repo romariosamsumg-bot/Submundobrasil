@@ -1,5 +1,5 @@
 /* =====================================================================
- * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.9
+ * SUBMUNDO BRASIL — MOTOR DE REGRAS v1.0
  * ---------------------------------------------------------------------
  * Este módulo NÃO acessa o DOM. Ele contém:
  *   1. Utilitários e gerador aleatório (substituível nos testes).
@@ -20,7 +20,7 @@
 (function (root) {
   'use strict';
 
-  const VERSION = '0.9';
+  const VERSION = '1.0';
   const SCHEMA = 2;
   const MAXDAY = 30;
   const MAX_LOG = 60;
@@ -87,7 +87,7 @@
     { id: 'deposito', name: 'Mercadinho Dois Irmãos', desc: 'Limpar o caixa antes que o dono puxe o que guarda debaixo do balcão.', stat: 'astucia', difficulty: 33, cost: 32, low: 580, high: 980, heat: 15, vigil: 10, respect: 5, unlock: 32, arrest: 44, loss: .12, tension: 3 },
     { id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', stat: 'labia', difficulty: 37, cost: 30, low: 680, high: 1120, heat: 8, vigil: 6, respect: 6, unlock: 50, req: { influence: 25 }, arrest: 28, loss: .08, tension: 2 },
     { id: 'comboio', name: 'Caminhão de carga na rodovia', desc: 'Fechar a pista e levar a carga fechada. Só com o bonde junto.', stat: 'forca', difficulty: 46, cost: 40, low: 1050, high: 1750, heat: 19, vigil: 12, respect: 8, unlock: 75, req: { gang: true }, arrest: 50, loss: .14, tension: 5 },
-    { id: 'cofre', name: 'Carro-forte na serra', desc: 'O serviço mais pesado da temporada. Uma vez por dia.', stat: 'astucia', difficulty: 58, cost: 52, low: 1900, high: 3100, heat: 26, vigil: 18, respect: 13, unlock: 120, req: { stat: ['astucia', 22], oncePerDay: true }, arrest: 55, loss: .15, tension: 6 },
+    { id: 'cofre', name: 'Cofre da joalheria', desc: 'O serviço solo mais pesado da temporada. Uma vez por dia.', stat: 'astucia', difficulty: 58, cost: 52, low: 1900, high: 3100, heat: 26, vigil: 18, respect: 13, unlock: 120, req: { stat: ['astucia', 22], oncePerDay: true }, arrest: 55, loss: .15, tension: 6 },
     { id: 'fiacao', name: 'Fiação de cobre', desc: 'Pouco confronto, mas a guarda municipal ronda e o cobre vale pouco.', stat: 'astucia', difficulty: 17, cost: 18, low: 110, high: 190, heat: 4, vigil: 4, respect: 1, unlock: 3, arrest: 24, loss: .06, tension: 1 },
     { id: 'pastel', name: 'Barraquinha de pastel', desc: 'O dinheiro do caldo de cana e o primeiro respeito de verdade na rua.', stat: 'forca', difficulty: 17, cost: 19, low: 130, high: 230, heat: 7, vigil: 6, respect: 3, unlock: 2, arrest: 30, loss: .08, tension: 2 },
     { id: 'caixa', name: 'Caixa eletrônico na maquita', desc: 'Posto de gasolina afastado, barulho alto e notas que podem queimar.', stat: 'astucia', difficulty: 38, cost: 36, low: 560, high: 940, heat: 17, vigil: 14, respect: 5, unlock: 45, req: { power: 5 }, arrest: 46, loss: .12, tension: 3 },
@@ -285,6 +285,24 @@
   const DUEL_LIMIT = 3;
   const DUEL_ENERGY = 15;
   const CLINIC_PRICE = 12; // por ponto de saúde
+
+  /* ------------------------------------------------------------------
+   * v1.0 — Assaltos do bando em etapas: planejar → reconhecer → executar → dividir.
+   * `need` = gente no bando (integrantes + avulsos contratados no plano);
+   * `minPower` = poder mínimo da arma do líder; `rating` = dificuldade.
+   * ------------------------------------------------------------------ */
+  const HEISTS = [
+    { id: 'arrastao', name: 'Arrastão no shopping', desc: 'Vitrine de celular e relógio, fuga de moto pelo estacionamento.', need: 3, unlock: 30, sede: 1, minPower: 3, rating: 50, plan: 400, hire: 300, low: 2200, high: 3600, heat: 18, arrest: 30, respect: 8 },
+    { id: 'rodovia', name: 'Bloqueio na rodovia', desc: 'Fechar a pista de madrugada e levar a carreta inteira.', need: 5, unlock: 55, sede: 2, minPower: 9, rating: 80, plan: 900, hire: 450, low: 5000, high: 8000, heat: 24, arrest: 36, respect: 12 },
+    { id: 'agencia', name: 'Agência no interior', desc: 'Cidade pequena, uma viatura só e o cofre cheio no dia do pagamento.', need: 6, unlock: 80, sede: 3, minPower: 13, rating: 110, plan: 1600, hire: 600, low: 9000, high: 14000, heat: 30, arrest: 42, respect: 18 },
+    { id: 'carroforte', name: 'Carro-forte na serra', desc: 'Curva fechada, neblina e blindagem que não cede fácil.', need: 8, unlock: 105, sede: 4, minPower: 16, rating: 140, plan: 2600, hire: 800, low: 15000, high: 22000, heat: 34, arrest: 46, respect: 24 },
+    { id: 'transportadora', name: 'Base da transportadora de valores', desc: 'Muro alto, segurança armada e o cofre central da região.', need: 10, unlock: 130, sede: 5, minPower: 18, rating: 170, plan: 4000, hire: 1000, low: 24000, high: 34000, heat: 38, arrest: 50, respect: 32 },
+    { id: 'cofrecentral', name: 'Cofre central', desc: 'O golpe da temporada. Quem fizer vira lenda; quem errar, vira notícia.', need: 12, unlock: 155, sede: 6, minPower: 21, rating: 200, plan: 6000, hire: 1300, low: 38000, high: 52000, heat: 45, arrest: 55, respect: 45 }
+  ];
+  const HEIST_MAX_HIRES = 4;
+  const HEIST_WINDOW = 5;     // dias para executar depois de planejar
+  const HEIST_COOLDOWN = 3;   // dias de espera depois de executar
+  const HEIST_CUT = 0.25;     // parte do bando
   const cityOf = name => CITIES.find(c => c.name === name) || CITIES[0];
   const cityIs = (s, id) => cityOf(s.city).id === id;
   let appliedCity = null;
@@ -392,7 +410,7 @@
 
   const ACHIEVEMENTS = [
     { id: 'primeira', name: 'Primeiro passo', desc: 'Concluir a primeira missão.' },
-    { id: 'cofre', name: 'O grande golpe', desc: 'Concluir “Carro-forte na serra”.' },
+    { id: 'cofre', name: 'O grande golpe', desc: 'Concluir “Cofre da joalheria”.' },
     { id: 'dono', name: 'Dono do pedaço', desc: 'Liderar um bairro.' },
     { id: 'tres', name: 'Três bandeiras', desc: 'Liderar 3 bairros ao mesmo tempo.' },
     { id: 'diplomata', name: 'Diplomata', desc: 'Firmar 3 tréguas na mesma temporada.' },
@@ -414,7 +432,9 @@
     { id: 'exportador', name: 'Rota de fora', desc: 'Fechar uma remessa com o comprador de fora.' },
     { id: 'industria', name: 'Indústria de fundo de quintal', desc: 'Ter os três pontos de produção.' },
     { id: 'brigao', name: 'Nome na roda', desc: 'Vencer 10 duelos de rua.' },
-    { id: 'reidopedaco', name: 'Destronou o rei', desc: 'Vencer o Rei do Pedaço.' }
+    { id: 'reidopedaco', name: 'Destronou o rei', desc: 'Vencer o Rei do Pedaço.' },
+    { id: 'primeiroassalto', name: 'Primeiro assalto', desc: 'Concluir um assalto do bando.' },
+    { id: 'golpedoano', name: 'Golpe do ano', desc: 'Concluir o Cofre central.' }
   ];
 
   /* ------------------------------------------------------------------ */
@@ -424,7 +444,7 @@
     relation: f.initialRelation, tension: 20 + f.temperament, truceUntil: 0, lastActionDay: 0,
     power: 50, grudge: 0, allied: false, allyDays: 0, lastMove: '', deals: 0, cooldown: 0
   }]));
-  const startGangStats = () => ({ confrontWins: 0, confrontLosses: 0, pacts: 0, dialogs: 0, retaliations: 0, groupWins: 0, alliances: 0, betrayals: 0 });
+  const startGangStats = () => ({ heists: 0, heistFails: 0, confrontWins: 0, confrontLosses: 0, pacts: 0, dialogs: 0, retaliations: 0, groupWins: 0, alliances: 0, betrayals: 0 });
   const initialInfluence = () => Object.fromEntries(DISTRICTS.map(d => [d.id, d.id === 'centro' ? 8 : 0]));
   /** Presença das facções por bairro. O dono herda o antigo "rival" da 0.4. */
   const initialPresence = (legacyRivals) => Object.fromEntries(DISTRICTS.map((d, i) => {
@@ -458,7 +478,8 @@
       gear: { arma: null, protecao: null, veiculo: null }, goods: Object.fromEntries(GOODS.map(g => [g.id, 0])), market: startMarket(),
       labs: Object.fromEntries(LABS.map(l => [l.id, 0])), labDown: {}, exportDeal: { day: 5, good: 'cigarro' }, exportDone: 0, ressaca: 0,
       trade: { sold: 0, spent: 0, exported: 0, blitz: 0 },
-      health: 100, hospital: 0, beaten: {}, duelStats: { wins: 0, losses: 0 }
+      health: 100, hospital: 0, beaten: {}, duelStats: { wins: 0, losses: 0 },
+      heist: null, heistReady: 0
     };
   }
 
@@ -628,6 +649,10 @@
     s.beaten = {};
     if (saved.beaten && typeof saved.beaten === 'object') for (const r of RIVALS) if (isNum(saved.beaten[r.id])) s.beaten[r.id] = toInt(saved.beaten[r.id], 1, 1, 999);
     s.duelStats = { wins: toInt(saved.duelStats && saved.duelStats.wins, 0, 0, 99999), losses: toInt(saved.duelStats && saved.duelStats.losses, 0, 0, 99999) };
+    // v1.0: assalto planejado.
+    const hp = saved.heist;
+    s.heist = hp && HEISTS.some(h => h.id === hp.id) && s.gangName ? { id: hp.id, day: toInt(hp.day, s.day, 1, MAXDAY), intel: toInt(hp.intel, 0, 0, 40), scoutDay: toInt(hp.scoutDay, 0, 0, MAXDAY), hires: toInt(hp.hires, 0, 0, HEIST_MAX_HIRES) } : null;
+    s.heistReady = toInt(saved.heistReady, 0, 0, MAXDAY + HEIST_COOLDOWN);
     // Primeiros passos: saves anteriores à 0.6 não tinham tutorial; quem já jogou não é obrigado a refazê-lo.
     const tu = saved.tutorial;
     if (tu && typeof tu === 'object') s.tutorial = { step: toInt(tu.step, 0, 0, TUTORIAL.length), done: tu.done === true, trained: tu.trained === true, contacted: tu.contacted === true, banked: tu.banked === true };
@@ -846,6 +871,31 @@
   }
   /** Bloqueio comum a ações físicas: detenção e internação. */
   const blocked = s => s.jail > 0 ? 'Você está detido.' : s.hospital > 0 ? 'Você está internado.' : '';
+
+
+  /* Assaltos do bando (v1.0) */
+  const heist = id => HEISTS.find(x => x.id === id);
+  const heistHires = (s, h) => Math.max(0, h.need - crewSize(s));
+  const heistPlanCost = (s, h) => h.plan + heistHires(s, h) * h.hire;
+  /** Poder do bando: o líder, os integrantes (nível e função) e os avulsos. */
+  function heistPower(s, hires) {
+    return Math.round(combatRating(s) + sum(s.crew.map(m => m.level)) * 3 + crewSize(s) * 2 + roleLevels(s, 'musculo') * 2 + (hires || 0) * 4);
+  }
+  /** Chance de execução. Usa os avulsos do plano em curso, ou os que seriam contratados agora. */
+  function heistOdds(s, h) {
+    const hires = s.heist && s.heist.id === h.id ? s.heist.hires : heistHires(s, h);
+    const intel = s.heist && s.heist.id === h.id ? s.heist.intel : 0;
+    return clamp(Math.round(40 + (heistPower(s, hires) - h.rating) * 1.2 + intel * .5 + (s.crewMorale - 50) * .15 - s.heat * .3 - healthPenalty(s) - eventMod(s, 'risk', { district: s.district }) * .5), 5, 90);
+  }
+  /** Motivo de bloqueio para planejar ('' se pode). */
+  function heistLock(s, h) {
+    if (!s.gangName) return 'Requer uma gangue fundada.';
+    if (s.respect < h.unlock) return `Requer ${h.unlock} de respeito.`;
+    if (s.gangLevel < h.sede) return `Requer sede nível ${h.sede}.`;
+    if (gearVal(s, 'power') < h.minPower) return `Requer arma de poder ${h.minPower} ou mais com o líder.`;
+    if (heistHires(s, h) > HEIST_MAX_HIRES) return `Faltam integrantes: no máximo ${HEIST_MAX_HIRES} avulsos (você tem ${crewSize(s)} de ${h.need}).`;
+    return '';
+  }
 
   /* Gangue e facções */
   function gangOdds(s) {
@@ -1426,6 +1476,79 @@
     return refuse('Atendimento desconhecido.');
   }
 
+
+  /* ---------- v1.0: assaltos do bando ---------- */
+  function doHeistPlan(s, id) {
+    const h = heist(id); if (!h) return refuse('Assalto desconhecido.');
+    if (blocked(s)) return refuse(blocked(s));
+    if (s.heist) return refuse('Já existe um assalto planejado. Execute ou cancele antes.');
+    if (s.day < s.heistReady) return refuse(`O bando ainda está esfriando: novo plano a partir do dia ${s.heistReady}.`);
+    if (s.day >= MAXDAY) return refuse('Não há dias suficientes na temporada para executar.');
+    const lock = heistLock(s, h); if (lock) return refuse(lock);
+    const c = heistPlanCost(s, h);
+    if (s.cash < c) return refuse(`O plano custa ${money(c)} em mãos (inclui os avulsos).`);
+    if (s.energy < 15) return refuse('Planejar exige 15 de energia.');
+    const hires = heistHires(s, h);
+    s.cash -= c; s.energy -= 15;
+    s.heist = { id: h.id, day: s.day, intel: 0, scoutDay: 0, hires };
+    log(s, `Plano montado: ${h.name}, por ${money(c)}${hires ? ` com ${hires} avulso(s)` : ''}. Execute entre os dias ${s.day + 1} e ${Math.min(MAXDAY, s.day + HEIST_WINDOW)}.`);
+    return done(true, `Plano montado: ${h.name}.`);
+  }
+  function doHeistScout(s) {
+    if (!s.heist) return refuse('Não há assalto planejado.');
+    if (blocked(s)) return refuse(blocked(s));
+    if (s.heist.scoutDay === s.day) return refuse('O terreno já foi estudado hoje.');
+    if (s.heist.intel >= 40) return refuse('O bando já sabe tudo que dá para saber.');
+    if (s.energy < 15) return refuse('Reconhecer o terreno exige 15 de energia.');
+    const g = Math.min(40 - s.heist.intel, 12 + Math.min(10, roleLevels(s, 'olheiro') * 2));
+    s.energy -= 15; s.heist.scoutDay = s.day; s.heist.intel += g;
+    s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil + 4, 0, 100);
+    memberXP(s, 1, 'olheiro');
+    log(s, `Reconhecimento para ${heist(s.heist.id).name}: +${g} de informação (${s.heist.intel}/40).`);
+    return done(true, `Terreno estudado: informação ${s.heist.intel}/40.`);
+  }
+  function doHeistCancel(s) {
+    if (!s.heist) return refuse('Não há assalto planejado.');
+    const h = heist(s.heist.id);
+    s.heist = null; addMorale(s, -5);
+    log(s, `Plano cancelado: ${h.name}. O dinheiro do plano foi perdido e o bando ficou desconfiado.`);
+    return done(false, 'Plano cancelado. O bando ficou desconfiado (-5 de ânimo).');
+  }
+  function doHeistRun(s) {
+    if (!s.heist) return refuse('Não há assalto planejado.');
+    const h = heist(s.heist.id);
+    if (blocked(s)) return refuse(blocked(s));
+    if (s.day <= s.heist.day) return refuse('O bando precisa de pelo menos uma noite entre o plano e a ação.');
+    if (injured(s)) return refuse('Você está ferido demais para liderar o assalto.');
+    if (crewSize(s) + s.heist.hires < h.need) return refuse(`Falta gente: o plano pede ${h.need} e o bando tem ${crewSize(s) + s.heist.hires}.`);
+    if (gearVal(s, 'power') < h.minPower) return refuse(`A arma do líder precisa de poder ${h.minPower}.`);
+    if (s.crewMorale < 30) return refuse('O bando está desanimado demais (ânimo abaixo de 30).');
+    if (s.energy < 40) return refuse('Executar exige 40 de energia.');
+    const odds = heistOdds(s, h), d = s.district;
+    s.energy -= 40; s.heist = null; s.heistReady = s.day + HEIST_COOLDOWN;
+    s.dstate[d].vigil = clamp(s.dstate[d].vigil + 25, 0, 100);
+    turfFriction(s, d, 8);
+    if (roll(odds)) {
+      const total = Math.round(rand(h.low, h.high) * s.dstate[d].econ), cut = Math.round(total * HEIST_CUT), take = total - cut;
+      s.cash += take; s.respect += h.respect; addHeat(s, heatGain(s, h.heat)); addMorale(s, 6);
+      s.gangStats.heists++; memberXP(s, 2);
+      unlock(s, 'primeiroassalto'); if (h.id === 'cofrecentral') unlock(s, 'golpedoano');
+      log(s, `${h.name}: deu certo (${odds}%). Total ${money(total)}; o bando ficou com ${money(cut)} e você com ${money(take)}. +${h.respect} de respeito.`);
+      return done(true, `${h.name}: deu certo! Sua parte: ${money(take)}.`, { lines: [`Total: ${money(total)} · parte do bando (25%): ${money(cut)}.`] });
+    }
+    const lost = Math.min(s.cash, Math.ceil(s.cash * .1));
+    s.cash -= lost; addHeat(s, heatGain(s, h.heat + 10)); addMorale(s, -15); s.gangStats.heistFails++;
+    const lines = [];
+    if (s.crew.length && roll(35)) { const m = s.crew.splice(rand(0, s.crew.length - 1), 1)[0]; lines.push(`${m.name} rodou e foi preso.`); }
+    const wound = hurt(s, rand(10, 20));
+    let jailMsg = '';
+    if (!s.hospital && roll(clamp(Math.round(h.arrest + s.heat * .2 - gearVal(s, 'def') - gearVal(s, 'escape')), 5, 85))) {
+      s.jail = rand(2, 3) + (gearVal(s, 'power') >= 7 ? 1 : 0); s.seasonStats.arrests++; jailMsg = ` Você foi preso por ${s.jail} dia(s).`;
+    }
+    log(s, `${h.name}: deu errado (${odds}%). -${money(lost)}.${wound}${jailMsg} ${lines.join(' ')}`);
+    return done(false, `${h.name} deu errado. -${money(lost)}.${wound}${jailMsg}`, { lines });
+  }
+
   function pickCareer(s, id) {
     if (s.career) return refuse('A carreira já foi escolhida nesta temporada.');
     const c = CAREERS.find(x => x.id === id); if (!c) return refuse('Carreira desconhecida.');
@@ -1659,6 +1782,7 @@
       }
     }
 
+    if (s.heist && s.day > Math.min(MAXDAY, s.heist.day + HEIST_WINDOW)) { lines.push(`O plano de ${heist(s.heist.id).name} esfriou: o prazo passou.`); s.heist = null; addMorale(s, -5); }
     // Galpão: preços oscilam, a produção rende e a polícia pode estourar um ponto.
     for (const d of DISTRICTS) for (const g of GOODS) { const m = s.market[d.id][g.id]; s.market[d.id][g.id] = clamp(Math.round(m + (100 - m) * .12 + rand(-14, 14)), 60, 150); }
     const labFee = labUpkeep(s);
@@ -1768,7 +1892,7 @@
     if (id === 'territorio') return sum(Object.values(s.seasonStats.controlDays));
     if (id === 'diplomacia') return Math.min(5, s.gangStats.pacts) * 9 + s.gangStats.alliances * 20 + Math.min(20, sum(FACTIONS.map(f => s.factions[f.id].allyDays))) + FACTIONS.filter(f => s.factions[f.id].relation >= 50).length * 10 - s.gangStats.betrayals * 15;
     if (id === 'comercio') return Math.max(0, s.trade.sold - s.trade.spent);
-    if (id === 'gangue') return s.gangStats.groupWins * 6 + s.gangStats.confrontWins * 10 + sum(s.crew.map(m => m.level)) * 3 + s.gangLevel * 4;
+    if (id === 'gangue') return s.gangStats.heists * 15 + s.gangStats.groupWins * 6 + s.gangStats.confrontWins * 10 + sum(s.crew.map(m => m.level)) * 3 + s.gangLevel * 4;
     return 0;
   }
   const medalFor = (c, v) => c.tiers.filter(t => v >= t).length;
@@ -1829,7 +1953,7 @@
     bank: doBank, buy: doBuy, sell: doSell, contact: doContact, dispute: doDispute,
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
-    duel: doDuel, clinic: doClinic, bribe: doBribe, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, night: doNight,
+    duel: doDuel, clinic: doClinic, bribe: doBribe, heistPlan: doHeistPlan, heistScout: doHeistScout, heistRun: doHeistRun, heistCancel: doHeistCancel, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, night: doNight,
     career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay, endSeason
   };
   /** Executa uma ação e roda verificações pós-ação. */
@@ -1847,10 +1971,10 @@
 
   const SB = {
     VERSION, SCHEMA, MAXDAY, STORAGE_KEY, RESALE, CAREER_XP,
-    STATS, MISSIONS, DISTRICTS, BUSINESSES, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
+    STATS, MISSIONS, DISTRICTS, BUSINESSES, HEISTS, HEIST_MAX_HIRES, HEIST_WINDOW, HEIST_COOLDOWN, HEIST_CUT, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
-    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, stockValue, assetValue, bribeCost, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
     missionScore, missionChance, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,

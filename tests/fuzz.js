@@ -17,6 +17,7 @@ for(let season=0;season<Number(process.argv[3]||20);season++){
   if(a==='foundGang')args=['Bonde do Teste'];
   if(a==='recruit')args=[SB.ROLES[SB.rand(0,2)].id];
   if(a==='dismiss')args=[s.crew[0]?.id];
+  if(a==='heistPlan')args=[SB.HEISTS[SB.rand(0,SB.HEISTS.length-1)].id];
   if(a==='duel')args=[SB.RIVALS[SB.rand(0,SB.RIVALS.length-1)].id];
   if(a==='clinic')args=[['posto','clinica','x'][SB.rand(0,2)]];
   if(a==='buyItem')args=[SB.ITEMS[SB.rand(0,SB.ITEMS.length-1)].id];

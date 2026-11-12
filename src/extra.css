@@ -345,3 +345,12 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 .ageGate{display:flex;gap:9px;align-items:flex-start;margin:12px 0 4px;padding:10px 11px;border:1px solid #7d4845;background:#2a1719;border-radius:4px;font-size:12px;line-height:1.45;color:#f0d6d2;cursor:pointer;text-align:left}
 .ageGate input{width:20px;height:20px;flex:none;margin-top:1px;accent-color:#e0ab61}
 .age18{display:inline-block;background:#b8402f;color:#fff;font:800 11px/1 system-ui,sans-serif;padding:3px 5px;border-radius:3px;margin-right:4px;vertical-align:1px;letter-spacing:.02em}
+
+/* ===== v1.0: assaltos do bando ===== */
+.place.p-assaltos{background:linear-gradient(160deg,#3a1f1c,#161d22 70%);min-height:96px}
+.heistPlan{margin:0 0 11px}.heistPlan h2{margin:4px 0 8px}
+.heistSteps{display:flex;gap:4px;list-style:none;margin:0 0 10px;padding:0;counter-reset:st}
+.heistSteps li{flex:1;text-align:center;font:800 10px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase;padding:6px 2px;background:#d8ccb0;color:#6b5a3a;transform:skewX(-10deg)}
+.heistSteps li.ok{background:#2f6b4f;color:#e9f6ee}.heistSteps li.now{background:#1b1a14;color:#f0c06e}
+.heistPlan .kv span{color:#6b5a3a}.heistPlan .kv strong{color:#1d1a15}
+.heistPlan .btn.ghost{color:#3a3226;border-color:#8a7a5a}

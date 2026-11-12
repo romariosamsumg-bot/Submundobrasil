@@ -29,6 +29,8 @@
 
 - [x] **v0.9**: linha adulta 18+ (aviso obrigatório), arsenal de 16 armas e 6 proteções, 5 serviços novos, noite com Pagode, Baile e Termas VIP, UPA, advogado de porta de cadeia e suborno do carcereiro
 
+- [x] **v1.0**: assaltos do bando em 4 etapas e 6 degraus, com avulsos, reconhecimento, prazo e divisão
+
 O que falta para lançar está em **LANCAMENTO.md**.
 
 ## Pendências de balanceamento (prioridade alta)
@@ -86,3 +88,9 @@ Escada de assaltos que exige tamanho de bando, poder médio de arma e proteção
 Arrastão em shopping (3) → Caminhão de carga (5) → Agência no interior (6) → Carro-forte na serra (8) → Transportadora de valores (10) → Cofre central (12).
 Cada um: planejar (custo e dias), reunir (energia de todos), executar (chance por poder do bando), dividir (manutenção e ânimo). Itens pesados (Ponto Cinquenta, MAG, Lança-rojão) ganham uso real aqui.
 Também sugerido: rebelião na cadeia com a gangue.
+
+## Pendências da v1.0
+
+- Os 4 degraus de cima (Agência em diante) quase não são alcançados numa temporada de 30 dias: pedem 80 a 155 de respeito, e o robô de assaltos termina com ~92. Decidir se ficam como meta de longo prazo ou se o respeito exigido cai.
+- O bando ainda termina a temporada com pouco dinheiro (~R$ 2.300); a parte de 25% e o custo dos avulsos pesam.
+- Rebelião na cadeia com a gangue (sugerida pelo autor) ainda não existe.

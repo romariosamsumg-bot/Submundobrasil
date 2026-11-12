@@ -114,6 +114,27 @@ const STRATEGIES = {
       if (!r || s.health < 45 || !SB.perform(s, 'duel', r.id).ok) break;
     }
     grind(s, 55); trainBest(s, 'forca', 1500); bankSurplus(s, 1200); } },
+  bando_assaltos: { career: 'operador', goal: 'bonde', day(s) {
+    // Gangue que vive de assaltos: recruta, arma o líder, reconhece e executa quando a chance compensa.
+    bail(s); handleNews(s);
+    if (!s.gangName && s.respect >= 30 && s.cash >= 1800) SB.perform(s, 'foundGang', 'Bonde');
+    for (const id of ['vergalhao', 'peixeira', 'trezoitao', 'pistola', 'doze', 'uzi', 'fuzil']) if (s.gear.arma !== id && s.cash > SB.item(id).cost * 2 && (SB.item(s.gear.arma) || { cost: 0 }).cost < SB.item(id).cost) SB.perform(s, 'buyItem', id);
+    if (s.gangName) {
+      if (s.crewMorale < 45) SB.perform(s, 'rally');
+      if (s.crew.length < 6 && s.cash > SB.recruitCost(s) + 1500) SB.perform(s, 'recruit', ['musculo', 'olheiro', 'musculo'][s.crew.length % 3]);
+      if (s.gangLevel < 3 && s.cash > SB.upgradeCost(s) + 3000) SB.perform(s, 'upgrade');
+      if (s.health < 55) SB.perform(s, 'clinic', 'posto');
+      if (s.heist) {
+        const h = SB.heist(s.heist.id), last = Math.min(SB.MAXDAY, s.heist.day + SB.HEIST_WINDOW);
+        SB.perform(s, 'heistScout');
+        if (s.day > s.heist.day && (s.heist.intel >= 36 || s.day >= last || SB.heistOdds(s, h) >= 75)) SB.perform(s, 'heistRun');
+      } else {
+        const h = SB.HEISTS.filter(x => !SB.heistLock(s, x) && SB.heistOdds(s, x) + 20 >= 55 && s.cash > SB.heistPlanCost(s, x) + 800).pop();
+        if (h) { SB.perform(s, 'heistPlan', h.id); SB.perform(s, 'heistScout'); }
+      }
+      SB.perform(s, 'gangOp');
+    }
+    grind(s, 55, 40); trainBest(s, 'forca', 2500); } },
   exploit_repetir: { career: 'operador', goal: 'capital', day(s) {
     // Repete sempre a missão de maior recompensa desbloqueada e deposita tudo.
     if (s.bank) SB.perform(s, 'bank', 'withdraw', s.bank);
@@ -142,7 +163,7 @@ function playSeason(strategy, s) {
   st.day(s);
   const sc = SB.seasonScore(s);
   const out = { patrimony: SB.patrimony(s), respect: s.respect, score: sc.score, goal: s.goalDone ? 1 : 0, arrests: s.seasonStats.arrests,
-    sold: s.trade.sold, spent: s.trade.spent, exported: s.trade.exported, blitz: s.trade.blitz, labs: SB.LABS.filter(l => s.labs[l.id]).length, controls: SB.controls(s).length, crew: s.crew.length, careerLvl: SB.careerLevel(s), success: s.successful, failed: s.failed, health: s.health, duels: s.duelStats.wins, hospital: s.hospital };
+    sold: s.trade.sold, spent: s.trade.spent, exported: s.trade.exported, blitz: s.trade.blitz, labs: SB.LABS.filter(l => s.labs[l.id]).length, controls: SB.controls(s).length, crew: s.crew.length, careerLvl: SB.careerLevel(s), success: s.successful, failed: s.failed, health: s.health, duels: s.duelStats.wins, hospital: s.hospital, heists: s.gangStats.heists, heistFails: s.gangStats.heistFails };
   for (const c of sc.cats) { out['v_' + c.id] = c.value; out['m_' + c.id] = c.medal; }
   return out;
 }

@@ -1,4 +1,4 @@
-# Submundo Brasil — Game Design (v0.9)
+# Submundo Brasil — Game Design (v1.0)
 
 Documento de referência das mecânicas. Os números aqui são os do código em
 `src/engine.js`. Se você mudar um valor no código, atualize este documento.
@@ -520,3 +520,32 @@ Itens antigos mantêm o código interno (saves continuam válidos); alguns só m
 - **UPA** (antes posto de saúde) e **Propina pro plantonista** (antes clínica): mesmas regras.
 - **Advogado de porta de cadeia** (antes fiança): sai na hora, garantido.
 - **Molhar a mão do carcereiro**: 45% do preço do advogado, uma tentativa por dia; chance `55 + Lábia − vigilância × 0,3` (15–85%). Se der errado, +1 dia e +8 de vigilância.
+
+---
+
+## 17. Assaltos do bando em etapas (v1.0)
+
+Na aba Gangue, **Assaltos do bando**. Um plano por vez, em quatro etapas:
+
+1. **Planejar** (15 de energia): paga o plano. Se faltar gente, contrata até 4 **avulsos** (mais fracos, pagos na hora). O plano vale do dia seguinte até 5 dias depois; se o prazo passar, esfria (−5 de ânimo).
+2. **Reconhecer o terreno** (15 de energia, 1 vez por dia): +12 de informação (+2 por nível de Olheiro, até +10), teto 40. Cada ponto vale +0,5% de chance. Sobe 4 de vigilância local.
+3. **Executar** (40 de energia, a partir do dia seguinte ao plano): exige o bando completo, ânimo ≥ 30, não estar ferido e a arma do líder com o poder mínimo.
+4. **Dividir**: o bando fica com 25%; o resto é seu.
+
+- **Poder do bando** = seu poder de luta + 3 × níveis dos integrantes + 2 × integrantes + 2 × níveis de Músculo + 4 × avulsos.
+- **Chance** = 40 + (poder − dificuldade) × 1,2 + informação × 0,5 + (ânimo − 50) × 0,15 − vigilância × 0,3 − penalidade de saúde − risco do evento ÷ 2 (5–90%).
+- **Sucesso**: dinheiro × economia do bairro, respeito, vigilância, ânimo +6, XP para todos.
+- **Fracasso**: −10% do caixa em mãos, vigilância alta, ânimo −15, ferimento, 35% de um integrante "rodar" (sai do bando) e chance de prisão de 2 a 3 dias (+1 com arma de fogo).
+- Depois de executar, o bando **esfria 3 dias** antes de novo plano. Cada assalto vira atrito com o grupo que manda no bairro e +25 de vigilância local.
+- Cada assalto certo vale **+15 na categoria Gangue**. Conquistas: **Primeiro assalto** e **Golpe do ano** (Cofre central).
+
+| Assalto | Bando | Sede | Arma | Respeito | Dificuldade | Plano · avulso | Rende | Prisão |
+|---|---|---|---|---|---|---|---|---|
+| Arrastão no shopping | 3 | 1 | 3 | 30 | 50 | R$ 400 · 300 | R$ 2.200–3.600 | 30% |
+| Bloqueio na rodovia | 5 | 2 | 9 | 55 | 80 | R$ 900 · 450 | R$ 5.000–8.000 | 36% |
+| Agência no interior | 6 | 3 | 13 | 80 | 110 | R$ 1.600 · 600 | R$ 9.000–14.000 | 42% |
+| Carro-forte na serra | 8 | 4 | 16 | 105 | 140 | R$ 2.600 · 800 | R$ 15.000–22.000 | 46% |
+| Base da transportadora de valores | 10 | 5 | 18 | 130 | 170 | R$ 4.000 · 1.000 | R$ 24.000–34.000 | 50% |
+| Cofre central | 12 | 6 | 21 | 155 | 200 | R$ 6.000 · 1.300 | R$ 38.000–52.000 | 55% |
+
+O serviço solo que se chamava "Carro-forte na serra" passou a se chamar **Cofre da joalheria** (mesmas regras), para não confundir com o assalto do bando.
