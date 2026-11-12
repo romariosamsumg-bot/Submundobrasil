@@ -107,8 +107,10 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   await go('noite');
   const e0 = (await st()).energy;
   await page.click('[data-action=night][data-id=boteco]');
+  check((await st()).today.venue === 'boteco' && await page.isVisible('[data-action=dose][data-id=pinga]'), 'entrar no boteco abre o balcão com o cardápio');
+  await page.click('[data-action=dose][data-id=pinga]');
   g7 = await st();
-  check(g7.energy === e0 + 12 && g7.ressaca === 3, 'boteco: +12 de energia e ressaca registrada');
+  check(g7.energy === e0 + 10 && g7.ressaca === 1 && g7.vicio === 2, 'pinga: +10 de energia, vício e ressaca registrados');
   await go('perfil');
   check((await page.textContent('.gearGrid')).includes('Cinquentinha'), 'Perfil mostra o equipamento');
   check(await page.isVisible('.mobileNav [data-view=hub].active') && await page.isVisible('.backLink'), 'Perfil fica dentro de Cidade');

@@ -534,6 +534,12 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 .fichaBtn{margin-top:2px}
 .localeBottom span.fix{flex:none}
 
+/* v1.4: balcão da noite e esquemas */
+.shopRow.here{border-color:var(--ambar);box-shadow:3px 3px 0 #05080a,inset 3px 0 0 var(--ambar)}
+.doseRow .shopAct{display:flex;flex-direction:column;gap:5px;align-items:stretch}
+.pill.bad{background:#5a2320;color:#ffd0c9;border-color:#a8473e}
+.tier{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:2px;border-radius:50%;background:var(--ambar);color:#1b1712;font:800 11px/1 system-ui,sans-serif;vertical-align:2px}
+
   </style>
 </head>
 <body>
@@ -830,26 +836,54 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   /* Mercadorias: preço = base × fator do bairro (60–150%). `risk` pesa na vigilância e nas blitze. */
   const GOODS = [
     { id: 'cigarro', name: 'Cigarro da fronteira', unit: 'pacote', base: 20, risk: 1, unlock: 0 },
-    { id: 'bebida', name: 'Bebida batizada', unit: 'caixa', base: 45, risk: 1, unlock: 10 },
+    { id: 'bebida', name: 'Whisky falsificado', unit: 'caixa', base: 45, risk: 1, unlock: 10 },
     { id: 'erva', name: 'Erva', unit: 'tijolo', base: 70, risk: 2, unlock: 20 },
     { id: 'eletro', name: 'Eletrônico sem nota', unit: 'caixa', base: 120, risk: 2, unlock: 30 },
     { id: 'bala', name: 'Bala', unit: 'cartela', base: 160, risk: 3, unlock: 60 },
-    { id: 'po', name: 'Pó', unit: 'pacote', base: 300, risk: 4, unlock: 100 }
+    { id: 'po', name: 'Pó', unit: 'pacote', base: 300, risk: 4, unlock: 100 },
+    { id: 'gelo', name: 'Gelo saborizado', unit: 'caixa', base: 10, risk: 0, unlock: 0 },
+    { id: 'lolo', name: 'Loló', unit: 'frasco', base: 110, risk: 3, unlock: 45 }
   ];
   const SELL_SPREAD = 0.95;
   /* Produção própria: gera mercadoria todo dia; batidas policiais dependem da sua vigilância. */
+  /* v1.4: sete esquemas, do gelo à refinaria. Só nome, custo e risco: nada de método.
+   * `cash` rende dinheiro no banco em vez de mercadoria; `bribe` é propina fixa por nível,
+   * que corta pela metade a chance de batida; `good2/out2` é a segunda mercadoria do ponto. */
   const LABS = [
-    { id: 'alambique', name: 'Alambique de fundo de quintal', good: 'bebida', cost: 2000, unlock: 15, out: 7 },
-    { id: 'plantacao', name: 'Plantação na mata', good: 'erva', cost: 3600, unlock: 35, out: 6 },
-    { id: 'laboratorio', name: 'Laboratório de galpão', good: 'bala', cost: 7000, unlock: 80, out: 4 }
+    { id: 'gelo', name: 'Fábrica de gelo saborizado', good: 'gelo', cost: 500, unlock: 0, out: 10, desc: 'Gelo de coco e de melancia para os bailes de rua. O primeiro esquema de quem saiu da sarjeta.' },
+    { id: 'paraguai', name: 'Galpão de cigarro do Paraguai', good: 'cigarro', cost: 1200, unlock: 8, out: 9, desc: 'Contrabando clássico de caixa fechada: giro rápido e retorno garantido.' },
+    { id: 'alambique', name: 'Depósito de bebida falsa', good: 'bebida', cost: 2000, unlock: 15, out: 7, desc: 'Rótulo importado, procedência nenhuma. Vende no mercado ou abastece o seu Inferninho.' },
+    { id: 'gatonet', name: 'Central de internet (gatonet)', cash: 200, cost: 3200, unlock: 25, desc: 'Clientes pendurados nos postes pagam a mensalidade em dia. Dinheiro limpo direto no banco, sem estoque e sem batida.' },
+    { id: 'plantacao', name: 'Plantação de maconha', good: 'erva', cost: 3600, unlock: 35, out: 6, desc: 'Terreno escondido e vigia contra batida. Fardos de valor alto para o mercado.' },
+    { id: 'laboratorio', name: 'Laboratório químico', good: 'bala', out: 4, good2: 'lolo', out2: 3, cost: 7000, unlock: 80, bribe: 60, desc: 'Loló e bala em escala. Paga propina fixa para a fiscalização olhar para o outro lado.' },
+    { id: 'refinaria', name: 'Refinaria do pó', good: 'po', cost: 25000, unlock: 150, out: 3, bribe: 150, desc: 'O topo do império. Cada lote vendido no Navio vale uma fortuna e dispara o respeito.' }
   ];
   const LAB_MULT = [0, 1, 1.8, 2.6];
   /* Vida noturna: troca dinheiro por energia, com ressaca no dia seguinte. */
+  /* v1.4: a casa cobra a entrada (e traz os riscos dela); a energia vem das doses do cardápio. */
   const NIGHT = [
-    { id: 'boteco', name: 'Boteco do Zé', desc: 'Cerveja quente, pinga com mel e café no copo americano. Pra quem ainda não é ninguém.', cost: 40, energy: 12, ressaca: 3, vicio: 4, raid: 8 },
-    { id: 'pagode', name: 'Pagode na laje', desc: 'Churrasquinho de gato e balde de latão. Bom lugar para firmar contato e animar o bonde.', cost: 120, energy: 22, ressaca: 5, vicio: 5, morale: 4, contact: 60, raid: 4 },
-    { id: 'baile', name: 'Baile de favela', desc: 'Copão de whisky com energético até de manhã. Recarrega muito, mas é onde se cruza com gente de outra gangue.', cost: 160, energy: 38, ressaca: 8, vicio: 9, morale: 3, heat: 2, brawl: 22, raid: 10 },
-    { id: 'termas', name: 'Termas VIP', desc: 'Fachada com manobrista e segurança armada na porta. Os chefões fecham negócio na suíte presidencial.', cost: 900, energy: 100, ressaca: 4, vicio: 3, unlock: 60, boss: true }
+    { id: 'boteco', name: 'Boteco do Zé', desc: 'Cerveja quente, pinga com mel e café no copo americano. Pra quem ainda não é ninguém.', cost: 10, raid: 8, menu: ['cigarro', 'cerveja', 'pinga'] },
+    { id: 'pagode', name: 'Pagode na laje', desc: 'Churrasquinho de gato e balde de latão. Bom lugar para firmar contato e animar o bonde.', cost: 40, morale: 4, contact: 60, raid: 4, menu: ['cigarro', 'cerveja', 'pinga', 'erva'] },
+    { id: 'baile', name: 'Baile de favela', desc: 'Copão até de manhã. Recarrega muito, mas é onde se cruza com gente de outra gangue.', cost: 60, morale: 3, heat: 2, brawl: 22, raid: 10, menu: ['cigarro', 'cerveja', 'whisky', 'erva', 'lolo'] },
+    { id: 'inferninho', name: 'Inferninho da Luz Vermelha', desc: 'Luz vermelha, som alto e porta fechada. Pra quem não quer perder tempo.', cost: 150, heat: 3, raid: 12, unlock: 40, menu: ['cigarro', 'whisky', 'lolo', 'bala'] },
+    { id: 'termas', name: 'Termas VIP', desc: 'Fachada com manobrista e segurança armada na porta. Os chefões fecham negócio na suíte presidencial.', cost: 400, unlock: 60, boss: true, menu: ['whisky', 'bala', 'po'] }
+  ];
+  /* Cardápio: quanto mais forte, mais energia por dose e mais vício. `good` = pode vir do seu estoque. */
+  const DOSES = [
+    { id: 'cigarro', name: 'Cigarro', energy: 2, vicio: 0, ressaca: 0, price: 8, max: 5, good: 'cigarro', desc: 'Inteira os pontinhos que faltam para o próximo roubo. Até 5 por dia.' },
+    { id: 'cerveja', name: 'Cerveja', energy: 5, vicio: 1, ressaca: 0, price: 15, desc: 'O combustível do começo da noite.' },
+    { id: 'pinga', name: 'Pinga', energy: 10, vicio: 2, ressaca: 1, price: 30, desc: 'Barata e direta, para quem ainda rouba de peixeira.' },
+    { id: 'whisky', name: 'Whisky falsificado', energy: 20, vicio: 4, ressaca: 1, price: 70, azia: 12, good: 'bebida', desc: 'Copão batizado: às vezes dá azia braba (−5 de saúde).' },
+    { id: 'erva', name: 'Erva', energy: 30, vicio: 4, ressaca: 0, price: 100, good: 'erva', desc: 'O melhor custo-benefício: muita energia, pouco vício.' },
+    { id: 'lolo', name: 'Loló', energy: 50, vicio: 10, ressaca: 2, price: 180, strong: true, good: 'lolo', desc: 'Dois e a barra enche. Com vício alto, risco de teto preto.' },
+    { id: 'bala', name: 'Bala', energy: 75, vicio: 18, ressaca: 3, price: 300, strong: true, good: 'bala', desc: 'Para quem não quer perder tempo. Vício muito alto.' },
+    { id: 'po', name: 'Pó', energy: 100, vicio: 30, ressaca: 3, price: 600, strong: true, good: 'po', desc: 'Um só e o cansaço some. Vício extremo: a clínica cobra caro depois.' }
+  ];
+  const DOSE_LIMIT = 15;
+  /* Casa da noite abastecida com a sua produção: renda dobrada no dia. */
+  const SUPPLY = [
+    { biz: 'inferninho', labs: ['alambique', 'laboratorio'], goods: ['bebida', 'lolo', 'bala'], qty: 5 },
+    { biz: 'termas', labs: ['refinaria'], goods: ['po'], qty: 2 }
   ];
 
   /* ------------------------------------------------------------------
@@ -935,7 +969,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     { id: 'career', title: 'Escolha sua especialização', text: 'Ela define seu estilo na temporada: Assaltante vive de roubo, Traficante de mercadoria, Barão da Noite das casas, Bicheiro de negócios e Articulador de influência.', view: 'painel', cta: 'Ver especializações', reward: 0, check: s => !!s.career },
     { id: 'mission', title: 'Faça seu primeiro roubo', text: 'Roubar gasta energia e rende dinheiro e respeito. Olhe a chance antes: falhar custa caixa e pode dar cadeia.', view: 'acoes', cta: 'Ir roubar', reward: 80, check: s => s.successful + s.failed >= 1 },
     { id: 'gear', title: 'Compre sua primeira arma', text: 'Arma é o que abre os roubos maiores. Comece com o que o bolso permite: um pedaço de pau já serve.', view: 'feira', cta: 'Ir à Feira do Rolo', reward: 60, check: s => !!s.gear.arma },
-    { id: 'night', title: 'Recarregue na noitada', text: 'Acabou a energia? A noite troca dinheiro por energia para você continuar agindo hoje. Amanhã vem a ressaca.', view: 'noite', cta: 'Ir para a noite', reward: 40, check: s => s.tutorial.nighted },
+    { id: 'night', title: 'Recarregue na noitada', text: 'Acabou a energia? Entre no Boteco e peça uma dose: dinheiro vira energia para continuar hoje. Amanhã vem a ressaca, e cada dose sobe o vício.', view: 'noite', cta: 'Ir para a noite', reward: 40, check: s => s.tutorial.nighted },
     { id: 'train', title: 'Treine um atributo', text: 'Cada roubo usa um atributo. Treinar aumenta a chance e o seu poder de luta.', view: 'acoes', cta: 'Ir treinar', reward: 60, check: s => s.tutorial.trained },
     { id: 'day', title: 'Durma: vire o dia', text: 'Sem energia e sem saída na noite, durma: +70 de energia, o Procurado cai, a renda entra e os grupos se movem. A temporada tem 30 dias.', view: 'painel', cta: 'Voltar para a rua', reward: 60, check: s => s.day >= 2 },
     { id: 'goal', title: 'Escolha a meta da temporada', text: 'A meta é o seu norte: cumprir rende bônus e pontos. Escolha até o dia 5.', view: 'temporada', cta: 'Escolher meta', reward: 0, check: s => !!s.goal || s.day > 5 },
@@ -1069,7 +1103,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     return [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, f.id === owner ? (legacyRivals && isNum(legacyRivals[d.id]) ? clamp(Math.round(legacyRivals[d.id]), 0, 100) : 22 + i * 3) : (f.id === 'aurora' ? 4 : 2)]))];
   }));
   const initialDistrictState = () => Object.fromEntries(DISTRICTS.map(d => [d.id, { vigil: 0, econ: 1 }]));
-  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false, bribe: false, bets: 0, detox: false, despachante: false, termas: false });
+  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false, bribe: false, bets: 0, detox: false, despachante: false, termas: false, venue: null, doses: 0, dose: {} });
   const startMarket = () => Object.fromEntries(DISTRICTS.map((d, i) => [d.id, Object.fromEntries(GOODS.map((g, j) => [g.id, 85 + ((i * 7 + j * 11) % 5) * 8]))]));
   const emptySeasonStats = () => ({ arrests: 0, startRespect: 5, bailPaid: 0, controlDays: Object.fromEntries(DISTRICTS.map(d => [d.id, 0])), bestCash: 0 });
 
@@ -1241,6 +1275,9 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       s.today.bribe = saved.today.bribe === true;
       s.today.bets = toInt(saved.today.bets, 0, 0, 99);
       for (const k of ['detox', 'despachante', 'termas']) s.today[k] = saved.today[k] === true;
+      s.today.venue = NIGHT.some(n => n.id === saved.today.venue) ? saved.today.venue : null;
+      s.today.doses = toInt(saved.today.doses, 0, 0, 99);
+      for (const d of DOSES) if (isNum(saved.today.dose && saved.today.dose[d.id])) s.today.dose[d.id] = toInt(saved.today.dose[d.id], 0, 0, 99);
     }
     const ss = saved.seasonStats || {};
     s.seasonStats = {
@@ -1477,16 +1514,29 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   const EXPORT_LIMIT = 60;
   const exportLimit = s => hasPerk(s, 'traficante', 3) ? 70 : EXPORT_LIMIT;
   const labCost = (s, l) => Math.round(l.cost * (s.career === 'traficante' ? .9 : 1) * [1, .8, 1.2][s.labs[l.id]] || 0);
-  const labOutput = (s, l) => Math.round(l.out * LAB_MULT[s.labs[l.id]] * (s.career === 'traficante' ? 1.1 : 1));
-  const labUpkeep = s => sum(LABS.map(l => s.labs[l.id] * 30));
+  const labOutput = (s, l, n = l.out) => Math.round((n || 0) * LAB_MULT[s.labs[l.id]] * (s.career === 'traficante' ? 1.1 : 1));
+  const labCash = (s, l) => Math.round((l.cash || 0) * LAB_MULT[s.labs[l.id]]);
+  const labUpkeep = s => sum(LABS.map(l => s.labs[l.id] * (30 + (l.bribe || 0))));
+  const labRaid = (s, l) => l.cash || good(l.good).risk === 0 ? 0 : Math.round(raidChance(s) * (l.bribe ? .5 : 1));
   const raidChance = s => clamp(Math.round((s.heat - 40) * .5 * (hasPerk(s, 'traficante', 3) ? .5 : 1)), 0, 25);
   const NIGHT_LIMIT = 3;
   /** Dono do Bar bebe de graça no boteco; cada saída extra no dia custa 50% a mais. */
   /** Sua própria Termas VIP dá uma recarga limpa por dia: grátis, sem vício e sem exigir respeito. */
   const ownTermas = (s, n) => n.id === 'termas' && s.businesses.includes('termas') && !s.today.termas;
-  const nightCost = (s, n) => (ownTermas(s, n) || (n.id === 'boteco' && s.businesses.includes('bar'))) ? 0 : Math.round(n.cost * (s.career === 'barao' ? .6 : 1) * (1 + s.today.night * .5));
+  const nightCost = (s, n) => (ownTermas(s, n) || (n.id === 'boteco' && s.businesses.includes('bar')) || (n.id === 'inferninho' && s.businesses.includes('inferninho'))) ? 0 : Math.round(n.cost * (s.career === 'barao' ? .6 : 1) * (1 + s.today.night * .5));
+  /** Dose: Barão paga 40% menos; dono do Bar paga metade no Boteco. */
+  const doseCost = (s, d, n = NIGHT.find(x => x.id === s.today.venue)) => Math.round(d.price * (s.career === 'barao' ? .6 : 1) * (n && n.id === 'boteco' && s.businesses.includes('bar') ? .5 : 1));
+  const doseVicio = (s, d) => Math.ceil(d.vicio * (s.career === 'barao' ? .5 : 1));
+  const doseOf = id => DOSES.find(d => d.id === id);
+  /** Casa abastecida: tem o esquema produtor e estoque suficiente. Devolve o que seria gasto. */
+  function supplyPlan(s, sp) {
+    if (!s.businesses.includes(sp.biz) || !sp.labs.some(id => s.labs[id] > 0)) return null;
+    let need = sp.qty; const use = {};
+    for (const g of sp.goods) { const q = Math.min(need, s.goods[g]); if (q > 0) { use[g] = q; need -= q; } }
+    return need > 0 ? null : use;
+  }
   /** Quanto mais viciado, menos cada saída recarrega (no mínimo 40%). */
-  const nightEnergy = (s, n) => ownTermas(s, n) ? n.energy : Math.max(1, Math.round(n.energy * Math.max(.4, 1 - s.vicio / 160)));
+  const nightEnergy = (s, d) => Math.max(1, Math.round(d.energy * Math.max(.4, 1 - s.vicio / 160)));
   const overdoseChance = s => s.vicio >= 70 ? clamp(s.vicio - 60, 0, 40) : 0;
   const detoxCost = s => s.vicio * 18;
   /** Dono da Casa de Shows não corre risco de briga no baile: a segurança é sua. */
@@ -2038,11 +2088,13 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     const total = exportPrice(g, s) * qty;
     s.cash += total; s.goods[g.id] -= qty; s.trade.sold += total; s.trade.exported += qty; s.exportDone = s.day;
     addXP(s, 'traficante', 3);
-    s.respect += Math.ceil(qty / 10); addHeat(s, 6);
+    s.respect += Math.ceil(qty / 10) * (g.id === 'po' ? 3 : 1); addHeat(s, 6);
     unlock(s, 'exportador');
     log(s, `Remessa para fora: ${qty} × ${g.name} por ${money(total)}.`);
     return done(true, `Remessa fechada: ${qty} × ${g.name} por ${money(total)}.`);
   }
+  /** Texto do que um esquema rende por dia no nível atual. */
+  const labYield = (s, l) => l.cash ? `${money(labCash(s, l))} no banco` : `${labOutput(s, l)} × ${good(l.good).name}${l.good2 ? ` e ${labOutput(s, l, l.out2)} × ${good(l.good2).name}` : ''}`;
   function doBuildLab(s, id) {
     const l = LABS.find(x => x.id === id); if (!l) return refuse('Produção desconhecida.');
     if (s.jail > 0) return refuse('Você está detido.');
@@ -2052,42 +2104,65 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     if (s.cash < c) return refuse(`Custa ${money(c)} em mãos.`);
     s.cash -= c; s.labs[l.id]++;
     addXP(s, 'traficante', 2);
-    if (LABS.every(x => s.labs[x.id] > 0)) unlock(s, 'industria');
-    log(s, `${l.name} ${s.labs[l.id] === 1 ? 'montado' : 'ampliado para o nível ' + s.labs[l.id]} por ${money(c)}: ${labOutput(s, l)} × ${good(l.good).name} por dia.`);
+    if (LABS.filter(x => s.labs[x.id] > 0).length >= 3) unlock(s, 'industria');
+    log(s, `${l.name} ${s.labs[l.id] === 1 ? 'montado' : 'ampliado para o nível ' + s.labs[l.id]} por ${money(c)}: ${labYield(s, l)} por dia.`);
     return done(true, `${l.name}: nível ${s.labs[l.id]}.`);
   }
   function doNight(s, id) {
     const n = NIGHT.find(x => x.id === id); if (!n) return refuse('Lugar desconhecido.');
     if (blocked(s)) return refuse(blocked(s));
+    if (s.today.venue === n.id) return refuse(`Você já está no ${n.name}. Peça no balcão.`);
     if (s.today.night >= NIGHT_LIMIT) return refuse('Três saídas por dia já é demais. Durma e amanhã tem mais.');
     if (s.energy >= 100) return refuse('Você já está com a energia cheia.');
     const own = ownTermas(s, n), barao2 = hasPerk(s, 'barao', 2);
     if (n.unlock && s.respect < n.unlock && !own) return refuse(`A porta só abre para quem tem ${n.unlock} de respeito.`);
     const c = nightCost(s, n);
-    if (s.cash < c) return refuse(`Custa ${money(c)} em mãos.`);
-    const gain = nightEnergy(s, n), od = own ? 0 : overdoseChance(s);
-    s.cash -= c; s.today.night++; s.tutorial.nighted = true; if (own) s.today.termas = true;
-    s.energy = clamp(s.energy + gain, 0, 100);
-    s.ressaca = clamp(s.ressaca + Math.ceil(n.ressaca * (hasPerk(s, 'barao', 1) ? .5 : 1)), 0, 30);
-    if (!own) s.vicio = clamp(s.vicio + Math.ceil(n.vicio * (s.career === 'barao' ? .5 : 1)), 0, 100);
+    if (s.cash < c) return refuse(`A entrada custa ${money(c)} em mãos.`);
+    s.cash -= c; s.today.night++; s.today.venue = n.id;
     addXP(s, 'barao', 1);
     if (s.career === 'barao') s.respect += 1; // é visto, é lembrado
     if (n.morale) addMorale(s, n.morale);
     if (n.heat) addHeat(s, n.heat);
     let extra = '';
+    if (own) { s.today.termas = true; s.tutorial.nighted = true; s.energy = 100; extra += ' Na sua casa: energia cheia, sem vício e sem conta.'; }
     if (n.contact && roll(n.contact)) { const b = 3 + Math.floor(s.stats.labia / 8); addInf(s, s.district, b); extra += ` Você firmou contatos: +${b} de influência em ${district(s).name}.`; }
     if (n.brawl && !nightSafe(s, n) && !barao2 && roll(n.brawl)) { addHeat(s, 5); extra += ` Cruzou com gente de outra gangue e saiu na mão:${hurt(s, rand(8, 16))}`; }
     if (n.raid && !barao2 && !s.hospital && roll(Math.round(n.raid * eventMod(s, 'nightRiskMult')))) { const fine = Math.min(s.cash, 500, Math.ceil(s.cash * .05)); s.cash -= fine; addHeat(s, 8); extra += ` Batida policial: ${money(fine)} de "cafezinho" e +8 de Procurado.`; }
     if (n.boss) { const l = leader(s, s.district); addRel(s, l.id, 5); extra += ` Negócio fechado com ${faction(l.id).short}: relação +5.`; }
-    if (od && !s.hospital && roll(od)) {
-      s.hospital = 1; s.health = clamp(s.health - 25, 1, 100); const lostR = loseRespect(s, .03); s.overdoses++;
-      extra += ` Você exagerou: overdose. Um dia na UPA, -25 de saúde e -${lostR} de respeito.`;
-      log(s, `${n.name}: overdose (vício ${s.vicio}).${extra}`);
-      return done(false, `${n.name}: você passou mal.${extra}`);
-    }
-    log(s, `${n.name}: +${gain} de energia por ${money(c)}.${extra} Vício ${s.vicio}/100; ressaca amanhã: -${s.ressaca}.`);
-    return done(true, `${n.name}: +${gain} de energia.${extra}`);
+    if (s.hospital) s.today.venue = null;
+    log(s, `${n.name}: entrada ${money(c)}.${extra}`);
+    return done(true, `Você entrou no ${n.name}.${extra}`);
   }
+  /** Uma dose do cardápio da casa onde você está; `fromStock` usa a sua mercadoria em vez de pagar. */
+  function doDose(s, id, fromStock) {
+    const n = NIGHT.find(x => x.id === s.today.venue); if (!n) return refuse('Entre numa casa da noite primeiro.');
+    if (blocked(s)) return refuse(blocked(s));
+    const d = doseOf(id); if (!d || !n.menu.includes(d.id)) return refuse('Isso não tem aqui.');
+    if (s.today.doses >= DOSE_LIMIT) return refuse(`Por hoje chega: ${DOSE_LIMIT} doses é o limite do corpo.`);
+    if (d.max && (s.today.dose[d.id] || 0) >= d.max) return refuse(`${d.name}: no máximo ${d.max} por dia.`);
+    if (s.energy >= 100) return refuse('Você já está com a energia cheia.');
+    const stock = !!fromStock;
+    if (stock && (!d.good || s.goods[d.good] < 1)) return refuse('Você não tem isso no estoque.');
+    const c = stock ? 0 : doseCost(s, d, n);
+    if (s.cash < c) return refuse(`Custa ${money(c)} em mãos.`);
+    const gain = nightEnergy(s, d), od = d.strong ? overdoseChance(s) : 0;
+    if (stock) s.goods[d.good]--; else s.cash -= c;
+    s.today.doses++; s.today.dose[d.id] = (s.today.dose[d.id] || 0) + 1; s.tutorial.nighted = true;
+    s.energy = clamp(s.energy + gain, 0, 100);
+    s.vicio = clamp(s.vicio + doseVicio(s, d), 0, 100);
+    s.ressaca = clamp(s.ressaca + Math.ceil(d.ressaca * (hasPerk(s, 'barao', 1) ? .5 : 1)), 0, 30);
+    let extra = '';
+    if (d.azia && roll(d.azia)) { s.health = clamp(s.health - 5, 1, 100); extra += ' Veio batizado demais: azia braba, −5 de saúde.'; }
+    if (od && !s.hospital && roll(od)) {
+      s.hospital = 1; s.today.venue = null; s.health = clamp(s.health - 25, 1, 100); const lostR = loseRespect(s, .03); s.overdoses++;
+      extra += ` Teto preto: overdose. Um dia na UPA, −25 de saúde e −${lostR} de respeito.`;
+      log(s, `${n.name}, ${d.name}: overdose (vício ${s.vicio}).${extra}`);
+      return done(false, `${d.name}: você passou mal.${extra}`);
+    }
+    log(s, `${n.name}: ${d.name} ${stock ? 'do seu estoque' : 'por ' + money(c)}, +${gain} de energia.${extra} Vício ${s.vicio}/100.`);
+    return done(true, `${d.name}: +${gain} de energia.${extra}`);
+  }
+
 
 
   /* ---------- v0.8: duelos e hospital ---------- */
@@ -2532,16 +2607,29 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     for (const l of LABS) {
       if (!s.labs[l.id]) continue;
       if (s.labDown[l.id] >= s.day) continue;
-      if (roll(raidChance(s))) {
-        const g = good(l.good), q = s.goods[g.id];
-        s.goods[g.id] = 0; s.labDown[l.id] = s.day + 2; addHeat(s, 8);
-        lines.push(`Batida policial: ${l.name} fechado por 2 dias${q ? ` e ${q} × ${g.name} apreendidos` : ''}.`);
+      if (roll(labRaid(s, l))) {
+        const lost = [l.good, l.good2].filter(Boolean).map(id => { const q = s.goods[id]; s.goods[id] = 0; return q ? `${q} × ${good(id).name}` : ''; }).filter(Boolean);
+        s.labDown[l.id] = s.day + 2; addHeat(s, 8);
+        lines.push(`Batida policial: ${l.name} fechado por 2 dias${lost.length ? ` e ${lost.join(' e ')} apreendidos` : ''}.`);
         continue;
       }
       if (!labPaid) continue;
-      const q = Math.min(labOutput(s, l), Math.max(0, cargoCap(s) - cargoUsed(s)));
-      if (q > 0) { s.goods[l.good] += q; lines.push(`${l.name}: +${q} × ${good(l.good).name}.`); }
-      else lines.push(`${l.name} parado: galpão cheio.`);
+      if (l.cash) { const v = labCash(s, l); s.bank += v; lines.push(`${l.name}: +${money(v)} de mensalidades no banco.`); continue; }
+      const made = [];
+      for (const [gid, n] of [[l.good, l.out], [l.good2, l.out2]]) {
+        if (!gid) continue;
+        const q = Math.min(labOutput(s, l, n), Math.max(0, cargoCap(s) - cargoUsed(s)));
+        if (q > 0) { s.goods[gid] += q; made.push(`+${q} × ${good(gid).name}`); }
+      }
+      lines.push(made.length ? `${l.name}: ${made.join(', ')}.` : `${l.name} parado: galpão cheio.`);
+    }
+    // Casa da noite abastecida com a própria produção: renda dobrada.
+    for (const sp of SUPPLY) {
+      const use = supplyPlan(s, sp); if (!use) continue;
+      const b = business(sp.biz), v = Math.round(b.net * s.dstate[b.district].econ); // dobra a renda base, sem somar bônus de classe
+      for (const g in use) s.goods[g] -= use[g];
+      s.cash += v;
+      lines.push(`${business(sp.biz).name} abastecido com a sua produção (${Object.entries(use).map(([g, q]) => `${q} × ${good(g).name}`).join(', ')}): +${money(v)}.`);
     }
     if (s.exportDeal.day < s.day) {
       const pool = GOODS.filter(g => g.unlock <= s.respect + 40);
@@ -2694,7 +2782,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     bank: doBank, buy: doBuy, sell: doSell, contact: doContact, dispute: doDispute,
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
-    duel: doDuel, clinic: doClinic, bribe: doBribe, detox: doDetox, cleanRecord: doCleanRecord, bet: doBet, heistPlan: doHeistPlan, heistScout: doHeistScout, heistRun: doHeistRun, heistCancel: doHeistCancel, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, night: doNight,
+    duel: doDuel, clinic: doClinic, bribe: doBribe, detox: doDetox, cleanRecord: doCleanRecord, bet: doBet, heistPlan: doHeistPlan, heistScout: doHeistScout, heistRun: doHeistRun, heistCancel: doHeistCancel, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, dose: doDose, night: doNight,
     avatar: doAvatar, career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay, endSeason
   };
   /** Executa uma ação e roda verificações pós-ação. */
@@ -2715,7 +2803,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     STATS, MISSIONS, DISTRICTS, BUSINESSES, HEISTS, HEIST_MAX_HIRES, HEIST_WINDOW, HEIST_COOLDOWN, HEIST_CUT, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, AVATARS, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
-    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
     missionScore, missionChance, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
@@ -3229,7 +3317,8 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
       ['Os riscos', `<p><strong>Procurado</strong> (barra vermelha) sobe a cada serviço e derruba suas chances. Ele cai sozinha ao virar o dia, ou com “Ficar na sua”.</p>
         <p><strong>Falhar</strong> tira parte do dinheiro <em>em mãos</em> e pode dar <strong>detenção</strong> (dias perdidos, ou fiança). O banco protege o dinheiro por uma taxa.</p>
         <p><strong>Assaltos do bando</strong> (Cidade → Bando): planeje, estude o terreno nos dias seguintes e execute dentro do prazo. Do arrastão no shopping ao cofre central; os maiores pedem bando grande e arma pesada.</p>
-        <p><strong>Vício</strong> (barra roxa): cada saída na noite sobe o vício; alto, a noite recarrega menos e pode dar overdose. O Hospital limpa.</p>
+        <p><strong>Noite</strong>: entre numa casa (a entrada conta como saída) e peça doses no balcão, de cigarro (+2) a pó (+100). Quanto mais forte, mais vício.</p>
+        <p><strong>Vício</strong> (barra roxa): cada dose sobe o vício; alto, a dose recarrega menos e loló, bala e pó podem dar overdose. O Hospital limpa.</p>
         <p><strong>Colete</strong>: roubo armado que dá errado vira trocação com a segurança. O colete decide se você sai ferido ou vai para a UPA. Ser preso custa respeito.</p>
         <p><strong>Saúde</strong> (barra azul) cai em confrontos, duelos e serviços de força que dão errado. Abaixo de 60 suas chances caem; a zero, você é internado. Cure no Hospital ou esperando.</p>
         <p>Toque no seu retrato, no topo, para abrir o <strong>Perfil</strong> e escolher outra foto.</p>
@@ -3254,7 +3343,7 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
   function nextMove() {
     const s = state;
     if (SB.blocked(s)) return null;
-    const best = suggestion(), lowEnergy = s.energy < 16, canNight = s.today.night < SB.NIGHT_LIMIT && s.energy < 100;
+    const best = suggestion(), lowEnergy = s.energy < 16, canNight = (s.today.night < SB.NIGHT_LIMIT || !!s.today.venue) && s.energy < 100 && s.today.doses < SB.DOSE_LIMIT;
     const curCost = (SB.item(s.gear.arma) || { cost: 0 }).cost, back = Math.round(curCost * SB.ITEM_RESALE);
     const upgrade = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && i.cost > curCost && s.respect >= i.unlock && s.cash + back >= i.cost * 1.5).pop();
     const lockedByGun = SB.MISSIONS.find(m => (SB.missionLock(s, m) || '').startsWith('Requer arma'));
@@ -3262,7 +3351,7 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
     if (s.vicio >= 70) return { tag: 'Vício alto', title: 'Hora de desintoxicar', text: `Vício ${s.vicio}/100: a noite recarrega menos e há ${SB.overdoseChance(s)}% de chance de overdose a cada saída.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
     if (s.heat >= 65 && s.energy >= 18) return { tag: 'Procurado alto', title: 'Fique na sua', text: 'A polícia está de olho: cada roubo agora tem mais chance de dar cadeia.', btn: button('Reduzir exposição · 18 energia', 'lay-low', '', false, 'primary') };
     if (upgrade && (lockedByGun || !s.gear.arma)) return { tag: 'Dinheiro no bolso', title: `Dá para comprar: ${upgrade.name}`, text: lockedByGun ? `Arma melhor abre roubo maior, como “${lockedByGun.name}”.` : 'Arma é o que abre os roubos maiores.', btn: button('Ir à Feira do Rolo', 'switch', 'data-target="feira"', false, 'primary') };
-    if (lowEnergy && canNight) { const n = SB.NIGHT.filter(x => (!x.unlock || s.respect >= x.unlock) && SB.nightCost(s, x) <= s.cash).pop(); if (n) return { tag: 'Sem energia', title: 'Hora da noitada', text: `Recarregue e continue hoje. Saídas: ${s.today.night}/${SB.NIGHT_LIMIT}.`, btn: button('Ir para a noite', 'switch', 'data-target="noite"', false, 'primary') }; }
+    if (lowEnergy && canNight) { const n = SB.NIGHT.filter(x => (!x.unlock || s.respect >= x.unlock) && SB.nightCost(s, x) <= s.cash).pop(); if (n) return { tag: 'Sem energia', title: 'Hora da noitada', text: s.today.venue ? `Você ainda está na casa: peça uma dose e volte a roubar. Doses: ${s.today.doses}/${SB.DOSE_LIMIT}.` : `Entre numa casa e peça uma dose. Saídas: ${s.today.night}/${SB.NIGHT_LIMIT}.`, btn: button(s.today.venue ? 'Ir ao balcão' : 'Ir para a noite', 'switch', 'data-target="noite"', false, 'primary') }; }
     if (lowEnergy) return { tag: 'Sem energia', title: s.day >= MAXDAY ? 'Fim da temporada' : 'Durma e vire o dia', text: s.day >= MAXDAY ? 'Último dia: encerre a temporada.' : '+70 de energia, o Procurado cai e a renda entra.', btn: nextDayButton('') };
     if (best) { const p = SB.missionChance(s, best); return { tag: 'Roubo da vez', title: best.name, text: `${best.cost} energia · ${fmt(best.low * SB.missionRewardMult(s, best))}–${fmt(best.high * SB.missionRewardMult(s, best))} · ${p}% de chance`, btn: button('Executar', 'mission', `data-id="${best.id}"`, false, 'primary'), icon: best.stat }; }
     return { tag: 'Nada com boa chance', title: 'Treine ou mude de ares', text: 'Treine um atributo, baixe o Procurado ou vá a outro bairro.', btn: button('Ver roubos e treino', 'switch', 'data-target="acoes"', false, 'primary') };
@@ -3533,29 +3622,39 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
       <section class="card"><div class="meterlabel"><span>Carga</span><strong>${used}/${cap}</strong></div><div class="meter"><div style="width:${pct(used / cap * 100)}%"></div></div>
         <p class="mini" style="margin-top:7px">Veículos e pontos de produção aumentam o espaço. ${blitz ? `<span class="negative">Viajar com esta carga: ${blitz}% de chance de blitz (perde metade).</span>` : 'Sem carga, sem blitz.'}</p></section>
       <section class="poster" style="margin-top:10px"><div class="posterHead">COMPRADOR DE FORA</div><p>${dealTxt}</p>${open ? button(`Entregar ${Math.min(SB.exportLimit(s), s.goods[dg.id])} × ${esc(dg.name)}`, 'export-goods', '', s.goods[dg.id] < 1 || s.exportDone === s.day || s.jail > 0, 'small block') : ''}</section>
-      ${stencil('Mercadorias', 'preço em ' + esc(D().name))}<div class="grid">${SB.GOODS.map(g => { const locked = s.respect < g.unlock, f = s.market[s.district][g.id], own = s.goods[g.id], mb = locked ? 0 : maxBuy(g);
+      ${stencil('Mercadorias', 'preço em ' + esc(D().name))}<div class="grid">${SB.GOODS.slice().sort((a, b) => a.unlock - b.unlock).map(g => { const locked = s.respect < g.unlock, f = s.market[s.district][g.id], own = s.goods[g.id], mb = locked ? 0 : maxBuy(g);
         const best = SB.DISTRICTS.reduce((a, d) => SB.goodSellPrice(s, g, d.id) > SB.goodSellPrice(s, g, a.id) ? d : a, SB.DISTRICTS[0]);
         const off = s.jail > 0 || s.energy < 3;
         return `<section class="card goodRow ${locked ? 'locked' : ''}"><div class="space"><h3>${esc(g.name)} <span class="chip ${f <= 90 ? 'up' : f >= 112 ? 'down' : ''}">${f <= 90 ? 'barato' : f >= 112 ? 'caro' : 'normal'} ${f}%</span></h3><strong>${own} un.</strong></div>
           <p class="mini">Compra ${fmt(SB.goodPrice(s, g))} · venda ${fmt(SB.goodSellPrice(s, g))} por ${esc(g.unit)} · risco ${'●'.repeat(g.risk)}${'○'.repeat(4 - g.risk)} · melhor venda hoje: ${esc(best.name)} (${fmt(SB.goodSellPrice(s, g, best.id))})</p>
           ${locked ? `<div class="lockline">Requer ${g.unlock} de respeito.</div>` : `<div class="tradeBtns">${button(`+5 · ${fmt(SB.buyTotal(s, g, 5))}`, 'buy-good', `data-id="${g.id}" data-qty="5"`, off || mb < 5, 'small')}${button(`+${mb} (máx.)`, 'buy-good', `data-id="${g.id}" data-qty="${mb}"`, off || mb < 1, 'small')}${button(`−5 · ${fmt(SB.sellTotal(s, g, Math.min(5, Math.max(1, own))))}`, 'sell-good', `data-id="${g.id}" data-qty="${Math.min(5, own)}"`, off || own < 1, 'small primary')}${button(`Vender tudo${own ? ' · ' + fmt(SB.sellTotal(s, g, own)) : ''}`, 'sell-good', `data-id="${g.id}" data-qty="${own}"`, off || own < 1, 'small primary')}</div>`}</section>`; }).join('')}</div>
       <p class="mini" style="margin-top:6px">Cada negócio gasta 3 de energia. Comprar muito encarece e vender muito derruba o preço local. Vender na área de outro grupo gera atrito.</p>
-      ${stencil('Produção própria', `batida hoje: ${SB.raidChance(s)}% por ponto`)}<div class="grid">${SB.LABS.map(l => { const lvl = s.labs[l.id], c = SB.labCost(s, l), locked = s.respect < l.unlock, down = s.labDown[l.id] >= s.day, g = SB.good(l.good);
-        return `<section class="card shopRow ${locked ? 'locked' : ''}"><div><h3>${esc(l.name)} <span class="pill">Nível ${lvl}/3</span></h3><p class="mini">${lvl ? `Rende ${SB.labOutput(s, l)} × ${esc(g.name)} por dia · custo ${fmt(lvl * 30)}/dia · +40 de espaço` : `Produz ${l.out} × ${esc(g.name)} por dia e dá +40 de espaço`}${down ? ` · <span class="negative">fechado até o dia ${s.labDown[l.id]}</span>` : ''}</p>${locked ? `<div class="lockline">Requer ${l.unlock} de respeito.</div>` : ''}</div>
+      ${stencil('Esquemas', 'do gelo à refinaria')}<div class="grid">${SB.LABS.map((l, i) => { const lvl = s.labs[l.id], c = SB.labCost(s, l), locked = s.respect < l.unlock, down = s.labDown[l.id] >= s.day, raid = SB.labRaid(s, l), sp = SB.SUPPLY.find(x => x.labs.includes(l.id));
+        const makes = l.cash ? `${fmt(l.cash)} por dia no banco` : `${l.out} × ${esc(SB.good(l.good).name)}${l.good2 ? ` e ${l.out2} × ${esc(SB.good(l.good2).name)}` : ''} por dia`;
+        return `<section class="card shopRow ${locked ? 'locked' : ''}"><div><h3><span class="tier">${i + 1}</span> ${esc(l.name)} <span class="pill">Nível ${lvl}/3</span></h3><p class="mini">${esc(l.desc)}</p>
+          <p class="mini">${lvl ? `Rende ${esc(SB.labYield(s, l))} por dia` : `Produz ${makes}`} · custo ${fmt(Math.max(1, lvl) * (30 + (l.bribe || 0)))}/dia${l.bribe ? ' com propina' : ''}${l.cash ? '' : ' · +40 de espaço'}${raid ? ` · <span class="negative">${raid}% de batida hoje</span>` : l.cash || SB.good(l.good).risk === 0 ? ' · sem batida' : ''}${sp ? ` · abastece ${esc(SB.business(sp.biz).name)} (renda em dobro)` : ''}${down ? ` · <span class="negative">fechado até o dia ${s.labDown[l.id]}</span>` : ''}</p>${locked ? `<div class="lockline">Requer ${l.unlock} de respeito.</div>` : ''}</div>
           <div class="shopAct">${lvl >= 3 ? '<strong>Máximo</strong>' : `<strong>${fmt(c)}</strong>${button(lvl ? 'Ampliar' : 'Montar', 'build-lab', `data-id="${l.id}"`, locked || s.cash < c || s.jail > 0, 'small primary')}`}</div></section>`; }).join('')}</div>
-      <p class="mini" style="margin-top:6px">Com Procurado acima de 40, a polícia pode estourar um ponto: perde o estoque daquela mercadoria e fica 2 dias fechado.</p>`;
+      <p class="mini" style="margin-top:6px">Com Procurado acima de 40, a polícia pode estourar um ponto: perde o estoque daquela mercadoria e fica 2 dias fechado. A propina do Laboratório e da Refinaria corta esse risco pela metade. Dono de Inferninho ou de Termas com o esquema certo e estoque abastece a casa e dobra a renda do dia.</p>`;
   }
   function noite() {
-    const s = state;
-    return heading('Noite', 'Acabou a energia? Dinheiro vira energia para continuar hoje. A conta chega amanhã, na ressaca.') + `<div class="screenArt">${window.SBArt.place('noite')}</div>` + jailNotice() + resultCard() + `
-      <section class="card"><div class="kv"><div><span>Saídas hoje</span><strong>${s.today.night}/${SB.NIGHT_LIMIT}</strong></div><div><span>Ressaca amanhã</span><strong>-${s.ressaca} de energia</strong></div></div>
+    const s = state, here = SB.NIGHT.find(n => n.id === s.today.venue), blk = SB.blocked(s), full = s.energy >= 100, maxed = s.today.doses >= SB.DOSE_LIMIT;
+    const why = blk || (full ? 'Energia cheia: volte quando cansar.' : maxed ? `Limite de ${SB.DOSE_LIMIT} doses por hoje.` : '');
+    const doseRow = d => { const c = SB.doseCost(s, d, here), own = d.good ? s.goods[d.good] : 0, cap = d.max && (s.today.dose[d.id] || 0) >= d.max, off = !!why || cap;
+      return `<section class="card shopRow doseRow"><div><h3>${esc(d.name)}${d.strong && s.vicio >= 70 ? ' <span class="pill bad">risco de overdose</span>' : ''}</h3><p class="mini">${esc(d.desc)}</p>
+        <p class="mini"><strong>+${SB.nightEnergy(s, d)} de energia</strong> · vício +${SB.doseVicio(s, d)}${d.ressaca ? ` · ressaca −${d.ressaca}` : ''}${d.max ? ` · ${s.today.dose[d.id] || 0}/${d.max} hoje` : ''}</p></div>
+        <div class="shopAct"><strong>${fmt(c)}</strong>${button('Pedir', 'dose', `data-id="${d.id}"`, off || s.cash < c, 'small primary')}${own ? button(`Do estoque (${own})`, 'dose', `data-id="${d.id}" data-stock="1"`, off, 'small') : ''}</div></section>`; };
+    return heading('Noite', 'Acabou a energia? Entre numa casa e peça no balcão: dinheiro vira energia agora, a ressaca vem amanhã.') + `<div class="screenArt">${window.SBArt.place('noite')}</div>` + jailNotice() + resultCard() + `
+      <section class="card"><div class="kv"><div><span>Saídas hoje</span><strong>${s.today.night}/${SB.NIGHT_LIMIT}</strong></div><div><span>Doses hoje</span><strong>${s.today.doses}/${SB.DOSE_LIMIT}</strong></div><div><span>Ressaca amanhã</span><strong>−${s.ressaca} de energia</strong></div></div>
         <div class="meterlabel" style="margin-top:10px"><span>Vício</span><strong>${s.vicio}/100</strong></div><div class="meter red"><div style="width:${s.vicio}%"></div></div>
-        <p class="mini" style="margin-top:6px">Cada saída sobe o vício; quanto maior, menos a noite recarrega. ${s.vicio >= 70 ? `<span class="negative">Acima de 70: ${SB.overdoseChance(s)}% de overdose por saída.</span>` : 'A partir de 70 há risco de overdose.'} Cai 3 por dia; o Hospital limpa.</p></section>
-      <div class="grid" style="margin-top:10px">${SB.NIGHT.map(n => { const c = SB.nightCost(s, n);
-        return `<section class="card shopRow"><div><h3>${esc(n.name)}${SB.ownTermas(s, n) ? ' <span class="pill">Sua casa</span>' : n.unlock && s.respect < n.unlock ? ` <span class="pill">Requer ${n.unlock} de respeito</span>` : ''}</h3><p class="mini">${esc(n.desc)}</p><p class="mini"><strong>${SB.ownTermas(s, n) ? 'energia cheia, na sua casa' : '+' + SB.nightEnergy(s, n) + ' de energia'}</strong>${SB.ownTermas(s, n) ? ' · sem vício' : ` · vício +${Math.ceil(n.vicio * (s.career === 'barao' ? .5 : 1))}`}${n.raid && !SB.hasPerk(s, 'barao', 2) ? ` · ${Math.round(n.raid * SB.eventMod(s, 'nightRiskMult'))}% de batida` : ''} · ressaca -${n.ressaca}${n.morale ? ` · equipe +${n.morale} de ânimo` : ''}${n.heat ? ` · +${n.heat} de Procurado` : ''}${n.contact ? ` · ${n.contact}% de firmar contatos` : ''}${n.brawl ? (SB.nightSafe(s, n) ? ' · sem risco: a casa é sua' : ` · <span class="negative">${n.brawl}% de briga (fere)</span>`) : ''}${n.boss ? ' · sem risco · relação +5 com quem manda no bairro' : ''}</p></div>
-          <div class="shopAct"><strong>${fmt(c)}</strong>${button('Ir', 'night', `data-id="${n.id}"`, s.cash < c || s.today.night >= SB.NIGHT_LIMIT || s.energy >= 100 || !!SB.blocked(s) || (n.unlock && s.respect < n.unlock && !SB.ownTermas(s, n)), 'small primary')}</div></section>`; }).join('')}</div>
-      <p class="mini" style="margin-top:6px">Cada saída a mais no dia custa 50% a mais. Dono do Bar bebe de graça no Boteco; dono da Casa de Shows não corre risco de briga no Baile.</p>${s.energy < 16 && s.today.night >= SB.NIGHT_LIMIT ? `<div class="btnbar" style="margin-top:10px">${nextDayButton('')}</div>` : ''}`;
+        <p class="mini" style="margin-top:6px">Quanto mais forte a dose, mais energia e mais vício; com vício alto, cada dose recarrega menos. ${s.vicio >= 70 ? `<span class="negative">Acima de 70: loló, bala e pó têm ${SB.overdoseChance(s)}% de chance de overdose.</span>` : 'A partir de 70, loló, bala e pó podem dar overdose.'} Cai 3 por dia; o Hospital limpa.</p></section>
+      ${here ? `${stencil('No balcão', esc(here.name))}${why ? `<p class="lockline">${esc(why)}</p>` : ''}<div class="grid">${here.menu.map(id => doseRow(SB.doseOf(id))).join('')}</div>` : ''}
+      ${stencil('Casas da noite', 'a entrada conta como saída')}<div class="grid">${SB.NIGHT.map(n => { const c = SB.nightCost(s, n), own = SB.ownTermas(s, n), lock = n.unlock && s.respect < n.unlock && !own, inside = here && here.id === n.id;
+        return `<section class="card shopRow ${inside ? 'here' : ''} ${lock ? 'locked' : ''}"><div><h3>${esc(n.name)}${inside ? ' <span class="pill">Você está aqui</span>' : own ? ' <span class="pill">Sua casa</span>' : lock ? ` <span class="pill">Requer ${n.unlock} de respeito</span>` : ''}</h3><p class="mini">${esc(n.desc)}</p>
+          <p class="mini">Cardápio: ${n.menu.map(id => esc(SB.doseOf(id).name)).join(', ')}${own ? ' · <strong>na sua casa: energia cheia, sem vício</strong>' : ''}${n.raid && !SB.hasPerk(s, 'barao', 2) ? ` · ${Math.round(n.raid * SB.eventMod(s, 'nightRiskMult'))}% de batida` : ''}${n.morale ? ` · equipe +${n.morale} de ânimo` : ''}${n.heat ? ` · +${n.heat} de Procurado` : ''}${n.contact ? ` · ${n.contact}% de firmar contatos` : ''}${n.brawl ? (SB.nightSafe(s, n) ? ' · sem briga: a casa é sua' : ` · <span class="negative">${n.brawl}% de briga</span>`) : ''}${n.boss ? ' · relação +5 com quem manda no bairro' : ''}</p></div>
+          <div class="shopAct"><strong>${c ? 'Entrada ' + fmt(c) : 'Entrada grátis'}</strong>${inside ? '' : button('Entrar', 'night', `data-id="${n.id}"`, s.cash < c || s.today.night >= SB.NIGHT_LIMIT || full || !!blk || lock, 'small primary')}</div></section>`; }).join('')}</div>
+      <p class="mini" style="margin-top:6px">Cada saída a mais no dia encarece a entrada em 50%. Dono do Bar entra de graça e paga metade no Boteco; dono do Inferninho entra de graça no Inferninho; dono da Casa de Shows não briga no Baile. Mercadoria do seu Galpão também serve no balcão.</p>${s.energy < 16 && s.today.night >= SB.NIGHT_LIMIT && !here ? `<div class="btnbar" style="margin-top:10px">${nextDayButton('')}</div>` : ''}`;
   }
+
 
   function duelos() {
     const s = state, cr = SB.combatRating(s), w = SB.item(s.gear.arma), pr = SB.item(s.gear.protecao), hp = SB.healthPenalty(s);
@@ -3692,6 +3791,7 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
       case 'export-goods': run('exportGoods'); break;
       case 'build-lab': run('buildLab', id); break;
       case 'night': run('night', id); break;
+      case 'dose': run('dose', id, btn.dataset.stock === '1'); break;
       case 'duel': run('duel', id); break;
       case 'avatar': run('avatar', id); break;
       case 'detox': run('detox', id); break;

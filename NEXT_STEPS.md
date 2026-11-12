@@ -122,6 +122,13 @@ Também sugerido: rebelião na cadeia com a gangue.
 - [x] Rótulo decidido pelo autor (v1.4): a vigilância pessoal virou **Procurado** em todo o jogo; a do bairro aparece como **Vigia local**.
 - Atributos continuam Astúcia, Força, Lábia e Influência.
 
+## Pendências da v1.4 (noite e esquemas)
+
+- Império da noite (227) e Traficante (223) empatados no topo; vigiar depois de cada ajuste.
+- Refinaria do pó é meta de fim de jogo: quase ninguém chega a 150 de respeito com R$ 25.000 numa temporada.
+- No farm de roubos, o Assaltante voltou a liderar (182 contra 169 do Articulador).
+- Online: produção e mensalidades por hora em vez de ao dormir.
+
 ## Depende de servidor (visão do autor para o jogo online)
 
 - Rodada no calendário real (dia 1º ao último dia do mês) e eventos em datas reais (quinto dia útil, sextas e sábados).

@@ -610,6 +610,45 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
 - **Tela Rua**, de cima para baixo: placa do bairro → cartão do dia com "Dormir" → resultado → lambe-lambe "Hoje na cidade" (eventos) → primeiros passos ou "E agora?" (só um conselho) → notícia com decisão → **Sua temporada** (patente, classe, meta e título num cartão só) → diário.
 
+### Noite com cardápio (v1.4)
+
+A casa cobra a **entrada** (conta como uma das 3 saídas do dia e traz os riscos da casa: batida, briga, contatos, ânimo); a energia vem das **doses** pedidas no balcão. Limite de 15 doses por dia. A energia de cada dose cai com o vício: `energia × máx(0,4; 1 − vício/160)`.
+
+| Dose | Energia | Vício | Ressaca | Preço | Observação |
+|---|---|---|---|---|---|
+| Cigarro | +2 | 0 | 0 | R$ 8 | até 5 por dia |
+| Cerveja | +5 | +1 | 0 | R$ 15 | |
+| Pinga | +10 | +2 | −1 | R$ 30 | |
+| Whisky falsificado | +20 | +4 | −1 | R$ 70 | 12% de azia (−5 de saúde) |
+| Erva | +30 | +4 | 0 | R$ 100 | melhor energia por vício |
+| Loló | +50 | +10 | −2 | R$ 180 | overdose com vício ≥ 70 |
+| Bala | +75 | +18 | −3 | R$ 300 | overdose com vício ≥ 70 |
+| Pó | +100 | +30 | −3 | R$ 600 | overdose com vício ≥ 70; só nas Termas |
+
+| Casa | Entrada | Abre com | Cardápio |
+|---|---|---|---|
+| Boteco do Zé | R$ 10 | — | cigarro, cerveja, pinga |
+| Pagode na laje | R$ 40 | — | + erva |
+| Baile de favela | R$ 60 | — | cigarro, cerveja, whisky, erva, loló |
+| Inferninho da Luz Vermelha | R$ 150 | 40 de respeito | cigarro, whisky, loló, bala |
+| Termas VIP | R$ 400 | 60 de respeito | whisky, bala, pó |
+
+Cada saída a mais no dia encarece a entrada em 50%. Barão: entrada e doses 40% mais baratas, metade do vício. Dono do Bar entra de graça e paga metade no Boteco; dono do Inferninho entra de graça no Inferninho; dono da Termas tem uma recarga cheia, grátis e sem vício por dia. Mercadoria do Galpão serve como dose (cigarro, whisky, erva, loló, bala e pó do estoque).
+
+### Esquemas de produção (v1.4)
+
+| # | Esquema | Custo | Abre com | Rende por dia (nível 1) | Custo/dia por nível |
+|---|---|---|---|---|---|
+| 1 | Fábrica de gelo saborizado | R$ 500 | 0 | 10 × gelo | R$ 30, sem batida |
+| 2 | Galpão de cigarro do Paraguai | R$ 1.200 | 8 | 9 × cigarro | R$ 30 |
+| 3 | Depósito de bebida falsa | R$ 2.000 | 15 | 7 × whisky falsificado | R$ 30 |
+| 4 | Central de internet (gatonet) | R$ 3.200 | 25 | R$ 200 direto no banco | R$ 30, sem batida |
+| 5 | Plantação de maconha | R$ 3.600 | 35 | 6 × erva | R$ 30 |
+| 6 | Laboratório químico | R$ 7.000 | 80 | 4 × bala e 3 × loló | R$ 90 (com propina: batida pela metade) |
+| 7 | Refinaria do pó | R$ 25.000 | 150 | 3 × pó | R$ 180 (com propina: batida pela metade) |
+
+Níveis 2 e 3 rendem ×1,8 e ×2,6. **Sinergia**: dono do Inferninho com Depósito de bebida falsa ou Laboratório e 5 unidades (whisky, loló ou bala) em estoque abastece a casa e ganha mais uma vez a renda base dela no dia; dono da Termas com Refinaria faz o mesmo com 2 de pó. **Pó no Navio** dá o triplo de respeito por remessa. No jogo offline a produção roda ao dormir; no online, rodará por hora.
+
 ## 20. Sistemas paralelos (v1.3)
 
 O ciclo de roubos é a espinha dorsal; estes sistemas rodam em volta dele. Não há PvP: a disputa é contra a polícia, o vício, a falência e o relógio do mês.

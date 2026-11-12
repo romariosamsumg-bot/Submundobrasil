@@ -47,6 +47,18 @@ function grind(s, minChance, reserve = 0) {
   }
 }
 function trainBest(s, stat, keep) { while (s.cash - SB.trainCost(s, stat) > keep && SB.perform(s, 'train', stat).ok); }
+/** Noite v1.4: entra na casa e pede a dose mais forte que cabe no bolso e no vício, até encher. */
+function nightOut(s, venueId, maxVicio = 60, reserve = 300) {
+  if (s.today.venue !== venueId && !SB.perform(s, 'night', venueId).ok) return false;
+  for (let i = 0; i < SB.DOSE_LIMIT && s.energy < 85 && !s.hospital; i++) {
+    const n = SB.NIGHT.find(x => x.id === s.today.venue); if (!n) break;
+    const opts = n.menu.map(SB.doseOf).filter(d => (!d.max || (s.today.dose[d.id] || 0) < d.max) && s.vicio + SB.doseVicio(s, d) <= maxVicio + 10 && (s.cash - SB.doseCost(s, d, n) >= reserve || (d.good && s.goods[d.good] > 0)));
+    const d = opts.filter(x => x.energy <= 100 - s.energy + 15).pop() || opts[0]; if (!d) break;
+    const stock = d.good && s.goods[d.good] > 0;
+    if (!SB.perform(s, 'dose', d.id, stock).ok) break;
+  }
+  return true;
+}
 function bankSurplus(s, keep) { const v = Math.min(SB.maxDeposit(s), s.cash - keep); if (v > 200) SB.perform(s, 'bank', 'deposit', v); }
 function handleNews(s) {
   const n = SB.currentNews(s); if (!n) return;
@@ -117,7 +129,7 @@ const STRATEGIES = {
     bail(s); handleNews(s);
     for (const id of ['soco', 'jaqueta', 'peixeira', 'colete', 'trezoitao', 'pistola']) if (s.gear[SB.item(id).slot] !== id && s.cash > SB.item(id).cost * 3 && (SB.item(s.gear[SB.item(id).slot]) || { cost: 0 }).cost < SB.item(id).cost) SB.perform(s, 'buyItem', id);
     grind(s, 55, 0);
-    for (let i = 0; i < 2; i++) if (s.cash > 2500 && s.energy < 55 && !s.jail) { SB.perform(s, 'night', 'baile'); grind(s, 55, 0); }
+    for (let i = 0; i < 2; i++) if (s.cash > 2500 && s.energy < 55 && !s.jail) { nightOut(s, 'baile', 55, 2000); grind(s, 55, 0); }
     trainBest(s, 'astucia', 1200); bankSurplus(s, 900); } },
   brigao: { career: 'operador', goal: 'renome', day(s) {
     // Arma e proteção, duelos contra o melhor adversário com boa chance, hospital quando precisa.
@@ -159,7 +171,19 @@ const STRATEGIES = {
     for (const id of ['termas', 'inferninho', 'pensao', 'show', 'bar', 'bicho', 'mercado', 'oficina']) if (s.day < 20 && !s.businesses.includes(id) && s.cash > SB.buyCost(s, SB.business(id)) + 300) SB.perform(s, 'buy', id);
     if (s.vicio >= 60) SB.perform(s, 'detox', 'soro');
     grind(s, 60);
-    for (let i = 0; i < 3; i++) if (s.energy < 30 && !s.jail && !s.hospital && s.vicio < 65) { const n = SB.NIGHT.filter(x => (!x.unlock || s.respect >= x.unlock || SB.ownTermas(s, x)) && SB.nightCost(s, x) <= s.cash - 300).pop(); if (!n || !SB.perform(s, 'night', n.id).ok) break; grind(s, 60); }
+    for (let i = 0; i < 3; i++) if (s.energy < 30 && !s.jail && !s.hospital && s.vicio < 65) { const n = SB.NIGHT.filter(x => (!x.unlock || s.respect >= x.unlock || SB.ownTermas(s, x)) && SB.nightCost(s, x) <= s.cash - 300).pop(); if (!n || !nightOut(s, n.id, 60)) break; grind(s, 60); }
+    if (s.day >= 22) bankSurplus(s, 400); } },
+  imperio_noite: { career: 'barao', goal: 'capital', day(s) {
+    // v1.4: Inferninho e Termas abastecidos pela própria produção (bebida falsa, laboratório, refinaria).
+    bail(s); handleNews(s);
+    if (s.bank) SB.perform(s, 'bank', 'withdraw', s.bank);
+    for (const id of ['inferninho', 'pensao', 'termas']) if (s.day < 20 && !s.businesses.includes(id) && s.cash > SB.buyCost(s, SB.business(id)) + 300) SB.perform(s, 'buy', id);
+    for (const id of ['alambique', 'laboratorio', 'refinaria']) { const l = SB.LABS.find(x => x.id === id); if (s.day < 18 && s.labs[id] < 2 && s.cash > SB.labCost(s, l) + 500) SB.perform(s, 'buildLab', id); }
+    if (s.vicio >= 60) SB.perform(s, 'detox', 'soro');
+    for (const g of SB.GOODS) { const keep = ['bebida', 'po'].includes(g.id) ? 10 : 0, q = s.goods[g.id] - keep; if (q >= 5 && s.market[s.district][g.id] >= 95) SB.perform(s, 'sellGood', g.id, q); }
+    if (s.exportDeal.day === s.day && s.goods[s.exportDeal.good] > 10) { if (s.district !== 'cais') SB.perform(s, 'travel', 'cais'); SB.perform(s, 'exportGoods'); }
+    grind(s, 60);
+    for (let i = 0; i < 3; i++) if (s.energy < 30 && !s.jail && !s.hospital && s.vicio < 65) { const n = SB.NIGHT.filter(x => (!x.unlock || s.respect >= x.unlock || SB.ownTermas(s, x)) && SB.nightCost(s, x) <= s.cash - 300).pop(); if (!n || !nightOut(s, n.id, 60)) break; grind(s, 60); }
     if (s.day >= 22) bankSurplus(s, 400); } },
   apostador: { career: 'empreendedor', goal: 'capital', day(s) {
     // Rouba como todo mundo e joga metade do que tem na roleta, três vezes por dia.

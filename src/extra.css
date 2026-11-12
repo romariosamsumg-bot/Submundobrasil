@@ -452,3 +452,9 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 .fichaTip{margin:7px 0 0!important}
 .fichaBtn{margin-top:2px}
 .localeBottom span.fix{flex:none}
+
+/* v1.4: balcão da noite e esquemas */
+.shopRow.here{border-color:var(--ambar);box-shadow:3px 3px 0 #05080a,inset 3px 0 0 var(--ambar)}
+.doseRow .shopAct{display:flex;flex-direction:column;gap:5px;align-items:stretch}
+.pill.bad{background:#5a2320;color:#ffd0c9;border-color:#a8473e}
+.tier{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:2px;border-radius:50%;background:var(--ambar);color:#1b1712;font:800 11px/1 system-ui,sans-serif;vertical-align:2px}

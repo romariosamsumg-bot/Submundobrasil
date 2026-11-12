@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**137 de 137 passaram** (v1.4: + retrato do jogador) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
+**146 de 146 passaram** (v1.4: + retrato do jogador; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**101 de 101 verificações passaram** (v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
+**102 de 102 verificações passaram** (v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
 
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
 - A missão consome energia e mostra o cartão de resultado com as variações.
@@ -72,41 +72,42 @@ ausência de cortes).
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 
-Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.3** em
+Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.4** (noite com cardápio e sete esquemas) em
 `node tests/simulate.js 300 2` (300 temporadas por estratégia, médias, em Recife):
 
 | Estratégia | Patrimônio | Respeito | Pontos | Meta | Detenções |
 |---|---|---|---|---|---|
-| Assaltante farmando roubos | 15.286 | 133 | 194 | 50% | 2,8 |
-| Bicheiro com negócios | 19.393 | 110 | 197 | 60% | 3,2 |
-| Articulador territorial | 632 | 126 | 202 | 100% | 1,5 |
-| Articulador diplomata | 1.710 | 100 | 214 | 90% | 2,5 |
-| Bonde (gangue) | 1.311 | 103 | 179 | 30% | 1,2 |
-| Comerciante sem a classe | 11.167 | 104 | 158 | 10% | 3,2 |
-| Ciclo completo: roubo, noite e arsenal | 16.806 | 122 | 188 | 40% | 3,1 |
-| Brigão (duelos) | 15.854 | 153 | 194 | 0% | 1,9 |
-| Bando de assaltos | 2.270 | 85 | 170 | 30% | 1,2 |
-| **Traficante (Galpão e remessas)** | 14.275 | 105 | **226** | 30% | 2,8 |
-| **Barão da Noite (império e noitadas)** | 16.599 | 112 | 180 | 40% | 3,5 |
-| **Apostador (metade do caixa na roleta, 3× ao dia)** | 5.258 | 84 | **77** | 20% | 3,6 |
-| **Exploit: repetir a melhor e depositar tudo** | 2.402 | 39 | **25** | 0% | **10,6** |
-| Aleatório | 404 | 43 | 48 | 0% | 0,7 |
+| Assaltante farmando roubos | 15.054 | 130 | 191 | 40% | 2,7 |
+| Bicheiro com negócios | 19.600 | 111 | 203 | 60% | 3,1 |
+| Articulador territorial | 674 | 127 | 203 | 100% | 1,6 |
+| Articulador diplomata | 1.693 | 98 | 208 | 90% | 2,5 |
+| Bonde (gangue) | 1.287 | 104 | 181 | 30% | 1,1 |
+| Comerciante sem a classe | 12.314 | 99 | **197** | 10% | 2,9 |
+| Ciclo completo: roubo, noite e arsenal | 16.463 | 123 | 188 | 40% | 3,3 |
+| Brigão (duelos) | 15.710 | 152 | 194 | 0% | 2,0 |
+| Bando de assaltos | 2.406 | 88 | 183 | 30% | 1,3 |
+| Traficante (Galpão e remessas) | 13.523 | 95 | 223 | 20% | 2,8 |
+| Barão da Noite (império e noitadas) | 16.384 | 111 | 178 | 40% | 3,5 |
+| **Império da noite (Barão + bebida falsa, laboratório e casas abastecidas)** | 16.798 | 104 | **227** | 40% | 3,1 |
+| Apostador (metade do caixa na roleta, 3× ao dia) | 6.459 | 85 | 80 | 20% | 3,5 |
+| Exploit: repetir a melhor e depositar tudo | 2.344 | 38 | 25 | 0% | 10,5 |
+| Aleatório | 435 | 43 | 49 | 0% | 0,7 |
 
-Leitura e calibração da v1.3:
-- **Traficante**: na primeira medição fez 316 pontos (o comerciante sem a classe fazia 172). Foram reduzidos os bônus (produção 10%, comprador +5%, carga +15, remessa 70), criada a desvantagem (mais atenção da polícia nos negócios) e subidas as faixas da medalha de Comércio (4.000 / 9.000 / 16.000). Medições intermediárias: 262, 251, 235, 226. **Continua o caminho mais forte**, 12 pontos acima do segundo.
-- **Barão da Noite**: começou em 143. Bar e Casa de Shows passaram a contar como casas da noite, o bônus foi a +50%, a noitada a −40%, e cada saída dá +1 de respeito. Resultado: 180.
-- **Apostas não são renda**: o apostador faz 77 pontos. Um teste separado mostra a banca com vantagem em 10 mil apostas de cada jogo.
-- As estratégias que não usam as mecânicas novas mudaram pouco (até 16 pontos), puxadas pelos dias de pagamento, pela perda de respeito na prisão e pelo dano maior nos roubos armados.
+Leitura e calibração da v1.4:
+- **Noite com cardápio**: as estratégias que usam a noite ficaram onde estavam (ciclo completo 188, Barão 178). O vício continua sendo o freio: uma bala dá 75 de energia e 18 de vício, e acima de 70 as doses fortes podem dar overdose.
+- **Casa abastecida**: na primeira medição, o império da noite fez **241 pontos**, porque a renda dobrada somava em cima do bônus do Barão. Passou a dobrar só a renda base da casa: **227**, empatado com o Traficante (223) no topo.
+- **Comerciante sem a classe** subiu de 158 para 197 com os esquemas baratos (gelo e cigarro). Deixou de ser o caminho mais fraco.
+- A refinaria (R$ 25.000, 150 de respeito) quase não é alcançada numa temporada: é meta de fim de jogo.
 
-### Classes — `tests/careers.js` (100 temporadas por célula, v1.3)
+### Classes — `tests/careers.js` (100 temporadas por célula, v1.4)
 
 | Estratégia | Assaltante | Articulador | Bicheiro | Traficante | Barão |
 |---|---|---|---|---|---|
-| Roubos | 177 | **184** | 152 | 153 | 155 |
-| Negócios | 189 | 173 | **208** | 149 | 202 |
-| Território | 198 | **203** | 195 | 196 | 197 |
-| Diplomacia | 185 | **211** | 160 | 158 | 170 |
-| Gangue | **191** | 176 | 146 | 161 | 167 |
+| Roubos | **182** | 169 | 145 | 149 | 166 |
+| Negócios | 191 | 165 | 194 | 145 | **200** |
+| Território | 196 | **203** | 194 | 194 | 198 |
+| Diplomacia | 192 | **206** | 156 | 164 | 174 |
+| Gangue | **180** | 176 | 157 | 149 | 147 |
 
 (O Traficante só brilha na estratégia de mercadoria, medida na tabela acima.)
 
