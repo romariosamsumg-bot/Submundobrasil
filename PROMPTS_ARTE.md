@@ -1,4 +1,6 @@
 # Prompts para as imagens pintadas — Submundo Brasil
+> **Situação na v1.4:** 20 das 24 imagens já estão em `art/`. Faltam `rival-marrento`, `heist-agencia`, `heist-transportadora` e `place-apostas`. Os originais são reduzidos para 880 px (cenas) e 288 px (retratos) antes de entrar.
+
 
 O jogo já tem ilustrações em SVG para cada lugar, adversário e assalto. Este guia
 serve para gerar **versões pintadas** numa IA de imagem (Midjourney, Gemini,

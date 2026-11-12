@@ -1,5 +1,5 @@
 /* =====================================================================
- * SUBMUNDO BRASIL — INTERFACE v1.3
+ * SUBMUNDO BRASIL — INTERFACE v1.4
  * Responsável por: persistência (localStorage, backup, importação e
  * exportação), renderização das telas e tratamento dos cliques.
  * Todas as regras ficam em window.SB (motor). Esta camada só chama
@@ -193,7 +193,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function exportSave() {
-    download(`submundo-brasil-v1.3-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
+    download(`submundo-brasil-v1.4-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
     notify('Cópia da carreira preparada para download.');
   }
   async function importFile(file, fromWelcome) {
@@ -514,7 +514,7 @@
 
   function management() {
     const s = state, fee = SB.hasPerk(s, 'empreendedor', 1) ? 1 : 3;
-    return heading('Banco e negócios', 'Proteja seu dinheiro e monte renda diária. Cada negócio depende da economia e das facções do bairro.') + jailNotice() + resultCard() + `
+    return heading('Banco e negócios', 'Proteja seu dinheiro e monte renda diária. Cada negócio depende da economia e das facções do bairro.') + `<div class="screenArt">${window.SBArt.place('gestao')}</div>` + jailNotice() + resultCard() + `
       <div class="grid two" style="margin-top:13px"><section class="card"><h2>Banco</h2><p>Depósitos ficam protegidos de falhas e retaliações. Taxa de depósito: ${fee}%. Saques são gratuitos.</p>
         <div class="formfield"><label for="bankAmount">Valor em reais (R$)</label><input class="input" id="bankAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="Ex.: 500"></div>
         <div class="btnbar" style="margin-top:10px">${button('Depositar', 'bank', 'data-mode="deposit"', false, 'primary small')}${button('Sacar', 'bank', 'data-mode="withdraw"', false, 'small')}${button(`Depositar tudo (${fmt(SB.maxDeposit(s))})`, 'bank-all', '', SB.maxDeposit(s) < 1, 'small ghost')}</div></section>
@@ -587,7 +587,7 @@
 
   function seasons() {
     const s = state, sc = SB.seasonScore(s);
-    return heading('Temporada', 'Trinta dias de decisões. Vença por fortuna, fama, território, diplomacia, gangue ou comércio.') + resultCard() + `<div class="seasonObjective">${goalCard()}</div>
+    return heading('Temporada', 'Trinta dias de decisões. Vença por fortuna, fama, território, diplomacia, gangue ou comércio.') + `<div class="screenArt">${window.SBArt.place('temporada')}</div>` + resultCard() + `<div class="seasonObjective">${goalCard()}</div>
       <div class="grid two"><section class="card"><div class="eyebrow">Temporada atual</div><div class="seasonnumber">${String(s.season).padStart(2, '0')}</div><div class="meter"><div style="width:${s.day / MAXDAY * 100}%"></div></div>
         <div class="statusbar"><span>Dia ${s.day} de ${MAXDAY}</span><strong>${MAXDAY - s.day} dia(s) restante(s)</strong></div><p class="mini">Cada temporada tem 30 dias jogáveis (29 viradas). A renda entra ao virar o dia; o dia 30 é o último para agir.</p><div class="divider"></div>
         ${s.day === MAXDAY ? button('Encerrar temporada', 'end-season', '', false, 'primary block') : nextDayButton('block')}</section>
@@ -665,7 +665,7 @@
   function galpao() {
     const s = state, deal = s.exportDeal, dg = SB.good(deal.good), used = SB.cargoUsed(s), cap = SB.cargoCap(s), open = SB.exportOpen(s), blitz = SB.blitzChance(s);
     const dealTxt = deal.day < s.day ? 'O próximo comprador ainda não deu notícia.' : `${deal.day === s.day ? 'Hoje' : (deal.day === MAXDAY ? 'Último Navio, no dia ' : 'No dia ') + deal.day}, em ${esc(D('cais').name)}: paga ${fmt(SB.exportPrice(dg, s))} por ${esc(dg.unit)} de ${esc(dg.name)} (até ${SB.exportLimit(s)}). Você tem ${s.goods[dg.id]}.`;
-    return heading('Galpão', 'Compre barato num bairro, venda caro em outro, produza o seu e despache para fora.') + jailNotice() + resultCard() + `
+    return heading('Galpão', 'Compre barato num bairro, venda caro em outro, produza o seu e despache para fora.') + `<div class="screenArt">${window.SBArt.place('galpao')}</div>` + jailNotice() + resultCard() + `
       <section class="card"><div class="meterlabel"><span>Carga</span><strong>${used}/${cap}</strong></div><div class="meter"><div style="width:${pct(used / cap * 100)}%"></div></div>
         <p class="mini" style="margin-top:7px">Veículos e pontos de produção aumentam o espaço. ${blitz ? `<span class="negative">Viajar com esta carga: ${blitz}% de chance de blitz (perde metade).</span>` : 'Sem carga, sem blitz.'}</p></section>
       <section class="poster" style="margin-top:10px"><div class="posterHead">COMPRADOR DE FORA</div><p>${dealTxt}</p>${open ? button(`Entregar ${Math.min(SB.exportLimit(s), s.goods[dg.id])} × ${esc(dg.name)}`, 'export-goods', '', s.goods[dg.id] < 1 || s.exportDone === s.day || s.jail > 0, 'small block') : ''}</section>
@@ -695,7 +695,7 @@
 
   function duelos() {
     const s = state, cr = SB.combatRating(s), w = SB.item(s.gear.arma), pr = SB.item(s.gear.protecao), hp = SB.healthPenalty(s);
-    return heading('Duelos de rua', 'Encare nomes conhecidos da rua. Vencer dá dinheiro e fama; perder custa saúde.') + jailNotice() + resultCard() + `
+    return heading('Duelos de rua', 'Encare nomes conhecidos da rua. Vencer dá dinheiro e fama; perder custa saúde.') + `<div class="screenArt">${window.SBArt.place('duelos')}</div>` + jailNotice() + resultCard() + `
       <section class="card"><div class="kv"><div><span>Seu poder de luta</span><strong>${cr}</strong></div><div><span>Duelos hoje</span><strong>${s.today.duels}/${SB.DUEL_LIMIT}</strong></div><div><span>Arma</span><strong>${w ? esc(w.name) : 'Mãos nuas'}</strong></div><div><span>Proteção</span><strong>${pr ? esc(pr.name) : 'Nenhuma'}</strong></div></div>
         <p class="mini" style="margin-top:8px">Poder = Força, Astúcia, arma, proteção e sede. A proteção também reduz o dano. ${hp ? `<span class="negative">Saúde baixa: -${hp} de chance.</span>` : ''}${SB.injured(s) ? ' <span class="negative">Ferido demais para duelar: vá ao Hospital.</span>' : ''}${SB.gearVal(s, 'power') >= 7 ? ' Arma de fogo faz barulho: +4 de vigilância por duelo.' : ''}</p></section>
       <div class="grid" style="margin-top:10px">${SB.RIVALS.map(r => { const locked = s.respect < r.unlock, odds = SB.duelOdds(s, r), beat = s.beaten[r.id] || 0;
@@ -708,7 +708,7 @@
   }
   function hospital() {
     const s = state, c = SB.clinicCost(s);
-    return heading('Hospital', 'Saúde baixa derruba suas chances em tudo. Abaixo de 25 você não confronta, não lidera operações e não duela.') + jailNotice() + resultCard() + `
+    return heading('Hospital', 'Saúde baixa derruba suas chances em tudo. Abaixo de 25 você não confronta, não lidera operações e não duela.') + `<div class="screenArt">${window.SBArt.place('hospital')}</div>` + jailNotice() + resultCard() + `
       <section class="card"><div class="meterlabel"><span>Saúde</span><strong>${s.health}/100</strong></div><div class="meter green"><div style="width:${s.health}%"></div></div>
         <p class="mini" style="margin-top:7px">Volta sozinha +10 por dia (+6 se detido). Se chegar a zero, você é internado por 2 dias e paga a conta.${SB.healthPenalty(s) ? ` <span class="negative">Agora: -${SB.healthPenalty(s)} de chance nas ações.</span>` : ''}</p></section>
       <div class="grid" style="margin-top:10px">
@@ -753,7 +753,7 @@
         ${runBlock ? `<p class="mini negative" style="margin:6px 0 0">${esc(runBlock)}</p>` : ''}</section>`;
     }
     const cool = !cur && s.day < s.heistReady ? `<div class="notice">O bando está esfriando depois do último assalto: novo plano a partir do dia ${s.heistReady}.</div>` : '';
-    return heading('Assaltos do bando', 'Planeje, estude o terreno e execute. O bando leva 25%; o resto é seu.') + jailNotice() + resultCard() + plan + cool + `
+    return heading('Assaltos do bando', 'Planeje, estude o terreno e execute. O bando leva 25%; o resto é seu.') + `<div class="screenArt">${window.SBArt.place('assaltos')}</div>` + jailNotice() + resultCard() + plan + cool + `
       <section class="card"><div class="kv"><div><span>Poder do bando</span><strong>${SB.heistPower(s, 0)}</strong></div><div><span>Integrantes</span><strong>${SB.crewSize(s)}/8 · ânimo ${s.crewMorale}</strong></div><div><span>Arma do líder</span><strong>${SB.item(s.gear.arma) ? esc(SB.item(s.gear.arma).name) + ' (' + SB.gearVal(s, 'power') + ')' : 'nenhuma'}</strong></div><div><span>Feitos</span><strong>${s.gangStats.heists} certo(s) · ${s.gangStats.heistFails} errado(s)</strong></div></div>
         <p class="mini" style="margin-top:8px">Poder = seu poder de luta, nível e número dos integrantes, Músculos e avulsos. Faltando gente, o plano contrata até ${SB.HEIST_MAX_HIRES} avulsos (mais fracos e pagos na hora). Olheiros rendem mais informação no reconhecimento.</p></section>
       <div class="grid" style="margin-top:10px">${SB.HEISTS.map(h => { const lock = SB.heistLock(s, h), hires = SB.heistHires(s, h), cost = SB.heistPlanCost(s, h), odds = SB.heistOdds(s, h);

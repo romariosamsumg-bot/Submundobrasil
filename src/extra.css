@@ -390,3 +390,14 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 
 .dayBar .dayInfo span{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.3;display:block}
 .dayBar .btn{flex:none;min-width:104px}
+
+/* v1.4: imagens pintadas ganham mais altura */
+.screenArt{height:auto;aspect-ratio:5/2;max-height:260px}
+.placeScene{height:auto;aspect-ratio:2/1}
+.heistPic{height:auto;aspect-ratio:3/1}
+.heistPlan .heistPic{aspect-ratio:5/2}
+.rivalPic{width:76px;height:76px}
+.rivalRow{grid-template-columns:76px minmax(0,1fr) auto!important}
+.art.painted{object-position:50% 45%}
+@media(min-width:701px){.screenArt{height:auto;aspect-ratio:3/1}}
+@media(max-width:390px){.rivalRow{grid-template-columns:64px minmax(0,1fr)!important}.rivalPic{width:64px;height:64px}}

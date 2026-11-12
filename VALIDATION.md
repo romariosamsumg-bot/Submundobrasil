@@ -1,4 +1,4 @@
-# Validação — Submundo Brasil v1.3
+# Validação — Submundo Brasil v1.4
 
 Tudo abaixo foi **executado** neste ambiente (Node.js + Chromium/Playwright).
 Para reproduzir: `npm test` (build + motor + fuzz + interface), `npm run simulate`
@@ -62,6 +62,13 @@ ausência de cortes).
 - Build com um arquivo de teste em `art/place-galpao.png`: o Galpão mostrou a imagem e os outros 7 lugares continuaram em SVG (verificado no navegador). O arquivo de teste foi removido depois.
 - Capturas `tests/screens/v11-*.png` revisadas a 360 px: as cenas preenchem os cartões e a lista de assaltos não espreme o texto.
 - A arte não muda regras: motor, fuzz e simulações são os mesmos da v1.0.
+
+## 3c. Imagens pintadas (v1.4)
+
+- 20 imagens em `art/` (WebP, 880 px de largura nos lugares e assaltos, 288 px nos retratos; 10 a 91 KB cada, 1,05 MB no total). O HTML passou de ~0,7 MB para ~1,75 MB.
+- `npm test` repetido com as imagens embutidas: 136/136 no motor, fuzz sem erros, 96/96 na interface, sem rolagem horizontal a 360 px.
+- Capturas `tests/screens/v14-*.png` revisadas: Cidade, Duelos e Assaltos. Zé Marrento, Agência, Transportadora e Apostas seguem em SVG até as imagens chegarem.
+- Nenhuma regra mudou: as tabelas de simulação abaixo são as da v1.3.
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 

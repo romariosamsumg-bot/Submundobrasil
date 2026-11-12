@@ -3,7 +3,7 @@
 'use strict';
 const { chromium } = require('playwright');
 const path = require('path');
-const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v1.3.html');
+const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v1.4.html');
 const V04 = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.4.html');
 let failures = 0;
 const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg); if (!cond) failures++; };
@@ -176,7 +176,7 @@ await page.click('[data-action=duel][data-id=marrento]');
 
   console.log('3c. Arte (v1.1)');
   await go('hub');
-  check(await page.locator('.place .placeScene svg').count() === 8, 'os 8 lugares da Cidade têm cena ilustrada');
+  check(await page.locator('.place .placeScene .art').count() === 8, 'os 8 lugares da Cidade têm cena ilustrada');
   check(await page.evaluate(() => { window.SB_ART = { 'place-galpao': 'data:image/png;base64,iVBORw0KGgo=' }; return window.SBArt.place('galpao').startsWith('<img') && window.SBArt.place('feira').startsWith('<svg'); }), 'imagem pintada substitui só a chave correspondente');
   await page.evaluate(() => { window.SB_ART = {}; });
   check(await page.evaluate(() => window.SBArt.keys().length) === 24, '24 chaves de arte (10 lugares, 8 adversários, 6 assaltos)');
@@ -238,7 +238,7 @@ await page.click('[data-action=duel][data-id=marrento]');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-action=export]')]);
   const fpath = await dl.path();
   const payload = JSON.parse(require('fs').readFileSync(fpath, 'utf8'));
-  check(payload.game === 'Submundo Brasil' && payload.version === '1.3' && payload.checksum, 'arquivo exportado com versão e checksum');
+  check(payload.game === 'Submundo Brasil' && payload.version === '1.4' && payload.checksum, 'arquivo exportado com versão e checksum');
   await page.evaluate(() => localStorage.clear()); await page.reload();
   await page.setInputFiles('#welcomeImportFile', fpath);
   await page.waitForTimeout(300);
