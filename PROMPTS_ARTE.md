@@ -62,6 +62,23 @@ Mantenha sempre o mesmo modelo e, se a ferramenta permitir, a mesma "seed" ou im
 | `heist-transportadora.webp` | Muro alto com arame farpado de uma base de transportadora de valores, guarita com holofote, caminhões blindados no pátio. |
 | `heist-cofrecentral.webp` | Porta de cofre redondo gigante de aço com volante, iluminada de cima, maços de dinheiro em pilhas, atmosfera de grande golpe. |
 
+## Fotos de perfil do jogador (512 × 512, retrato de busto, fundo liso escuro)
+
+Ainda não usadas pelo jogo: quando chegarem, viram a escolha de retrato no Perfil.
+
+| Arquivo | Prompt (depois do bloco de estilo) |
+|---|---|
+| `avatar-malandro.webp` | Retrato de busto de malandro carioca de meia-idade, chapéu panamá, camisa listrada aberta no peito, cordão fino de ouro, palito no canto da boca, sorriso de canto. |
+| `avatar-funkeira.webp` | Retrato de busto de mulher jovem negra de tranças longas, argolas douradas grandes, jaqueta corta-vento colorida, olhar desafiador. |
+| `avatar-motoboy.webp` | Retrato de busto de motoboy magro com capacete aberto e viseira levantada, colete refletivo gasto, barba por fazer, cara de cansado e esperto. |
+| `avatar-sertanejo.webp` | Retrato de busto de nordestino do sertão, chapéu de couro, rosto curtido de sol, bigode grosso, lenço amarrado no pescoço, olhar sério. |
+| `avatar-gaucho.webp` | Retrato de busto de gaúcho de barba cheia, boina escura, lenço vermelho no pescoço, poncho de lã, cuia de chimarrão na mão. |
+| `avatar-coroa.webp` | Retrato de busto de senhora de uns 60 anos, cabelo grisalho preso em coque, óculos na ponta do nariz, batom vermelho, colar de contas, ar de quem manda na banca. |
+| `avatar-skatista.webp` | Retrato de busto de jovem de periferia paulista, boné de aba reta para trás, moletom com capuz, tatuagem pequena no pescoço, sobrancelha com risco. |
+| `avatar-capoeirista.webp` | Retrato de busto de homem negro atlético de cabeça raspada, regata branca, cordão de capoeira no ombro, expressão calma e firme. |
+| `avatar-golpista.webp` | Retrato de busto de mulher de cabelo liso escovado, óculos escuros na cabeça, brinco de pérola, blazer claro, sorriso de quem está aplicando um golpe. |
+| `avatar-marombeiro.webp` | Retrato de busto de marombeiro de cabelo descolorido platinado, regata cavada, corrente grossa prateada, braços enormes, cara fechada. |
+
 ## Cuidados
 
 - Peça sempre **sem texto**: IA de imagem escreve letreiros errados e isso quebra a ilusão.
