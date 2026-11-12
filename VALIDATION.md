@@ -65,9 +65,9 @@ ausência de cortes).
 
 ## 3c. Imagens pintadas (v1.4)
 
-- 20 imagens em `art/` (WebP, 880 px de largura nos lugares e assaltos, 288 px nos retratos; 10 a 91 KB cada, 1,05 MB no total). O HTML passou de ~0,7 MB para ~1,75 MB.
+- 24 imagens em `art/` (WebP, 880 px de largura nos lugares e assaltos, 288 px nos retratos; 10 a 91 KB cada). O HTML passou de ~0,7 MB para ~2,1 MB.
 - `npm test` repetido com as imagens embutidas: 136/136 no motor, fuzz sem erros, 96/96 na interface, sem rolagem horizontal a 360 px.
-- Capturas `tests/screens/v14-*.png` revisadas: Cidade, Duelos e Assaltos. Zé Marrento, Agência, Transportadora e Apostas seguem em SVG até as imagens chegarem.
+- Capturas `tests/screens/v14-*.png` revisadas: Cidade, Duelos e Assaltos. As 4 últimas (Zé Marrento, Agência, Transportadora, Apostas) entraram depois e foram conferidas nas capturas de Apostas e Duelos.
 - Nenhuma regra mudou: as tabelas de simulação abaixo são as da v1.3.
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`

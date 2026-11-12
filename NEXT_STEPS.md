@@ -37,7 +37,7 @@
 
 - [x] **v1.3**: cinco classes, casas da noite e banca do bicho, Termas própria, vício e desintoxicação, batida policial, apostas, colete na trocação, despachante, calendário do mês com quatro semanas e patentes
 
-- [x] **v1.4**: 20 imagens pintadas do autor embutidas (9 lugares, 7 adversários, 4 assaltos) e cena no topo de Galpão, Duelos, Hospital, Assaltos, Banco e Temporada. **Faltam 4 imagens** (continuam em SVG): `rival-marrento`, `heist-agencia`, `heist-transportadora`, `place-apostas`
+- [x] **v1.4**: 24 imagens pintadas do autor embutidas (10 lugares, 8 adversários, 6 assaltos) e cena no topo de Galpão, Duelos, Hospital, Assaltos, Banco e Temporada. O SVG fica como reserva.
 
 O que falta para lançar está em **LANCAMENTO.md**.
 
