@@ -3270,9 +3270,6 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
   function panel() {
     const s = state, mv = nextMove(), guide = guideCard();
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
-    const w = SB.item(s.gear.arma);
-    const free = SB.MISSIONS.filter(x => !SB.missionLock(s, x)).length;
-    const step = (v, n, name, info, art) => `<button type="button" class="loopStep" data-view="${v}"><span class="loopArt" aria-hidden="true">${window.SBArt.place(art)}</span><i>${n}</i><b>${name}</b><small>${info}</small></button>`;
     return jailNotice() + localeStrip(false, false) + `
       <section class="dayBar dayCard"><div class="dayTop"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span></div>${nextDayButton('')}</div>
         <div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></section>
@@ -3280,13 +3277,6 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
       ${evs.length ? `<section class="poster dayNews"><div class="posterHead">HOJE NA CIDADE</div><ul class="eventList">${evs.map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
       ${guide}${s.career ? '' : careerCard()}
       ${mv && !guide ? `<section class="boardLead job nextMove"><div class="jobIcon">${statIcon(mv.icon || 'astucia')}</div><div class="jobMain"><div class="eyebrow">E agora? · ${esc(mv.tag)}</div><h3>${esc(mv.title)}</h3><p class="jobMeta">${esc(mv.text)}</p></div><div class="jobAct">${mv.btn}</div></section>` : ''}
-      ${stencil('Seu ciclo', 'roubar → noite → feira → dormir')}
-      <nav class="loop" aria-label="Seu ciclo">
-        ${step('acoes', 1, 'Roubar', `${free} disponíveis`, 'assaltos')}
-        ${step('noite', 2, 'Noite', `saídas ${s.today.night}/${SB.NIGHT_LIMIT}`, 'noite')}
-        ${step('feira', 3, 'Feira', w ? esc(w.name) : 'sem arma', 'feira')}
-        ${step('hub', 4, 'Cidade', s.gangName ? 'bando · ânimo ' + s.crewMorale : 'bando, banco, bairros', 'cidade')}
-      </nav>
       ${s.career || s.tutorial.done ? newsCard() : ''}
       ${fichaCard()}
       ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(3)}</section>`;

@@ -608,7 +608,7 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 
 - **Nomes**: a vigilância pessoal (`heat`) aparece ao jogador como **Procurado**; a do bairro (`vigil`) como **Vigia local**. As regras e os números não mudaram, só o nome.
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
-- **Tela Rua**, de cima para baixo: placa do bairro → cartão do dia com "Dormir" → resultado → lambe-lambe "Hoje na cidade" (eventos) → primeiros passos ou "E agora?" (só um conselho) → **Seu ciclo** em 4 cartões ilustrados (Roubar, Noite, Feira, Cidade) → notícia com decisão → **Sua temporada** (patente, classe, meta e título num cartão só) → diário.
+- **Tela Rua**, de cima para baixo: placa do bairro → cartão do dia com "Dormir" → resultado → lambe-lambe "Hoje na cidade" (eventos) → primeiros passos ou "E agora?" (só um conselho) → notícia com decisão → **Sua temporada** (patente, classe, meta e título num cartão só) → diário.
 
 ## 20. Sistemas paralelos (v1.3)
 
