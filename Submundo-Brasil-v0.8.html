@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111b1e">
   <meta name="description" content="Submundo Brasil — RPG urbano brasileiro de estratégia por turnos para navegador.">
-  <title>Submundo Brasil | Jogo de estratégia 0.7</title>
+  <title>Submundo Brasil | Jogo de estratégia 0.8</title>
   <style>
     :root{color-scheme:dark;--bg:#0d1319;--panel:#151e26;--panel2:#1a2630;--line:#30404d;--muted:#9eabb5;--text:#f0f2f1;--accent:#e8a04b;--accent2:#ffbd6e;--green:#81c9a6;--red:#ee948a;--info:#8dbedb;--radius:9px}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}a{color:var(--accent)}.hidden{display:none!important}
@@ -413,15 +413,25 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 @media(max-width:700px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(min-width:701px){.places{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
+/* ===== v0.8: saúde, duelos e hospital ===== */
+.hudBars{grid-template-columns:1fr 1fr 1fr!important}
+.hudBar.hp i{background:repeating-linear-gradient(90deg,#5c8fd6 0 7px,#4677bd 7px 8px)}
+.hudBar.hp.alert{animation:pulseHeat 1.1s infinite}
+.hudBar b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.place.p-duelos{background:linear-gradient(160deg,#3a2a1c,#161d22 70%)}.place.p-hospital{background:linear-gradient(160deg,#1c2f3a,#161d22 70%)}
+@media(max-width:400px){.hudBar b{font-size:9px;letter-spacing:.03em;padding:0 5px}}
+@media(prefers-reduced-motion:reduce){.hudBar.hp.alert{animation:none!important}}
+
   </style>
 </head>
 <body>
   <header class="topbar hud" id="hud"><div class="topwrap hudwrap">
-    <div class="hudWho"><span class="hudAvatar" id="hudAvatar" aria-hidden="true"></span><div class="hudId"><strong id="hudName">SUBMUNDO BRASIL</strong><small id="hudSub">v0.7</small></div></div>
+    <div class="hudWho"><span class="hudAvatar" id="hudAvatar" aria-hidden="true"></span><div class="hudId"><strong id="hudName">SUBMUNDO BRASIL</strong><small id="hudSub">v0.8</small></div></div>
     <div class="hudMoney"><strong id="topCash" title="Dinheiro em mãos">R$ 0</strong><small><span id="hudRespect">0</span> respeito · <span id="topDay">Dia 1</span></small></div>
     <div class="hudBars">
       <div class="hudBar en" role="img" id="hudEnergyBox" aria-label="Energia"><i id="hudEnergy"></i><b id="hudEnergyTxt">Energia</b></div>
       <div class="hudBar ht" role="img" id="hudHeatBox" aria-label="Vigilância"><i id="hudHeat"></i><b id="hudHeatTxt">Vigilância</b></div>
+      <div class="hudBar hp" role="img" id="hudHealthBox" aria-label="Saúde"><i id="hudHealth"></i><b id="hudHealthTxt">Saúde</b></div>
     </div>
     <button id="menuToggle" class="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">Menu</button>
   </div></header>
@@ -431,7 +441,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     <button type="button" data-view="hub"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V10l5-3v14M8 21V4l7 3v14M15 21v-9l6 2v7M2 21h20"/></svg>Cidade</button>
     <button type="button" data-view="gangue"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="4.5" cy="10" r="2"/><circle cx="19.5" cy="10" r="2"/></svg>Gangue</button>
     <button type="button" data-view="perfil"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg>Perfil</button>
-  </nav><div class="sidefoot"><strong>Versão local 0.7.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.<br><button type="button" class="btn small ghost" data-action="help" style="margin-top:8px">Como jogar</button></div></aside>
+  </nav><div class="sidefoot"><strong>Versão local 0.8.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.<br><button type="button" class="btn small ghost" data-action="help" style="margin-top:8px">Como jogar</button></div></aside>
   <main class="content" id="content" tabindex="-1" aria-live="polite"></main></div>
   <nav class="mobileNav" aria-label="Navegação principal no celular">
     <button type="button" data-view="painel" class="active"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v9h5v-5h4v5h5v-9"/></svg>Início</button>
@@ -450,7 +460,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 
   <script id="sb-engine">
 /* =====================================================================
- * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.7
+ * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.8
  * ---------------------------------------------------------------------
  * Este módulo NÃO acessa o DOM. Ele contém:
  *   1. Utilitários e gerador aleatório (substituível nos testes).
@@ -470,7 +480,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 (function (root) {
   'use strict';
 
-  const VERSION = '0.7';
+  const VERSION = '0.8';
   const SCHEMA = 2;
   const MAXDAY = 30;
   const MAX_LOG = 60;
@@ -694,6 +704,25 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     { id: 'baile', name: 'Baile', desc: 'Som alto e gente conhecida. A equipe gosta de ver o chefe por lá.', cost: 160, energy: 25, ressaca: 6, morale: 3, heat: 2 },
     { id: 'inferninho', name: 'Inferninho', desc: 'Casa fechada até o amanhecer. Rende contatos, e às vezes confusão.', cost: 360, energy: 40, ressaca: 10, mingle: true }
   ];
+
+  /* ------------------------------------------------------------------
+   * v0.8 — Saúde, hospital e duelos de rua.
+   * Adversários são personagens inventados. O duelo é uma disputa abstrata
+   * (sem descrição de violência); o resultado mexe em saúde, dinheiro e fama.
+   * ------------------------------------------------------------------ */
+  const RIVALS = [
+    { id: 'marrento', name: 'Zé Marrento', desc: 'Fala alto na porta do bar. Bom para começar.', rating: 12, unlock: 0, low: 80, high: 160, respect: 1 },
+    { id: 'tonhao', name: 'Tonhão da Feira', desc: 'Carrega caixa o dia inteiro e não leva desaforo.', rating: 22, unlock: 10, low: 150, high: 280, respect: 2 },
+    { id: 'bagre', name: 'Cabeça de Bagre', desc: 'Teimoso. Perde e volta no dia seguinte.', rating: 30, unlock: 20, low: 220, high: 400, respect: 2 },
+    { id: 'maozinha', name: 'Mãozinha', desc: 'Rápido demais para o tamanho que tem.', rating: 40, unlock: 35, low: 320, high: 560, respect: 3 },
+    { id: 'galego', name: 'Galego do Fliperama', desc: 'Nunca perdeu uma aposta na vida. Diz ele.', rating: 52, unlock: 55, low: 450, high: 800, respect: 4 },
+    { id: 'sargento', name: 'Sargento Bigode', desc: 'Ex-segurança de casa noturna. Calmo e perigoso.', rating: 64, unlock: 80, low: 650, high: 1100, respect: 5 },
+    { id: 'carcara', name: 'Carcará', desc: 'Chega quieto e sai com o dinheiro dos outros.', rating: 78, unlock: 110, low: 900, high: 1500, respect: 6 },
+    { id: 'rei', name: 'Rei do Pedaço', desc: 'Ninguém lembra a última vez que ele perdeu.', rating: 95, unlock: 150, low: 1400, high: 2300, respect: 9 }
+  ];
+  const DUEL_LIMIT = 3;
+  const DUEL_ENERGY = 15;
+  const CLINIC_PRICE = 12; // por ponto de saúde
   const cityOf = name => CITIES.find(c => c.name === name) || CITIES[0];
   const cityIs = (s, id) => cityOf(s.city).id === id;
   let appliedCity = null;
@@ -821,7 +850,9 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     { id: 'arsenal', name: 'Bem equipado', desc: 'Comprar o Fuzil ou o Carro blindado.' },
     { id: 'atacadista', name: 'Atacadista', desc: 'Vender R$ 20.000 em mercadorias numa temporada.' },
     { id: 'exportador', name: 'Rota de fora', desc: 'Fechar uma remessa com o comprador de fora.' },
-    { id: 'industria', name: 'Indústria de fundo de quintal', desc: 'Ter os três pontos de produção.' }
+    { id: 'industria', name: 'Indústria de fundo de quintal', desc: 'Ter os três pontos de produção.' },
+    { id: 'brigao', name: 'Nome na roda', desc: 'Vencer 10 duelos de rua.' },
+    { id: 'reidopedaco', name: 'Destronou o rei', desc: 'Vencer o Rei do Pedaço.' }
   ];
 
   /* ------------------------------------------------------------------ */
@@ -839,7 +870,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     return [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, f.id === owner ? (legacyRivals && isNum(legacyRivals[d.id]) ? clamp(Math.round(legacyRivals[d.id]), 0, 100) : 22 + i * 3) : (f.id === 'aurora' ? 4 : 2)]))];
   }));
   const initialDistrictState = () => Object.fromEntries(DISTRICTS.map(d => [d.id, { vigil: 0, econ: 1 }]));
-  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0 });
+  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false });
   const startMarket = () => Object.fromEntries(DISTRICTS.map((d, i) => [d.id, Object.fromEntries(GOODS.map((g, j) => [g.id, 85 + ((i * 7 + j * 11) % 5) * 8]))]));
   const emptySeasonStats = () => ({ arrests: 0, startRespect: 5, bailPaid: 0, controlDays: Object.fromEntries(DISTRICTS.map(d => [d.id, 0])), bestCash: 0 });
 
@@ -864,7 +895,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       tutorial: { step: 0, done: false, trained: false, contacted: false, banked: false },
       gear: { arma: null, protecao: null, veiculo: null }, goods: Object.fromEntries(GOODS.map(g => [g.id, 0])), market: startMarket(),
       labs: Object.fromEntries(LABS.map(l => [l.id, 0])), labDown: {}, exportDeal: { day: 5, good: 'cigarro' }, exportDone: 0, ressaca: 0,
-      trade: { sold: 0, spent: 0, exported: 0, blitz: 0 }
+      trade: { sold: 0, spent: 0, exported: 0, blitz: 0 },
+      health: 100, hospital: 0, beaten: {}, duelStats: { wins: 0, losses: 0 }
     };
   }
 
@@ -1003,6 +1035,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       s.today.op = saved.today.op === true;
       s.today.training = toInt(saved.today.training, 0, 0, 9);
       s.today.night = toInt(saved.today.night, 0, 0, 9);
+      s.today.duels = toInt(saved.today.duels, 0, 0, 9);
+      s.today.clinic = saved.today.clinic === true;
     }
     const ss = saved.seasonStats || {};
     s.seasonStats = {
@@ -1025,6 +1059,12 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     s.ressaca = toInt(saved.ressaca, 0, 0, 30);
     s.exportDone = toInt(saved.exportDone, 0, 0, MAXDAY);
     s.trade = { sold: toInt(saved.trade && saved.trade.sold, 0, 0, BIG), spent: toInt(saved.trade && saved.trade.spent, 0, 0, BIG), exported: toInt(saved.trade && saved.trade.exported, 0, 0, BIG), blitz: toInt(saved.trade && saved.trade.blitz, 0, 0, 9999) };
+    // v0.8: saúde, internação e duelos.
+    s.health = toInt(saved.health, 100, 0, 100);
+    s.hospital = toInt(saved.hospital, 0, 0, 5);
+    s.beaten = {};
+    if (saved.beaten && typeof saved.beaten === 'object') for (const r of RIVALS) if (isNum(saved.beaten[r.id])) s.beaten[r.id] = toInt(saved.beaten[r.id], 1, 1, 999);
+    s.duelStats = { wins: toInt(saved.duelStats && saved.duelStats.wins, 0, 0, 99999), losses: toInt(saved.duelStats && saved.duelStats.losses, 0, 0, 99999) };
     // Primeiros passos: saves anteriores à 0.6 não tinham tutorial; quem já jogou não é obrigado a refazê-lo.
     const tu = saved.tutorial;
     if (tu && typeof tu === 'object') s.tutorial = { step: toInt(tu.step, 0, 0, TUTORIAL.length), done: tu.done === true, trained: tu.trained === true, contacted: tu.contacted === true, banked: tu.banked === true };
@@ -1123,6 +1163,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     if (s.career === 'operador') c += 6;
     if (s.career === 'empreendedor') c -= 3;
     if (s.tip > 0) c += 12;
+    c -= healthPenalty(s);
     if (m.stat === 'forca') c += gearVal(s, 'power') * .5;
     return clamp(Math.round(c), 8, 95);
   }
@@ -1152,6 +1193,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     if (r.stat) { const need = (m.id === 'cofre' && hasPerk(s, 'operador', 3)) ? 18 : r.stat[1]; if (s.stats[r.stat[0]] < need) return `Requer ${STATS.find(x => x.id === r.stat[0]).name} ${need}.`; }
     if (r.oncePerDay && s.today.missions[m.id]) return 'Já realizada hoje.';
     if (s.jail > 0) return 'Você está detido.';
+    if (s.hospital > 0) return 'Você está internado.';
     if (s.energy < m.cost) return 'Energia insuficiente.';
     return '';
   }
@@ -1219,17 +1261,39 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   const raidChance = s => clamp(Math.round((s.heat - 40) * .5), 0, 25);
   const nightCost = (s, n) => Math.round(n.cost * (1 + s.today.night * .5));
 
+
+  /* Saúde e duelos (v0.8) */
+  const rival = id => RIVALS.find(x => x.id === id);
+  /** Penalidade de saúde nas chances: começa abaixo de 60. */
+  const healthPenalty = s => s.health < 60 ? Math.round((60 - s.health) * .4) : 0;
+  const injured = s => s.health < 25;
+  const combatRating = s => Math.round(s.stats.forca * 1.6 + s.stats.astucia * .6 + gearVal(s, 'power') * 1.8 + gearVal(s, 'def') + s.gangLevel * 1.5);
+  function duelOdds(s, r) { return clamp(Math.round(50 + (combatRating(s) - r.rating) * 2.2 - healthPenalty(s) - (s.today.duels || 0) * 4), 8, 92); }
+  const clinicCost = s => Math.max(0, (100 - s.health) * CLINIC_PRICE);
+  /** Aplica dano reduzido pela proteção; chegar a zero significa internação. Devolve o texto do resultado. */
+  function hurt(s, amount) {
+    const dmg = Math.max(1, Math.round(amount - gearVal(s, 'def') * .6));
+    s.health = clamp(s.health - dmg, 0, 100);
+    if (s.health > 0) return ` Saúde -${dmg}.`;
+    s.hospital = 2; s.health = 35; addHeat(s, -10);
+    const bill = Math.min(s.cash, 300); s.cash -= bill;
+    log(s, `Você foi internado por 2 dias. Conta do hospital: ${money(bill)}.`);
+    return ` Saúde zerada: internado por 2 dias (conta de ${money(bill)}).`;
+  }
+  /** Bloqueio comum a ações físicas: detenção e internação. */
+  const blocked = s => s.jail > 0 ? 'Você está detido.' : s.hospital > 0 ? 'Você está internado.' : '';
+
   /* Gangue e facções */
   function gangOdds(s) {
     const d = s.district;
     return clamp(Math.round(46 + s.gangLevel * 4 + s.stats.influencia * .6 + crewSize(s) * 1.5 + roleLevels(s, 'musculo') * 1.2 + gearVal(s, 'power') * .6 +
-      (s.crewMorale - 50) * .18 - s.heat * .35 - s.dstate[d].vigil * .3 - leader(s, d).value * .08 - eventMod(s, 'risk', { district: d }) * .5), 12, 90);
+      (s.crewMorale - 50) * .18 - healthPenalty(s) - s.heat * .35 - s.dstate[d].vigil * .3 - leader(s, d).value * .08 - eventMod(s, 'risk', { district: d }) * .5), 12, 90);
   }
   function enemyHelp(s, fid) { return FACTIONS.some(a => s.factions[a.id].allied && FACTION_ENEMY[a.id] === fid) ? 8 : 0; }
   function clashOdds(s, did) {
     const l = leader(s, did), r = s.factions[l.id];
     return clamp(Math.round(38 + s.stats.influencia * 1.1 + s.stats.labia * .4 + s.gangLevel * 2.5 + crewSize(s) * 1.5 + roleLevels(s, 'musculo') * 1.5 + gearVal(s, 'power') +
-      (s.crewMorale - 50) * .12 - (l.value - s.influence[did]) * .2 - s.heat * .18 - r.tension * .08 - (r.power - 50) * .15 +
+      (s.crewMorale - 50) * .12 - healthPenalty(s) - (l.value - s.influence[did]) * .2 - s.heat * .18 - r.tension * .08 - (r.power - 50) * .15 +
       (s.career === 'articulador' ? 5 : 0) + eventMod(s, 'dispute', { district: did }) + enemyHelp(s, l.id)), 15, 88);
   }
   function disputeOdds(s, did) {
@@ -1314,17 +1378,18 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     const lost = Math.min(s.cash, Math.ceil(s.cash * failLoss(s, m)));
     s.cash -= lost; addHeat(s, heatGain(s, m.heat + rand(4, 10))); s.failed++;
     turfFriction(s, d, Math.ceil(m.tension / 2));
+    const wound = m.stat === 'forca' ? hurt(s, rand(6, 12)) : '';
     const ac = arrestChance(s, m);
     let jailMsg = '';
     if (roll(ac)) { s.jail = rand(1, 3) + (s.heat >= 70 ? 1 : 0) + (gearVal(s, 'power') >= 7 ? 1 : 0); s.seasonStats.arrests++; jailMsg = ` Você foi detido por ${s.jail} dia(s).`; }
-    log(s, `${m.name}: fracasso (${odds}%). Perda de ${money(lost)} em mãos.${jailMsg}`);
-    return done(false, `${m.name} falhou. -${money(lost)}.${jailMsg}`);
+    log(s, `${m.name}: fracasso (${odds}%). Perda de ${money(lost)} em mãos.${wound}${jailMsg}`);
+    return done(false, `${m.name} falhou. -${money(lost)}.${wound}${jailMsg}`);
   }
 
   function doTrain(s, id) {
     const st = STATS.find(x => x.id === id); if (!st) return refuse('Atributo desconhecido.');
     const cost = trainCost(s, id);
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     if (s.today.training >= 3) return refuse('Limite de 3 treinos por dia. Descanse até amanhã.');
     if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente para o treino.');
     s.energy -= 22; s.cash -= cost; s.today.training++;
@@ -1338,7 +1403,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     const d = DISTRICTS.find(x => x.id === id);
     if (!d || d.id === s.district) return refuse('Destino inválido.');
     const tc = travelCost(s);
-    if (s.jail > 0 || s.cash < tc.cash || s.energy < tc.energy) return refuse('Não foi possível viajar: verifique dinheiro, energia e detenção.');
+    if (blocked(s)) return refuse(blocked(s));
+    if (s.cash < tc.cash || s.energy < tc.energy) return refuse('Não foi possível viajar: verifique dinheiro e energia.');
     s.cash -= tc.cash; s.energy -= tc.energy; s.district = id;
     // Blitz: viajar carregado é arriscado; depende da carga, da sua vigilância e do veículo.
     {
@@ -1356,14 +1422,16 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   }
 
   function doGig(s) {
-    if (s.jail > 0 || s.energy < 28) return refuse('Você não pode fazer o bico agora.');
+    if (blocked(s)) return refuse(blocked(s));
+    if (s.energy < 28) return refuse('O bico exige 28 de energia.');
     const pay = Math.round(rand(110, 170) * eventMod(s, 'gigMult'));
     s.energy -= 28; s.cash += pay; addHeat(s, -4);
     log(s, `Bico realizado: ${money(pay)} recebidos.`);
     return done(true, `Bico concluído. +${money(pay)}`);
   }
   function doLayLow(s) {
-    if (s.jail > 0 || s.energy < 18 || s.heat === 0) return refuse('Não é necessário reduzir exposição agora.');
+    if (blocked(s)) return refuse(blocked(s));
+    if (s.energy < 18 || s.heat === 0) return refuse('Não é necessário reduzir exposição agora.');
     s.energy -= 18; addHeat(s, -20); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil - 10, 0, 100);
     log(s, 'Você ficou longe dos holofotes: -20 vigilância e -10 vigilância local.');
     return done(true, 'Vigilância reduzida.');
@@ -1421,7 +1489,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   }
 
   function doContact(s) {
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     const d = s.district, cost = contactCost(s), used = s.today.contacts[d] || 0;
     if (used >= 2) return refuse('Você já fez 2 contatos neste bairro hoje.');
     if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente.');
@@ -1434,7 +1502,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   }
 
   function doDispute(s) {
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     const d = s.district, l = leader(s, d), fs = s.factions[l.id];
     if (s.influence[d] < 20) return refuse('Construa pelo menos 20 de influência no bairro antes de disputar.');
     if (agreement(s, l.id)) return refuse(`Você tem um acordo com ${faction(l.id).short}. Rompa-o na tela Gangue se quiser disputar.`);
@@ -1538,6 +1606,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     const r = s.factions[fid], d = s.district;
     if (leader(s, d).id !== fid) return refuse(`${f.short} não lidera este bairro.`);
     if (s.influence[d] < 20) return refuse('Você precisa de 20 de influência no bairro.');
+    if (s.hospital > 0) return refuse('Você está internado.');
+    if (injured(s)) return refuse('Você está ferido demais para um confronto. Cuide da saúde.');
     if (agreement(s, fid)) return refuse('Há um acordo ativo. Rompa-o antes de confrontar.');
     if (r.lastActionDay === s.day) return refuse('Você já interagiu com este grupo hoje.');
     if (s.energy < 32 || s.cash < 300) return refuse('O confronto exige R$ 300 e 32 de energia.');
@@ -1553,8 +1623,9 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       return done(true, `Confronto vencido! (${odds}%)`);
     }
     addInf(s, d, -9); addPres(s, d, fid, 11); addHeat(s, 16); addMorale(s, -10); s.gangStats.confrontLosses++; memberXP(s, 1, 'musculo');
-    log(s, `${s.gangName} perdeu para ${f.name} em ${district(s).name} (${odds}%). A equipe ficou abalada.`);
-    return done(false, 'Confronto perdido: influência e ânimo reduzidos.');
+    const wound = hurt(s, rand(12, 22));
+    log(s, `${s.gangName} perdeu para ${f.name} em ${district(s).name} (${odds}%). A equipe ficou abalada.${wound}`);
+    return done(false, `Confronto perdido: influência e ânimo reduzidos.${wound}`);
   }
 
   function doFoundGang(s, rawName) {
@@ -1607,6 +1678,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   function doGangOp(s) {
     if (!s.gangName || s.jail > 0) return refuse('Operação indisponível.');
     if (s.today.op) return refuse('Apenas uma operação coletiva por dia.');
+    if (s.hospital > 0) return refuse('Você está internado.');
+    if (injured(s)) return refuse('Você está ferido demais para liderar a operação.');
     if (crewSize(s) < 2) return refuse('A operação exige pelo menos 2 integrantes.');
     if (s.energy < 35) return refuse('Energia insuficiente (35).');
     const d = s.district, odds = gangOdds(s);
@@ -1622,7 +1695,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     }
     const lost = Math.ceil(s.cash * .08);
     s.cash -= lost; s.failed++; addHeat(s, heatGain(s, 20 - olheiro)); addMorale(s, -8); turfFriction(s, d, 3);
-    log(s, `Operação de ${s.gangName} falhou (${odds}%). Perda: ${money(lost)}.`);
+    const wound = hurt(s, rand(4, 9));
+    log(s, `Operação de ${s.gangName} falhou (${odds}%). Perda: ${money(lost)}.${wound}`);
     return done(false, 'A operação coletiva falhou.');
   }
 
@@ -1644,7 +1718,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   function doBuyGood(s, id, qty) {
     const g = good(id); if (!g) return refuse('Mercadoria desconhecida.');
     if (!Number.isSafeInteger(qty) || qty <= 0) return refuse('Quantidade inválida.');
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     if (s.respect < g.unlock) return refuse(`Requer ${g.unlock} de respeito.`);
     if (s.energy < 3) return refuse('Negociar exige 3 de energia.');
     if (cargoUsed(s) + qty > cargoCap(s)) return refuse(`Sem espaço: cabem mais ${Math.max(0, cargoCap(s) - cargoUsed(s))} unidade(s).`);
@@ -1660,7 +1734,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   function doSellGood(s, id, qty) {
     const g = good(id); if (!g) return refuse('Mercadoria desconhecida.');
     if (!Number.isSafeInteger(qty) || qty <= 0) return refuse('Quantidade inválida.');
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     if (s.goods[g.id] < qty) return refuse('Você não tem essa quantidade.');
     if (s.energy < 3) return refuse('Negociar exige 3 de energia.');
     const d = s.district, imp = priceImpact(g, qty);
@@ -1677,7 +1751,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   const exportOpen = s => s.exportDeal.day === s.day && s.district === 'cais';
   function doExport(s) {
     const g = good(s.exportDeal.good);
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     if (s.exportDeal.day !== s.day) return refuse(`O comprador de fora só chega no dia ${s.exportDeal.day}.`);
     if (s.district !== 'cais') return refuse(`O comprador espera em ${district(s, 'cais').name}.`);
     const qty = Math.min(EXPORT_LIMIT, s.goods[g.id]);
@@ -1704,7 +1778,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   }
   function doNight(s, id) {
     const n = NIGHT.find(x => x.id === id); if (!n) return refuse('Lugar desconhecido.');
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     if (s.today.night >= 2) return refuse('Duas saídas por dia já é demais. Amanhã tem mais.');
     if (s.energy >= 100) return refuse('Você já está com a energia cheia.');
     const c = nightCost(s, n);
@@ -1719,6 +1793,58 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     }
     log(s, `${n.name}: +${n.energy} de energia por ${money(c)}.${extra} Ressaca amanhã: -${s.ressaca} de energia.`);
     return done(true, `${n.name}: +${n.energy} de energia.${extra}`);
+  }
+
+
+  /* ---------- v0.8: duelos e hospital ---------- */
+  function doDuel(s, id) {
+    const r = rival(id); if (!r) return refuse('Adversário desconhecido.');
+    if (blocked(s)) return refuse(blocked(s));
+    if (s.respect < r.unlock) return refuse(`Requer ${r.unlock} de respeito.`);
+    if (injured(s)) return refuse('Você está ferido demais para duelar. Cuide da saúde.');
+    if (s.today.duels >= DUEL_LIMIT) return refuse(`Limite de ${DUEL_LIMIT} duelos por dia.`);
+    if (s.energy < DUEL_ENERGY) return refuse(`O duelo exige ${DUEL_ENERGY} de energia.`);
+    const odds = duelOdds(s, r);
+    s.energy -= DUEL_ENERGY; s.today.duels++;
+    const noisy = gearVal(s, 'power') >= 7 ? 4 : 1; // arma de fogo chama atenção
+    addHeat(s, noisy); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil + 3, 0, 100);
+    if (roll(odds)) {
+      const prize = rand(r.low, r.high), first = !s.beaten[r.id];
+      const rg = first ? r.respect * 2 : r.respect;
+      s.cash += prize; s.respect += rg; s.duelStats.wins++; s.beaten[r.id] = (s.beaten[r.id] || 0) + 1;
+      if (roll(25)) s.stats.forca += 1;
+      const wound = hurt(s, rand(3, 9));
+      if (r.id === 'rei') unlock(s, 'reidopedaco');
+      if (s.duelStats.wins >= 10) unlock(s, 'brigao');
+      log(s, `Duelo com ${r.name} (${odds}%): vitória. +${money(prize)} e +${rg} de respeito${first ? ' (primeira vez)' : ''}.${wound}`);
+      return done(true, `Você venceu ${r.name}! +${money(prize)}.${wound}`);
+    }
+    const lost = Math.min(s.cash, Math.ceil(s.cash * .05));
+    s.cash -= lost; s.duelStats.losses++;
+    const wound = hurt(s, rand(14, 26) + Math.round(r.rating / 10));
+    log(s, `Duelo com ${r.name} (${odds}%): derrota. -${money(lost)}.${wound}`);
+    return done(false, `${r.name} levou a melhor. -${money(lost)}.${wound}`);
+  }
+  function doClinic(s, kind) {
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (s.hospital > 0) return refuse('Você já está internado; a alta sai sozinha.');
+    if (s.health >= 100) return refuse('Sua saúde está cheia.');
+    if (kind === 'posto') {
+      if (s.today.clinic) return refuse('O posto só atende você uma vez por dia.');
+      if (s.energy < 20) return refuse('A fila do posto exige 20 de energia.');
+      s.energy -= 20; s.today.clinic = true;
+      const g = Math.min(100 - s.health, 25); s.health += g;
+      log(s, `Posto de saúde: +${g} de saúde depois de horas na fila.`);
+      return done(true, `Posto de saúde: +${g} de saúde.`);
+    }
+    if (kind === 'clinica') {
+      const c = clinicCost(s);
+      if (s.cash < c) return refuse(`A clínica cobra ${money(c)} em mãos.`);
+      const g = 100 - s.health; s.cash -= c; s.health = 100;
+      log(s, `Clínica particular: saúde cheia por ${money(c)}.`);
+      return done(true, `Clínica: +${g} de saúde por ${money(c)}.`);
+    }
+    return refuse('Atendimento desconhecido.');
   }
 
   function pickCareer(s, id) {
@@ -1893,6 +2019,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     if (s.newsPending) { const n = currentNews(s); if (n && n.offer && s.newsPending.faction) addRel(s, s.newsPending.faction, -3); lines.push('Uma notícia passou sem resposta.'); }
     s.day++;
     s.jail = Math.max(0, s.jail - 1);
+    if (s.hospital > 0) { s.hospital--; s.health = clamp(s.health + 15, 0, 100); lines.push(s.hospital ? 'Internado: mais 1 dia de recuperação.' : 'Alta do hospital.'); }
+    else if (s.health < 100) { const h = s.jail > 0 ? 6 : 10; s.health = clamp(s.health + h, 0, 100); }
     s.today = emptyToday();
     if (s.tip > 0) s.tip--;
     tickEvents(s, lines);
@@ -2121,7 +2249,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     bank: doBank, buy: doBuy, sell: doSell, contact: doContact, dispute: doDispute,
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
-    buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, night: doNight,
+    duel: doDuel, clinic: doClinic, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, night: doNight,
     career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay, endSeason
   };
   /** Executa uma ação e roda verificações pós-ação. */
@@ -2139,10 +2267,10 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 
   const SB = {
     VERSION, SCHEMA, MAXDAY, STORAGE_KEY, RESALE, CAREER_XP,
-    STATS, MISSIONS, DISTRICTS, BUSINESSES, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
+    STATS, MISSIONS, DISTRICTS, BUSINESSES, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
-    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, stockValue, assetValue, buyTotal, sellTotal, blitzChance,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, stockValue, assetValue, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
     missionScore, missionChance, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
@@ -2158,7 +2286,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   </script>
   <script id="sb-ui">
 /* =====================================================================
- * SUBMUNDO BRASIL — INTERFACE v0.7
+ * SUBMUNDO BRASIL — INTERFACE v0.8
  * Responsável por: persistência (localStorage, backup, importação e
  * exportação), renderização das telas e tratamento dos cliques.
  * Todas as regras ficam em window.SB (motor). Esta camada só chama
@@ -2170,9 +2298,9 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   const KEY = SB.STORAGE_KEY;
   const CORRUPT_KEY = 'submundo_brasil_corrupt_backup';
   const V04_BACKUP_KEY = 'submundo_brasil_v04_backup';
-  const VIEWS = ['painel', 'acoes', 'hub', 'cidade', 'gestao', 'feira', 'galpao', 'noite', 'gangue', 'perfil', 'temporada'];
+  const VIEWS = ['painel', 'acoes', 'hub', 'cidade', 'gestao', 'feira', 'galpao', 'noite', 'duelos', 'hospital', 'gangue', 'perfil', 'temporada'];
   /* Telas que ficam "dentro" de uma aba da navegação. */
-  const PARENT = { cidade: 'hub', gestao: 'hub', feira: 'hub', galpao: 'hub', noite: 'hub', temporada: 'perfil' };
+  const PARENT = { cidade: 'hub', gestao: 'hub', feira: 'hub', galpao: 'hub', noite: 'hub', duelos: 'hub', hospital: 'hub', temporada: 'perfil' };
   const tabOf = v => PARENT[v] || v;
   const MAXDAY = SB.MAXDAY;
 
@@ -2350,7 +2478,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function exportSave() {
-    download(`submundo-brasil-v0.7-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
+    download(`submundo-brasil-v0.8-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
     notify('Cópia da carreira preparada para download.');
   }
   async function importFile(file, fromWelcome) {
@@ -2375,18 +2503,18 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     const node = $('#toast'); node.textContent = msg; node.className = 'toast' + (isError ? ' error' : ''); node.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(() => { node.hidden = true; }, 3800);
   }
-  const snap = () => state ? { cash: state.cash, bank: state.bank, energy: state.energy, heat: state.heat, respect: state.respect, inf: state.influence[state.district], morale: state.crewMorale, district: state.district } : null;
+  const snap = () => state ? { health: state.health, cash: state.cash, bank: state.bank, energy: state.energy, heat: state.heat, respect: state.respect, inf: state.influence[state.district], morale: state.crewMorale, district: state.district } : null;
   function deltas(a, b) {
     if (!a || !b) return [];
     const out = [];
     const add = (label, v, goodUp = true, money = false) => { if (v) out.push({ label, text: (v > 0 ? '+' : '-') + (money ? fmt(Math.abs(v)) : num(Math.abs(v))), good: goodUp ? v > 0 : v < 0 }); };
     add('Caixa', b.cash - a.cash, true, true); add('Banco', b.bank - a.bank, true, true); add('Energia', b.energy - a.energy);
-    add('Vigilância', b.heat - a.heat, false); add('Respeito', b.respect - a.respect);
+    add('Vigilância', b.heat - a.heat, false); add('Saúde', b.health - a.health); add('Respeito', b.respect - a.respect);
     if (a.district === b.district) add('Influência', b.inf - a.inf);
     add('Ânimo', b.morale - a.morale);
     return out;
   }
-  const STAMPED = ['mission', 'gangOp', 'clash', 'dispute', 'dialogue', 'exportGoods'];
+  const STAMPED = ['mission', 'gangOp', 'clash', 'dispute', 'dialogue', 'exportGoods', 'duel'];
   /** Transição curta de amanhecer ao virar o dia (ignorada com movimento reduzido). */
   function dawn() {
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -2403,6 +2531,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Vigilância ${s.heat}`;
     $('#hudEnergyBox').setAttribute('aria-label', `Energia ${s.energy} de 100`); $('#hudHeatBox').setAttribute('aria-label', `Vigilância ${s.heat} de 100`);
     $('#hudHeatBox').classList.toggle('alert', s.heat >= 60);
+    $('#hudHealth').style.width = s.health + '%'; $('#hudHealthTxt').textContent = s.hospital ? 'Internado' : `Saúde ${s.health}`;
+    $('#hudHealthBox').setAttribute('aria-label', `Saúde ${s.health} de 100`); $('#hudHealthBox').classList.toggle('alert', s.health < 25);
     const cash = $('#topCash'); cash.textContent = fmt(s.cash);
     if (lastCash !== null && lastCash !== s.cash) { cash.classList.remove('up', 'down'); void cash.offsetWidth; cash.classList.add(s.cash > lastCash ? 'up' : 'down'); }
     lastCash = s.cash;
@@ -2444,6 +2574,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       ${result.lines.length ? `<ul>${result.lines.slice(0, 10).map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}</section>`;
   }
   function jailNotice() {
+    if (state.hospital > 0) return `<div class="notice error tape"><strong>INTERNADO · ${state.hospital} dia(s)</strong> Você não pode sair para serviços, treinos, viagens, duelos ou negócios. Banco, gangue (decisões) e notícias continuam. A saúde volta +15 por dia.<div class="inlineBtns">${nextDayButton('small')}</div></div>`;
     if (state.jail <= 0) return '';
     const c = SB.bailCost(state);
     return `<div class="notice error tape"><strong>DETIDO · ${state.jail} dia(s)</strong> Missões, treinos, viagens e negócios ficam bloqueados; o banco continua disponível.
@@ -2519,10 +2650,11 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
         <p>No fim, sua temporada recebe pontos e medalhas em <strong>seis caminhos</strong>: Fortuna, Fama, Território, Diplomacia, Gangue e Comércio. Não precisa ser bom em tudo: escolha um ou dois e vá fundo.</p>
         <p>Os títulos vão de <em>Aprendiz da rua</em> a <em>Lenda do Submundo</em>. O cartão <strong>Seu rumo</strong>, no Início, mostra sempre o próximo título e a medalha mais próxima.</p>`],
       ['Seu dia', `<p>Tudo gasta <strong>energia</strong> (barra verde). Um dia típico:</p>
-        <ol><li><strong>Serviços</strong> rendem dinheiro e respeito. Veja a chance antes.</li><li><strong>Treino</strong> melhora atributos e libera serviços maiores.</li><li><strong>Contatos</strong> nos bairros viram influência e tributo.</li><li>Na aba <strong>Cidade</strong> ficam os lugares: Feira do Rolo (armas, proteção e veículo), Galpão (comprar barato, vender caro, produzir e despachar) e a noite (energia extra, com ressaca).</li><li>Sem energia? <strong>Avance o dia</strong>: +70 de energia, a renda entra e os grupos se movem.</li></ol>
+        <ol><li><strong>Serviços</strong> rendem dinheiro e respeito. Veja a chance antes.</li><li><strong>Treino</strong> melhora atributos e libera serviços maiores.</li><li><strong>Contatos</strong> nos bairros viram influência e tributo.</li><li>Na aba <strong>Cidade</strong> ficam os lugares: Feira do Rolo (armas, proteção e veículo), Galpão (comprar barato, vender caro, produzir e despachar), a noite (energia extra, com ressaca), os Duelos de rua e o Hospital.</li><li>Sem energia? <strong>Avance o dia</strong>: +70 de energia, a renda entra e os grupos se movem.</li></ol>
         <p>Respeito libera serviços, a gangue (30) e mais. Dinheiro compra treino, negócios e equipe.</p>`],
       ['Os riscos', `<p><strong>Vigilância</strong> (barra vermelha) sobe a cada serviço e derruba suas chances. Ela cai sozinha ao virar o dia, ou com “Ficar na sua”.</p>
         <p><strong>Falhar</strong> tira parte do dinheiro <em>em mãos</em> e pode dar <strong>detenção</strong> (dias perdidos, ou fiança). O banco protege o dinheiro por uma taxa.</p>
+        <p><strong>Saúde</strong> (barra azul) cai em confrontos, duelos e serviços de força que dão errado. Abaixo de 60 suas chances caem; a zero, você é internado. Cure no Hospital ou esperando.</p>
         <p><strong>Repetir</strong> o mesmo serviço no dia ou insistir no mesmo bairro piora chance e pagamento. Varie.</p>
         <p>Os <strong>grupos rivais</strong> reagem: agir no território deles gera atrito, retaliação e extorsão. Dá para conversar, firmar trégua ou aliança.</p>`],
       ['Sua cidade', `<p><strong>${esc(c.name)} — ${esc(c.trait)}.</strong> ${esc(c.traitDesc)}</p>
@@ -2589,7 +2721,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   }
   function actions() {
     const s = state, ds = s.dstate[s.district];
-    const list = SB.MISSIONS.filter(m => missionFilter === 'todas' ? true : missionFilter === 'bairro' ? m.district === s.district : ['', 'Energia insuficiente.', 'Você está detido.'].includes(SB.missionLock(s, m)));
+    const list = SB.MISSIONS.filter(m => missionFilter === 'todas' ? true : missionFilter === 'bairro' ? m.district === s.district : ['', 'Energia insuficiente.', 'Você está detido.', 'Você está internado.'].includes(SB.missionLock(s, m)));
     return heading('Quadro de serviços', 'Cada serviço usa um atributo. Repetir no mesmo dia ou no mesmo bairro aumenta o risco.') + jailNotice() + resultCard() + `
       ${localeStrip(false)}
       ${stencil('Serviços', 'chance entre 8% e 95%')}
@@ -2601,7 +2733,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   }
   function missionCard(m) {
     const s = state, lock = SB.missionLock(s, m), p = SB.missionChance(s, m), mult = SB.missionRewardMult(s, m), reps = s.today.missions[m.id] || 0;
-    const hard = lock && lock !== 'Energia insuficiente.' && lock !== 'Você está detido.';
+    const hard = lock && !['Energia insuficiente.', 'Você está detido.', 'Você está internado.'].includes(lock);
     return `<section class="job ${hard ? 'locked' : ''}"><div class="jobIcon" title="${statName(m.stat)}">${statIcon(m.stat)}<small>${statName(m.stat)}</small></div>
       <div class="jobMain"><h3>${esc(m.name)}${m.district ? ` <span class="pill">só aqui</span>` : ''}</h3><p class="jobDesc">${esc(m.desc)}</p>
       <p class="jobMeta"><b>${fmt(m.low * mult)}–${fmt(m.high * mult)}</b> · ${m.cost} energia · +${m.heat} vigilância · +${SB.respectGain(s, m)} respeito</p>
@@ -2757,6 +2889,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     feira: `<path d="M3 9l2-5h14l2 5M4 9v11h16V9M3 9c0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0M9 20v-6h6v6"/>`,
     galpao: `<path d="M3 20V9l9-5 9 5v11M7 20v-7h10v7M7 16h10M10 13v7M14 13v7"/>`,
     noite: `<path d="M8 3h8l-1 7a3 3 0 0 1-6 0zM12 13v7M8 20h8M17 4l3-1M18 7h3"/>`,
+    duelos: `<path d="M4 14c0-3 2-5 4-5h3v4H8v3M20 14c0-3-2-5-4-5h-3v4h3v3M4 14v5h4v-3M20 14v5h-4v-3"/>`,
+    hospital: `<path d="M4 20V6h16v14M2 20h20M10 9h4M12 7v4M8 14h2v6M14 14h2v6"/>`,
     temporada: `<path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4c0 3 1.500 4.500 3.500 4.500M17 6h3c0 3-1.500 4.500-3.500 4.500M12 14v4M8 20h8"/>`.replace(/\.500/g, '.5')
   };
   const place = (v, name, info, badge = '') => `<button type="button" class="place p-${v}" data-view="${v}"><span class="placeArt"><svg viewBox="0 0 24 24" aria-hidden="true">${PLACE_ICON[v]}</svg></span><b>${name}</b><small>${info}</small>${badge ? `<i class="placeBadge">${badge}</i>` : ''}</button>`;
@@ -2767,6 +2901,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       ${place('galpao', 'Galpão', `Carga ${SB.cargoUsed(s)}/${SB.cargoCap(s)} · mercadoria e produção`, deal.day >= s.day ? (deal.day === s.day ? 'Comprador hoje' : `Comprador dia ${deal.day}`) : '')}
       ${place('feira', 'Feira do Rolo', `${w ? esc(w.name) : 'Sem arma'} · ${v ? esc(v.name) : 'a pé'}`)}
       ${place('noite', 'Vida noturna', `Saídas hoje ${s.today.night}/2${s.ressaca ? ' · ressaca ' + s.ressaca : ''}`)}
+      ${place('duelos', 'Duelos de rua', `Hoje ${s.today.duels}/${SB.DUEL_LIMIT} · ${s.duelStats.wins} vitória(s)`)}
+      ${place('hospital', 'Hospital', s.hospital ? `Internado · ${s.hospital} dia(s)` : `Saúde ${s.health}/100`, s.health < 50 ? 'Ferido' : '')}
       ${place('gestao', 'Banco e negócios', `${fmt(s.bank)} guardados · ${s.businesses.length} negócio(s)`)}
       ${place('temporada', 'Temporada', `Dia ${s.day}/${MAXDAY} · ${num(SB.seasonScore(s).score)} pts`)}
     </div><p class="quiet" style="margin-top:12px">Treinos e serviços ficam na aba Serviços. Sua ficha, na aba Perfil. ${esc(g.name)} é o que o comprador de fora quer no dia ${deal.day}.</p>`;
@@ -2813,6 +2949,30 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
           <div class="shopAct"><strong>${fmt(c)}</strong>${button('Ir', 'night', `data-id="${n.id}"`, s.cash < c || s.today.night >= 2 || s.energy >= 100 || s.jail > 0, 'small primary')}</div></section>`; }).join('')}</div>
       <p class="mini" style="margin-top:6px">A segunda saída do dia custa 50% a mais.</p>`;
   }
+
+  function duelos() {
+    const s = state, cr = SB.combatRating(s), w = SB.item(s.gear.arma), pr = SB.item(s.gear.protecao), hp = SB.healthPenalty(s);
+    return heading('Duelos de rua', 'Encare nomes conhecidos da rua. Vencer dá dinheiro e fama; perder custa saúde.') + jailNotice() + resultCard() + `
+      <section class="card"><div class="kv"><div><span>Seu poder de luta</span><strong>${cr}</strong></div><div><span>Duelos hoje</span><strong>${s.today.duels}/${SB.DUEL_LIMIT}</strong></div><div><span>Arma</span><strong>${w ? esc(w.name) : 'Mãos nuas'}</strong></div><div><span>Proteção</span><strong>${pr ? esc(pr.name) : 'Nenhuma'}</strong></div></div>
+        <p class="mini" style="margin-top:8px">Poder = Força, Astúcia, arma, proteção e sede. A proteção também reduz o dano. ${hp ? `<span class="negative">Saúde baixa: -${hp} de chance.</span>` : ''}${SB.injured(s) ? ' <span class="negative">Ferido demais para duelar: vá ao Hospital.</span>' : ''}${SB.gearVal(s, 'power') >= 7 ? ' Arma de fogo faz barulho: +4 de vigilância por duelo.' : ''}</p></section>
+      <div class="grid" style="margin-top:10px">${SB.RIVALS.map(r => { const locked = s.respect < r.unlock, odds = SB.duelOdds(s, r), beat = s.beaten[r.id] || 0;
+        const off = locked || !!SB.blocked(s) || SB.injured(s) || s.today.duels >= SB.DUEL_LIMIT || s.energy < SB.DUEL_ENERGY;
+        return `<section class="card mission ${locked ? 'locked' : ''}"><div><h3>${esc(r.name)} ${beat ? `<span class="pill">Vencido ${beat}×</span>` : ''}</h3><p>${esc(r.desc)}</p>
+          <div class="details">Poder ${r.rating} · prêmio ${fmt(r.low)}–${fmt(r.high)} · +${beat ? r.respect : r.respect * 2} respeito${beat ? '' : ' (primeira vitória vale o dobro)'} · ${SB.DUEL_ENERGY} energia</div>
+          <div class="details">Se perder: saúde e 5% do caixa em mãos</div>${locked ? `<div class="lockline">Requer ${r.unlock} de respeito.</div>` : ''}</div>
+          <div class="right"><span class="chance ${chanceClass(odds)}">${odds}% <small class="mini">vitória</small></span>${button('Encarar', 'duel', `data-id="${r.id}"`, off, 'primary small')}</div></section>`; }).join('')}</div>
+      <p class="mini" style="margin-top:6px">Cada duelo seguido no mesmo dia tira 4 pontos de chance: o corpo cansa.</p>`;
+  }
+  function hospital() {
+    const s = state, c = SB.clinicCost(s);
+    return heading('Hospital', 'Saúde baixa derruba suas chances em tudo. Abaixo de 25 você não confronta, não lidera operações e não duela.') + jailNotice() + resultCard() + `
+      <section class="card"><div class="meterlabel"><span>Saúde</span><strong>${s.health}/100</strong></div><div class="meter green"><div style="width:${s.health}%"></div></div>
+        <p class="mini" style="margin-top:7px">Volta sozinha +10 por dia (+6 se detido). Se chegar a zero, você é internado por 2 dias e paga a conta.${SB.healthPenalty(s) ? ` <span class="negative">Agora: -${SB.healthPenalty(s)} de chance nas ações.</span>` : ''}</p></section>
+      <div class="grid" style="margin-top:10px">
+        <section class="card shopRow"><div><h3>Posto de saúde</h3><p class="mini">Atendimento gratuito, mas a fila é longa. +25 de saúde, uma vez por dia.</p></div><div class="shopAct"><strong>20 energia</strong>${button('Entrar na fila', 'clinic', 'data-id="posto"', s.health >= 100 || s.today.clinic || s.energy < 20 || !!SB.blocked(s), 'small primary')}</div></section>
+        <section class="card shopRow"><div><h3>Clínica particular</h3><p class="mini">Sai novo na hora. ${fmt(12)} por ponto de saúde que falta.</p></div><div class="shopAct"><strong>${fmt(c)}</strong>${button('Pagar e curar', 'clinic', 'data-id="clinica"', s.health >= 100 || s.cash < c || !!SB.blocked(s), 'small primary')}</div></section>
+      </div>`;
+  }
   function perfil() {
     const s = state, sc = SB.seasonScore(s), lvl = Math.min(99, Math.floor(s.respect / 35) + 1), c = s.career ? SB.CAREERS.find(x => x.id === s.career) : null;
     const top = Math.max(20, ...SB.STATS.map(st => s.stats[st.id]));
@@ -2820,7 +2980,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       <section class="sheet"><span class="sheetAvatar">${avatar(s.career)}</span><div><h2>${esc(s.name)}</h2><p>${esc(sc.title)} · nível ${lvl}</p><p class="mini">${esc(s.city)}${c ? ' · ' + c.name + ' ' + SB.careerLevel(s) + '/3' : ''}${s.gangName ? ' · ' + esc(s.gangName) : ''}${s.prestige ? ' · prestígio ' + s.prestige : ''}</p></div></section>
       ${stencil('Atributos')}<section class="card">${SB.STATS.map(st => `<div class="statRow">${statIcon(st.id)}<span>${st.name}</span><div class="meter"><div style="width:${pct(s.stats[st.id] / top * 100)}%"></div></div><strong>${num(s.stats[st.id])}</strong></div>`).join('')}</section>
       ${stencil('Equipamento', 'troque na Feira do Rolo')}<div class="gearGrid">${SB.SLOTS.map(sl => { const it = SB.item(s.gear[sl.id]); return `<button type="button" class="gearSlot ${it ? 'on' : ''}" data-view="feira"><span>${sl.name}</span><b>${it ? esc(it.name) : '—'}</b><small>${it ? esc(it.slot === 'arma' ? 'poder ' + it.power : it.slot === 'protecao' ? 'defesa ' + it.def : 'carga +' + it.cargo) : 'vazio'}</small></button>`; }).join('')}</div>
-      ${stencil('Nesta temporada')}<section class="card"><div class="kv"><div><span>Respeito</span><strong>${num(s.respect)}</strong></div><div><span>Patrimônio</span><strong>${fmt(SB.patrimony(s))}</strong></div><div><span>Serviços</span><strong>${num(s.successful)} certos · ${num(s.failed)} falhos</strong></div><div><span>Detenções</span><strong>${s.seasonStats.arrests}</strong></div><div><span>Mercadoria vendida</span><strong>${fmt(s.trade.sold)}</strong></div><div><span>Remessas / blitze</span><strong>${num(s.trade.exported)} un. · ${s.trade.blitz}</strong></div><div><span>Bairros liderados</span><strong>${SB.controls(s).length}/5</strong></div><div><span>Conquistas</span><strong>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length}</strong></div></div></section>
+      ${stencil('Nesta temporada')}<section class="card"><div class="kv"><div><span>Respeito</span><strong>${num(s.respect)}</strong></div><div><span>Patrimônio</span><strong>${fmt(SB.patrimony(s))}</strong></div><div><span>Serviços</span><strong>${num(s.successful)} certos · ${num(s.failed)} falhos</strong></div><div><span>Detenções</span><strong>${s.seasonStats.arrests}</strong></div><div><span>Saúde</span><strong>${s.health}/100${s.hospital ? ' · internado' : ''}</strong></div><div><span>Duelos</span><strong>${s.duelStats.wins} vitórias · ${s.duelStats.losses} derrotas</strong></div><div><span>Mercadoria vendida</span><strong>${fmt(s.trade.sold)}</strong></div><div><span>Remessas / blitze</span><strong>${num(s.trade.exported)} un. · ${s.trade.blitz}</strong></div><div><span>Bairros liderados</span><strong>${SB.controls(s).length}/5</strong></div><div><span>Conquistas</span><strong>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length}</strong></div></div></section>
       <div class="btnbar" style="margin-top:12px">${button('Temporada, medalhas e conquistas', 'switch', 'data-target="temporada"', false, 'primary')}${button('Como jogar', 'help', '', false, 'ghost')}</div>`;
   }
 
@@ -2828,7 +2988,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   function render() {
     if (!state) return;
     SB.applyCity(state.city);
-    const pages = { painel: panel, acoes: actions, hub, cidade: city, gestao: management, feira, galpao, noite, gangue: gang, perfil, temporada: seasons };
+    const pages = { painel: panel, acoes: actions, hub, cidade: city, gestao: management, feira, galpao, noite, duelos, hospital, gangue: gang, perfil, temporada: seasons };
     try {
       $('#content').innerHTML = (pages[view] || panel)() + `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • Cidades reais, bairros e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`;
     } catch (e) {
@@ -2875,6 +3035,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       case 'export-goods': run('exportGoods'); break;
       case 'build-lab': run('buildLab', id); break;
       case 'night': run('night', id); break;
+      case 'duel': run('duel', id); break;
+      case 'clinic': run('clinic', id); break;
       case 'help': openHelp(0); break;
       case 'help-next': helpPage++; renderHelp(); break;
       case 'help-prev': helpPage--; renderHelp(); break;

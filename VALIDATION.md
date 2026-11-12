@@ -1,4 +1,4 @@
-# Validação — Submundo Brasil v0.7
+# Validação — Submundo Brasil v0.8
 
 Tudo abaixo foi **executado** neste ambiente (Node.js + Chromium/Playwright).
 Para reproduzir: `npm test` (build + motor + fuzz + interface), `npm run simulate`
@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**85 de 85 passaram** (v0.7; 17 novos sobre equipamentos, mercadorias, produção, remessas, blitz e noite). Cenários cobertos:
+**98 de 98 passaram** (v0.8; 13 novos sobre saúde, internação, hospital e duelos). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**67 de 67 verificações passaram** (v0.7: inclui Cidade, Feira do Rolo, Galpão, noite e Perfil), com **0 erros de console**:
+**71 de 71 verificações passaram** (v0.8: inclui Cidade, Feira do Rolo, Galpão, noite, Perfil, duelos, hospital e a barra de saúde), com **0 erros de console**:
 
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
 - A missão consome energia e mostra o cartão de resultado com as variações.
@@ -59,36 +59,36 @@ ausência de cortes).
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 
-Bots com estratégias fixas jogam temporadas completas. Resultado da **v0.7** em
+Bots com estratégias fixas jogam temporadas completas. Resultado da **v0.8** em
 `node tests/simulate.js 300 2` (300 temporadas por estratégia, médias, em Recife):
 
 | Estratégia | Patrimônio | Respeito | Pontos | Meta | Detenções |
 |---|---|---|---|---|---|
-| Operador farmando missões | 16.722 | 135 | 210 | 50% | 2,7 |
-| Empreendedor com negócios | 18.881 | 119 | 205 | 60% | 2,7 |
-| Articulador territorial | 628 | 132 | 206 | 100% | 1,6 |
-| Articulador diplomata | 1.544 | 104 | 214 | 90% | 2,9 |
-| Bonde (gangue) | 592 | 95 | 162 | 30% | 1,1 |
-| **Comerciante (Galpão, produção, remessas)** | 12.426 | 121 | 209 | 20% | 2,8 |
-| Operador com arsenal e noite | 15.552 | 123 | 185 | 30% | 3,0 |
-| **Exploit: repetir a melhor e depositar tudo** | 2.056 | 46 | **27** | 0% | **11,0** |
-| Aleatório | 572 | 50 | 56 | 0% | 0,9 |
+| Operador farmando missões | 16.263 | 131 | 200 | 40% | 2,7 |
+| Empreendedor com negócios | 18.882 | 119 | 206 | 60% | 2,5 |
+| Articulador territorial | 598 | 132 | 206 | 100% | 1,6 |
+| Articulador diplomata | 1.693 | 106 | 224 | 90% | 2,8 |
+| Bonde (gangue) | 563 | 95 | 164 | 30% | 0,9 |
+| Comerciante (Galpão, produção, remessas) | 11.804 | 117 | 198 | 10% | 3,0 |
+| Operador com arsenal e noite | 16.189 | 126 | 189 | 40% | 3,1 |
+| **Brigão (arsenal, duelos, hospital)** | 15.361 | 139 | 192 | 20% | 2,0 |
+| **Exploit: repetir a melhor e depositar tudo** | 2.126 | 47 | **28** | 0% | **11,0** |
+| Aleatório | 578 | 50 | 58 | 0% | 0,8 |
 
 Leitura:
-- Seis estratégias focadas ficam entre 162 e 214 pontos: há **vários caminhos de vitória**, agora incluindo o comércio.
-- **Calibração do comércio (v0.7):** na primeira medição o comerciante fazia 74 pontos. A margem de venda era de 10% e os preços variavam pouco. Foram ajustados margem (5%), oscilação (60–150%), preço do comprador de fora (1,9×), produção, e criada a categoria Comércio; o patrimônio passou a contar equipamentos e produção.
-- **A noite e o arsenal não dominam:** o robô que usa os dois faz 185 pontos, menos que o farm simples (210), porque gasta dinheiro. São escolhas, não obrigação. [H] Um humano pode usá-los melhor que o robô.
+- Oito estratégias focadas ficam entre 164 e 224 pontos: há **vários caminhos de vitória**.
+- **Duelos (v0.8)**: o brigão vence cerca de 44 duelos por temporada e termina com metade da saúde (44 em média, outra semente). Faz 192 pontos: viável, sem dominar. Os ferimentos quase não mexeram nas outras estratégias (variação de até 10 pontos entre v0.7 e v0.8, dentro do ruído das sementes).
 - O exploit da 0.4 continua a pior estratégia.
 
-### Especializações — `tests/careers.js` (150 temporadas por célula, v0.7)
+### Especializações — `tests/careers.js` (150 temporadas por célula, v0.8)
 
 | Estratégia | Operador | Articulador | Empreendedor |
 |---|---|---|---|
-| Missões | **202** | 191 | 172 |
-| Negócios | **213** | 186 | 211 |
-| Território | 204 | **205** | 201 |
-| Diplomacia | 199 | **217** | 175 |
-| Gangue | 171 | **189** | 154 |
+| Missões | **210** | 200 | 175 |
+| Negócios | **210** | 179 | 208 |
+| Território | 203 | **205** | 202 |
+| Diplomacia | 204 | **225** | 163 |
+| Gangue | 171 | **182** | 142 |
 
 ### Cidades (medido na v0.6; não refeito na v0.7)
 

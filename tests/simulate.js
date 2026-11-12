@@ -103,6 +103,17 @@ const STRATEGIES = {
     grind(s, 55, 0);
     for (let i = 0; i < 2; i++) if (s.cash > 2500 && s.energy < 55 && !s.jail) { SB.perform(s, 'night', 'inferninho'); grind(s, 55, 0); }
     trainBest(s, 'astucia', 1200); bankSurplus(s, 900); } },
+  brigao: { career: 'operador', goal: 'renome', day(s) {
+    // Arma e proteção, duelos contra o melhor adversário com boa chance, hospital quando precisa.
+    bail(s); handleNews(s);
+    for (const id of ['soco', 'jaqueta', 'peixeira', 'colete', 'trezoitao', 'pistola', 'tatico', 'doze'])
+      if (s.gear[SB.item(id).slot] !== id && s.cash > SB.item(id).cost * 1.8 && (SB.item(s.gear[SB.item(id).slot]) || { cost: 0 }).cost < SB.item(id).cost) SB.perform(s, 'buyItem', id);
+    if (s.health < 60) { SB.perform(s, 'clinic', 'posto'); if (s.health < 50 && s.cash > SB.clinicCost(s) * 3) SB.perform(s, 'clinic', 'clinica'); }
+    for (let i = 0; i < 3; i++) {
+      const r = SB.RIVALS.filter(x => s.respect >= x.unlock && SB.duelOdds(s, x) >= 55).sort((a, b) => b.rating - a.rating)[0];
+      if (!r || s.health < 45 || !SB.perform(s, 'duel', r.id).ok) break;
+    }
+    grind(s, 55); trainBest(s, 'forca', 1500); bankSurplus(s, 1200); } },
   exploit_repetir: { career: 'operador', goal: 'capital', day(s) {
     // Repete sempre a missão de maior recompensa desbloqueada e deposita tudo.
     if (s.bank) SB.perform(s, 'bank', 'withdraw', s.bank);
@@ -131,7 +142,7 @@ function playSeason(strategy, s) {
   st.day(s);
   const sc = SB.seasonScore(s);
   const out = { patrimony: SB.patrimony(s), respect: s.respect, score: sc.score, goal: s.goalDone ? 1 : 0, arrests: s.seasonStats.arrests,
-    sold: s.trade.sold, spent: s.trade.spent, exported: s.trade.exported, blitz: s.trade.blitz, labs: SB.LABS.filter(l => s.labs[l.id]).length, controls: SB.controls(s).length, crew: s.crew.length, careerLvl: SB.careerLevel(s), success: s.successful, failed: s.failed };
+    sold: s.trade.sold, spent: s.trade.spent, exported: s.trade.exported, blitz: s.trade.blitz, labs: SB.LABS.filter(l => s.labs[l.id]).length, controls: SB.controls(s).length, crew: s.crew.length, careerLvl: SB.careerLevel(s), success: s.successful, failed: s.failed, health: s.health, duels: s.duelStats.wins, hospital: s.hospital };
   for (const c of sc.cats) { out['v_' + c.id] = c.value; out['m_' + c.id] = c.medal; }
   return out;
 }

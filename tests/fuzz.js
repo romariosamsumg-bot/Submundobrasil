@@ -17,6 +17,8 @@ for(let season=0;season<Number(process.argv[3]||20);season++){
   if(a==='foundGang')args=['Bonde do Teste'];
   if(a==='recruit')args=[SB.ROLES[SB.rand(0,2)].id];
   if(a==='dismiss')args=[s.crew[0]?.id];
+  if(a==='duel')args=[SB.RIVALS[SB.rand(0,SB.RIVALS.length-1)].id];
+  if(a==='clinic')args=[['posto','clinica','x'][SB.rand(0,2)]];
   if(a==='buyItem')args=[SB.ITEMS[SB.rand(0,SB.ITEMS.length-1)].id];
   if(['buyGood','sellGood'].includes(a))args=[SB.GOODS[SB.rand(0,5)].id,SB.rand(1,30)];
   if(a==='buildLab')args=[SB.LABS[SB.rand(0,2)].id];
@@ -29,7 +31,7 @@ for(let season=0;season<Number(process.argv[3]||20);season++){
   // invariants
   const bad=[];for(const g of SB.GOODS)if(!Number.isInteger(s.goods[g.id])||s.goods[g.id]<0)bad.push('goods');if(SB.cargoUsed(s)>SB.cargoCap(s)+0)bad.push('cargo '+SB.cargoUsed(s)+'/'+SB.cargoCap(s));
   for(const k of ['cash','bank','energy','heat','respect','jail'])if(!Number.isInteger(s[k])||s[k]<0)bad.push(k+'='+s[k]);
-  if(s.energy>100||s.heat>100)bad.push('cap');
+  if(s.energy>100||s.heat>100)bad.push('cap');if(!Number.isInteger(s.health)||s.health<0||s.health>100||s.hospital<0)bad.push('health '+s.health);
   for(const d of SB.DISTRICTS){if(s.influence[d.id]<0||s.influence[d.id]>100)bad.push('inf');for(const f of SB.FACTIONS){const p=s.presence[d.id][f.id];if(!Number.isInteger(p)||p<0||p>100)bad.push('pres '+p)}}
   if(bad.length){console.log('INVARIANT',a,bad);process.exit(1)}
   if(s.day===30){const r=SB.perform(s,'endSeason');s=r.state;break}

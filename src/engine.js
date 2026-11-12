@@ -1,5 +1,5 @@
 /* =====================================================================
- * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.7
+ * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.8
  * ---------------------------------------------------------------------
  * Este módulo NÃO acessa o DOM. Ele contém:
  *   1. Utilitários e gerador aleatório (substituível nos testes).
@@ -19,7 +19,7 @@
 (function (root) {
   'use strict';
 
-  const VERSION = '0.7';
+  const VERSION = '0.8';
   const SCHEMA = 2;
   const MAXDAY = 30;
   const MAX_LOG = 60;
@@ -243,6 +243,25 @@
     { id: 'baile', name: 'Baile', desc: 'Som alto e gente conhecida. A equipe gosta de ver o chefe por lá.', cost: 160, energy: 25, ressaca: 6, morale: 3, heat: 2 },
     { id: 'inferninho', name: 'Inferninho', desc: 'Casa fechada até o amanhecer. Rende contatos, e às vezes confusão.', cost: 360, energy: 40, ressaca: 10, mingle: true }
   ];
+
+  /* ------------------------------------------------------------------
+   * v0.8 — Saúde, hospital e duelos de rua.
+   * Adversários são personagens inventados. O duelo é uma disputa abstrata
+   * (sem descrição de violência); o resultado mexe em saúde, dinheiro e fama.
+   * ------------------------------------------------------------------ */
+  const RIVALS = [
+    { id: 'marrento', name: 'Zé Marrento', desc: 'Fala alto na porta do bar. Bom para começar.', rating: 12, unlock: 0, low: 80, high: 160, respect: 1 },
+    { id: 'tonhao', name: 'Tonhão da Feira', desc: 'Carrega caixa o dia inteiro e não leva desaforo.', rating: 22, unlock: 10, low: 150, high: 280, respect: 2 },
+    { id: 'bagre', name: 'Cabeça de Bagre', desc: 'Teimoso. Perde e volta no dia seguinte.', rating: 30, unlock: 20, low: 220, high: 400, respect: 2 },
+    { id: 'maozinha', name: 'Mãozinha', desc: 'Rápido demais para o tamanho que tem.', rating: 40, unlock: 35, low: 320, high: 560, respect: 3 },
+    { id: 'galego', name: 'Galego do Fliperama', desc: 'Nunca perdeu uma aposta na vida. Diz ele.', rating: 52, unlock: 55, low: 450, high: 800, respect: 4 },
+    { id: 'sargento', name: 'Sargento Bigode', desc: 'Ex-segurança de casa noturna. Calmo e perigoso.', rating: 64, unlock: 80, low: 650, high: 1100, respect: 5 },
+    { id: 'carcara', name: 'Carcará', desc: 'Chega quieto e sai com o dinheiro dos outros.', rating: 78, unlock: 110, low: 900, high: 1500, respect: 6 },
+    { id: 'rei', name: 'Rei do Pedaço', desc: 'Ninguém lembra a última vez que ele perdeu.', rating: 95, unlock: 150, low: 1400, high: 2300, respect: 9 }
+  ];
+  const DUEL_LIMIT = 3;
+  const DUEL_ENERGY = 15;
+  const CLINIC_PRICE = 12; // por ponto de saúde
   const cityOf = name => CITIES.find(c => c.name === name) || CITIES[0];
   const cityIs = (s, id) => cityOf(s.city).id === id;
   let appliedCity = null;
@@ -370,7 +389,9 @@
     { id: 'arsenal', name: 'Bem equipado', desc: 'Comprar o Fuzil ou o Carro blindado.' },
     { id: 'atacadista', name: 'Atacadista', desc: 'Vender R$ 20.000 em mercadorias numa temporada.' },
     { id: 'exportador', name: 'Rota de fora', desc: 'Fechar uma remessa com o comprador de fora.' },
-    { id: 'industria', name: 'Indústria de fundo de quintal', desc: 'Ter os três pontos de produção.' }
+    { id: 'industria', name: 'Indústria de fundo de quintal', desc: 'Ter os três pontos de produção.' },
+    { id: 'brigao', name: 'Nome na roda', desc: 'Vencer 10 duelos de rua.' },
+    { id: 'reidopedaco', name: 'Destronou o rei', desc: 'Vencer o Rei do Pedaço.' }
   ];
 
   /* ------------------------------------------------------------------ */
@@ -388,7 +409,7 @@
     return [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, f.id === owner ? (legacyRivals && isNum(legacyRivals[d.id]) ? clamp(Math.round(legacyRivals[d.id]), 0, 100) : 22 + i * 3) : (f.id === 'aurora' ? 4 : 2)]))];
   }));
   const initialDistrictState = () => Object.fromEntries(DISTRICTS.map(d => [d.id, { vigil: 0, econ: 1 }]));
-  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0 });
+  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false });
   const startMarket = () => Object.fromEntries(DISTRICTS.map((d, i) => [d.id, Object.fromEntries(GOODS.map((g, j) => [g.id, 85 + ((i * 7 + j * 11) % 5) * 8]))]));
   const emptySeasonStats = () => ({ arrests: 0, startRespect: 5, bailPaid: 0, controlDays: Object.fromEntries(DISTRICTS.map(d => [d.id, 0])), bestCash: 0 });
 
@@ -413,7 +434,8 @@
       tutorial: { step: 0, done: false, trained: false, contacted: false, banked: false },
       gear: { arma: null, protecao: null, veiculo: null }, goods: Object.fromEntries(GOODS.map(g => [g.id, 0])), market: startMarket(),
       labs: Object.fromEntries(LABS.map(l => [l.id, 0])), labDown: {}, exportDeal: { day: 5, good: 'cigarro' }, exportDone: 0, ressaca: 0,
-      trade: { sold: 0, spent: 0, exported: 0, blitz: 0 }
+      trade: { sold: 0, spent: 0, exported: 0, blitz: 0 },
+      health: 100, hospital: 0, beaten: {}, duelStats: { wins: 0, losses: 0 }
     };
   }
 
@@ -552,6 +574,8 @@
       s.today.op = saved.today.op === true;
       s.today.training = toInt(saved.today.training, 0, 0, 9);
       s.today.night = toInt(saved.today.night, 0, 0, 9);
+      s.today.duels = toInt(saved.today.duels, 0, 0, 9);
+      s.today.clinic = saved.today.clinic === true;
     }
     const ss = saved.seasonStats || {};
     s.seasonStats = {
@@ -574,6 +598,12 @@
     s.ressaca = toInt(saved.ressaca, 0, 0, 30);
     s.exportDone = toInt(saved.exportDone, 0, 0, MAXDAY);
     s.trade = { sold: toInt(saved.trade && saved.trade.sold, 0, 0, BIG), spent: toInt(saved.trade && saved.trade.spent, 0, 0, BIG), exported: toInt(saved.trade && saved.trade.exported, 0, 0, BIG), blitz: toInt(saved.trade && saved.trade.blitz, 0, 0, 9999) };
+    // v0.8: saúde, internação e duelos.
+    s.health = toInt(saved.health, 100, 0, 100);
+    s.hospital = toInt(saved.hospital, 0, 0, 5);
+    s.beaten = {};
+    if (saved.beaten && typeof saved.beaten === 'object') for (const r of RIVALS) if (isNum(saved.beaten[r.id])) s.beaten[r.id] = toInt(saved.beaten[r.id], 1, 1, 999);
+    s.duelStats = { wins: toInt(saved.duelStats && saved.duelStats.wins, 0, 0, 99999), losses: toInt(saved.duelStats && saved.duelStats.losses, 0, 0, 99999) };
     // Primeiros passos: saves anteriores à 0.6 não tinham tutorial; quem já jogou não é obrigado a refazê-lo.
     const tu = saved.tutorial;
     if (tu && typeof tu === 'object') s.tutorial = { step: toInt(tu.step, 0, 0, TUTORIAL.length), done: tu.done === true, trained: tu.trained === true, contacted: tu.contacted === true, banked: tu.banked === true };
@@ -672,6 +702,7 @@
     if (s.career === 'operador') c += 6;
     if (s.career === 'empreendedor') c -= 3;
     if (s.tip > 0) c += 12;
+    c -= healthPenalty(s);
     if (m.stat === 'forca') c += gearVal(s, 'power') * .5;
     return clamp(Math.round(c), 8, 95);
   }
@@ -701,6 +732,7 @@
     if (r.stat) { const need = (m.id === 'cofre' && hasPerk(s, 'operador', 3)) ? 18 : r.stat[1]; if (s.stats[r.stat[0]] < need) return `Requer ${STATS.find(x => x.id === r.stat[0]).name} ${need}.`; }
     if (r.oncePerDay && s.today.missions[m.id]) return 'Já realizada hoje.';
     if (s.jail > 0) return 'Você está detido.';
+    if (s.hospital > 0) return 'Você está internado.';
     if (s.energy < m.cost) return 'Energia insuficiente.';
     return '';
   }
@@ -768,17 +800,39 @@
   const raidChance = s => clamp(Math.round((s.heat - 40) * .5), 0, 25);
   const nightCost = (s, n) => Math.round(n.cost * (1 + s.today.night * .5));
 
+
+  /* Saúde e duelos (v0.8) */
+  const rival = id => RIVALS.find(x => x.id === id);
+  /** Penalidade de saúde nas chances: começa abaixo de 60. */
+  const healthPenalty = s => s.health < 60 ? Math.round((60 - s.health) * .4) : 0;
+  const injured = s => s.health < 25;
+  const combatRating = s => Math.round(s.stats.forca * 1.6 + s.stats.astucia * .6 + gearVal(s, 'power') * 1.8 + gearVal(s, 'def') + s.gangLevel * 1.5);
+  function duelOdds(s, r) { return clamp(Math.round(50 + (combatRating(s) - r.rating) * 2.2 - healthPenalty(s) - (s.today.duels || 0) * 4), 8, 92); }
+  const clinicCost = s => Math.max(0, (100 - s.health) * CLINIC_PRICE);
+  /** Aplica dano reduzido pela proteção; chegar a zero significa internação. Devolve o texto do resultado. */
+  function hurt(s, amount) {
+    const dmg = Math.max(1, Math.round(amount - gearVal(s, 'def') * .6));
+    s.health = clamp(s.health - dmg, 0, 100);
+    if (s.health > 0) return ` Saúde -${dmg}.`;
+    s.hospital = 2; s.health = 35; addHeat(s, -10);
+    const bill = Math.min(s.cash, 300); s.cash -= bill;
+    log(s, `Você foi internado por 2 dias. Conta do hospital: ${money(bill)}.`);
+    return ` Saúde zerada: internado por 2 dias (conta de ${money(bill)}).`;
+  }
+  /** Bloqueio comum a ações físicas: detenção e internação. */
+  const blocked = s => s.jail > 0 ? 'Você está detido.' : s.hospital > 0 ? 'Você está internado.' : '';
+
   /* Gangue e facções */
   function gangOdds(s) {
     const d = s.district;
     return clamp(Math.round(46 + s.gangLevel * 4 + s.stats.influencia * .6 + crewSize(s) * 1.5 + roleLevels(s, 'musculo') * 1.2 + gearVal(s, 'power') * .6 +
-      (s.crewMorale - 50) * .18 - s.heat * .35 - s.dstate[d].vigil * .3 - leader(s, d).value * .08 - eventMod(s, 'risk', { district: d }) * .5), 12, 90);
+      (s.crewMorale - 50) * .18 - healthPenalty(s) - s.heat * .35 - s.dstate[d].vigil * .3 - leader(s, d).value * .08 - eventMod(s, 'risk', { district: d }) * .5), 12, 90);
   }
   function enemyHelp(s, fid) { return FACTIONS.some(a => s.factions[a.id].allied && FACTION_ENEMY[a.id] === fid) ? 8 : 0; }
   function clashOdds(s, did) {
     const l = leader(s, did), r = s.factions[l.id];
     return clamp(Math.round(38 + s.stats.influencia * 1.1 + s.stats.labia * .4 + s.gangLevel * 2.5 + crewSize(s) * 1.5 + roleLevels(s, 'musculo') * 1.5 + gearVal(s, 'power') +
-      (s.crewMorale - 50) * .12 - (l.value - s.influence[did]) * .2 - s.heat * .18 - r.tension * .08 - (r.power - 50) * .15 +
+      (s.crewMorale - 50) * .12 - healthPenalty(s) - (l.value - s.influence[did]) * .2 - s.heat * .18 - r.tension * .08 - (r.power - 50) * .15 +
       (s.career === 'articulador' ? 5 : 0) + eventMod(s, 'dispute', { district: did }) + enemyHelp(s, l.id)), 15, 88);
   }
   function disputeOdds(s, did) {
@@ -863,17 +917,18 @@
     const lost = Math.min(s.cash, Math.ceil(s.cash * failLoss(s, m)));
     s.cash -= lost; addHeat(s, heatGain(s, m.heat + rand(4, 10))); s.failed++;
     turfFriction(s, d, Math.ceil(m.tension / 2));
+    const wound = m.stat === 'forca' ? hurt(s, rand(6, 12)) : '';
     const ac = arrestChance(s, m);
     let jailMsg = '';
     if (roll(ac)) { s.jail = rand(1, 3) + (s.heat >= 70 ? 1 : 0) + (gearVal(s, 'power') >= 7 ? 1 : 0); s.seasonStats.arrests++; jailMsg = ` Você foi detido por ${s.jail} dia(s).`; }
-    log(s, `${m.name}: fracasso (${odds}%). Perda de ${money(lost)} em mãos.${jailMsg}`);
-    return done(false, `${m.name} falhou. -${money(lost)}.${jailMsg}`);
+    log(s, `${m.name}: fracasso (${odds}%). Perda de ${money(lost)} em mãos.${wound}${jailMsg}`);
+    return done(false, `${m.name} falhou. -${money(lost)}.${wound}${jailMsg}`);
   }
 
   function doTrain(s, id) {
     const st = STATS.find(x => x.id === id); if (!st) return refuse('Atributo desconhecido.');
     const cost = trainCost(s, id);
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     if (s.today.training >= 3) return refuse('Limite de 3 treinos por dia. Descanse até amanhã.');
     if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente para o treino.');
     s.energy -= 22; s.cash -= cost; s.today.training++;
@@ -887,7 +942,8 @@
     const d = DISTRICTS.find(x => x.id === id);
     if (!d || d.id === s.district) return refuse('Destino inválido.');
     const tc = travelCost(s);
-    if (s.jail > 0 || s.cash < tc.cash || s.energy < tc.energy) return refuse('Não foi possível viajar: verifique dinheiro, energia e detenção.');
+    if (blocked(s)) return refuse(blocked(s));
+    if (s.cash < tc.cash || s.energy < tc.energy) return refuse('Não foi possível viajar: verifique dinheiro e energia.');
     s.cash -= tc.cash; s.energy -= tc.energy; s.district = id;
     // Blitz: viajar carregado é arriscado; depende da carga, da sua vigilância e do veículo.
     {
@@ -905,14 +961,16 @@
   }
 
   function doGig(s) {
-    if (s.jail > 0 || s.energy < 28) return refuse('Você não pode fazer o bico agora.');
+    if (blocked(s)) return refuse(blocked(s));
+    if (s.energy < 28) return refuse('O bico exige 28 de energia.');
     const pay = Math.round(rand(110, 170) * eventMod(s, 'gigMult'));
     s.energy -= 28; s.cash += pay; addHeat(s, -4);
     log(s, `Bico realizado: ${money(pay)} recebidos.`);
     return done(true, `Bico concluído. +${money(pay)}`);
   }
   function doLayLow(s) {
-    if (s.jail > 0 || s.energy < 18 || s.heat === 0) return refuse('Não é necessário reduzir exposição agora.');
+    if (blocked(s)) return refuse(blocked(s));
+    if (s.energy < 18 || s.heat === 0) return refuse('Não é necessário reduzir exposição agora.');
     s.energy -= 18; addHeat(s, -20); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil - 10, 0, 100);
     log(s, 'Você ficou longe dos holofotes: -20 vigilância e -10 vigilância local.');
     return done(true, 'Vigilância reduzida.');
@@ -970,7 +1028,7 @@
   }
 
   function doContact(s) {
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     const d = s.district, cost = contactCost(s), used = s.today.contacts[d] || 0;
     if (used >= 2) return refuse('Você já fez 2 contatos neste bairro hoje.');
     if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente.');
@@ -983,7 +1041,7 @@
   }
 
   function doDispute(s) {
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     const d = s.district, l = leader(s, d), fs = s.factions[l.id];
     if (s.influence[d] < 20) return refuse('Construa pelo menos 20 de influência no bairro antes de disputar.');
     if (agreement(s, l.id)) return refuse(`Você tem um acordo com ${faction(l.id).short}. Rompa-o na tela Gangue se quiser disputar.`);
@@ -1087,6 +1145,8 @@
     const r = s.factions[fid], d = s.district;
     if (leader(s, d).id !== fid) return refuse(`${f.short} não lidera este bairro.`);
     if (s.influence[d] < 20) return refuse('Você precisa de 20 de influência no bairro.');
+    if (s.hospital > 0) return refuse('Você está internado.');
+    if (injured(s)) return refuse('Você está ferido demais para um confronto. Cuide da saúde.');
     if (agreement(s, fid)) return refuse('Há um acordo ativo. Rompa-o antes de confrontar.');
     if (r.lastActionDay === s.day) return refuse('Você já interagiu com este grupo hoje.');
     if (s.energy < 32 || s.cash < 300) return refuse('O confronto exige R$ 300 e 32 de energia.');
@@ -1102,8 +1162,9 @@
       return done(true, `Confronto vencido! (${odds}%)`);
     }
     addInf(s, d, -9); addPres(s, d, fid, 11); addHeat(s, 16); addMorale(s, -10); s.gangStats.confrontLosses++; memberXP(s, 1, 'musculo');
-    log(s, `${s.gangName} perdeu para ${f.name} em ${district(s).name} (${odds}%). A equipe ficou abalada.`);
-    return done(false, 'Confronto perdido: influência e ânimo reduzidos.');
+    const wound = hurt(s, rand(12, 22));
+    log(s, `${s.gangName} perdeu para ${f.name} em ${district(s).name} (${odds}%). A equipe ficou abalada.${wound}`);
+    return done(false, `Confronto perdido: influência e ânimo reduzidos.${wound}`);
   }
 
   function doFoundGang(s, rawName) {
@@ -1156,6 +1217,8 @@
   function doGangOp(s) {
     if (!s.gangName || s.jail > 0) return refuse('Operação indisponível.');
     if (s.today.op) return refuse('Apenas uma operação coletiva por dia.');
+    if (s.hospital > 0) return refuse('Você está internado.');
+    if (injured(s)) return refuse('Você está ferido demais para liderar a operação.');
     if (crewSize(s) < 2) return refuse('A operação exige pelo menos 2 integrantes.');
     if (s.energy < 35) return refuse('Energia insuficiente (35).');
     const d = s.district, odds = gangOdds(s);
@@ -1171,7 +1234,8 @@
     }
     const lost = Math.ceil(s.cash * .08);
     s.cash -= lost; s.failed++; addHeat(s, heatGain(s, 20 - olheiro)); addMorale(s, -8); turfFriction(s, d, 3);
-    log(s, `Operação de ${s.gangName} falhou (${odds}%). Perda: ${money(lost)}.`);
+    const wound = hurt(s, rand(4, 9));
+    log(s, `Operação de ${s.gangName} falhou (${odds}%). Perda: ${money(lost)}.${wound}`);
     return done(false, 'A operação coletiva falhou.');
   }
 
@@ -1193,7 +1257,7 @@
   function doBuyGood(s, id, qty) {
     const g = good(id); if (!g) return refuse('Mercadoria desconhecida.');
     if (!Number.isSafeInteger(qty) || qty <= 0) return refuse('Quantidade inválida.');
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     if (s.respect < g.unlock) return refuse(`Requer ${g.unlock} de respeito.`);
     if (s.energy < 3) return refuse('Negociar exige 3 de energia.');
     if (cargoUsed(s) + qty > cargoCap(s)) return refuse(`Sem espaço: cabem mais ${Math.max(0, cargoCap(s) - cargoUsed(s))} unidade(s).`);
@@ -1209,7 +1273,7 @@
   function doSellGood(s, id, qty) {
     const g = good(id); if (!g) return refuse('Mercadoria desconhecida.');
     if (!Number.isSafeInteger(qty) || qty <= 0) return refuse('Quantidade inválida.');
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     if (s.goods[g.id] < qty) return refuse('Você não tem essa quantidade.');
     if (s.energy < 3) return refuse('Negociar exige 3 de energia.');
     const d = s.district, imp = priceImpact(g, qty);
@@ -1226,7 +1290,7 @@
   const exportOpen = s => s.exportDeal.day === s.day && s.district === 'cais';
   function doExport(s) {
     const g = good(s.exportDeal.good);
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     if (s.exportDeal.day !== s.day) return refuse(`O comprador de fora só chega no dia ${s.exportDeal.day}.`);
     if (s.district !== 'cais') return refuse(`O comprador espera em ${district(s, 'cais').name}.`);
     const qty = Math.min(EXPORT_LIMIT, s.goods[g.id]);
@@ -1253,7 +1317,7 @@
   }
   function doNight(s, id) {
     const n = NIGHT.find(x => x.id === id); if (!n) return refuse('Lugar desconhecido.');
-    if (s.jail > 0) return refuse('Você está detido.');
+    if (blocked(s)) return refuse(blocked(s));
     if (s.today.night >= 2) return refuse('Duas saídas por dia já é demais. Amanhã tem mais.');
     if (s.energy >= 100) return refuse('Você já está com a energia cheia.');
     const c = nightCost(s, n);
@@ -1268,6 +1332,58 @@
     }
     log(s, `${n.name}: +${n.energy} de energia por ${money(c)}.${extra} Ressaca amanhã: -${s.ressaca} de energia.`);
     return done(true, `${n.name}: +${n.energy} de energia.${extra}`);
+  }
+
+
+  /* ---------- v0.8: duelos e hospital ---------- */
+  function doDuel(s, id) {
+    const r = rival(id); if (!r) return refuse('Adversário desconhecido.');
+    if (blocked(s)) return refuse(blocked(s));
+    if (s.respect < r.unlock) return refuse(`Requer ${r.unlock} de respeito.`);
+    if (injured(s)) return refuse('Você está ferido demais para duelar. Cuide da saúde.');
+    if (s.today.duels >= DUEL_LIMIT) return refuse(`Limite de ${DUEL_LIMIT} duelos por dia.`);
+    if (s.energy < DUEL_ENERGY) return refuse(`O duelo exige ${DUEL_ENERGY} de energia.`);
+    const odds = duelOdds(s, r);
+    s.energy -= DUEL_ENERGY; s.today.duels++;
+    const noisy = gearVal(s, 'power') >= 7 ? 4 : 1; // arma de fogo chama atenção
+    addHeat(s, noisy); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil + 3, 0, 100);
+    if (roll(odds)) {
+      const prize = rand(r.low, r.high), first = !s.beaten[r.id];
+      const rg = first ? r.respect * 2 : r.respect;
+      s.cash += prize; s.respect += rg; s.duelStats.wins++; s.beaten[r.id] = (s.beaten[r.id] || 0) + 1;
+      if (roll(25)) s.stats.forca += 1;
+      const wound = hurt(s, rand(3, 9));
+      if (r.id === 'rei') unlock(s, 'reidopedaco');
+      if (s.duelStats.wins >= 10) unlock(s, 'brigao');
+      log(s, `Duelo com ${r.name} (${odds}%): vitória. +${money(prize)} e +${rg} de respeito${first ? ' (primeira vez)' : ''}.${wound}`);
+      return done(true, `Você venceu ${r.name}! +${money(prize)}.${wound}`);
+    }
+    const lost = Math.min(s.cash, Math.ceil(s.cash * .05));
+    s.cash -= lost; s.duelStats.losses++;
+    const wound = hurt(s, rand(14, 26) + Math.round(r.rating / 10));
+    log(s, `Duelo com ${r.name} (${odds}%): derrota. -${money(lost)}.${wound}`);
+    return done(false, `${r.name} levou a melhor. -${money(lost)}.${wound}`);
+  }
+  function doClinic(s, kind) {
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (s.hospital > 0) return refuse('Você já está internado; a alta sai sozinha.');
+    if (s.health >= 100) return refuse('Sua saúde está cheia.');
+    if (kind === 'posto') {
+      if (s.today.clinic) return refuse('O posto só atende você uma vez por dia.');
+      if (s.energy < 20) return refuse('A fila do posto exige 20 de energia.');
+      s.energy -= 20; s.today.clinic = true;
+      const g = Math.min(100 - s.health, 25); s.health += g;
+      log(s, `Posto de saúde: +${g} de saúde depois de horas na fila.`);
+      return done(true, `Posto de saúde: +${g} de saúde.`);
+    }
+    if (kind === 'clinica') {
+      const c = clinicCost(s);
+      if (s.cash < c) return refuse(`A clínica cobra ${money(c)} em mãos.`);
+      const g = 100 - s.health; s.cash -= c; s.health = 100;
+      log(s, `Clínica particular: saúde cheia por ${money(c)}.`);
+      return done(true, `Clínica: +${g} de saúde por ${money(c)}.`);
+    }
+    return refuse('Atendimento desconhecido.');
   }
 
   function pickCareer(s, id) {
@@ -1442,6 +1558,8 @@
     if (s.newsPending) { const n = currentNews(s); if (n && n.offer && s.newsPending.faction) addRel(s, s.newsPending.faction, -3); lines.push('Uma notícia passou sem resposta.'); }
     s.day++;
     s.jail = Math.max(0, s.jail - 1);
+    if (s.hospital > 0) { s.hospital--; s.health = clamp(s.health + 15, 0, 100); lines.push(s.hospital ? 'Internado: mais 1 dia de recuperação.' : 'Alta do hospital.'); }
+    else if (s.health < 100) { const h = s.jail > 0 ? 6 : 10; s.health = clamp(s.health + h, 0, 100); }
     s.today = emptyToday();
     if (s.tip > 0) s.tip--;
     tickEvents(s, lines);
@@ -1670,7 +1788,7 @@
     bank: doBank, buy: doBuy, sell: doSell, contact: doContact, dispute: doDispute,
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
-    buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, night: doNight,
+    duel: doDuel, clinic: doClinic, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, night: doNight,
     career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay, endSeason
   };
   /** Executa uma ação e roda verificações pós-ação. */
@@ -1688,10 +1806,10 @@
 
   const SB = {
     VERSION, SCHEMA, MAXDAY, STORAGE_KEY, RESALE, CAREER_XP,
-    STATS, MISSIONS, DISTRICTS, BUSINESSES, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
+    STATS, MISSIONS, DISTRICTS, BUSINESSES, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
-    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, stockValue, assetValue, buyTotal, sellTotal, blitzChance,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, stockValue, assetValue, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
     missionScore, missionChance, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,

@@ -25,6 +25,8 @@
 
 - [x] **v0.7**: Feira do Rolo (armas, proteção, veículos), Galpão (mercadorias, produção, comprador de fora, blitz), vida noturna, Perfil, aba Cidade e categoria Comércio
 
+- [x] **v0.8**: saúde (barra no topo), ferimentos, internação, Hospital (posto e clínica) e Duelos de rua contra 8 adversários
+
 O que falta para lançar está em **LANCAMENTO.md**.
 
 ## Pendências de balanceamento (prioridade alta)
@@ -63,11 +65,15 @@ O que falta para lançar está em **LANCAMENTO.md**.
 ## Depois da v0.7 (ideias do gênero ainda não feitas)
 
 - **Arte dos lugares**: os lugares da aba Cidade usam ícones; merecem ilustrações próprias como as cenas dos bairros.
-- **Saúde e hospital**: confrontos e falhas ferem; hospital cura por dinheiro ou tempo.
-- **Duelos de rua** contra personagens nomeados (usa arma e proteção).
 - **Operações grandes de gangue** em etapas (planejar, reunir, executar), com requisito de poder da equipe.
 - **Negócios da noite**: comprar o boteco ou a casa noturna que você frequenta.
 - **Jogo do bicho, caça-níquel e agiotagem** como negócios de contravenção brasileiros.
 - **Estoque separado**: o que está no galpão não viaja com você (hoje toda a carga anda junto).
 - **Tarefas encadeadas** de um padrinho, com recompensas, como continuação dos primeiros passos.
 - Recalibrar as cidades com as mecânicas novas (a tabela de cidades é da v0.6).
+
+## Pendências da v0.8
+
+- O Empreendedor continua fraco fora dos negócios e na gangue (142–175).
+- Adversários de duelo não reagem (não lembram derrotas, não cobram revanche); dá para ligar ao rancor das facções.
+- Carga do Galpão pode ficar acima da capacidade se o jogador vender um veículo maior? Hoje a troca é bloqueada nesse caso; vender sem trocar ainda não existe.

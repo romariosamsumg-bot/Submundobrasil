@@ -3,7 +3,7 @@
 'use strict';
 const { chromium } = require('playwright');
 const path = require('path');
-const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.7.html');
+const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.8.html');
 const V04 = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.4.html');
 let failures = 0;
 const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg); if (!cond) failures++; };
@@ -83,7 +83,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   console.log('3b. Cidade, Feira do Rolo, Galpão, noite e Perfil (v0.7)');
   await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.cash = 6000; s.respect = 50; s.jail = 0; s.energy = 60; s.heat = 0; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
   await page.reload(); await go('hub');
-  check(await page.locator('.place').count() === 6, 'tela Cidade mostra 6 lugares');
+  check(await page.locator('.place').count() === 8, 'tela Cidade mostra 8 lugares');
   await page.click('.place[data-view=feira]');
   await page.click('[data-action=buy-item][data-id=cinquentinha]');
   check((await st()).gear.veiculo === 'cinquentinha', 'veículo comprado na Feira do Rolo');
@@ -105,6 +105,17 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check(await page.isVisible('.mobileNav [data-view=perfil].active'), 'aba Perfil ativa');
   await go('temporada');
   check(await page.isVisible('.mobileNav [data-view=perfil].active') && await page.isVisible('.backLink'), 'Temporada fica dentro de Perfil, com botão de voltar');
+  await go('duelos');
+  const d0 = await st();
+  await page.click('[data-action=duel][data-id=marrento]');
+  const d1 = await st();
+  check(d1.today.duels === 1 && d1.energy === d0.energy - 15, 'duelo: conta no limite diário e gasta 15 de energia');
+  check(await page.isDisabled('[data-action=duel][data-id=rei]'), 'adversário acima do seu respeito fica bloqueado');
+  await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.health = 40; s.energy = 60; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
+  await page.reload(); await go('hospital');
+  check((await page.textContent('#hudHealthTxt')).includes('40'), 'barra de saúde no topo mostra 40');
+  await page.click('[data-action=clinic][data-id=posto]');
+  check((await st()).health === 65, 'posto de saúde: +25');
   await go('gestao');
 
   console.log('4. Save inválido e XSS');
@@ -162,7 +173,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-action=export]')]);
   const fpath = await dl.path();
   const payload = JSON.parse(require('fs').readFileSync(fpath, 'utf8'));
-  check(payload.game === 'Submundo Brasil' && payload.version === '0.7' && payload.checksum, 'arquivo exportado com versão e checksum');
+  check(payload.game === 'Submundo Brasil' && payload.version === '0.8' && payload.checksum, 'arquivo exportado com versão e checksum');
   await page.evaluate(() => localStorage.clear()); await page.reload();
   await page.setInputFiles('#welcomeImportFile', fpath);
   await page.waitForTimeout(300);

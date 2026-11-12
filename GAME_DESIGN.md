@@ -1,4 +1,4 @@
-# Submundo Brasil — Game Design (v0.7)
+# Submundo Brasil — Game Design (v0.8)
 
 Documento de referência das mecânicas. Os números aqui são os do código em
 `src/engine.js`. Se você mudar um valor no código, atualize este documento.
@@ -422,3 +422,40 @@ saídas por dia; a segunda custa 50% a mais.
 Ficha do personagem: retrato, título, atributos em barras, os três espaços de
 equipamento, números da temporada (serviços, detenções, mercadoria vendida,
 remessas, blitze) e acesso a Temporada e Como jogar.
+
+---
+
+## 15. Saúde, hospital e duelos de rua (v0.8)
+
+### Saúde (0–100, barra azul no topo)
+- **Cai** em: derrota em confronto (12–22), derrota em duelo (14–26 + poder do adversário ÷ 10), vitória em duelo (3–9), falha em serviço de Força (6–12) e falha em operação coletiva (4–9). A **proteção reduz o dano** em 60% da sua defesa.
+- **Efeito**: abaixo de 60, todas as chances (serviços, operações, confrontos, duelos) caem `(60 − saúde) × 0,4` pontos. Abaixo de 25 você fica **ferido**: não confronta, não lidera operação e não duela.
+- **Internação**: ao chegar a 0, você fica 2 dias internado, a saúde volta a 35, paga até R$ 300 de conta e a vigilância cai 10. Internado, não faz nada físico (serviços, treinos, viagens, duelos, noite, Galpão, contatos, disputas); banco, notícias e decisões continuam. Recupera +15 por dia internado.
+- **Recuperação**: +10 por dia (+6 se detido).
+
+### Hospital
+| Atendimento | Custo | Efeito |
+|---|---|---|
+| Posto de saúde | 20 de energia, 1 vez por dia | +25 de saúde |
+| Clínica particular | R$ 12 por ponto que falta | saúde cheia na hora |
+
+### Duelos de rua
+Até 3 por dia, 15 de energia cada. Adversários são personagens inventados:
+
+| Adversário | Poder | Respeito exigido | Prêmio | Respeito |
+|---|---|---|---|---|
+| Zé Marrento | 12 | 0 | R$ 80–160 | 1 |
+| Tonhão da Feira | 22 | 10 | R$ 150–280 | 2 |
+| Cabeça de Bagre | 30 | 20 | R$ 220–400 | 2 |
+| Mãozinha | 40 | 35 | R$ 320–560 | 3 |
+| Galego do Fliperama | 52 | 55 | R$ 450–800 | 4 |
+| Sargento Bigode | 64 | 80 | R$ 650–1.100 | 5 |
+| Carcará | 78 | 110 | R$ 900–1.500 | 6 |
+| Rei do Pedaço | 95 | 150 | R$ 1.400–2.300 | 9 |
+
+- **Seu poder de luta** = Força × 1,6 + Astúcia × 0,6 + poder da arma × 1,8 + defesa + sede × 1,5. Iniciante sem equipamento: 10.
+- **Chance** = 50 + (seu poder − poder do adversário) × 2,2 − penalidade de saúde − 4 por duelo já feito no dia (8–92%).
+- **Vitória**: prêmio, respeito (dobrado na primeira vitória contra cada adversário), 25% de chance de +1 de Força e um pouco de dano. **Derrota**: 5% do caixa em mãos e dano maior.
+- **Custo**: +1 de vigilância por duelo (+4 com arma de fogo) e +3 de vigilância local.
+- É o uso direto das armas e proteções da Feira do Rolo.
+- Conquistas novas: **Nome na roda** (10 vitórias) e **Destronou o rei** (vencer o Rei do Pedaço).

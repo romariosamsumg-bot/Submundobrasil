@@ -331,3 +331,12 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 .tiles{grid-template-columns:repeat(5,minmax(0,1fr))!important}
 @media(max-width:700px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(min-width:701px){.places{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* ===== v0.8: saúde, duelos e hospital ===== */
+.hudBars{grid-template-columns:1fr 1fr 1fr!important}
+.hudBar.hp i{background:repeating-linear-gradient(90deg,#5c8fd6 0 7px,#4677bd 7px 8px)}
+.hudBar.hp.alert{animation:pulseHeat 1.1s infinite}
+.hudBar b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.place.p-duelos{background:linear-gradient(160deg,#3a2a1c,#161d22 70%)}.place.p-hospital{background:linear-gradient(160deg,#1c2f3a,#161d22 70%)}
+@media(max-width:400px){.hudBar b{font-size:9px;letter-spacing:.03em;padding:0 5px}}
+@media(prefers-reduced-motion:reduce){.hudBar.hp.alert{animation:none!important}}

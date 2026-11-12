@@ -11,7 +11,7 @@ const cache = {};
 module.exports = function loadEngine(file) {
   const key = file || 'default';
   if (cache[key]) return cache[key];
-  const htmlPath = file || path.join(__dirname, '..', 'Submundo-Brasil-v0.7.html');
+  const htmlPath = file || path.join(__dirname, '..', 'Submundo-Brasil-v0.8.html');
   let code;
   if (fs.existsSync(htmlPath)) {
     const html = fs.readFileSync(htmlPath, 'utf8');
