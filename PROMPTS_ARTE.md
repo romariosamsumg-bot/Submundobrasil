@@ -1,0 +1,67 @@
+# Prompts para as imagens pintadas — Submundo Brasil
+
+O jogo já tem ilustrações em SVG para cada lugar, adversário e assalto. Este guia
+serve para gerar **versões pintadas** numa IA de imagem (Midjourney, Gemini,
+ChatGPT, Firefly etc.) e trocar as que você quiser, uma a uma.
+
+## Como colocar no jogo
+
+1. Gere a imagem com o prompt da tabela (sempre **com o bloco de estilo** abaixo colado no começo).
+2. Salve com o **nome exato** da coluna "Arquivo", em **WebP ou JPG**, na pasta `art/` do projeto.
+3. Tamanho: lugares e assaltos em **1200 × 600** (2:1); retratos em **512 × 512**.
+4. Comprima para **até 150 KB** cada (o build recusa acima de 400 KB). Sites como Squoosh fazem isso de graça.
+5. Rode `node build.js`. A imagem substitui o SVG daquela chave; as que faltarem continuam em SVG.
+
+Pode trocar aos poucos, começando pelas telas que o jogador mais vê (Galpão, Feira, Noite, Duelos).
+Com as 23 imagens o arquivo final fica com cerca de 2 a 3 MB e continua funcionando offline.
+
+## Bloco de estilo (cole no início de todo prompt)
+
+> Ilustração estilo graphic novel brasileira, pintura digital com traço grosso e sombras duras, noite urbana de cidade grande do Brasil, paleta escura com azul petróleo, âmbar de lâmpada de rua e toques de vermelho, textura de concreto e cartaz gasto, luz dramática de poste, enquadramento de cena de jogo de navegador. Sem texto, sem letreiros legíveis, sem logotipos ou marcas, sem pessoas reais ou famosas, sem sangue. Clima adulto e sujo, mas sem violência explícita.
+
+Mantenha sempre o mesmo modelo e, se a ferramenta permitir, a mesma "seed" ou imagem de referência de estilo, para o conjunto parecer de um jogo só.
+
+## Lugares da Cidade (1200 × 600)
+
+| Arquivo | Prompt (depois do bloco de estilo) |
+|---|---|
+| `place-cidade.webp` | Vista de rua alta de um bairro brasileiro à noite, prédios e sobrados com janelas acesas, fios de poste cruzando o céu, uma placa de rua azul esmaltada em primeiro plano, lua no alto. |
+| `place-galpao.webp` | Galpão de carga com porta de enrolar meio aberta, uma lâmpada pendurada iluminando caixas de papelão e engradados, empilhadeira velha amarela ao lado, chão molhado. |
+| `place-feira.webp` | Barraca de camelô de feira noturna com toldo listrado vermelho e branco, lona e caixotes, varal de lâmpadas, ferramentas e peças variadas na bancada, vendedor de costas na penumbra. |
+| `place-noite.webp` | Festa na laje de favela à noite, caixas de som grandes, varal de lâmpadas coloridas, silhuetas dançando, casas empilhadas ao fundo e lua. |
+| `place-duelos.webp` | Beco estreito entre prédios, um único poste lançando cone de luz, duas silhuetas de homens se encarando, um de boné, poças no chão. |
+| `place-hospital.webp` | Fachada de UPA brasileira à noite, luz fria fluorescente, ambulância branca estacionada, cruz vermelha acesa, fila de pessoas cansadas na porta. |
+| `place-gestao.webp` | Fachada de banco antigo com colunas no centro da cidade, caixa eletrônico iluminado ao lado, calçada vazia de madrugada. |
+| `place-temporada.webp` | Parede de bar com troféu dourado de campeonato de várzea na prateleira, medalhas de bronze e prata penduradas, fotos desbotadas e bandeirinhas. |
+| `place-assaltos.webp` | Van escura parada numa rua lateral de madrugada, porta lateral aberta, sacola de lona no chão, reflexo distante de giroflex vermelho e azul. |
+
+## Adversários de duelo (512 × 512, retrato de busto, fundo liso escuro)
+
+| Arquivo | Prompt (depois do bloco de estilo) |
+|---|---|
+| `rival-marrento.webp` | Retrato de busto de rapaz marrento de boné azul aba reta, camiseta vermelha, sorriso debochado. |
+| `rival-tonhao.webp` | Retrato de busto de carregador de feira grandão, ombros largos, camiseta verde suada, cara fechada. |
+| `rival-bagre.webp` | Retrato de busto de homem de cabeça grande e cabelo raspado nas laterais, expressão teimosa, camisa xadrez. |
+| `rival-maozinha.webp` | Retrato de busto de rapaz franzino de moletom com capuz azul-escuro, olhar rápido e desconfiado. |
+| `rival-galego.webp` | Retrato de busto de homem loiro de óculos escuros espelhados, corrente dourada fina, camisa preta, ar de apostador. |
+| `rival-sargento.webp` | Retrato de busto de ex-segurança de bigode grosso, boina verde-oliva, camiseta militar, postura calma. |
+| `rival-carcara.webp` | Retrato de busto de homem de capuz preto com lenço vermelho cobrindo o rosto até o nariz, olhos âmbar intensos. |
+| `rival-rei.webp` | Retrato de busto de chefão de rua com coroa dourada de brincadeira, cordão de ouro grosso, camisa preta de seda, olhar de dono do pedaço. |
+
+## Assaltos do bando (1200 × 600)
+
+| Arquivo | Prompt (depois do bloco de estilo) |
+|---|---|
+| `heist-arrastao.webp` | Corredor de shopping à noite com vitrines de celulares e relógios, vidro estilhaçado, silhuetas correndo, motos esperando no estacionamento. |
+| `heist-rodovia.webp` | Rodovia brasileira de madrugada, caminhão baú parado, cones e um carro atravessado na pista, morros escuros ao fundo. |
+| `heist-agencia.webp` | Pequena agência bancária numa praça de cidade do interior, igreja ao fundo, rua vazia, uma viatura solitária estacionada. |
+| `heist-carroforte.webp` | Carro-forte numa curva de serra com neblina, guard-rail, mata escura, faróis acesos. |
+| `heist-transportadora.webp` | Muro alto com arame farpado de uma base de transportadora de valores, guarita com holofote, caminhões blindados no pátio. |
+| `heist-cofrecentral.webp` | Porta de cofre redondo gigante de aço com volante, iluminada de cima, maços de dinheiro em pilhas, atmosfera de grande golpe. |
+
+## Cuidados
+
+- Peça sempre **sem texto**: IA de imagem escreve letreiros errados e isso quebra a ilusão.
+- Evite pedir rostos parecidos com pessoas reais, marcas, uniformes reais de polícia ou facções reais.
+- Se a imagem vier com sangue ou violência explícita, gere de novo: o jogo é 18+, mas a violência é sugerida.
+- Verifique os termos de uso da ferramenta sobre uso comercial antes de lançar.

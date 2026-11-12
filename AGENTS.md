@@ -4,7 +4,7 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 
 ## Regras obrigatórias
 
-1. **Nunca edite `Submundo-Brasil-v1.0.html` à mão.** Edite `src/` e rode `node build.js`.
+1. **Nunca edite `Submundo-Brasil-v1.1.html` à mão.** Edite `src/` e rode `node build.js`.
 2. **Regras só em `src/engine.js`; nada de DOM lá.** A interface (`src/ui.js`) só chama `SB.perform(...)` e lê funções derivadas.
 3. **Toda ação recusada não pode alterar o estado.** Valide tudo antes da primeira mutação. Existe teste para isso.
 4. **Compatibilidade de saves é sagrada.**
@@ -44,6 +44,12 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 - Duelos e confrontos: chance, resultado e consequências em números; violência sugerida, sem descrição gráfica.
 - Ação física nova → bloqueio por `blocked(s)` (detenção e internação) e, se arriscada, dano por `hurt(s, n)`.
 - Item, mercadoria ou ponto de produção novo → entrada nas tabelas `ITEMS`/`GOODS`/`LABS`, com custo **e** risco, e leitura em `normalizeSave`.
+
+## Arte
+
+- Ilustrações em SVG ficam em `src/art.js` (lugares, adversários, assaltos), geradas em código e sem arquivos externos.
+- Imagens pintadas opcionais: `art/<chave>.(webp|jpg|png)`, até 400 KB cada; o build embute e elas substituem o SVG da mesma chave. Prompts e nomes em `PROMPTS_ARTE.md`.
+- Lugar, adversário ou assalto novo → desenho em `src/art.js` **e** linha de prompt em `PROMPTS_ARTE.md`.
 
 ## Primeiros passos e ajuda
 

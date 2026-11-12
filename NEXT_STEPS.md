@@ -31,6 +31,8 @@
 
 - [x] **v1.0**: assaltos do bando em 4 etapas e 6 degraus, com avulsos, reconhecimento, prazo e divisão
 
+- [x] **v1.1**: ilustrações SVG para lugares, adversários e assaltos; encaixe para imagens pintadas em `art/` com guia de prompts
+
 O que falta para lançar está em **LANCAMENTO.md**.
 
 ## Pendências de balanceamento (prioridade alta)

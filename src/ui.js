@@ -1,5 +1,5 @@
 /* =====================================================================
- * SUBMUNDO BRASIL — INTERFACE v1.0
+ * SUBMUNDO BRASIL — INTERFACE v1.1
  * Responsável por: persistência (localStorage, backup, importação e
  * exportação), renderização das telas e tratamento dos cliques.
  * Todas as regras ficam em window.SB (motor). Esta camada só chama
@@ -191,7 +191,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function exportSave() {
-    download(`submundo-brasil-v1.0-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
+    download(`submundo-brasil-v1.1-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
     notify('Cópia da carreira preparada para download.');
   }
   async function importFile(file, fromWelcome) {
@@ -540,7 +540,7 @@
       <p>As facções agem todos os dias segundo sua personalidade: expandem, se fortalecem, retaliam, guerreiam entre si ou propõem acordos.${s.nemesis ? ` <strong>Rival histórico:</strong> ${esc(F(s.nemesis).name)}.` : ''}</p>
       <div class="rivalMetrics"><div><span>Acordos</span><strong>${s.gangStats.pacts}</strong></div><div><span>Retaliações</span><strong>${s.gangStats.retaliations}</strong></div><div><span>Seus bairros</span><strong>${SB.controls(s).length}/${SB.DISTRICTS.length}</strong></div></div>${s.treachery ? `<p class="negative mini">Você rompeu ${s.treachery} acordo(s): diálogos com chance menor.</p>` : ''}</section>`;
     const hp = s.heist ? SB.heist(s.heist.id) : null;
-    const heistLink = `<div class="places" style="grid-template-columns:1fr"><button type="button" class="place p-assaltos" data-view="assaltos"><span class="placeArt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v11H4zM8 9V6a4 4 0 0 1 8 0v3M12 13v3"/></svg></span><b>Assaltos do bando</b><small>${hp ? `Plano: ${esc(hp.name)} · informação ${s.heist.intel}/40` : s.day < s.heistReady ? `Esfriando até o dia ${s.heistReady}` : `${s.gangStats.heists} feito(s) · planeje o próximo`}</small>${hp ? '<i class="placeBadge">Em andamento</i>' : ''}</button></div>`;
+    const heistLink = `<div class="places" style="grid-template-columns:1fr"><button type="button" class="place p-assaltos" data-view="assaltos"><span class="placeScene">${window.SBArt.place('assaltos')}</span><b>Assaltos do bando</b><small>${hp ? `Plano: ${esc(hp.name)} · informação ${s.heist.intel}/40` : s.day < s.heistReady ? `Esfriando até o dia ${s.heistReady}` : `${s.gangStats.heists} feito(s) · planeje o próximo`}</small>${hp ? '<i class="placeBadge">Em andamento</i>' : ''}</button></div>`;
     return heading('Gangue e facções', 'Negocie, fortaleça sua equipe ou enfrente os grupos rivais simulados.') + jailNotice() + resultCard() + (created ? heistLink : '') + top +
       `<div class="section"><h2>Grupos da cidade</h2><small>Uma interação por grupo ao dia</small></div>` + brief +
       `<div class="grid two" style="margin-top:13px">${SB.FACTIONS.map(factionCard).join('')}</div><div class="notice" style="margin-top:13px">Simulação individual: não há outros jogadores, chat ou guerra online nesta versão.</div>`;
@@ -610,7 +610,7 @@
     hospital: `<path d="M4 20V6h16v14M2 20h20M10 9h4M12 7v4M8 14h2v6M14 14h2v6"/>`,
     temporada: `<path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4c0 3 1.500 4.500 3.500 4.500M17 6h3c0 3-1.500 4.500-3.500 4.500M12 14v4M8 20h8"/>`.replace(/\.500/g, '.5')
   };
-  const place = (v, name, info, badge = '') => `<button type="button" class="place p-${v}" data-view="${v}"><span class="placeArt"><svg viewBox="0 0 24 24" aria-hidden="true">${PLACE_ICON[v]}</svg></span><b>${name}</b><small>${info}</small>${badge ? `<i class="placeBadge">${badge}</i>` : ''}</button>`;
+  const place = (v, name, info, badge = '') => `<button type="button" class="place p-${v}" data-view="${v}"><span class="placeScene">${window.SBArt.place(v)}</span><b>${name}</b><small>${info}</small>${badge ? `<i class="placeBadge">${badge}</i>` : ''}</button>`;
   function hub() {
     const s = state, deal = s.exportDeal, g = SB.good(deal.good), w = SB.item(s.gear.arma), v = SB.item(s.gear.veiculo);
     return heading('Cidade', `${esc(s.city)}. Escolha aonde ir; você está em ${esc(D().name)}.`) + jailNotice() + resultCard() + localeStrip(false) + `<div class="places">
@@ -674,7 +674,7 @@
         <p class="mini" style="margin-top:8px">Poder = Força, Astúcia, arma, proteção e sede. A proteção também reduz o dano. ${hp ? `<span class="negative">Saúde baixa: -${hp} de chance.</span>` : ''}${SB.injured(s) ? ' <span class="negative">Ferido demais para duelar: vá ao Hospital.</span>' : ''}${SB.gearVal(s, 'power') >= 7 ? ' Arma de fogo faz barulho: +4 de vigilância por duelo.' : ''}</p></section>
       <div class="grid" style="margin-top:10px">${SB.RIVALS.map(r => { const locked = s.respect < r.unlock, odds = SB.duelOdds(s, r), beat = s.beaten[r.id] || 0;
         const off = locked || !!SB.blocked(s) || SB.injured(s) || s.today.duels >= SB.DUEL_LIMIT || s.energy < SB.DUEL_ENERGY;
-        return `<section class="card mission ${locked ? 'locked' : ''}"><div><h3>${esc(r.name)} ${beat ? `<span class="pill">Vencido ${beat}×</span>` : ''}</h3><p>${esc(r.desc)}</p>
+        return `<section class="card mission rivalRow ${locked ? 'locked' : ''}"><span class="rivalPic">${window.SBArt.rival(r.id)}</span><div><h3>${esc(r.name)} ${beat ? `<span class="pill">Vencido ${beat}×</span>` : ''}</h3><p>${esc(r.desc)}</p>
           <div class="details">Poder ${r.rating} · prêmio ${fmt(r.low)}–${fmt(r.high)} · +${beat ? r.respect : r.respect * 2} respeito${beat ? '' : ' (primeira vitória vale o dobro)'} · ${SB.DUEL_ENERGY} energia</div>
           <div class="details">Se perder: saúde e 5% do caixa em mãos</div>${locked ? `<div class="lockline">Requer ${r.unlock} de respeito.</div>` : ''}</div>
           <div class="right"><span class="chance ${chanceClass(odds)}">${odds}% <small class="mini">vitória</small></span>${button('Encarar', 'duel', `data-id="${r.id}"`, off, 'primary small')}</div></section>`; }).join('')}</div>
@@ -699,7 +699,7 @@
       const odds = SB.heistOdds(s, cur), last = Math.min(SB.MAXDAY, s.heist.day + SB.HEIST_WINDOW), canRun = s.day > s.heist.day;
       const runBlock = SB.blocked(s) || (!canRun && 'Espere a noite: execute a partir de amanhã.') || (SB.injured(s) && 'Ferido demais.') || (s.crewMorale < 30 && 'Ânimo abaixo de 30.') || (s.energy < 40 && 'Energia abaixo de 40.') || (SB.gearVal(s, 'power') < cur.minPower && `Arma do líder abaixo de ${cur.minPower}.`) || (SB.crewSize(s) + s.heist.hires < cur.need && 'Falta gente no bando.') || '';
       const stage = canRun ? (s.heist.intel >= 40 ? 2 : 1) : 1;
-      plan = `<section class="poster heistPlan"><div class="posterHead">PLANO EM ANDAMENTO</div><h2>${esc(cur.name)}</h2>
+      plan = `<section class="poster heistPlan"><span class="heistPic">${window.SBArt.heist(cur.id)}</span><div class="posterHead">PLANO EM ANDAMENTO</div><h2>${esc(cur.name)}</h2>
         <ol class="heistSteps">${steps.map((t, i) => `<li class="${i < stage ? 'ok' : i === stage ? 'now' : ''}">${t}</li>`).join('')}</ol>
         <div class="kv"><div><span>Chance agora</span><strong>${odds}%</strong></div><div><span>Prazo</span><strong>até o dia ${last}</strong></div><div><span>Informação</span><strong>${s.heist.intel}/40 (+${Math.round(s.heist.intel * .5)}%)</strong></div><div><span>Bando</span><strong>${SB.crewSize(s)} + ${s.heist.hires} avulso(s)</strong></div></div>
         <div class="inlineBtns" style="margin-top:10px">${button('Reconhecer o terreno · 15 energia', 'heist-scout', '', !!SB.blocked(s) || s.heist.scoutDay === s.day || s.heist.intel >= 40 || s.energy < 15, 'small')}${button(`Executar · 40 energia (${odds}%)`, 'heist-run', '', !!runBlock, 'small primary')}${button('Cancelar plano', 'heist-cancel', '', false, 'small ghost')}</div>
@@ -711,7 +711,7 @@
         <p class="mini" style="margin-top:8px">Poder = seu poder de luta, nível e número dos integrantes, Músculos e avulsos. Faltando gente, o plano contrata até ${SB.HEIST_MAX_HIRES} avulsos (mais fracos e pagos na hora). Olheiros rendem mais informação no reconhecimento.</p></section>
       <div class="grid" style="margin-top:10px">${SB.HEISTS.map(h => { const lock = SB.heistLock(s, h), hires = SB.heistHires(s, h), cost = SB.heistPlanCost(s, h), odds = SB.heistOdds(s, h);
         const off = !!lock || !!cur || s.day < s.heistReady || !!SB.blocked(s) || s.cash < cost || s.energy < 15 || s.day >= SB.MAXDAY;
-        return `<section class="card mission ${lock ? 'locked' : ''}"><div><h3>${esc(h.name)}</h3><p>${esc(h.desc)}</p>
+        return `<section class="card mission heistRow ${lock ? 'locked' : ''}"><span class="heistPic">${window.SBArt.heist(h.id)}</span><div><h3>${esc(h.name)}</h3><p>${esc(h.desc)}</p>
           <div class="details">Bando ${h.need} · sede ${h.sede} · arma ${h.minPower}+ · ${h.unlock} de respeito</div>
           <div class="details">Rende ${fmt(h.low)}–${fmt(h.high)} (sua parte: 75%) · +${h.respect} respeito · +${h.heat} vigilância</div>
           <div class="details">Plano: ${fmt(cost)}${hires ? ` (inclui ${hires} avulso(s) a ${fmt(h.hire)})` : ''} · se der errado: 10% do caixa, saúde, prisão ${h.arrest}%+, um integrante pode rodar</div>

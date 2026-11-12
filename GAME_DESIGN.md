@@ -1,4 +1,4 @@
-# Submundo Brasil — Game Design (v1.0)
+# Submundo Brasil — Game Design (v1.1)
 
 Documento de referência das mecânicas. Os números aqui são os do código em
 `src/engine.js`. Se você mudar um valor no código, atualize este documento.
@@ -549,3 +549,10 @@ Na aba Gangue, **Assaltos do bando**. Um plano por vez, em quatro etapas:
 | Cofre central | 12 | 6 | 21 | 155 | 200 | R$ 6.000 · 1.300 | R$ 38.000–52.000 | 55% |
 
 O serviço solo que se chamava "Carro-forte na serra" passou a se chamar **Cofre da joalheria** (mesmas regras), para não confundir com o assalto do bando.
+
+---
+
+## 18. Arte ilustrada (v1.1)
+
+- **SVG em código** (`src/art.js`): cena para cada lugar da Cidade (Bairros, Galpão, Feira do Rolo, Vida noturna, Duelos, Hospital, Banco, Temporada) e para Assaltos do bando; retrato de busto para os 8 adversários de duelo; cena para os 6 assaltos, também no cartaz do plano em andamento. Itens bloqueados aparecem dessaturados.
+- **Imagens pintadas opcionais**: arquivos em `art/` com as chaves `place-<id>`, `rival-<id>` e `heist-<id>` substituem o SVG correspondente no build. As que faltarem continuam em SVG. Guia de estilo e prompts em `PROMPTS_ARTE.md`.

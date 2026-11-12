@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111b1e">
   <meta name="description" content="Submundo Brasil — RPG urbano brasileiro de estratégia por turnos para navegador.">
-  <title>Submundo Brasil | Jogo de estratégia 1.0</title>
+  <title>Submundo Brasil | Jogo de estratégia 1.1</title>
   <style>
     :root{color-scheme:dark;--bg:#0d1319;--panel:#151e26;--panel2:#1a2630;--line:#30404d;--muted:#9eabb5;--text:#f0f2f1;--accent:#e8a04b;--accent2:#ffbd6e;--green:#81c9a6;--red:#ee948a;--info:#8dbedb;--radius:9px}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}a{color:var(--accent)}.hidden{display:none!important}
@@ -436,11 +436,29 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 .heistPlan .kv span{color:#6b5a3a}.heistPlan .kv strong{color:#1d1a15}
 .heistPlan .btn.ghost{color:#3a3226;border-color:#8a7a5a}
 
+/* ===== v1.1: arte dos lugares, adversários e assaltos ===== */
+.placeScene{display:block;margin:-12px -12px 8px;height:78px;overflow:hidden;border-bottom:3px solid #05080a;background:#0b1013}
+.placeScene .art{display:block;width:100%;height:100%}
+.place{padding-top:12px}
+.art.painted{object-fit:cover;width:100%;height:100%;display:block}
+.rivalRow{grid-template-columns:56px minmax(0,1fr) auto!important;align-items:start}
+.rivalPic{width:56px;height:56px;border:2px solid #4a4433;border-radius:4px;overflow:hidden;display:block;background:#0b1013}
+.rivalPic .art{width:100%;height:100%;display:block}
+.heistRow{grid-template-columns:minmax(0,1fr) auto!important}
+.heistPic{grid-column:1/-1;display:block;height:70px;margin:-12px -12px 4px;overflow:hidden;border-bottom:3px solid #05080a;background:#0b1013}
+.heistPic .art{display:block;width:100%;height:100%}
+.heistPlan .heistPic{margin:-4px 0 8px;border:2px solid #1b1a14}
+.mission.locked .heistPic,.mission.locked .rivalPic{filter:grayscale(.8) brightness(.7)}
+@media(max-width:390px){.rivalRow{grid-template-columns:44px minmax(0,1fr)!important}.rivalRow .right{grid-column:1/-1}.rivalPic{width:44px;height:44px}}
+.placeScene{align-self:stretch;width:calc(100% + 24px)}
+.placeScene .art{width:100%;height:100%}
+@media(max-width:390px){.heistRow{grid-template-columns:1fr!important}.heistRow .right{grid-column:1/-1}}
+
   </style>
 </head>
 <body>
   <header class="topbar hud" id="hud"><div class="topwrap hudwrap">
-    <div class="hudWho"><span class="hudAvatar" id="hudAvatar" aria-hidden="true"></span><div class="hudId"><strong id="hudName">SUBMUNDO BRASIL</strong><small id="hudSub">v1.0</small></div></div>
+    <div class="hudWho"><span class="hudAvatar" id="hudAvatar" aria-hidden="true"></span><div class="hudId"><strong id="hudName">SUBMUNDO BRASIL</strong><small id="hudSub">v1.1</small></div></div>
     <div class="hudMoney"><strong id="topCash" title="Dinheiro em mãos">R$ 0</strong><small><span id="hudRespect">0</span> respeito · <span id="topDay">Dia 1</span></small></div>
     <div class="hudBars">
       <div class="hudBar en" role="img" id="hudEnergyBox" aria-label="Energia"><i id="hudEnergy"></i><b id="hudEnergyTxt">Energia</b></div>
@@ -455,7 +473,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     <button type="button" data-view="hub"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V10l5-3v14M8 21V4l7 3v14M15 21v-9l6 2v7M2 21h20"/></svg>Cidade</button>
     <button type="button" data-view="gangue"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="4.5" cy="10" r="2"/><circle cx="19.5" cy="10" r="2"/></svg>Gangue</button>
     <button type="button" data-view="perfil"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg>Perfil</button>
-  </nav><div class="sidefoot"><strong>Versão local 1.0.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.<br><button type="button" class="btn small ghost" data-action="help" style="margin-top:8px">Como jogar</button></div></aside>
+  </nav><div class="sidefoot"><strong>Versão local 1.1.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.<br><button type="button" class="btn small ghost" data-action="help" style="margin-top:8px">Como jogar</button></div></aside>
   <main class="content" id="content" tabindex="-1" aria-live="polite"></main></div>
   <nav class="mobileNav" aria-label="Navegação principal no celular">
     <button type="button" data-view="painel" class="active"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v9h5v-5h4v5h5v-9"/></svg>Início</button>
@@ -496,7 +514,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 (function (root) {
   'use strict';
 
-  const VERSION = '1.0';
+  const VERSION = '1.1';
   const SCHEMA = 2;
   const MAXDAY = 30;
   const MAX_LOG = 60;
@@ -2464,9 +2482,136 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 })(typeof window !== 'undefined' ? window : globalThis);
 
   </script>
+  <script id="sb-art">
+window.SB_ART = {};
+/* =====================================================================
+ * SUBMUNDO BRASIL — ARTE v1.1
+ * Ilustrações em SVG (geradas em código, sem arquivos externos) para os
+ * lugares da Cidade, os adversários de duelo e os assaltos do bando.
+ *
+ * Imagens pintadas: se o build encontrar arquivos em art/ (ex.: art/place-galpao.webp),
+ * eles entram em window.SB_ART e substituem o SVG da mesma chave.
+ * Chaves: place-<id>, rival-<id>, heist-<id>. Ver PROMPTS_ARTE.md.
+ * ===================================================================== */
+(function (root) {
+  'use strict';
+  const INK = '#0a0f12', FAR = '#1d2c33', MID = '#26363d', AMBER = '#f0c06e', WARM = '#c9873f', RED = '#c9503a', BLUE = '#3f6fd0', CREAM = '#e7d9b8';
+  const R = (x, y, w, h, f, extra = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" ${extra}/>`;
+  const C = (x, y, r, f, extra = '') => `<circle cx="${x}" cy="${y}" r="${r}" fill="${f}" ${extra}/>`;
+  const P = (d, f, extra = '') => `<path d="${d}" fill="${f}" ${extra}/>`;
+  const L = (d, c, w = 1.5, extra = '') => `<path d="${d}" stroke="${c}" stroke-width="${w}" fill="none" stroke-linecap="round" ${extra}/>`;
+  /** Janelas acesas com padrão fixo (não pisca entre renderizações). */
+  function wins(x, y, cols, rows, seed, dx = 6, dy = 8) {
+    let o = '';
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { seed = (seed * 31 + 7) % 97; if (seed % 3 === 0) o += R(x + c * dx, y + r * dy, 2.5, 3.5, seed % 2 ? AMBER : WARM); }
+    return o;
+  }
+  const sky = (id, a, b) => `<defs><linearGradient id="g-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>${R(0, 0, 160, 100, `url(#g-${id})`)}`;
+  const svg = (vb, body, cls = 'art') => `<svg class="${cls}" viewBox="${vb}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${body}</svg>`;
+  const ground = (y = 92) => R(0, y, 160, 100 - y, '#05080a');
+
+  /* ---------------- Lugares da Cidade (160×100) ---------------- */
+  const PLACES = {
+    cidade: () => sky('cidade', '#24364a', '#a0603c') + C(128, 24, 9, '#f3d9a4', 'opacity=".85"') +
+      [[0, 46, 22], [20, 34, 18], [40, 52, 20], [62, 28, 16], [80, 44, 22], [104, 38, 18], [124, 50, 36]].map(([x, y, w]) => R(x, y, w, 100 - y, FAR)).join('') +
+      [[4, 58, 24], [30, 50, 20], [52, 62, 26], [80, 54, 22], [104, 60, 24], [130, 56, 30]].map(([x, y, w], i) => R(x, y, w, 100 - y, INK) + wins(x + 3, y + 5, Math.floor((w - 4) / 6), 4, i * 11 + 3)).join('') +
+      R(70, 66, 30, 14, '#2563b8', 'stroke="#f4f1e8" stroke-width="1.5" rx="1.5"') + R(74, 70, 22, 2, CREAM) + R(74, 74, 14, 2, CREAM) + R(84, 80, 2, 12, INK) + ground(),
+    galpao: () => sky('galpao', '#2c2f36', '#5a4636') +
+      P('M14 92V44l66-22 66 22v48z', INK) + P('M14 44l66-22 66 22', 'none', `stroke="${MID}" stroke-width="2"`) +
+      R(48, 56, 64, 36, '#151b1f') + [0, 1, 2, 3, 4, 5].map(i => R(48, 56 + i * 4, 64, 1.2, '#2a3439')).join('') + R(48, 80, 64, 12, '#3a2c1c') +
+      R(54, 82, 12, 10, '#7a5a34') + R(68, 84, 10, 8, '#8a6a40') + R(80, 80, 14, 12, '#6e4f2c') + R(96, 85, 10, 7, '#7a5a34') +
+      L('M80 34v10', '#55606a', 1) + P('M74 44h12l-2 4h-8z', '#55606a') + `<path d="M76 48h8l10 44H66z" fill="${AMBER}" opacity=".16"/>` +
+      R(120, 76, 18, 10, '#c79a3d') + R(136, 66, 2, 20, '#c79a3d') + C(124, 88, 3, INK) + C(134, 88, 3, INK) + ground(),
+    feira: () => sky('feira', '#1f2d3a', '#7a4a34') +
+      R(8, 30, 70, 62, FAR) + R(96, 36, 58, 56, FAR) +
+      L('M0 22q80 16 160 2', INK, 1) + [12, 30, 48, 66, 84, 102, 120, 138, 152].map((x, i) => C(x, 24 + Math.sin(i / 1.6) * 3 + (i > 4 ? -2 : 3), 2.2, i % 2 ? AMBER : CREAM)).join('') +
+      P('M18 50h124l8 12H10z', RED) + [0, 1, 2, 3, 4, 5, 6].map(i => P(`M${22 + i * 18} 50h9l2 12h-13z`, CREAM)).join('') +
+      R(18, 62, 124, 30, '#3a2c1c') + R(18, 62, 124, 4, '#2a1e12') +
+      L('M28 72l10-6M44 74l14-4M64 70v10M72 70v10M86 72l12 0M104 70l8 8M120 72l12-2', '#9aa6a8', 2) + R(30, 80, 100, 2, '#2a1e12') +
+      P('M150 92v-20l-6-4h-6v24', INK) + C(146, 64, 4, INK) + ground(),
+    noite: () => sky('noite', '#120f22', '#3a2640') + C(132, 18, 7, '#f3d9a4', 'opacity=".9"') + C(129, 16, 6, '#120f22') +
+      [[0, 40, 40], [36, 52, 30], [64, 34, 34], [96, 48, 28], [122, 38, 38]].map(([x, y, w], i) => R(x, y, w, 100 - y, INK) + wins(x + 4, y + 6, Math.floor((w - 6) / 6), 5, i * 9 + 2)).join('') +
+      L('M40 50q30 12 60 0', '#0a0f12', 1) + [44, 52, 60, 68, 76, 84, 92].map((x, i) => C(x, 52 + Math.sin(i / 1.4) * 2 + 2, 1.8, [AMBER, RED, '#7fc8a4', '#5c8fd6'][i % 4])).join('') +
+      R(52, 68, 12, 18, '#151b1f') + R(54, 71, 8, 8, '#1c2428') + C(58, 75, 3, '#0b0f12') + R(96, 68, 12, 18, '#151b1f') + C(102, 75, 3, '#0b0f12') +
+      [70, 76, 82, 88].map((x, i) => P(`M${x} 92v-${10 + (i % 2) * 3}c0-3 4-3 4 0v${10 + (i % 2) * 3}z`, '#05080a') + C(x + 2, 76 - (i % 2) * 3, 2.4, '#05080a')).join('') +
+      `<path d="M58 66l-14 26h28z" fill="${AMBER}" opacity=".08"/><path d="M102 66l-14 26h28z" fill="#c9503a" opacity=".1"/>` + ground(),
+    duelos: () => sky('duelos', '#1a2228', '#3a2a22') +
+      R(0, 18, 46, 82, INK) + R(114, 12, 46, 88, INK) + wins(6, 26, 6, 6, 5) + wins(118, 20, 6, 7, 17) +
+      R(78, 26, 3, 66, '#151b1f') + P('M72 26h16l-3 4h-10z', '#151b1f') + `<path d="M74 30h12l22 62H52z" fill="${AMBER}" opacity=".18"/>` +
+      P('M58 92v-18c0-6 3-9 7-9s7 3 7 9v18z', INK) + C(65, 60, 5, INK) + P('M60 70l-6 8', 'none', `stroke="${INK}" stroke-width="3" stroke-linecap="round"`) +
+      P('M90 92v-20c0-6 3-9 8-9s8 3 8 9v20z', INK) + C(98, 57, 5.5, INK) + P('M106 70l7 6', 'none', `stroke="${INK}" stroke-width="3.2" stroke-linecap="round"`) + R(93, 52, 11, 2, INK) +
+      R(66, 88, 30, 4, '#0b0f12', 'opacity=".6"') + ground(),
+    hospital: () => sky('hospital', '#22303c', '#5c6a72') +
+      R(20, 34, 120, 58, '#d8d4c8') + R(20, 34, 120, 8, '#b8b3a6') + [0, 1, 2, 3, 4, 5].map(i => R(28 + i * 18, 48, 10, 8, '#7fa6bd')).join('') + [0, 1, 2, 3, 4, 5].map(i => R(28 + i * 18, 62, 10, 8, '#7fa6bd')).join('') +
+      R(64, 74, 32, 18, '#5c7f8f') + R(70, 26, 20, 10, '#f4f1e8', 'stroke="#c9503a" stroke-width="1"') + R(78, 27, 4, 8, RED) + R(76, 29, 8, 4, RED) +
+      R(104, 76, 40, 14, '#f4f1e8') + R(130, 72, 14, 10, '#f4f1e8') + R(108, 80, 14, 3, RED) + C(112, 91, 3.5, INK) + C(136, 91, 3.5, INK) + R(136, 70, 4, 2, '#5c8fd6') + ground(),
+    gestao: () => sky('gestao', '#1d2c3a', '#4a5a50') +
+      P('M20 40L80 18l60 22z', '#c9c2b0') + R(22, 40, 116, 6, '#b8b1a0') + [0, 1, 2, 3, 4].map(i => R(30 + i * 22, 46, 8, 38, '#d8d1bf')).join('') +
+      R(18, 84, 124, 8, '#a8a190') + R(72, 58, 16, 26, '#3a3226') + C(80, 30, 4, AMBER) +
+      R(146, 60, 12, 24, '#4a5a60') + R(148, 64, 8, 6, '#7fc8a4', 'opacity=".8"') + ground(),
+    temporada: () => sky('temporada', '#2a2418', '#6a4a2a') +
+      R(20, 20, 120, 72, '#2a2118') + R(24, 24, 112, 64, '#3a2c1c') +
+      P('M68 34h24v12a12 12 0 0 1-24 0z', AMBER) + L('M68 38h-6c0 6 3 9 7 9M92 38h6c0 6-3 9-7 9', AMBER, 2) + R(78, 58, 4, 8, AMBER) + R(70, 66, 20, 4, '#c79a3d') +
+      [[32, '#8a6643'], [116, '#b8c0c4']].map(([x, c]) => C(x, 52, 9, c) + C(x, 52, 6, '#2a2118')).join('') + R(40, 78, 80, 4, '#5a4632') + ground(),
+    assaltos: () => sky('assaltos', '#141d24', '#3a2420') +
+      R(0, 30, 52, 70, INK) + wins(6, 38, 7, 5, 9) + R(118, 22, 42, 78, INK) + wins(122, 30, 6, 7, 21) +
+      P('M50 82v-12l10-10h40l10 10v12z', '#1c2428') + R(62, 62, 14, 8, '#7fa6bd', 'opacity=".5"') + R(80, 62, 14, 8, '#7fa6bd', 'opacity=".5"') + C(62, 84, 6, INK) + C(98, 84, 6, INK) +
+      P('M108 74l10-4 4 8-10 4z', '#c79a3d') + P('M30 92c0-8 6-10 12-10s12 2 12 10z', '#4a3a24') + R(38, 80, 8, 3, '#2a1e12') + L('M42 84v6', CREAM, 1.5) +
+      `<g class="siren">${C(150, 90, 16, RED, 'opacity=".25"')}${C(10, 90, 16, BLUE, 'opacity=".22"')}</g>` + ground()
+  };
+
+  /* ---------------- Retratos dos adversários (64×64) ---------------- */
+  const bust = (skin, shirt) => P('M8 64c2-14 11-20 24-20s22 6 24 20z', shirt) + `<ellipse cx="32" cy="28" rx="11" ry="13" fill="${skin}"/>` + R(28, 38, 8, 8, skin);
+  const eyes = (y = 27, c = '#0a0f12') => R(26, y, 4, 2, c) + R(34, y, 4, 2, c);
+  const RIVALS = {
+    marrento: ['#3a2a20', bust('#a8794f', '#c9503a') + P('M20 22c2-10 22-10 24 0z', '#2e5f9e') + R(40, 20, 10, 3, '#2e5f9e') + eyes() + L('M27 35q5 3 10 0', '#3a2216', 1.5)],
+    tonhao: ['#2a2a22', P('M2 64c2-16 13-24 30-24s28 8 30 24z', '#4a6a4a') + `<ellipse cx="32" cy="27" rx="13" ry="14" fill="#7a5032"/>` + R(26, 38, 12, 8, '#7a5032') + eyes(26) + L('M26 34h12', '#2a160c', 2) + L('M19 22h26', '#5a3820', 1)],
+    bagre: ['#22302a', bust('#c08a5c', '#6a5a3a') + `<ellipse cx="32" cy="24" rx="15" ry="16" fill="#c08a5c"/>` + eyes(24) + L('M26 33q6 2 12 0', '#5a3216', 2) + C(20, 22, 2, '#a8794f')],
+    maozinha: ['#1d2630', P('M12 64c2-12 10-18 20-18s18 6 20 18z', '#2a3a4a') + P('M18 30c0-14 28-14 28 0v8H18z', '#2a3a4a') + `<ellipse cx="32" cy="31" rx="9" ry="10" fill="#8a5c3a"/>` + eyes(30) + L('M29 37h6', '#3a1e0e', 1.5)],
+    galego: ['#2e2a1c', bust('#e0b48a', '#1c2428') + P('M20 22c0-12 24-12 24 0-4-4-20-4-24 0z', '#e6c45a') + R(23, 25, 18, 5, '#0a0f12', 'rx="2"') + L('M28 35q4 2 8 0', '#7a3a1e', 1.5) + C(24, 52, 1.5, AMBER) + C(40, 52, 1.5, AMBER)],
+    sargento: ['#1f2a22', bust('#9a6a42', '#3a4a3a') + P('M18 20c4-8 24-8 28 0l2 4H16z', '#2a3a2a') + eyes() + P('M24 33c4-3 12-3 16 0-4 3-12 3-16 0z', '#2a1a10') + R(14, 48, 36, 3, '#c79a3d')],
+    carcara: ['#2a1c1c', P('M8 64c2-14 11-20 24-20s22 6 24 20z', '#1a1a1a') + P('M16 34c0-20 32-20 32 0v10H16z', '#222') + `<ellipse cx="32" cy="30" rx="9" ry="11" fill="#6a4228"/>` + R(22, 34, 20, 8, '#5a1e1e') + R(26, 28, 4, 2, AMBER) + R(34, 28, 4, 2, AMBER)],
+    rei: ['#33281a', bust('#7a4a2a', '#111') + P('M18 18l4-10 5 6 5-8 5 8 5-6 4 10z', AMBER) + R(18, 18, 28, 3, '#c79a3d') + eyes() + L('M26 34q6 3 12 0', '#2a120a', 1.5) + L('M18 50q14 8 28 0', AMBER, 2.5) + C(32, 56, 2.5, AMBER)]
+  };
+
+  /* ---------------- Assaltos (160×70) ---------------- */
+  const hs = (id, a, b) => `<defs><linearGradient id="h-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>${R(0, 0, 160, 70, `url(#h-${id})`)}`;
+  const road = y => R(0, y, 160, 70 - y, '#14181b') + [0, 1, 2, 3, 4].map(i => R(8 + i * 34, y + 6, 16, 1.6, '#c79a3d')).join('');
+  const HEISTS = {
+    arrastao: () => hs('arrastao', '#1a2430', '#3a3040') + R(16, 14, 128, 42, '#2a3640') + R(20, 18, 120, 6, '#c9503a') +
+      [0, 1, 2, 3, 4].map(i => R(22 + i * 24, 28, 20, 20, '#7fa6bd', 'opacity=".55"')).join('') + R(70, 28, 20, 28, '#0b1013') +
+      L('M30 40l6-4M54 38l4 4M102 40l6-6', CREAM, 1.5) + R(0, 56, 160, 14, '#14181b') + P('M118 66l8-6h10l4 6z', INK) + C(122, 66, 3, INK) + C(138, 66, 3, INK),
+    rodovia: () => hs('rodovia', '#2a2a3a', '#7a5040') + P('M0 40l40-14 30 10 40-16 50 12v8H0z', FAR) + road(46) +
+      R(70, 30, 48, 18, '#d8d4c8') + R(118, 34, 18, 14, '#c9503a') + R(124, 36, 8, 5, '#7fa6bd') + C(80, 50, 4, INK) + C(110, 50, 4, INK) + C(128, 50, 4, INK) +
+      P('M20 50l12-6h14l4 6z', INK) + C(26, 52, 3, INK) + C(44, 52, 3, INK) + [0, 1, 2].map(i => P(`M${60 + i * 6} 56l3-6 3 6z`, '#e07a3a')).join(''),
+    agencia: () => hs('agencia', '#1c2a3a', '#4a4a3a') + R(14, 26, 30, 30, FAR) + P('M14 26l15-10 15 10z', FAR) + R(26, 8, 6, 10, FAR) + R(28, 4, 2, 6, FAR) +
+      R(60, 22, 70, 34, '#c9c2b0') + R(60, 22, 70, 6, '#2e5f9e') + R(66, 34, 12, 10, '#7fa6bd') + R(84, 34, 14, 22, '#3a3226') + R(104, 34, 12, 10, '#7fa6bd') + R(0, 56, 160, 14, '#14181b') +
+      P('M136 60l6-6h10l4 6z', '#d8d4c8') + R(140, 52, 10, 2, BLUE),
+    carroforte: () => hs('carroforte', '#3a4248', '#6a6a60') + P('M0 30q40-20 80-6t80-14V70H0z', '#2a3a34') + P('M0 70q60-40 160-30v30z', '#14181b') +
+      `<rect x="0" y="0" width="160" height="70" fill="#d8d8d0" opacity=".12"/>` + R(62, 34, 44, 18, '#5a6a5a') + R(98, 36, 14, 14, '#4a5a4a') + R(102, 38, 6, 5, '#7fa6bd', 'opacity=".6"') +
+      R(66, 38, 26, 3, '#3a4a3a') + C(72, 54, 4, INK) + C(102, 54, 4, INK),
+    transportadora: () => hs('transportadora', '#141c24', '#2a3036') + R(0, 34, 160, 26, '#3a3a38') + [0, 1, 2, 3, 4, 5, 6, 7].map(i => R(i * 20 + 2, 30, 2, 6, '#55606a')).join('') + L('M0 32h160', '#55606a', 1) +
+      R(60, 14, 10, 22, '#2a3036') + R(56, 10, 18, 6, '#2a3036') + `<path d="M64 14l-30 22h22z" fill="${AMBER}" opacity=".2"/>` + R(96, 20, 50, 16, '#4a4a46') + R(116, 26, 10, 10, '#1a1a18') + R(0, 60, 160, 10, '#14181b'),
+    cofrecentral: () => hs('cofrecentral', '#2a2418', '#141210') + R(30, 6, 100, 58, '#4a4232') + C(80, 35, 24, '#6a5e46') + C(80, 35, 19, '#5a4e38') +
+      [0, 45, 90, 135].map(a => `<rect x="78" y="14" width="4" height="10" fill="#8a7a56" transform="rotate(${a} 80 35)"/>`).join('') + C(80, 35, 7, '#8a7a56') + C(80, 35, 3, '#2a2418') +
+      R(126, 26, 8, 18, '#3a3226') + [[44, 58], [52, 60], [108, 58], [116, 60]].map(([x, y]) => R(x, y, 10, 4, '#7fc8a4')).join('')
+  };
+
+  const painted = key => (root.SB_ART && root.SB_ART[key]) ? `<img class="art painted" src="${root.SB_ART[key]}" alt="" loading="lazy">` : '';
+  const SBArt = {
+    place: id => painted('place-' + id) || (PLACES[id] ? svg('0 0 160 100', PLACES[id]()) : ''),
+    rival: id => painted('rival-' + id) || (RIVALS[id] ? svg('0 0 64 64', R(0, 0, 64, 64, RIVALS[id][0]) + RIVALS[id][1], 'art portrait') : ''),
+    heist: id => painted('heist-' + id) || (HEISTS[id] ? svg('0 0 160 70', HEISTS[id]()) : ''),
+    keys: () => [...Object.keys(PLACES).map(k => 'place-' + k), ...Object.keys(RIVALS).map(k => 'rival-' + k), ...Object.keys(HEISTS).map(k => 'heist-' + k)],
+    paintedCount: () => root.SB_ART ? Object.keys(root.SB_ART).length : 0
+  };
+  root.SBArt = SBArt;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+  </script>
   <script id="sb-ui">
 /* =====================================================================
- * SUBMUNDO BRASIL — INTERFACE v1.0
+ * SUBMUNDO BRASIL — INTERFACE v1.1
  * Responsável por: persistência (localStorage, backup, importação e
  * exportação), renderização das telas e tratamento dos cliques.
  * Todas as regras ficam em window.SB (motor). Esta camada só chama
@@ -2658,7 +2803,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function exportSave() {
-    download(`submundo-brasil-v1.0-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
+    download(`submundo-brasil-v1.1-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
     notify('Cópia da carreira preparada para download.');
   }
   async function importFile(file, fromWelcome) {
@@ -3007,7 +3152,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       <p>As facções agem todos os dias segundo sua personalidade: expandem, se fortalecem, retaliam, guerreiam entre si ou propõem acordos.${s.nemesis ? ` <strong>Rival histórico:</strong> ${esc(F(s.nemesis).name)}.` : ''}</p>
       <div class="rivalMetrics"><div><span>Acordos</span><strong>${s.gangStats.pacts}</strong></div><div><span>Retaliações</span><strong>${s.gangStats.retaliations}</strong></div><div><span>Seus bairros</span><strong>${SB.controls(s).length}/${SB.DISTRICTS.length}</strong></div></div>${s.treachery ? `<p class="negative mini">Você rompeu ${s.treachery} acordo(s): diálogos com chance menor.</p>` : ''}</section>`;
     const hp = s.heist ? SB.heist(s.heist.id) : null;
-    const heistLink = `<div class="places" style="grid-template-columns:1fr"><button type="button" class="place p-assaltos" data-view="assaltos"><span class="placeArt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v11H4zM8 9V6a4 4 0 0 1 8 0v3M12 13v3"/></svg></span><b>Assaltos do bando</b><small>${hp ? `Plano: ${esc(hp.name)} · informação ${s.heist.intel}/40` : s.day < s.heistReady ? `Esfriando até o dia ${s.heistReady}` : `${s.gangStats.heists} feito(s) · planeje o próximo`}</small>${hp ? '<i class="placeBadge">Em andamento</i>' : ''}</button></div>`;
+    const heistLink = `<div class="places" style="grid-template-columns:1fr"><button type="button" class="place p-assaltos" data-view="assaltos"><span class="placeScene">${window.SBArt.place('assaltos')}</span><b>Assaltos do bando</b><small>${hp ? `Plano: ${esc(hp.name)} · informação ${s.heist.intel}/40` : s.day < s.heistReady ? `Esfriando até o dia ${s.heistReady}` : `${s.gangStats.heists} feito(s) · planeje o próximo`}</small>${hp ? '<i class="placeBadge">Em andamento</i>' : ''}</button></div>`;
     return heading('Gangue e facções', 'Negocie, fortaleça sua equipe ou enfrente os grupos rivais simulados.') + jailNotice() + resultCard() + (created ? heistLink : '') + top +
       `<div class="section"><h2>Grupos da cidade</h2><small>Uma interação por grupo ao dia</small></div>` + brief +
       `<div class="grid two" style="margin-top:13px">${SB.FACTIONS.map(factionCard).join('')}</div><div class="notice" style="margin-top:13px">Simulação individual: não há outros jogadores, chat ou guerra online nesta versão.</div>`;
@@ -3077,7 +3222,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     hospital: `<path d="M4 20V6h16v14M2 20h20M10 9h4M12 7v4M8 14h2v6M14 14h2v6"/>`,
     temporada: `<path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4c0 3 1.500 4.500 3.500 4.500M17 6h3c0 3-1.500 4.500-3.500 4.500M12 14v4M8 20h8"/>`.replace(/\.500/g, '.5')
   };
-  const place = (v, name, info, badge = '') => `<button type="button" class="place p-${v}" data-view="${v}"><span class="placeArt"><svg viewBox="0 0 24 24" aria-hidden="true">${PLACE_ICON[v]}</svg></span><b>${name}</b><small>${info}</small>${badge ? `<i class="placeBadge">${badge}</i>` : ''}</button>`;
+  const place = (v, name, info, badge = '') => `<button type="button" class="place p-${v}" data-view="${v}"><span class="placeScene">${window.SBArt.place(v)}</span><b>${name}</b><small>${info}</small>${badge ? `<i class="placeBadge">${badge}</i>` : ''}</button>`;
   function hub() {
     const s = state, deal = s.exportDeal, g = SB.good(deal.good), w = SB.item(s.gear.arma), v = SB.item(s.gear.veiculo);
     return heading('Cidade', `${esc(s.city)}. Escolha aonde ir; você está em ${esc(D().name)}.`) + jailNotice() + resultCard() + localeStrip(false) + `<div class="places">
@@ -3141,7 +3286,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
         <p class="mini" style="margin-top:8px">Poder = Força, Astúcia, arma, proteção e sede. A proteção também reduz o dano. ${hp ? `<span class="negative">Saúde baixa: -${hp} de chance.</span>` : ''}${SB.injured(s) ? ' <span class="negative">Ferido demais para duelar: vá ao Hospital.</span>' : ''}${SB.gearVal(s, 'power') >= 7 ? ' Arma de fogo faz barulho: +4 de vigilância por duelo.' : ''}</p></section>
       <div class="grid" style="margin-top:10px">${SB.RIVALS.map(r => { const locked = s.respect < r.unlock, odds = SB.duelOdds(s, r), beat = s.beaten[r.id] || 0;
         const off = locked || !!SB.blocked(s) || SB.injured(s) || s.today.duels >= SB.DUEL_LIMIT || s.energy < SB.DUEL_ENERGY;
-        return `<section class="card mission ${locked ? 'locked' : ''}"><div><h3>${esc(r.name)} ${beat ? `<span class="pill">Vencido ${beat}×</span>` : ''}</h3><p>${esc(r.desc)}</p>
+        return `<section class="card mission rivalRow ${locked ? 'locked' : ''}"><span class="rivalPic">${window.SBArt.rival(r.id)}</span><div><h3>${esc(r.name)} ${beat ? `<span class="pill">Vencido ${beat}×</span>` : ''}</h3><p>${esc(r.desc)}</p>
           <div class="details">Poder ${r.rating} · prêmio ${fmt(r.low)}–${fmt(r.high)} · +${beat ? r.respect : r.respect * 2} respeito${beat ? '' : ' (primeira vitória vale o dobro)'} · ${SB.DUEL_ENERGY} energia</div>
           <div class="details">Se perder: saúde e 5% do caixa em mãos</div>${locked ? `<div class="lockline">Requer ${r.unlock} de respeito.</div>` : ''}</div>
           <div class="right"><span class="chance ${chanceClass(odds)}">${odds}% <small class="mini">vitória</small></span>${button('Encarar', 'duel', `data-id="${r.id}"`, off, 'primary small')}</div></section>`; }).join('')}</div>
@@ -3166,7 +3311,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       const odds = SB.heistOdds(s, cur), last = Math.min(SB.MAXDAY, s.heist.day + SB.HEIST_WINDOW), canRun = s.day > s.heist.day;
       const runBlock = SB.blocked(s) || (!canRun && 'Espere a noite: execute a partir de amanhã.') || (SB.injured(s) && 'Ferido demais.') || (s.crewMorale < 30 && 'Ânimo abaixo de 30.') || (s.energy < 40 && 'Energia abaixo de 40.') || (SB.gearVal(s, 'power') < cur.minPower && `Arma do líder abaixo de ${cur.minPower}.`) || (SB.crewSize(s) + s.heist.hires < cur.need && 'Falta gente no bando.') || '';
       const stage = canRun ? (s.heist.intel >= 40 ? 2 : 1) : 1;
-      plan = `<section class="poster heistPlan"><div class="posterHead">PLANO EM ANDAMENTO</div><h2>${esc(cur.name)}</h2>
+      plan = `<section class="poster heistPlan"><span class="heistPic">${window.SBArt.heist(cur.id)}</span><div class="posterHead">PLANO EM ANDAMENTO</div><h2>${esc(cur.name)}</h2>
         <ol class="heistSteps">${steps.map((t, i) => `<li class="${i < stage ? 'ok' : i === stage ? 'now' : ''}">${t}</li>`).join('')}</ol>
         <div class="kv"><div><span>Chance agora</span><strong>${odds}%</strong></div><div><span>Prazo</span><strong>até o dia ${last}</strong></div><div><span>Informação</span><strong>${s.heist.intel}/40 (+${Math.round(s.heist.intel * .5)}%)</strong></div><div><span>Bando</span><strong>${SB.crewSize(s)} + ${s.heist.hires} avulso(s)</strong></div></div>
         <div class="inlineBtns" style="margin-top:10px">${button('Reconhecer o terreno · 15 energia', 'heist-scout', '', !!SB.blocked(s) || s.heist.scoutDay === s.day || s.heist.intel >= 40 || s.energy < 15, 'small')}${button(`Executar · 40 energia (${odds}%)`, 'heist-run', '', !!runBlock, 'small primary')}${button('Cancelar plano', 'heist-cancel', '', false, 'small ghost')}</div>
@@ -3178,7 +3323,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
         <p class="mini" style="margin-top:8px">Poder = seu poder de luta, nível e número dos integrantes, Músculos e avulsos. Faltando gente, o plano contrata até ${SB.HEIST_MAX_HIRES} avulsos (mais fracos e pagos na hora). Olheiros rendem mais informação no reconhecimento.</p></section>
       <div class="grid" style="margin-top:10px">${SB.HEISTS.map(h => { const lock = SB.heistLock(s, h), hires = SB.heistHires(s, h), cost = SB.heistPlanCost(s, h), odds = SB.heistOdds(s, h);
         const off = !!lock || !!cur || s.day < s.heistReady || !!SB.blocked(s) || s.cash < cost || s.energy < 15 || s.day >= SB.MAXDAY;
-        return `<section class="card mission ${lock ? 'locked' : ''}"><div><h3>${esc(h.name)}</h3><p>${esc(h.desc)}</p>
+        return `<section class="card mission heistRow ${lock ? 'locked' : ''}"><span class="heistPic">${window.SBArt.heist(h.id)}</span><div><h3>${esc(h.name)}</h3><p>${esc(h.desc)}</p>
           <div class="details">Bando ${h.need} · sede ${h.sede} · arma ${h.minPower}+ · ${h.unlock} de respeito</div>
           <div class="details">Rende ${fmt(h.low)}–${fmt(h.high)} (sua parte: 75%) · +${h.respect} respeito · +${h.heat} vigilância</div>
           <div class="details">Plano: ${fmt(cost)}${hires ? ` (inclui ${hires} avulso(s) a ${fmt(h.hire)})` : ''} · se der errado: 10% do caixa, saúde, prisão ${h.arrest}%+, um integrante pode rodar</div>

@@ -354,3 +354,21 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 .heistSteps li.ok{background:#2f6b4f;color:#e9f6ee}.heistSteps li.now{background:#1b1a14;color:#f0c06e}
 .heistPlan .kv span{color:#6b5a3a}.heistPlan .kv strong{color:#1d1a15}
 .heistPlan .btn.ghost{color:#3a3226;border-color:#8a7a5a}
+
+/* ===== v1.1: arte dos lugares, adversários e assaltos ===== */
+.placeScene{display:block;margin:-12px -12px 8px;height:78px;overflow:hidden;border-bottom:3px solid #05080a;background:#0b1013}
+.placeScene .art{display:block;width:100%;height:100%}
+.place{padding-top:12px}
+.art.painted{object-fit:cover;width:100%;height:100%;display:block}
+.rivalRow{grid-template-columns:56px minmax(0,1fr) auto!important;align-items:start}
+.rivalPic{width:56px;height:56px;border:2px solid #4a4433;border-radius:4px;overflow:hidden;display:block;background:#0b1013}
+.rivalPic .art{width:100%;height:100%;display:block}
+.heistRow{grid-template-columns:minmax(0,1fr) auto!important}
+.heistPic{grid-column:1/-1;display:block;height:70px;margin:-12px -12px 4px;overflow:hidden;border-bottom:3px solid #05080a;background:#0b1013}
+.heistPic .art{display:block;width:100%;height:100%}
+.heistPlan .heistPic{margin:-4px 0 8px;border:2px solid #1b1a14}
+.mission.locked .heistPic,.mission.locked .rivalPic{filter:grayscale(.8) brightness(.7)}
+@media(max-width:390px){.rivalRow{grid-template-columns:44px minmax(0,1fr)!important}.rivalRow .right{grid-column:1/-1}.rivalPic{width:44px;height:44px}}
+.placeScene{align-self:stretch;width:calc(100% + 24px)}
+.placeScene .art{width:100%;height:100%}
+@media(max-width:390px){.heistRow{grid-template-columns:1fr!important}.heistRow .right{grid-column:1/-1}}

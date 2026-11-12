@@ -1,4 +1,4 @@
-# Validação — Submundo Brasil v1.0
+# Validação — Submundo Brasil v1.1
 
 Tudo abaixo foi **executado** neste ambiente (Node.js + Chromium/Playwright).
 Para reproduzir: `npm test` (build + motor + fuzz + interface), `npm run simulate`
@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**81 de 81 verificações passaram** (v1.0: inclui planejar, reconhecer e executar um assalto pela interface), com **0 erros de console**:
+**84 de 84 verificações passaram** (v1.1: inclui as cenas dos 8 lugares, a troca de uma imagem pintada só na chave certa e as 23 chaves de arte), com **0 erros de console**:
 
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
 - A missão consome energia e mostra o cartão de resultado com as variações.
@@ -56,6 +56,12 @@ milhares de ações): **0 exceções, 0 violações**.
 
 Capturas em `tests/screens/` (revisadas manualmente: legibilidade, hierarquia,
 ausência de cortes).
+
+## 3b. Arte (v1.1)
+
+- Build com um arquivo de teste em `art/place-galpao.png`: o Galpão mostrou a imagem e os outros 7 lugares continuaram em SVG (verificado no navegador). O arquivo de teste foi removido depois.
+- Capturas `tests/screens/v11-*.png` revisadas a 360 px: as cenas preenchem os cartões e a lista de assaltos não espreme o texto.
+- A arte não muda regras: motor, fuzz e simulações são os mesmos da v1.0.
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 
