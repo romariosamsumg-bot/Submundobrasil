@@ -1,4 +1,4 @@
-# Validação — Submundo Brasil v0.8
+# Validação — Submundo Brasil v0.9
 
 Tudo abaixo foi **executado** neste ambiente (Node.js + Chromium/Playwright).
 Para reproduzir: `npm test` (build + motor + fuzz + interface), `npm run simulate`
@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**98 de 98 passaram** (v0.8; 13 novos sobre saúde, internação, hospital e duelos). Cenários cobertos:
+**105 de 105 passaram** (v0.9; 7 novos sobre arsenal, troféu, arma pesada, serviços com exigência de arma, Termas VIP, briga no baile e carcereiro). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**71 de 71 verificações passaram** (v0.8: inclui Cidade, Feira do Rolo, Galpão, noite, Perfil, duelos, hospital e a barra de saúde), com **0 erros de console**:
+**77 de 77 verificações passaram** (v0.9: inclui aviso 18+ na capa e para jogadores antigos, advogado e carcereiro), com **0 erros de console**:
 
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
 - A missão consome energia e mostra o cartão de resultado com as variações.
@@ -59,36 +59,35 @@ ausência de cortes).
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 
-Bots com estratégias fixas jogam temporadas completas. Resultado da **v0.8** em
+Bots com estratégias fixas jogam temporadas completas. Resultado da **v0.9** em
 `node tests/simulate.js 300 2` (300 temporadas por estratégia, médias, em Recife):
 
 | Estratégia | Patrimônio | Respeito | Pontos | Meta | Detenções |
 |---|---|---|---|---|---|
-| Operador farmando missões | 16.263 | 131 | 200 | 40% | 2,7 |
-| Empreendedor com negócios | 18.882 | 119 | 206 | 60% | 2,5 |
-| Articulador territorial | 598 | 132 | 206 | 100% | 1,6 |
-| Articulador diplomata | 1.693 | 106 | 224 | 90% | 2,8 |
-| Bonde (gangue) | 563 | 95 | 164 | 30% | 0,9 |
-| Comerciante (Galpão, produção, remessas) | 11.804 | 117 | 198 | 10% | 3,0 |
-| Operador com arsenal e noite | 16.189 | 126 | 189 | 40% | 3,1 |
-| **Brigão (arsenal, duelos, hospital)** | 15.361 | 139 | 192 | 20% | 2,0 |
-| **Exploit: repetir a melhor e depositar tudo** | 2.126 | 47 | **28** | 0% | **11,0** |
-| Aleatório | 578 | 50 | 58 | 0% | 0,8 |
+| Operador farmando missões | 16.334 | 131 | 202 | 40% | 2,7 |
+| Empreendedor com negócios | 19.612 | 121 | 214 | 60% | 2,6 |
+| Articulador territorial | 563 | 132 | 206 | 100% | 1,6 |
+| Articulador diplomata | 1.676 | 105 | 217 | 90% | 2,8 |
+| Bonde (gangue) | 593 | 95 | 166 | 30% | 1,0 |
+| Comerciante (Galpão, produção, remessas) | 12.210 | 119 | 208 | 20% | 2,9 |
+| Operador com arsenal e noite | 16.563 | 128 | 194 | 40% | 3,0 |
+| Brigão (arsenal, duelos, hospital) | 15.001 | 139 | 186 | 10% | 2,0 |
+| **Exploit: repetir a melhor e depositar tudo** | 2.236 | 47 | **29** | 0% | **11,0** |
+| Aleatório | 620 | 49 | 55 | 0% | 1,0 |
 
 Leitura:
-- Oito estratégias focadas ficam entre 164 e 224 pontos: há **vários caminhos de vitória**.
-- **Duelos (v0.8)**: o brigão vence cerca de 44 duelos por temporada e termina com metade da saúde (44 em média, outra semente). Faz 192 pontos: viável, sem dominar. Os ferimentos quase não mexeram nas outras estratégias (variação de até 10 pontos entre v0.7 e v0.8, dentro do ruído das sementes).
+- **Calibração da v0.9:** com os 5 serviços novos nas recompensas propostas, o farm de missões e os negócios subiram para 224 e 233 pontos (o espaço entre as estratégias foi de 56 para 65). Com mais opções, a penalidade por repetir quase sumia. Recompensas e dificuldade dos 5 serviços novos foram reduzidas; o resultado acima é depois do ajuste (166 a 217).
 - O exploit da 0.4 continua a pior estratégia.
 
-### Especializações — `tests/careers.js` (150 temporadas por célula, v0.8)
+### Especializações — `tests/careers.js` (150 temporadas por célula, v0.9)
 
 | Estratégia | Operador | Articulador | Empreendedor |
 |---|---|---|---|
-| Missões | **210** | 200 | 175 |
-| Negócios | **210** | 179 | 208 |
-| Território | 203 | **205** | 202 |
-| Diplomacia | 204 | **225** | 163 |
-| Gangue | 171 | **182** | 142 |
+| Missões | **206** | 188 | 174 |
+| Negócios | **209** | 174 | 200 |
+| Território | 202 | **206** | 200 |
+| Diplomacia | 197 | **227** | 166 |
+| Gangue | 159 | **166** | 161 |
 
 ### Cidades (medido na v0.6; não refeito na v0.7)
 

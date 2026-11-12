@@ -101,7 +101,7 @@ const STRATEGIES = {
     bail(s); handleNews(s);
     for (const id of ['soco', 'jaqueta', 'peixeira', 'colete', 'trezoitao', 'pistola']) if (s.gear[SB.item(id).slot] !== id && s.cash > SB.item(id).cost * 3 && (SB.item(s.gear[SB.item(id).slot]) || { cost: 0 }).cost < SB.item(id).cost) SB.perform(s, 'buyItem', id);
     grind(s, 55, 0);
-    for (let i = 0; i < 2; i++) if (s.cash > 2500 && s.energy < 55 && !s.jail) { SB.perform(s, 'night', 'inferninho'); grind(s, 55, 0); }
+    for (let i = 0; i < 2; i++) if (s.cash > 2500 && s.energy < 55 && !s.jail) { SB.perform(s, 'night', 'baile'); grind(s, 55, 0); }
     trainBest(s, 'astucia', 1200); bankSurplus(s, 900); } },
   brigao: { career: 'operador', goal: 'renome', day(s) {
     // Arma e proteção, duelos contra o melhor adversário com boa chance, hospital quando precisa.

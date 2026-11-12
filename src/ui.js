@@ -1,5 +1,5 @@
 /* =====================================================================
- * SUBMUNDO BRASIL — INTERFACE v0.8
+ * SUBMUNDO BRASIL — INTERFACE v0.9
  * Responsável por: persistência (localStorage, backup, importação e
  * exportação), renderização das telas e tratamento dos cliques.
  * Todas as regras ficam em window.SB (motor). Esta camada só chama
@@ -191,7 +191,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function exportSave() {
-    download(`submundo-brasil-v0.8-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
+    download(`submundo-brasil-v0.9-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
     notify('Cópia da carreira preparada para download.');
   }
   async function importFile(file, fromWelcome) {
@@ -290,8 +290,9 @@
     if (state.hospital > 0) return `<div class="notice error tape"><strong>INTERNADO · ${state.hospital} dia(s)</strong> Você não pode sair para serviços, treinos, viagens, duelos ou negócios. Banco, gangue (decisões) e notícias continuam. A saúde volta +15 por dia.<div class="inlineBtns">${nextDayButton('small')}</div></div>`;
     if (state.jail <= 0) return '';
     const c = SB.bailCost(state);
-    return `<div class="notice error tape"><strong>DETIDO · ${state.jail} dia(s)</strong> Missões, treinos, viagens e negócios ficam bloqueados; o banco continua disponível.
-      <div class="inlineBtns">${button(`Pagar fiança · ${fmt(c)}`, 'bail', '', state.cash < c, 'small danger')}${nextDayButton('small')}</div></div>`;
+    const bc = SB.bribeCost(state);
+    return `<div class="notice error tape"><strong>NA CADEIA · ${state.jail} dia(s)</strong> Missões, treinos, viagens e negócios ficam bloqueados; o banco continua disponível.
+      <div class="inlineBtns">${button(`Advogado de porta de cadeia · ${fmt(c)}`, 'bail', '', state.cash < c, 'small danger')}${button(`Molhar a mão do carcereiro · ${fmt(bc)}`, 'bribe', '', state.cash < bc || state.today.bribe, 'small ghost')}${nextDayButton('small')}</div><p class="mini" style="margin:6px 0 0">O advogado é garantido. O carcereiro é mais barato, mas pode te dedurar (+1 dia).</p></div>`;
   }
   function nextDayButton(cls = '') {
     if (state.day >= MAXDAY) return button('Encerrar temporada', 'switch', 'data-target="temporada"', false, 'primary ' + cls);
@@ -359,7 +360,7 @@
   function helpPages() {
     const c = state ? SB.cityOf(state.city) : SB.CITIES[0];
     return [
-      ['O objetivo', `<p>Você chega a <strong>${esc(c.name)}</strong> com pouco dinheiro e nenhum nome. Tem <strong>30 dias</strong> (uma temporada) para virar alguém.</p>
+      ['O objetivo', `<p><b class="age18">18+</b> Ficção adulta: crime, violência, drogas e linguagem pesada.</p><p>Você chega a <strong>${esc(c.name)}</strong> com pouco dinheiro e nenhum nome. Tem <strong>30 dias</strong> (uma temporada) para virar alguém.</p>
         <p>No fim, sua temporada recebe pontos e medalhas em <strong>seis caminhos</strong>: Fortuna, Fama, Território, Diplomacia, Gangue e Comércio. Não precisa ser bom em tudo: escolha um ou dois e vá fundo.</p>
         <p>Os títulos vão de <em>Aprendiz da rua</em> a <em>Lenda do Submundo</em>. O cartão <strong>Seu rumo</strong>, no Início, mostra sempre o próximo título e a medalha mais próxima.</p>`],
       ['Seu dia', `<p>Tudo gasta <strong>energia</strong> (barra verde). Um dia típico:</p>
@@ -621,7 +622,7 @@
     </div><p class="quiet" style="margin-top:12px">Treinos e serviços ficam na aba Serviços. Sua ficha, na aba Perfil. ${esc(g.name)} é o que o comprador de fora quer no dia ${deal.day}.</p>`;
   }
   function itemEffect(it) {
-    if (it.slot === 'arma') return `Poder ${it.power}: confrontos +${it.power}, operações +${Math.round(it.power * .6)}, serviços de Força +${Math.round(it.power * .5)}${it.power >= 7 ? ' · arma de fogo: +1 dia se for detido' : ''}`;
+    if (it.slot === 'arma') return `Poder ${it.power}: confrontos +${it.power}, operações +${Math.round(it.power * .6)}, serviços de Força +${Math.round(it.power * .5)}${it.power >= 7 ? ' · arma de fogo: +1 dia se for detido' : ''}${it.heavy ? ' · pesada: +3 de vigilância por dia' : ''}`;
     if (it.slot === 'protecao') return `Defesa ${it.def}: chance de detenção -${it.def}`;
     return `Carga +${it.cargo} · fuga ${it.escape} (detenção e blitz)${it.freeRide ? ' · viagem sem gastar energia' : ''}`;
   }
@@ -629,8 +630,8 @@
     const s = state;
     return heading('Feira do Rolo', 'Tudo tem dono novo aqui. Um item por espaço; o antigo volta por metade do preço.') + jailNotice() + resultCard() +
       SB.SLOTS.map(sl => { const cur = SB.item(s.gear[sl.id]), back = cur ? Math.round(cur.cost * SB.ITEM_RESALE) : 0;
-        return stencil(sl.name, cur ? 'em uso: ' + esc(cur.name) : 'nada equipado') + `<div class="grid">` + SB.ITEMS.filter(i => i.slot === sl.id).map(it => { const mine = s.gear[sl.id] === it.id, net = it.cost - back, locked = s.respect < it.unlock;
-          return `<section class="card shopRow ${mine ? 'mine' : ''} ${locked ? 'locked' : ''}"><div><h3>${esc(it.name)}${mine ? ' <span class="pill">Em uso</span>' : ''}</h3><p class="mini">${esc(itemEffect(it))}</p>${locked ? `<div class="lockline">Requer ${it.unlock} de respeito.</div>` : ''}</div>
+        return stencil(sl.name, cur ? 'em uso: ' + esc(cur.name) : 'nada equipado') + `<div class="grid">` + SB.ITEMS.filter(i => i.slot === sl.id).map(it => { const mine = s.gear[sl.id] === it.id, net = it.cost - back, locked = s.respect < it.unlock || (it.trophy && !s.achievements[it.trophy]);
+          return `<section class="card shopRow ${mine ? 'mine' : ''} ${locked ? 'locked' : ''}"><div><h3>${esc(it.name)}${mine ? ' <span class="pill">Em uso</span>' : ''}</h3><p class="mini">${esc(itemEffect(it))}</p>${locked ? `<div class="lockline">${it.trophy && !s.achievements[it.trophy] ? 'Troféu: só para quem venceu o Rei do Pedaço.' : `Requer ${it.unlock} de respeito.`}</div>` : ''}</div>
             <div class="shopAct"><strong>${fmt(it.cost)}</strong>${cur && !mine ? `<span class="mini">na troca: ${fmt(Math.max(0, net))}</span>` : ''}${mine ? '' : button('Comprar', 'buy-item', `data-id="${it.id}"`, locked || s.cash < net || s.jail > 0, 'small primary')}</div></section>`; }).join('') + `</div>`; }).join('');
   }
   function maxBuy(g) { const s = state; let q = Math.max(0, SB.cargoCap(s) - SB.cargoUsed(s)); while (q > 0 && SB.buyTotal(s, g, q) > s.cash) q = Math.floor(q * .9) - (q < 10 ? 1 : 0); return Math.max(0, q); }
@@ -658,8 +659,8 @@
     return heading('Vida noturna', 'Dinheiro vira energia para agir mais hoje. A conta chega amanhã, na ressaca.') + jailNotice() + resultCard() + `
       <section class="card"><div class="kv"><div><span>Saídas hoje</span><strong>${s.today.night}/2</strong></div><div><span>Ressaca amanhã</span><strong>-${s.ressaca} de energia</strong></div></div></section>
       <div class="grid" style="margin-top:10px">${SB.NIGHT.map(n => { const c = SB.nightCost(s, n);
-        return `<section class="card shopRow"><div><h3>${esc(n.id === 'baile' ? SB.mission('baile').name.replace('Bastidores d', 'Noite d') : n.name)}</h3><p class="mini">${esc(n.desc)}</p><p class="mini"><strong>+${n.energy} de energia</strong> · ressaca -${n.ressaca}${n.morale ? ` · equipe +${n.morale} de ânimo` : ''}${n.heat ? ` · +${n.heat} de vigilância` : ''}${n.mingle ? ' · chance de contatos ou de confusão' : ''}</p></div>
-          <div class="shopAct"><strong>${fmt(c)}</strong>${button('Ir', 'night', `data-id="${n.id}"`, s.cash < c || s.today.night >= 2 || s.energy >= 100 || s.jail > 0, 'small primary')}</div></section>`; }).join('')}</div>
+        return `<section class="card shopRow"><div><h3>${esc(n.name)}${n.unlock && s.respect < n.unlock ? ` <span class="pill">Requer ${n.unlock} de respeito</span>` : ''}</h3><p class="mini">${esc(n.desc)}</p><p class="mini"><strong>${n.energy >= 100 ? 'energia cheia' : '+' + n.energy + ' de energia'}</strong> · ressaca -${n.ressaca}${n.morale ? ` · equipe +${n.morale} de ânimo` : ''}${n.heat ? ` · +${n.heat} de vigilância` : ''}${n.contact ? ` · ${n.contact}% de firmar contatos` : ''}${n.brawl ? ` · <span class="negative">${n.brawl}% de briga (fere)</span>` : ''}${n.boss ? ' · sem risco · relação +5 com quem manda no bairro' : ''}</p></div>
+          <div class="shopAct"><strong>${fmt(c)}</strong>${button('Ir', 'night', `data-id="${n.id}"`, s.cash < c || s.today.night >= 2 || s.energy >= 100 || !!SB.blocked(s) || (n.unlock && s.respect < n.unlock), 'small primary')}</div></section>`; }).join('')}</div>
       <p class="mini" style="margin-top:6px">A segunda saída do dia custa 50% a mais.</p>`;
   }
 
@@ -682,8 +683,8 @@
       <section class="card"><div class="meterlabel"><span>Saúde</span><strong>${s.health}/100</strong></div><div class="meter green"><div style="width:${s.health}%"></div></div>
         <p class="mini" style="margin-top:7px">Volta sozinha +10 por dia (+6 se detido). Se chegar a zero, você é internado por 2 dias e paga a conta.${SB.healthPenalty(s) ? ` <span class="negative">Agora: -${SB.healthPenalty(s)} de chance nas ações.</span>` : ''}</p></section>
       <div class="grid" style="margin-top:10px">
-        <section class="card shopRow"><div><h3>Posto de saúde</h3><p class="mini">Atendimento gratuito, mas a fila é longa. +25 de saúde, uma vez por dia.</p></div><div class="shopAct"><strong>20 energia</strong>${button('Entrar na fila', 'clinic', 'data-id="posto"', s.health >= 100 || s.today.clinic || s.energy < 20 || !!SB.blocked(s), 'small primary')}</div></section>
-        <section class="card shopRow"><div><h3>Clínica particular</h3><p class="mini">Sai novo na hora. ${fmt(12)} por ponto de saúde que falta.</p></div><div class="shopAct"><strong>${fmt(c)}</strong>${button('Pagar e curar', 'clinic', 'data-id="clinica"', s.health >= 100 || s.cash < c || !!SB.blocked(s), 'small primary')}</div></section>
+        <section class="card shopRow"><div><h3>UPA</h3><p class="mini">De graça, mas é horas no corredor. +25 de saúde, uma vez por dia.</p></div><div class="shopAct"><strong>20 energia</strong>${button('Encarar o corredor', 'clinic', 'data-id="posto"', s.health >= 100 || s.today.clinic || s.energy < 20 || !!SB.blocked(s), 'small primary')}</div></section>
+        <section class="card shopRow"><div><h3>Propina pro plantonista</h3><p class="mini">Atestado, remédio e alta na hora. ${fmt(12)} por ponto de saúde que falta.</p></div><div class="shopAct"><strong>${fmt(c)}</strong>${button('Molhar a mão', 'clinic', 'data-id="clinica"', s.health >= 100 || s.cash < c || !!SB.blocked(s), 'small primary')}</div></section>
       </div>`;
   }
   function perfil() {
@@ -703,7 +704,7 @@
     SB.applyCity(state.city);
     const pages = { painel: panel, acoes: actions, hub, cidade: city, gestao: management, feira, galpao, noite, duelos, hospital, gangue: gang, perfil, temporada: seasons };
     try {
-      $('#content').innerHTML = (pages[view] || panel)() + `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • Cidades reais, bairros e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`;
+      $('#content').innerHTML = (pages[view] || panel)() + `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • 18+ • Cidades reais, bairros e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`;
     } catch (e) {
       console.error(e);
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
@@ -762,6 +763,7 @@
       case 'gig': run('gig'); break;
       case 'lay-low': run('layLow'); break;
       case 'bail': run('bail'); break;
+      case 'bribe': run('bribe'); break;
       case 'career': if (confirm('A especialização vale para toda a temporada. Confirmar?')) run('career', id); break;
       case 'goal': run('goal', id); break;
       case 'news': run('news', id, Number(btn.dataset.choice)); break;
@@ -794,11 +796,13 @@
   document.addEventListener('change', e => { if (e.target.id === 'importFile') importFile(e.target.files && e.target.files[0], false); if (e.target.id === 'welcomeImportFile') importFile(e.target.files && e.target.files[0], true); });
   document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'bankAmount') { e.preventDefault(); run('bank', 'deposit', Number(e.target.value)); } });
   $('#menuToggle').addEventListener('click', () => { const open = $('#sidebar').classList.toggle('open'); $('#menuToggle').setAttribute('aria-expanded', String(open)); });
-  $('#welcomeImport').addEventListener('click', () => $('#welcomeImportFile').click());
+  $('#welcomeImport').addEventListener('click', () => { if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true); ageConfirm(); $('#welcomeImportFile').click(); });
   $('#newGameForm').addEventListener('submit', e => {
     e.preventDefault();
     const name = $('#playerName').value.trim().replace(/\s+/g, ' ');
     if (name.length < 2 || name.length > 22) return notify('Escolha um codinome entre 2 e 22 caracteres.', true);
+    if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true);
+    ageConfirm();
     state = SB.defaultState(name, $('#homeCity').value); view = 'painel'; result = null;
     $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); save(); render(); openHelp(0);
   });
@@ -832,7 +836,17 @@
     $('#welcome').classList.remove('hidden'); $('#playerName').focus();
   }
 
+  /* Aviso 18+: confirmado uma vez por navegador. */
+  const AGE_KEY = 'submundo_brasil_18';
+  function ageConfirmed() { try { return localStorage.getItem(AGE_KEY) === '1'; } catch (e) { return false; } }
+  function ageConfirm() { try { localStorage.setItem(AGE_KEY, '1'); } catch (e) { /* sem armazenamento */ } }
+  function ageGate() {
+    $('#helpBox').innerHTML = `<div class="helpHead"><span>Aviso</span></div><h2 id="helpTitle"><b class="age18">18+</b> Conteúdo adulto</h2><div class="helpBody" style="min-height:0"><p>Submundo Brasil é um jogo para maiores de 18 anos, com crime, violência, drogas, armas e linguagem pesada. Tudo é ficção: nenhum texto ensina a fazer nada no mundo real.</p></div><div class="helpBtns"><span></span>${button('Tenho 18 anos ou mais', 'age-ok', '', false, 'primary')}</div>`;
+    $('#help').classList.remove('hidden');
+  }
+  document.addEventListener('click', e => { if (e.target.closest('[data-action="age-ok"]')) { ageConfirm(); closeHelp(); } });
+
   state = load();
-  if (state) { save(); render(); } else showWelcome();
+  if (state) { save(); render(); if (!ageConfirmed()) ageGate(); } else showWelcome();
   window.__SB_UI = { get state() { return state; }, go: switchView }; // apoio a testes automatizados
 })();

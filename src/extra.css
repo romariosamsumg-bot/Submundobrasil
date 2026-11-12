@@ -340,3 +340,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 .place.p-duelos{background:linear-gradient(160deg,#3a2a1c,#161d22 70%)}.place.p-hospital{background:linear-gradient(160deg,#1c2f3a,#161d22 70%)}
 @media(max-width:400px){.hudBar b{font-size:9px;letter-spacing:.03em;padding:0 5px}}
 @media(prefers-reduced-motion:reduce){.hudBar.hp.alert{animation:none!important}}
+
+/* ===== v0.9: aviso 18+ ===== */
+.ageGate{display:flex;gap:9px;align-items:flex-start;margin:12px 0 4px;padding:10px 11px;border:1px solid #7d4845;background:#2a1719;border-radius:4px;font-size:12px;line-height:1.45;color:#f0d6d2;cursor:pointer;text-align:left}
+.ageGate input{width:20px;height:20px;flex:none;margin-top:1px;accent-color:#e0ab61}
+.age18{display:inline-block;background:#b8402f;color:#fff;font:800 11px/1 system-ui,sans-serif;padding:3px 5px;border-radius:3px;margin-right:4px;vertical-align:1px;letter-spacing:.02em}

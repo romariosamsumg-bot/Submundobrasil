@@ -1,4 +1,4 @@
-# Submundo Brasil — Game Design (v0.8)
+# Submundo Brasil — Game Design (v0.9)
 
 Documento de referência das mecânicas. Os números aqui são os do código em
 `src/engine.js`. Se você mudar um valor no código, atualize este documento.
@@ -275,6 +275,8 @@ aliado pede apoio" só com aliança).
 
 ## 10. Limites éticos e de conteúdo
 
+> **Atualizado na v0.9:** o jogo passou a ser adulto (18+) por decisão do autor. Ver §16. O parágrafo abaixo é o texto original da 0.5.
+
 Todas as ações são abstratas ("Operação no depósito", "Rolo na feira"), sem
 métodos, ferramentas ou instruções aplicáveis à realidade. Bairros, facções e
 pessoas são fictícios. Não há monetização.
@@ -459,3 +461,62 @@ Até 3 por dia, 15 de energia cada. Adversários são personagens inventados:
 - **Custo**: +1 de vigilância por duelo (+4 com arma de fogo) e +3 de vigilância local.
 - É o uso direto das armas e proteções da Feira do Rolo.
 - Conquistas novas: **Nome na roda** (10 vitórias) e **Destronou o rei** (vencer o Rei do Pedaço).
+
+---
+
+## 16. Linha adulta: arsenal, serviços, noite e cadeia (v0.9)
+
+O jogo é **18+**: crime, armas, drogas e linguagem pesada, com aviso obrigatório
+na capa (caixa de confirmação) e, para quem já jogava, um aviso único na primeira
+abertura. A linha que permanece: **nenhum texto ensina a fazer** algo no mundo real.
+
+### Arsenal (Feira do Rolo)
+Itens antigos mantêm o código interno (saves continuam válidos); alguns só mudaram de nome.
+
+| Arma | Preço · respeito | Poder | Observação |
+|---|---|---|---|
+| Pedaço de pau com prego | 120 · 0 | 1 | |
+| Chave de fenda amolada | 300 · 0 | 2 | antes "Soco-inglês" |
+| Vergalhão de obra | 500 · 8 | 3 | |
+| Facão | 750 · 15 | 4 | antes "Peixeira" |
+| Maquita | 1.200 · 25 | 5 | libera "Caixa eletrônico na maquita" |
+| Três-oitão raspado | 1.700 · 35 | 7 | primeira arma de fogo: libera a lotérica |
+| Pistola .40 | 3.300 · 60 | 9 | |
+| Doze de cano serrado | 4.800 · 80 | 11 | |
+| Uzi de pente estendido | 6.500 · 100 | 13 | |
+| Submetralhadora | 8.000 · 115 | 14 | |
+| FAL 7.62, o Vovô | 9.200 · 130 | 16 | |
+| Fuzil AR-15 | 12.000 · 150 | 18 | pesada |
+| Ponto Cinquenta | 18.000 · 175 | 21 | pesada |
+| Metralhadora MAG | 24.000 · 200 | 24 | pesada |
+| Lança-rojão | 30.000 · 220 | 26 | pesada |
+| Fuzil dourado de tambor duplo | 30.000 · 150 | 26 | pesada; **troféu**: só depois de vencer o Rei do Pedaço (não se compra vantagem) |
+
+- Arma de fogo (poder ≥ 7): +1 dia se for preso; +4 de vigilância por duelo.
+- **Arma pesada**: +3 de vigilância todo dia enquanto estiver equipada.
+
+| Proteção | Preço · respeito | Defesa |
+|---|---|---|
+| Lista telefônica com silver tape | 150 · 0 | 1 |
+| Camisa de time na cara e jaqueta de couro | 400 · 0 | 2 |
+| Colete de vigilante vencido | 1.500 · 30 | 5 |
+| Colete de kevlar da polícia | 2.800 · 60 | 7 |
+| Colete tático com placa de cerâmica | 4.200 · 90 | 9 |
+| Traje tático com escudo balístico | 8.000 · 140 | 12 |
+
+### Serviços renomeados e novos
+- Renomeados (mesmas regras): Bater carteira, Celular no ponto de ônibus, Mercadinho Dois Irmãos, Caminhão de carga na rodovia, Carro-forte na serra.
+- Novos: **Fiação de cobre** (Astúcia, fácil), **Barraquinha de pastel** (Força, fácil), **Clonar cartão de velho rico** (Lábia, 40 de respeito), **Caixa eletrônico na maquita** (Astúcia, 45, exige arma de poder 5) e **Casa lotérica** (Força, 60, exige arma de fogo). As recompensas foram calibradas para não inflar o farm (ver VALIDATION).
+
+### Noite
+| Lugar | Custo | Energia | Ressaca | Extra |
+|---|---|---|---|---|
+| Boteco do Zé | R$ 40 | +12 | −3 | — |
+| Pagode na laje | R$ 120 | +22 | −5 | equipe +4; 60% de firmar contatos (+influência) |
+| Baile de favela | R$ 160 | +38 | −8 | equipe +3; +2 de vigilância; **22% de briga com gangue rival (fere)** |
+| Termas VIP | R$ 900 | energia cheia | −4 | exige 60 de respeito; sem risco; negócio fechado com quem manda no bairro (relação +5) |
+
+### Hospital e cadeia
+- **UPA** (antes posto de saúde) e **Propina pro plantonista** (antes clínica): mesmas regras.
+- **Advogado de porta de cadeia** (antes fiança): sai na hora, garantido.
+- **Molhar a mão do carcereiro**: 45% do preço do advogado, uma tentativa por dia; chance `55 + Lábia − vigilância × 0,3` (15–85%). Se der errado, +1 dia e +8 de vigilância.

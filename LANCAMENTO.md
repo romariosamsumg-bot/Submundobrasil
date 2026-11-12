@@ -23,7 +23,7 @@ reais antes de investir no B.
 2. **Rejogabilidade limitada.** A segunda temporada é parecida com a primeira: mesmas 13 missões, mesmos 15 eventos, mesmas 3 facções. Cidade e carreira mudam números, não a história.
 3. **Pouca narrativa.** Não há personagens com nome e voz (um rival, um padrinho, um delegado), nem missões em cadeia. Falta "história para contar".
 4. **Sem som.** Jogo mudo parece protótipo.
-5. **Tema sensível.** Crime no Brasil é assunto real e doloroso. O jogo é abstrato e usa bairros inventados, mas a divulgação e as lojas vão exigir cuidado com tom, faixa etária e texto.
+5. **Tema sensível (decidido na v0.9: jogo 18+ com aviso obrigatório).** Crime no Brasil é assunto real e doloroso. O jogo é abstrato e usa bairros inventados, mas a divulgação e as lojas vão exigir cuidado com tom, faixa etária e texto.
 
 ## 2. Bloqueadores do lançamento A (jogo solo na web)
 

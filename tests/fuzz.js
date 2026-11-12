@@ -22,7 +22,7 @@ for(let season=0;season<Number(process.argv[3]||20);season++){
   if(a==='buyItem')args=[SB.ITEMS[SB.rand(0,SB.ITEMS.length-1)].id];
   if(['buyGood','sellGood'].includes(a))args=[SB.GOODS[SB.rand(0,5)].id,SB.rand(1,30)];
   if(a==='buildLab')args=[SB.LABS[SB.rand(0,2)].id];
-  if(a==='night')args=[SB.NIGHT[SB.rand(0,2)].id];
+  if(a==='night')args=[SB.NIGHT[SB.rand(0,SB.NIGHT.length-1)].id];
   if(a==='career')args=[SB.CAREERS[SB.rand(0,2)].id];
   if(a==='goal')args=[SB.GOALS[SB.rand(0,4)].id];
   if(a==='news')args=[s.newsPending?.id,SB.rand(0,1)];

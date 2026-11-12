@@ -1,5 +1,5 @@
 /* =====================================================================
- * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.8
+ * SUBMUNDO BRASIL — MOTOR DE REGRAS v0.9
  * ---------------------------------------------------------------------
  * Este módulo NÃO acessa o DOM. Ele contém:
  *   1. Utilitários e gerador aleatório (substituível nos testes).
@@ -14,12 +14,13 @@
  * ação for permitida e devolvem { ok, good, msg, lines? }.
  *   ok=false  → ação recusada, estado intacto.
  *   ok=true   → ação executada; good indica sucesso (true) ou fracasso.
- * Todo o conteúdo é fictício e abstrato: não há instruções reais.
+ * Conteúdo adulto (18+) e ficcional: nomes, riscos e recompensas dão o clima,
+ * mas nenhum texto descreve como fazer algo no mundo real.
  * ===================================================================== */
 (function (root) {
   'use strict';
 
-  const VERSION = '0.8';
+  const VERSION = '0.9';
   const SCHEMA = 2;
   const MAXDAY = 30;
   const MAX_LOG = 60;
@@ -79,14 +80,19 @@
   /* Missões: `stat` define o atributo principal; `district` limita a um bairro.
      difficulty está na escala do "preparo" (ver missionScore). */
   const MISSIONS = [
-    { id: 'correria', name: 'Serviço suspeito', desc: 'Uma oportunidade duvidosa para quem está começando.', stat: 'astucia', difficulty: 14, cost: 16, low: 150, high: 290, heat: 6, vigil: 5, respect: 2, unlock: 0, arrest: 28, loss: .10, tension: 1 },
+    { id: 'correria', name: 'Bater carteira', desc: 'Horário de pico, ônibus lotado e mão leve. O primeiro trocado de todo mundo.', stat: 'astucia', difficulty: 14, cost: 16, low: 150, high: 290, heat: 6, vigil: 5, respect: 2, unlock: 0, arrest: 28, loss: .10, tension: 1 },
     { id: 'rolo', name: 'Rolo na feira', desc: 'Convencer um atravessador fictício a fechar negócio fora da tabela.', stat: 'labia', difficulty: 16, cost: 18, low: 190, high: 340, heat: 3, vigil: 3, respect: 2, unlock: 6, arrest: 18, loss: .06, tension: 1 },
-    { id: 'mercadoria', name: 'Mercadoria desaparecida', desc: 'Um intermediário paga para reaver uma carga extraviada.', stat: 'forca', difficulty: 19, cost: 23, low: 300, high: 560, heat: 10, vigil: 7, respect: 3, unlock: 0, arrest: 38, loss: .12, tension: 2 },
+    { id: 'mercadoria', name: 'Celular no ponto de ônibus', desc: 'Lucro rápido na revenda de peças. Às vezes a vítima reage.', stat: 'forca', difficulty: 19, cost: 23, low: 300, high: 560, heat: 10, vigil: 7, respect: 3, unlock: 0, arrest: 38, loss: .12, tension: 2 },
     { id: 'cobranca', name: 'Cobrança atrasada', desc: 'Um comerciante quer receber uma dívida antiga. Exige presença.', stat: 'forca', difficulty: 27, cost: 26, low: 420, high: 740, heat: 12, vigil: 6, respect: 4, unlock: 20, arrest: 38, loss: .10, tension: 3 },
-    { id: 'deposito', name: 'Operação no depósito', desc: 'Um plano maior, com mais recompensa e mais vigilância.', stat: 'astucia', difficulty: 33, cost: 32, low: 580, high: 980, heat: 15, vigil: 10, respect: 5, unlock: 32, arrest: 44, loss: .12, tension: 3 },
+    { id: 'deposito', name: 'Mercadinho Dois Irmãos', desc: 'Limpar o caixa antes que o dono puxe o que guarda debaixo do balcão.', stat: 'astucia', difficulty: 33, cost: 32, low: 580, high: 980, heat: 15, vigil: 10, respect: 5, unlock: 32, arrest: 44, loss: .12, tension: 3 },
     { id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', stat: 'labia', difficulty: 37, cost: 30, low: 680, high: 1120, heat: 8, vigil: 6, respect: 6, unlock: 50, req: { influence: 25 }, arrest: 28, loss: .08, tension: 2 },
-    { id: 'comboio', name: 'Comboio misterioso', desc: 'Uma operação de alto risco que exige gente de confiança.', stat: 'forca', difficulty: 46, cost: 40, low: 1050, high: 1750, heat: 19, vigil: 12, respect: 8, unlock: 75, req: { gang: true }, arrest: 50, loss: .14, tension: 5 },
-    { id: 'cofre', name: 'O grande cofre', desc: 'A missão mais difícil da temporada. Uma vez por dia.', stat: 'astucia', difficulty: 58, cost: 52, low: 1900, high: 3100, heat: 26, vigil: 18, respect: 13, unlock: 120, req: { stat: ['astucia', 22], oncePerDay: true }, arrest: 55, loss: .15, tension: 6 },
+    { id: 'comboio', name: 'Caminhão de carga na rodovia', desc: 'Fechar a pista e levar a carga fechada. Só com o bonde junto.', stat: 'forca', difficulty: 46, cost: 40, low: 1050, high: 1750, heat: 19, vigil: 12, respect: 8, unlock: 75, req: { gang: true }, arrest: 50, loss: .14, tension: 5 },
+    { id: 'cofre', name: 'Carro-forte na serra', desc: 'O serviço mais pesado da temporada. Uma vez por dia.', stat: 'astucia', difficulty: 58, cost: 52, low: 1900, high: 3100, heat: 26, vigil: 18, respect: 13, unlock: 120, req: { stat: ['astucia', 22], oncePerDay: true }, arrest: 55, loss: .15, tension: 6 },
+    { id: 'fiacao', name: 'Fiação de cobre', desc: 'Pouco confronto, mas a guarda municipal ronda e o cobre vale pouco.', stat: 'astucia', difficulty: 17, cost: 18, low: 110, high: 190, heat: 4, vigil: 4, respect: 1, unlock: 3, arrest: 24, loss: .06, tension: 1 },
+    { id: 'pastel', name: 'Barraquinha de pastel', desc: 'O dinheiro do caldo de cana e o primeiro respeito de verdade na rua.', stat: 'forca', difficulty: 17, cost: 19, low: 130, high: 230, heat: 7, vigil: 6, respect: 3, unlock: 2, arrest: 30, loss: .08, tension: 2 },
+    { id: 'caixa', name: 'Caixa eletrônico na maquita', desc: 'Posto de gasolina afastado, barulho alto e notas que podem queimar.', stat: 'astucia', difficulty: 38, cost: 36, low: 560, high: 940, heat: 17, vigil: 14, respect: 5, unlock: 45, req: { power: 5 }, arrest: 46, loss: .12, tension: 3 },
+    { id: 'loterica', name: 'Casa lotérica', desc: 'Fila cheia, malote de dinheiro vivo e risco de policial à paisana.', stat: 'forca', difficulty: 42, cost: 36, low: 660, high: 1080, heat: 18, vigil: 12, respect: 6, unlock: 60, req: { power: 7 }, arrest: 48, loss: .12, tension: 4 },
+    { id: 'cartao', name: 'Clonar cartão de velho rico', desc: 'Lábia e paciência. Golpe limpo, mas a vítima um dia percebe.', stat: 'labia', difficulty: 35, cost: 30, low: 500, high: 820, heat: 6, vigil: 4, respect: 4, unlock: 40, arrest: 26, loss: .06, tension: 1 },
     // Oportunidades exclusivas de bairro
     { id: 'camelodromo', district: 'centro', name: 'Esquema do camelódromo', desc: 'Organizar a revenda de um lote sem nota no comércio popular.', stat: 'labia', difficulty: 23, cost: 22, low: 330, high: 560, heat: 7, vigil: 8, respect: 3, unlock: 10, arrest: 30, loss: .08, tension: 2 },
     { id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Uma carga esquecida nos galpões. O grupo que manda ali não vai gostar.', stat: 'forca', difficulty: 29, cost: 28, low: 560, high: 900, heat: 12, vigil: 10, respect: 4, unlock: 15, arrest: 40, loss: .12, tension: 5 },
@@ -203,15 +209,31 @@
    * ------------------------------------------------------------------ */
   /* Equipamentos: um por espaço (arma, proteção, veículo). `unlock` é o respeito exigido. */
   const ITEMS = [
-    { id: 'soco', slot: 'arma', name: 'Soco-inglês', cost: 300, unlock: 0, power: 2 },
-    { id: 'peixeira', slot: 'arma', name: 'Peixeira', cost: 750, unlock: 15, power: 4 },
-    { id: 'trezoitao', slot: 'arma', name: 'Três-oitão', cost: 1700, unlock: 35, power: 7 },
-    { id: 'pistola', slot: 'arma', name: 'Pistola', cost: 3300, unlock: 70, power: 10 },
-    { id: 'doze', slot: 'arma', name: 'Doze', cost: 5600, unlock: 110, power: 13 },
-    { id: 'fuzil', slot: 'arma', name: 'Fuzil', cost: 9200, unlock: 160, power: 17 },
-    { id: 'jaqueta', slot: 'protecao', name: 'Jaqueta de couro', cost: 400, unlock: 0, def: 2 },
-    { id: 'colete', slot: 'protecao', name: 'Colete usado', cost: 1500, unlock: 30, def: 5 },
-    { id: 'tatico', slot: 'protecao', name: 'Colete tático', cost: 4200, unlock: 90, def: 9 },
+    // Armas: do improviso ao arsenal pesado. `loud` = arma de fogo; `heavy` = chama atenção todo dia.
+    { id: 'porrete', slot: 'arma', name: 'Pedaço de pau com prego', cost: 120, unlock: 0, power: 1 },
+    { id: 'soco', slot: 'arma', name: 'Chave de fenda amolada', cost: 300, unlock: 0, power: 2 },
+    { id: 'vergalhao', slot: 'arma', name: 'Vergalhão de obra', cost: 500, unlock: 8, power: 3 },
+    { id: 'peixeira', slot: 'arma', name: 'Facão', cost: 750, unlock: 15, power: 4 },
+    { id: 'maquita', slot: 'arma', name: 'Maquita', cost: 1200, unlock: 25, power: 5 },
+    { id: 'trezoitao', slot: 'arma', name: 'Três-oitão raspado', cost: 1700, unlock: 35, power: 7 },
+    { id: 'pistola', slot: 'arma', name: 'Pistola .40', cost: 3300, unlock: 60, power: 9 },
+    { id: 'doze', slot: 'arma', name: 'Doze de cano serrado', cost: 4800, unlock: 80, power: 11 },
+    { id: 'uzi', slot: 'arma', name: 'Uzi de pente estendido', cost: 6500, unlock: 100, power: 13 },
+    { id: 'submetra', slot: 'arma', name: 'Submetralhadora', cost: 8000, unlock: 115, power: 14 },
+    { id: 'fuzil', slot: 'arma', name: 'FAL 7.62, o Vovô', cost: 9200, unlock: 130, power: 16 },
+    { id: 'ar15', slot: 'arma', name: 'Fuzil AR-15', cost: 12000, unlock: 150, power: 18, heavy: true },
+    { id: 'ponto50', slot: 'arma', name: 'Ponto Cinquenta', cost: 18000, unlock: 175, power: 21, heavy: true },
+    { id: 'mag', slot: 'arma', name: 'Metralhadora MAG', cost: 24000, unlock: 200, power: 24, heavy: true },
+    { id: 'rojao', slot: 'arma', name: 'Lança-rojão', cost: 30000, unlock: 220, power: 26, heavy: true },
+    { id: 'dourado', slot: 'arma', name: 'Fuzil dourado de tambor duplo', cost: 30000, unlock: 150, power: 26, heavy: true, trophy: 'reidopedaco' },
+    // Proteção
+    { id: 'lista', slot: 'protecao', name: 'Lista telefônica com silver tape', cost: 150, unlock: 0, def: 1 },
+    { id: 'jaqueta', slot: 'protecao', name: 'Camisa de time na cara e jaqueta de couro', cost: 400, unlock: 0, def: 2 },
+    { id: 'colete', slot: 'protecao', name: 'Colete de vigilante vencido', cost: 1500, unlock: 30, def: 5 },
+    { id: 'kevlar', slot: 'protecao', name: 'Colete de kevlar da polícia', cost: 2800, unlock: 60, def: 7 },
+    { id: 'tatico', slot: 'protecao', name: 'Colete tático com placa de cerâmica', cost: 4200, unlock: 90, def: 9 },
+    { id: 'traje', slot: 'protecao', name: 'Traje tático com escudo balístico', cost: 8000, unlock: 140, def: 12 },
+    // Veículos
     { id: 'bike', slot: 'veiculo', name: 'Bicicleta cargueira', cost: 250, unlock: 0, cargo: 10, escape: 1 },
     { id: 'cinquentinha', slot: 'veiculo', name: 'Cinquentinha', cost: 950, unlock: 10, cargo: 15, escape: 3 },
     { id: 'moto', slot: 'veiculo', name: 'Moto 150', cost: 2400, unlock: 40, cargo: 25, escape: 6, freeRide: true },
@@ -239,9 +261,10 @@
   const LAB_MULT = [0, 1, 1.8, 2.6];
   /* Vida noturna: troca dinheiro por energia, com ressaca no dia seguinte. */
   const NIGHT = [
-    { id: 'boteco', name: 'Boteco', desc: 'Uma gelada e um tira-gosto para recuperar o fôlego.', cost: 60, energy: 12, ressaca: 3 },
-    { id: 'baile', name: 'Baile', desc: 'Som alto e gente conhecida. A equipe gosta de ver o chefe por lá.', cost: 160, energy: 25, ressaca: 6, morale: 3, heat: 2 },
-    { id: 'inferninho', name: 'Inferninho', desc: 'Casa fechada até o amanhecer. Rende contatos, e às vezes confusão.', cost: 360, energy: 40, ressaca: 10, mingle: true }
+    { id: 'boteco', name: 'Boteco do Zé', desc: 'Cerveja quente, pinga com mel e café no copo americano. Pra quem ainda não é ninguém.', cost: 40, energy: 12, ressaca: 3 },
+    { id: 'pagode', name: 'Pagode na laje', desc: 'Churrasquinho de gato e balde de latão. Bom lugar para firmar contato e animar o bonde.', cost: 120, energy: 22, ressaca: 5, morale: 4, contact: 60 },
+    { id: 'baile', name: 'Baile de favela', desc: 'Copão de whisky com energético até de manhã. Recarrega muito, mas é onde se cruza com gente de outra gangue.', cost: 160, energy: 38, ressaca: 8, morale: 3, heat: 2, brawl: 22 },
+    { id: 'termas', name: 'Termas VIP', desc: 'Fachada com manobrista e segurança armada na porta. Os chefões fecham negócio na suíte presidencial.', cost: 900, energy: 100, ressaca: 4, unlock: 60, boss: true }
   ];
 
   /* ------------------------------------------------------------------
@@ -369,7 +392,7 @@
 
   const ACHIEVEMENTS = [
     { id: 'primeira', name: 'Primeiro passo', desc: 'Concluir a primeira missão.' },
-    { id: 'cofre', name: 'O grande golpe', desc: 'Concluir “O grande cofre”.' },
+    { id: 'cofre', name: 'O grande golpe', desc: 'Concluir “Carro-forte na serra”.' },
     { id: 'dono', name: 'Dono do pedaço', desc: 'Liderar um bairro.' },
     { id: 'tres', name: 'Três bandeiras', desc: 'Liderar 3 bairros ao mesmo tempo.' },
     { id: 'diplomata', name: 'Diplomata', desc: 'Firmar 3 tréguas na mesma temporada.' },
@@ -383,10 +406,10 @@
     { id: 'ouro', name: 'Medalha de ouro', desc: 'Ganhar ouro em qualquer categoria.' },
     { id: 'versatil', name: 'Versátil', desc: 'Medalhas em 3 categorias na mesma temporada.' },
     { id: 'determinado', name: 'Determinação', desc: 'Cumprir 3 metas de temporada.' },
-    { id: 'fianca', name: 'Porta da frente', desc: 'Pagar fiança para sair da detenção.' },
+    { id: 'fianca', name: 'Porta da frente', desc: 'Sair da cadeia com o advogado de porta de cadeia.' },
     { id: 'virada', name: 'Virada', desc: 'Vencer um confronto com chance de 40% ou menos.' },
     { id: 'mestre', name: 'Mestre da carreira', desc: 'Alcançar o nível 3 da especialização.' },
-    { id: 'arsenal', name: 'Bem equipado', desc: 'Comprar o Fuzil ou o Carro blindado.' },
+    { id: 'arsenal', name: 'Bem equipado', desc: 'Comprar o FAL ou o Carro blindado.' },
     { id: 'atacadista', name: 'Atacadista', desc: 'Vender R$ 20.000 em mercadorias numa temporada.' },
     { id: 'exportador', name: 'Rota de fora', desc: 'Fechar uma remessa com o comprador de fora.' },
     { id: 'industria', name: 'Indústria de fundo de quintal', desc: 'Ter os três pontos de produção.' },
@@ -409,7 +432,7 @@
     return [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, f.id === owner ? (legacyRivals && isNum(legacyRivals[d.id]) ? clamp(Math.round(legacyRivals[d.id]), 0, 100) : 22 + i * 3) : (f.id === 'aurora' ? 4 : 2)]))];
   }));
   const initialDistrictState = () => Object.fromEntries(DISTRICTS.map(d => [d.id, { vigil: 0, econ: 1 }]));
-  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false });
+  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false, bribe: false });
   const startMarket = () => Object.fromEntries(DISTRICTS.map((d, i) => [d.id, Object.fromEntries(GOODS.map((g, j) => [g.id, 85 + ((i * 7 + j * 11) % 5) * 8]))]));
   const emptySeasonStats = () => ({ arrests: 0, startRespect: 5, bailPaid: 0, controlDays: Object.fromEntries(DISTRICTS.map(d => [d.id, 0])), bestCash: 0 });
 
@@ -576,6 +599,7 @@
       s.today.night = toInt(saved.today.night, 0, 0, 9);
       s.today.duels = toInt(saved.today.duels, 0, 0, 9);
       s.today.clinic = saved.today.clinic === true;
+      s.today.bribe = saved.today.bribe === true;
     }
     const ss = saved.seasonStats || {};
     s.seasonStats = {
@@ -728,6 +752,7 @@
     if (s.respect < m.unlock) return `Requer ${m.unlock} de respeito.`;
     const r = m.req || {};
     if (r.gang && !s.gangName) return 'Requer uma gangue fundada.';
+    if (r.power && gearVal(s, 'power') < r.power) return `Requer arma de poder ${r.power} ou mais (Feira do Rolo).`;
     if (r.influence && s.influence[s.district] < r.influence) return `Requer ${r.influence} de influência no bairro.`;
     if (r.stat) { const need = (m.id === 'cofre' && hasPerk(s, 'operador', 3)) ? 18 : r.stat[1]; if (s.stats[r.stat[0]] < need) return `Requer ${STATS.find(x => x.id === r.stat[0]).name} ${need}.`; }
     if (r.oncePerDay && s.today.missions[m.id]) return 'Já realizada hoje.';
@@ -981,8 +1006,22 @@
     if (s.cash < c) return refuse(`A fiança custa ${money(c)} em mãos.`);
     s.cash -= c; s.jail = 0; s.seasonStats.bailPaid++; addHeat(s, 5);
     unlock(s, 'fianca');
-    log(s, `Fiança paga: ${money(c)}. Você está livre, mas chamou atenção (+5 vigilância).`);
-    return done(true, 'Você saiu pela porta da frente.');
+    log(s, `Advogado de porta de cadeia: ${money(c)}. Você está livre, mas chamou atenção (+5 vigilância).`);
+    return done(true, 'O advogado de porta de cadeia te tirou.');
+  }
+  /** Suborno: mais barato que o advogado, mas pode dar errado (+1 dia e mais vigilância). */
+  const bribeCost = s => s.jail > 0 ? Math.round(bailCost(s) * .45) : 0;
+  function doBribe(s) {
+    if (s.jail <= 0) return refuse('Você não está detido.');
+    if (s.today.bribe) return refuse('O carcereiro já foi procurado hoje.');
+    const c = bribeCost(s);
+    if (s.cash < c) return refuse(`O carcereiro quer ${money(c)} em mãos.`);
+    s.cash -= c; s.today.bribe = true;
+    const odds = clamp(55 + s.stats.labia - s.heat * .3, 15, 85);
+    if (roll(odds)) { s.jail = 0; addHeat(s, 3); log(s, `Carcereiro molhado com ${money(c)}: você saiu pelos fundos.`); return done(true, 'O carcereiro aceitou. Você saiu pelos fundos.'); }
+    s.jail = Math.min(5, s.jail + 1); addHeat(s, 8);
+    log(s, `O carcereiro pegou ${money(c)} e te dedurou: +1 dia e +8 de vigilância.`);
+    return done(false, 'O carcereiro te dedurou: +1 dia de cadeia.');
   }
 
   function doBank(s, mode, amount) {
@@ -1246,6 +1285,7 @@
     if (s.jail > 0) return refuse('Você está detido.');
     if (s.gear[it.slot] === id) return refuse('Você já usa este item.');
     if (s.respect < it.unlock) return refuse(`Requer ${it.unlock} de respeito.`);
+    if (it.trophy && !s.achievements[it.trophy]) return refuse('Só para quem venceu o Rei do Pedaço (conquista).');
     const old = item(s.gear[it.slot]), back = old ? Math.round(old.cost * ITEM_RESALE) : 0;
     if (s.cash + back < it.cost) return refuse(`Você precisa de ${money(it.cost - back)} em mãos.`);
     if (it.slot === 'veiculo' && cargoUsed(s) > 30 + (it.cargo || 0) + 40 * LABS.filter(l => s.labs[l.id] > 0).length) return refuse('Sua carga não cabe neste veículo. Venda parte antes.');
@@ -1320,18 +1360,18 @@
     if (blocked(s)) return refuse(blocked(s));
     if (s.today.night >= 2) return refuse('Duas saídas por dia já é demais. Amanhã tem mais.');
     if (s.energy >= 100) return refuse('Você já está com a energia cheia.');
+    if (n.unlock && s.respect < n.unlock) return refuse(`A porta só abre para quem tem ${n.unlock} de respeito.`);
     const c = nightCost(s, n);
     if (s.cash < c) return refuse(`Custa ${money(c)} em mãos.`);
     s.cash -= c; s.today.night++; s.energy = clamp(s.energy + n.energy, 0, 100); s.ressaca = clamp(s.ressaca + n.ressaca, 0, 30);
     if (n.morale) addMorale(s, n.morale);
     if (n.heat) addHeat(s, n.heat);
     let extra = '';
-    if (n.mingle) {
-      if (roll(55)) { const b = 3 + Math.floor(s.stats.labia / 8); addInf(s, s.district, b); extra = ` Você fez contatos: +${b} de influência em ${district(s).name}.`; }
-      else if (roll(40)) { addHeat(s, 6); extra = ' Rolou confusão na saída: +6 de vigilância.'; }
-    }
-    log(s, `${n.name}: +${n.energy} de energia por ${money(c)}.${extra} Ressaca amanhã: -${s.ressaca} de energia.`);
-    return done(true, `${n.name}: +${n.energy} de energia.${extra}`);
+    if (n.contact && roll(n.contact)) { const b = 3 + Math.floor(s.stats.labia / 8); addInf(s, s.district, b); extra += ` Você firmou contatos: +${b} de influência em ${district(s).name}.`; }
+    if (n.brawl && roll(n.brawl)) { addHeat(s, 5); extra += ` Cruzou com gente de outra gangue e saiu na mão:${hurt(s, rand(8, 16))}`; }
+    if (n.boss) { const l = leader(s, s.district); addRel(s, l.id, 5); extra += ` Negócio fechado com ${faction(l.id).short}: relação +5.`; }
+    log(s, `${n.name}: energia ${s.energy}/100 por ${money(c)}.${extra} Ressaca amanhã: -${s.ressaca} de energia.`);
+    return done(true, `${n.name}: energia ${s.energy}/100.${extra}`);
   }
 
 
@@ -1369,19 +1409,19 @@
     if (s.hospital > 0) return refuse('Você já está internado; a alta sai sozinha.');
     if (s.health >= 100) return refuse('Sua saúde está cheia.');
     if (kind === 'posto') {
-      if (s.today.clinic) return refuse('O posto só atende você uma vez por dia.');
-      if (s.energy < 20) return refuse('A fila do posto exige 20 de energia.');
+      if (s.today.clinic) return refuse('A UPA só atende você uma vez por dia.');
+      if (s.energy < 20) return refuse('O corredor da UPA exige 20 de energia.');
       s.energy -= 20; s.today.clinic = true;
       const g = Math.min(100 - s.health, 25); s.health += g;
-      log(s, `Posto de saúde: +${g} de saúde depois de horas na fila.`);
-      return done(true, `Posto de saúde: +${g} de saúde.`);
+      log(s, `UPA: +${g} de saúde depois de horas no corredor.`);
+      return done(true, `UPA: +${g} de saúde.`);
     }
     if (kind === 'clinica') {
       const c = clinicCost(s);
-      if (s.cash < c) return refuse(`A clínica cobra ${money(c)} em mãos.`);
+      if (s.cash < c) return refuse(`O plantonista quer ${money(c)} em mãos.`);
       const g = 100 - s.health; s.cash -= c; s.health = 100;
-      log(s, `Clínica particular: saúde cheia por ${money(c)}.`);
-      return done(true, `Clínica: +${g} de saúde por ${money(c)}.`);
+      log(s, `Propina pro plantonista: alta na hora por ${money(c)}.`);
+      return done(true, `Plantonista molhado: +${g} de saúde por ${money(c)}.`);
     }
     return refuse('Atendimento desconhecido.');
   }
@@ -1569,6 +1609,7 @@
     if (s.ressaca) lines.push(`Ressaca: -${s.ressaca} de energia ao acordar.`);
     s.ressaca = 0;
     const ctrl = controls(s);
+    if (gearVal(s, 'heavy')) { addHeat(s, 3); lines.push('Arma pesada não passa despercebida: +3 de vigilância.'); }
     const decay = 15 + eventMod(s, 'heatDecay') + (controlled(s, 'vila') ? 5 : 0) - ctrl.length * 2;
     addHeat(s, -decay);
 
@@ -1788,7 +1829,7 @@
     bank: doBank, buy: doBuy, sell: doSell, contact: doContact, dispute: doDispute,
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
-    duel: doDuel, clinic: doClinic, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, night: doNight,
+    duel: doDuel, clinic: doClinic, bribe: doBribe, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, night: doNight,
     career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay, endSeason
   };
   /** Executa uma ação e roda verificações pós-ação. */
@@ -1809,7 +1850,7 @@
     STATS, MISSIONS, DISTRICTS, BUSINESSES, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
-    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, stockValue, assetValue, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, stockValue, assetValue, bribeCost, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
     missionScore, missionChance, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,

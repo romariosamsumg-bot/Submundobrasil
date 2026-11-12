@@ -27,6 +27,8 @@
 
 - [x] **v0.8**: saúde (barra no topo), ferimentos, internação, Hospital (posto e clínica) e Duelos de rua contra 8 adversários
 
+- [x] **v0.9**: linha adulta 18+ (aviso obrigatório), arsenal de 16 armas e 6 proteções, 5 serviços novos, noite com Pagode, Baile e Termas VIP, UPA, advogado de porta de cadeia e suborno do carcereiro
+
 O que falta para lançar está em **LANCAMENTO.md**.
 
 ## Pendências de balanceamento (prioridade alta)
@@ -77,3 +79,10 @@ O que falta para lançar está em **LANCAMENTO.md**.
 - O Empreendedor continua fraco fora dos negócios e na gangue (142–175).
 - Adversários de duelo não reagem (não lembram derrotas, não cobram revanche); dá para ligar ao rancor das facções.
 - Carga do Galpão pode ficar acima da capacidade se o jogador vender um veículo maior? Hoje a troca é bloqueada nesse caso; vender sem trocar ainda não existe.
+
+## Próximo: assaltos de gangue em etapas (proposta do autor, v0.9)
+
+Escada de assaltos que exige tamanho de bando, poder médio de arma e proteção:
+Arrastão em shopping (3) → Caminhão de carga (5) → Agência no interior (6) → Carro-forte na serra (8) → Transportadora de valores (10) → Cofre central (12).
+Cada um: planejar (custo e dias), reunir (energia de todos), executar (chance por poder do bando), dividir (manutenção e ânimo). Itens pesados (Ponto Cinquenta, MAG, Lança-rojão) ganham uso real aqui.
+Também sugerido: rebelião na cadeia com a gangue.

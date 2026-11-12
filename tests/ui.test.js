@@ -3,7 +3,7 @@
 'use strict';
 const { chromium } = require('playwright');
 const path = require('path');
-const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.8.html');
+const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.9.html');
 const V04 = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.4.html');
 let failures = 0;
 const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg); if (!cond) failures++; };
@@ -27,6 +27,8 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check((await page.textContent('#cityTrait')).includes('Terra da festa'), 'vantagem da cidade aparece na capa');
   await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-capa.png') });
   await page.fill('#playerName', 'Malandro'); await page.click('#newGameForm button[type=submit]');
+  check(await page.isVisible('#welcome'), 'sem marcar 18+ o jogo não começa');
+  await page.check('#ageOk'); await page.click('#newGameForm button[type=submit]');
   check(!(await page.isVisible('#welcome')), 'jogo iniciado');
   check(await page.isVisible('#help'), 'introdução "Como jogar" abre no primeiro jogo');
   await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-ajuda.png') });
@@ -107,7 +109,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check(await page.isVisible('.mobileNav [data-view=perfil].active') && await page.isVisible('.backLink'), 'Temporada fica dentro de Perfil, com botão de voltar');
   await go('duelos');
   const d0 = await st();
-  await page.click('[data-action=duel][data-id=marrento]');
+await page.click('[data-action=duel][data-id=marrento]');
   const d1 = await st();
   check(d1.today.duels === 1 && d1.energy === d0.energy - 15, 'duelo: conta no limite diário e gasta 15 de energia');
   check(await page.isDisabled('[data-action=duel][data-id=rei]'), 'adversário acima do seu respeito fica bloqueado');
@@ -116,6 +118,17 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check((await page.textContent('#hudHealthTxt')).includes('40'), 'barra de saúde no topo mostra 40');
   await page.click('[data-action=clinic][data-id=posto]');
   check((await st()).health === 65, 'posto de saúde: +25');
+  await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.jail = 2; s.cash = 9000; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
+  await page.reload(); await go('painel');
+  check(await page.isVisible('[data-action=bail]') && await page.isVisible('[data-action=bribe]'), 'na cadeia: advogado e carcereiro');
+  await page.click('[data-action=bail]');
+  check((await st()).jail === 0, 'advogado de porta de cadeia tira da cadeia');
+  await page.evaluate(() => { localStorage.removeItem('submundo_brasil_18'); });
+  await page.reload();
+  check(await page.isVisible('#help') && (await page.textContent('#helpBox')).includes('18'), 'jogador antigo vê o aviso 18+ uma vez');
+  await page.click('[data-action=age-ok]');
+  await page.reload();
+  check(!(await page.isVisible('#help')), 'aviso 18+ não volta depois de confirmado');
   await go('gestao');
 
   console.log('4. Save inválido e XSS');
@@ -144,7 +157,9 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   const s04 = await p4.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.respect = 60; s.cash = 6000; s.gangName = 'Velha Guarda'; s.gangLevel = 2; s.crewSize = 4; s.crewMorale = 55; s.businesses = ['bar']; s.factions.esquina.truceUntil = s.day + 2; s.factions.esquina.relation = 40; s.rivals.cais = 47; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); return s; });
   await p4.close();
   await page.reload();
-  check(!(await page.isVisible('#welcome')), 'save da 0.4 abre direto na 0.6');
+  check(!(await page.isVisible('#welcome')), 'save da 0.4 abre direto na versão atual');
+  check(await page.isVisible('[data-action=age-ok]'), 'quem vem da 0.4 confirma o aviso 18+');
+  await page.click('[data-action=age-ok]');
   const m = await st();
   check(m.schema === 2 && m.name === 'Veterano' && m.day === s04.day && m.cash === 6000, 'nome, dia e dinheiro preservados');
   check(m.crew.length === 4 && m.gangName === 'Velha Guarda', '4 integrantes gerados a partir do crewSize');
@@ -173,7 +188,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-action=export]')]);
   const fpath = await dl.path();
   const payload = JSON.parse(require('fs').readFileSync(fpath, 'utf8'));
-  check(payload.game === 'Submundo Brasil' && payload.version === '0.8' && payload.checksum, 'arquivo exportado com versão e checksum');
+  check(payload.game === 'Submundo Brasil' && payload.version === '0.9' && payload.checksum, 'arquivo exportado com versão e checksum');
   await page.evaluate(() => localStorage.clear()); await page.reload();
   await page.setInputFiles('#welcomeImportFile', fpath);
   await page.waitForTimeout(300);
