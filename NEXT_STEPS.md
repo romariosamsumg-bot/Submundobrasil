@@ -124,7 +124,8 @@ Também sugerido: rebelião na cadeia com a gangue.
 
 ## Pendências da v1.4 (noite e esquemas)
 
-- Império da noite (233) passou o Traficante (220) por 13 pontos; se crescer, reduzir o abastecimento para +70% da renda base.
+- [x] Quatro classes por pilar (Assaltante, Dono da Noite, Traficante, Bicheiro). Traficante 225 e império 226 no topo após calibrar o Navio (+10%) e a casa abastecida (+70%).
+- Diplomacia e bonde ficaram mais fracos sem o Articulador (173 e 167); o Assaltante é a melhor classe no bonde (183). Dar ao bonde um bônus de classe misturada quando houver gangues online.
 - [x] Freio do ciclo eterno: tolerância por tipo (−15% por dose repetida) e teto de 150 de energia em doses por dia. Online: "Ir pra casa" por tempo real.
 - Refinaria do pó é meta de fim de jogo: quase ninguém chega a 150 de respeito com R$ 25.000 numa temporada.
 - No farm de roubos, o Assaltante voltou a liderar (182 contra 169 do Articulador).

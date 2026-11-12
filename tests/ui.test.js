@@ -62,7 +62,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   const before = await st();
   await page.click('[data-action=mission][data-id=correria]');
   const after = await st();
-  check(after.energy === before.energy - 16, 'missão consome 16 de energia');
+  check(after.energy === before.energy - 14, 'missão consome 14 de energia (Assaltante gasta 10% menos que 16)');
   check(after.tutorial.step === 2, 'primeiro serviço conclui o passo 2');
   await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-servicos-guia.png') });
   check(await page.isVisible('.resultCard'), 'cartão de resultado exibido');

@@ -77,7 +77,7 @@ const STRATEGIES = {
     if (s.bank) SB.perform(s, 'bank', 'withdraw', s.bank);
     for (const b of SB.BUSINESSES.slice().reverse()) if (s.day < 22 && !s.businesses.includes(b.id)) SB.perform(s, 'buy', b.id);
     grind(s, 65); if (s.day >= 22) bankSurplus(s, 300); } },
-  articulador_territorio: { career: 'articulador', goal: 'dominio', day(s) {
+  articulador_territorio: { career: 'empreendedor', goal: 'dominio', day(s) {
     bail(s); handleNews(s);
     const target = SB.DISTRICTS.filter(d => !SB.controlled(s, d.id)).sort((a, b) => (s.influence[b.id] - SB.leader(s, b.id).value) - (s.influence[a.id] - SB.leader(s, a.id).value))[0] || SB.district(s);
     if (target.id !== s.district && SB.controls(s).length && !SB.controlled(s, s.district)) SB.perform(s, 'travel', target.id);
@@ -87,7 +87,7 @@ const STRATEGIES = {
     if (SB.disputeOdds(s, s.district) >= 50) SB.perform(s, 'dispute');
     if (s.gangName && SB.clashOdds(s, s.district) >= 50) SB.perform(s, 'clash', SB.leader(s, s.district).id);
     grind(s, 60); trainBest(s, 'influencia', 1200); } },
-  articulador_diplomata: { career: 'articulador', goal: 'diplomacia', day(s) {
+  articulador_diplomata: { career: 'empreendedor', goal: 'diplomacia', day(s) {
     bail(s); handleNews(s);
     if (!s.gangName && s.respect >= 30 && s.cash >= 1900) SB.perform(s, 'foundGang', 'Conselho');
     for (const f of SB.FACTIONS.slice().sort((a, b) => s.factions[b.id].relation - s.factions[a.id].relation)) {

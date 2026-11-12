@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**148 de 148 passaram** (v1.4: + retrato do jogador; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
+**152 de 152 passaram** (v1.4: + retrato do jogador; + 4 sobre as quatro classes; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -72,28 +72,29 @@ ausência de cortes).
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 
-Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.4** (noite com cardápio, sete esquemas, tolerância e teto do corpo) em
+Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.4** (quatro classes, noite com cardápio, sete esquemas, tolerância e teto do corpo) em
 `node tests/simulate.js 300 2` (300 temporadas por estratégia, médias, em Recife):
 
 | Estratégia | Patrimônio | Respeito | Pontos | Meta | Detenções |
 |---|---|---|---|---|---|
-| Assaltante farmando roubos | 15.054 | 130 | 191 | 40% | 2,7 |
-| Bicheiro com negócios | 19.600 | 111 | 203 | 60% | 3,1 |
-| Articulador territorial | 674 | 127 | 203 | 100% | 1,6 |
-| Articulador diplomata | 1.693 | 98 | 208 | 90% | 2,5 |
-| Bonde (gangue) | 1.287 | 104 | 181 | 30% | 1,1 |
-| Comerciante sem a classe | 12.314 | 99 | **197** | 10% | 2,9 |
-| Ciclo completo: roubo, noite e arsenal | 16.755 | 124 | 190 | 40% | 3,3 |
-| Brigão (duelos) | 15.969 | 154 | 196 | 0% | 1,9 |
-| Bando de assaltos | 2.237 | 85 | 173 | 30% | 1,4 |
-| Traficante (Galpão e remessas) | 13.325 | 95 | 220 | 20% | 3,0 |
-| Barão da Noite (império e noitadas) | 16.419 | 112 | 177 | 40% | 3,4 |
-| **Império da noite (Barão + bebida falsa, laboratório e casas abastecidas)** | 17.071 | 103 | **233** | 50% | 3,2 |
-| Apostador (metade do caixa na roleta, 3× ao dia) | 4.059 | 86 | 79 | 20% | 3,6 |
-| Exploit: repetir a melhor e depositar tudo | 2.441 | 39 | 26 | 0% | 10,7 |
-| Aleatório | 424 | 43 | 49 | 0% | 0,6 |
+| Assaltante farmando roubos | 16.243 | 141 | 210 | 60% | 3,3 |
+| Bicheiro com negócios | 20.325 | 118 | 213 | 60% | 3,4 |
+| Território (Bicheiro) | 714 | 125 | 199 | 100% | 1,8 |
+| Diplomacia (Bicheiro) | 1.350 | 96 | 173 | 90% | 2,6 |
+| Bonde (gangue) | 1.299 | 100 | 167 | 20% | 1,7 |
+| Comerciante sem a classe | 13.297 | 104 | 211 | 20% | 3,2 |
+| Ciclo completo: roubo, noite e arsenal | 18.687 | 130 | 201 | 50% | 3,8 |
+| Brigão (duelos) | 18.066 | 158 | 210 | 0% | 2,3 |
+| Bando de assaltos | 2.785 | 93 | 192 | 40% | 1,5 |
+| **Traficante (Galpão e remessas)** | 13.810 | 94 | **225** | 20% | 2,7 |
+| Dono da Noite (casas e noitadas) | 16.986 | 114 | 184 | 40% | 3,4 |
+| **Império da noite (Dono da Noite + produção e casas abastecidas)** | 16.971 | 104 | **226** | 40% | 3,4 |
+| Apostador (metade do caixa na roleta, 3× ao dia) | 7.393 | 94 | 92 | 30% | 3,5 |
+| Exploit: repetir a melhor e depositar tudo | 2.007 | 37 | 23 | 0% | 11,5 |
+| Aleatório | 419 | 42 | 38 | 0% | 0,7 |
 
 Leitura e calibração da v1.4:
+- **Quatro classes**: com os números propostos, o Traficante foi a 243 e o império da noite a 247 (os demais perto de 210). O Navio do Traficante caiu de +15% para +10% e a casa abastecida de +100% para +70%: **225** e **226**, 12 pontos acima do grupo seguinte. Os robôs de território e diplomacia, que eram do Articulador, jogam de Bicheiro; a diplomacia perdeu força (173), e o bonde caiu para 167.
 - **Noite com cardápio**: as estratégias que usam a noite ficaram onde estavam (ciclo completo 188, Barão 178). O vício continua sendo o freio: uma bala dá 75 de energia e 18 de vício, e acima de 70 as doses fortes podem dar overdose.
 - **Casa abastecida**: na primeira medição, o império da noite fez **241 pontos**, porque a renda dobrada somava em cima do bônus do Barão. Passou a dobrar só a renda base da casa: **227**, empatado com o Traficante (223) no topo.
 - **Comerciante sem a classe** subiu de 158 para 197 com os esquemas baratos (gelo e cigarro). Deixou de ser o caminho mais fraco.
@@ -102,13 +103,13 @@ Leitura e calibração da v1.4:
 
 ### Classes — `tests/careers.js` (100 temporadas por célula, v1.4)
 
-| Estratégia | Assaltante | Articulador | Bicheiro | Traficante | Barão |
-|---|---|---|---|---|---|
-| Roubos | **182** | 169 | 145 | 149 | 166 |
-| Negócios | 191 | 165 | 194 | 145 | **200** |
-| Território | 196 | **203** | 194 | 194 | 198 |
-| Diplomacia | 192 | **206** | 156 | 164 | 174 |
-| Gangue | **180** | 176 | 157 | 149 | 147 |
+| Estratégia | Assaltante | Dono da Noite | Traficante | Bicheiro |
+|---|---|---|---|---|
+| Roubos | **215** | 169 | 165 | 171 |
+| Negócios | 208 | **219** | 162 | 213 |
+| Território | **200** | 197 | 196 | 198 |
+| Diplomacia | **196** | 176 | 174 | 163 |
+| Gangue | **183** | 148 | 157 | 167 |
 
 (O Traficante só brilha na estratégia de mercadoria, medida na tabela acima.)
 

@@ -704,23 +704,24 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   ];
   const RESALE = 0.6;
 
+  /* v1.4: quatro classes, uma por pilar (assaltos, noite, produção, esquemas de rua). Os ids antigos
+   * continuam para não quebrar saves; a classe Articulador saiu (quem estava nela escolhe de novo). */
   const CAREERS = [
-    { id: 'operador', name: 'Assaltante', desc: '+6 de chance nas missões, +8% de recompensa nos serviços grandes e falhas custam 30% menos caixa. Procurado gerado +10% e negócios rendem -10%.',
-      xpDesc: 'Ganha experiência concluindo missões (mais nas difíceis).',
-      perks: ['Rota de fuga: -15 pontos na chance de detenção.', 'Ritmo de rua: penalidade por repetir missões cai pela metade.', 'Sangue frio: o Procurado pesa metade nas chances; o cofre exige Astúcia 18.'] },
-    { id: 'articulador', name: 'Articulador', desc: '+30% de influência, +8 nos diálogos e +5 em disputas e confrontos. Recompensas de missões -10%.',
-      xpDesc: 'Ganha experiência com contatos, diálogos, acordos e notícias.',
-      perks: ['Rede de contatos: criar contatos custa 30% menos.', 'Mediador: tréguas duram 5 dias e alianças custam 40% menos.', 'Voz do bairro: tributo dos bairros +60% e metade das retaliações é evitada.'] },
-    { id: 'empreendedor', name: 'Bicheiro', desc: 'Negócios rendem +25% e custam 12% menos; o jogo do bicho paga 20× para você. Chance nos roubos -3.',
-      xpDesc: 'Ganha experiência a cada dia lucrativo e a cada negócio comprado.',
-      perks: ['Contador: taxa de depósito bancário cai de 3% para 1%.', 'Fornecedores: crises e extorsões afetam metade dos seus negócios.', 'Sócio oculto: o banco rende 0,4% ao dia (até R$ 120).'] },
-    { id: 'traficante', name: 'Traficante', desc: 'Pontos de produção custam 10% menos e rendem +10%; o comprador de fora paga 5% a mais. Chance nos roubos -3 e cada negócio de mercadoria chama 60% mais atenção da polícia.',
-      xpDesc: 'Ganha experiência vendendo mercadoria, fechando remessas e montando produção.',
-      perks: ['Rota limpa: chance de blitz -12.', 'Fundo falso: +15 de espaço de carga.', 'Olheiro na esquina: batidas nos pontos de produção pela metade e remessas de até 70 unidades.'] },
-    { id: 'barao', name: 'Barão da Noite', desc: 'Negócios da noite rendem +50% e custam 12% menos, a noitada custa 40% menos, rende +1 de respeito por saída e o vício sobe pela metade. Recompensa dos roubos -5%.',
+    { id: 'operador', name: 'Assaltante', tag: 'Linha de Frente', desc: '+20% de dinheiro em qualquer roubo (sozinho ou com o bando), roubos gastam 10% menos energia e armas e coletes rendem 15% mais (menos dano quando dá errado). Negócios e esquemas rendem 10% menos.',
+      xpDesc: 'Ganha experiência concluindo roubos (mais nos grandes).',
+      perks: ['Rota de fuga: −15 pontos na chance de detenção.', 'Ritmo de rua: penalidade por repetir roubos cai pela metade.', 'Sangue frio: o Procurado pesa metade nas chances; o cofre exige Astúcia 18.'] },
+    { id: 'barao', name: 'Dono da Noite', tag: 'Rei do Inferninho', desc: 'Casas da noite rendem +30% e custam 20% menos; entrada e doses 40% mais baratas; whisky, loló, bala e pó sobem metade do vício. Nos roubos, a arma dele conta 20% menos.',
       xpDesc: 'Ganha experiência a cada saída na noite, a cada dia de lucro das casas e a cada casa comprada.',
-      perks: ['Fígado de aço: ressaca pela metade.', 'Porta fechada: sem batida policial nem briga para você na noite.', 'Casa cheia: negócios da noite rendem mais 20%.'] }
+      perks: ['Fígado de aço: ressaca pela metade.', 'Porta fechada: sem batida policial nem briga para você na noite.', 'Casa cheia: casas da noite rendem mais 20%.'] },
+    { id: 'traficante', name: 'Traficante', tag: 'Dono da Produção', desc: 'Esquemas produzem +25% e custam 10% menos; no Navio, vende 10% mais caro que todo mundo. Chama a atenção da Polícia Federal: comércio de mercadoria gera 60% mais Procurado e cada esquema de mercadoria ativo soma +1 de Procurado por dia.',
+      xpDesc: 'Ganha experiência vendendo mercadoria, fechando remessas e montando esquemas.',
+      perks: ['Rota limpa: chance de blitz −12.', 'Fundo falso: +15 de espaço de carga.', 'Olheiro na esquina: batidas nos esquemas pela metade e remessas de até 70 unidades.'] },
+    { id: 'empreendedor', name: 'Bicheiro', tag: 'Dono da Área', desc: 'Gatonet e negócios de rua rendem +35%; paga metade da taxa do banco, advogado e suborno 30% mais baratos e ganha +1 de respeito por dia a cada R$ 10.000 no banco (até +3); o bicho paga 20×. Nos roubos de Força tem −5 de chance, e o treino de Força custa 25% mais.',
+      xpDesc: 'Ganha experiência a cada dia lucrativo e a cada negócio comprado.',
+      perks: ['Contador: a taxa do banco cai para 0,75%.', 'Fornecedores: crises e extorsões afetam metade dos seus negócios.', 'Sócio oculto: o banco rende 0,4% ao dia (até R$ 120).'] }
   ];
+  /** Classes que existiram e ficam só no histórico. */
+  const OLD_CAREERS = { articulador: 'Articulador' };
   const CAREER_XP = [10, 25, 45];
 
   const GOALS = [
@@ -884,7 +885,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
    * e, somando tudo, as doses devolvem no máximo CHEM_CAP de energia por dia. */
   const TOLERANCE = .85;
   const CHEM_CAP = 150;
-  /* Casa da noite abastecida com a sua produção: renda dobrada no dia. */
+  /* Casa da noite abastecida com a sua produção: +70% da renda base no dia. */
+  const SUPPLY_BONUS = .7;
   const SUPPLY = [
     { biz: 'inferninho', labs: ['alambique', 'laboratorio'], goods: ['bebida', 'lolo', 'bala'], qty: 5 },
     { biz: 'termas', labs: ['refinaria'], goods: ['po'], qty: 2 }
@@ -970,7 +972,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 
   /* Primeiros passos: trilha guiada com pequenas recompensas. `view` é a tela onde o passo acontece. */
   const TUTORIAL = [
-    { id: 'career', title: 'Escolha sua especialização', text: 'Ela define seu estilo na temporada: Assaltante vive de roubo, Traficante de mercadoria, Barão da Noite das casas, Bicheiro de negócios e Articulador de influência.', view: 'painel', cta: 'Ver especializações', reward: 0, check: s => !!s.career },
+    { id: 'career', title: 'Escolha sua especialização', text: 'Ela define seu estilo na temporada: Assaltante vive de roubo, Dono da Noite das casas, Traficante da produção e Bicheiro dos esquemas de rua e do banco.', view: 'painel', cta: 'Ver especializações', reward: 0, check: s => !!s.career },
     { id: 'mission', title: 'Faça seu primeiro roubo', text: 'Roubar gasta energia e rende dinheiro e respeito. Olhe a chance antes: falhar custa caixa e pode dar cadeia.', view: 'acoes', cta: 'Ir roubar', reward: 80, check: s => s.successful + s.failed >= 1 },
     { id: 'gear', title: 'Compre sua primeira arma', text: 'Arma é o que abre os roubos maiores. Comece com o que o bolso permite: um pedaço de pau já serve.', view: 'feira', cta: 'Ir à Feira do Rolo', reward: 60, check: s => !!s.gear.arma },
     { id: 'night', title: 'Recarregue na noitada', text: 'Acabou a energia? Entre no Boteco e peça uma dose: dinheiro vira energia para continuar hoje. Amanhã vem a ressaca, e cada dose sobe o vício.', view: 'noite', cta: 'Ir para a noite', reward: 40, check: s => s.tutorial.nighted },
@@ -1039,7 +1041,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       { label: 'Desconfiar', desc: 'Sem custo · -4 de Procurado', heat: -4 }] },
     { id: 'insatisfacao', name: 'Integrantes reclamam', desc: 'Sua equipe está desanimada e cobra reconhecimento.', when: s => !!s.gangName && s.crewMorale < 50 && s.crew.length > 0, choices: [
       { label: 'Pagar uma gratificação', desc: 'R$ 60 por integrante · +20 ânimo', cashPerMember: 60, morale: 20 },
-      { label: 'Conversar com o grupo', desc: '15 energia · +8 ânimo (Articulador +16)', energy: 15, morale: 8 }] },
+      { label: 'Conversar com o grupo', desc: '15 energia · +8 ânimo', energy: 15, morale: 8 }] },
     { id: 'sociedade', name: 'Proposta de sociedade', desc: 'Um comerciante oferece participação num negócio de bairro.', when: s => s.businesses.length > 0 || s.career === 'empreendedor', choices: [
       { label: 'Investir R$ 800', desc: '+R$ 95 por dia durante 10 dias (sujeito à economia)', cash: 800, contract: { daily: 95, days: 10 } },
       { label: 'Recusar', desc: 'Sem custo', none: true }] },
@@ -1200,7 +1202,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
       season: toInt(h.season, 0, 0, 9999), respect: toInt(h.respect, 0, 0, BIG), money: toInt(h.money, 0, 0, BIG),
       success: toInt(h.success, 0, 0, BIG), failed: toInt(h.failed, 0, 0, BIG),
       goal: GOALS.some(g => g.id === h.goal) ? h.goal : null, goalComplete: h.goalComplete === true,
-      career: CAREERS.some(c => c.id === h.career) ? h.career : null, districts: toInt(h.districts, 0, 0, 5),
+      career: CAREERS.some(c => c.id === h.career) || OLD_CAREERS[h.career] ? h.career : null, districts: toInt(h.districts, 0, 0, 5),
       gangName: typeof h.gangName === 'string' ? cleanText(h.gangName, 25) : null,
       confrontWins: toInt(h.confrontWins, 0, 0, BIG), pacts: toInt(h.pacts, 0, 0, BIG), groupWins: toInt(h.groupWins, 0, 0, BIG),
       score: toInt(h.score, 0, 0, BIG), title: typeof h.title === 'string' ? cleanText(h.title, 40) : '',
@@ -1402,6 +1404,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   const recruitCost = s => Math.round((550 + crewSize(s) * 60) * (controlled(s, 'jardim') ? .75 : 1) * eventMod(s, 'recruitMult'));
 
   /* Missões */
+  const missionCost = (s, m) => s.career === 'operador' ? Math.round(m.cost * .9) : m.cost;
   function missionScore(s, m) {
     const st = s.stats;
     const total = st.astucia + st.forca + st.labia + st.influencia;
@@ -1414,13 +1417,12 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     let fatigue = (s.today.missions[m.id] || 0) * 6;
     if (hasPerk(s, 'operador', 2)) fatigue /= 2;
     let c = 72 + (missionScore(s, m) - m.difficulty) * 2 - heatPen - district(s).risk - eventMod(s, 'risk', { district: d }) - fatigue;
-    if (s.career === 'operador') c += 6;
-    if (s.career === 'empreendedor' || s.career === 'traficante') c -= 3;
+    if (s.career === 'empreendedor' && m.stat === 'forca') c -= 5;
     if (s.tip > 0) c += 12;
     c -= healthPenalty(s);
-    if (m.stat === 'forca') c += gearVal(s, 'power') * .5;
+    if (m.stat === 'forca') c += armPower(s, true) * .5;
     // Arma acima do mínimo exigido dá folga no roubo (até +10).
-    if (m.req && m.req.power) c += Math.min(10, (gearVal(s, 'power') - m.req.power) * 1.5);
+    if (m.req && m.req.power) c += Math.min(10, (armPower(s, true) - m.req.power) * 1.5);
     return clamp(Math.round(c), 8, 95);
   }
   function missionRewardMult(s, m) {
@@ -1428,10 +1430,9 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     const pct = district(s).bonus + eventMod(s, 'reward', { district: d }) + (controlled(s, d) ? 12 : 0) + (allyTurf(s, d) ? 10 : 0) + (m.festive && eventMod(s, 'festive') ? 25 : 0);
     let mult = (1 + pct / 100) * s.dstate[d].econ;
     mult *= Math.max(.5, 1 - .12 * (s.today.missions[m.id] || 0));
-    if (s.career === 'articulador') mult *= .9;
-    if (s.career === 'barao') mult *= .95;
+
     if (eventMod(s, 'payday') && PAYDAY_MISSIONS.includes(m.id)) mult *= 1.3;
-    if (s.career === 'operador' && m.difficulty >= 33) mult *= 1.08; // especialista em serviços grandes
+    if (s.career === 'operador') mult *= 1.2; // linha de frente
     if (d === 'vila' && cityIs(s, 'rio')) mult *= 1.1;
     if (m.req && m.req.power) mult *= 1.15; // roubo armado paga mais
     return Math.max(.2, mult);
@@ -1441,7 +1442,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     if (hasPerk(s, 'operador', 1)) a -= 15;
     return clamp(Math.round(a), 5, 90);
   }
-  const failLoss = (s, m) => s.career === 'operador' ? m.loss * .7 : m.loss;
+  const failLoss = (s, m) => m.loss;
   /** Motivo de bloqueio ('' se pode executar). */
   function missionLock(s, m) {
     if (m.district && m.district !== s.district) return 'Disponível somente em ' + district(s, m.district).name + '.';
@@ -1454,10 +1455,10 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     if (r.oncePerDay && s.today.missions[m.id]) return 'Já realizada hoje.';
     if (s.jail > 0) return 'Você está detido.';
     if (s.hospital > 0) return 'Você está internado.';
-    if (s.energy < m.cost) return 'Energia insuficiente.';
+    if (s.energy < missionCost(s, m)) return 'Energia insuficiente.';
     return '';
   }
-  const heatGain = (s, h) => Math.ceil(h * (s.career === 'operador' ? 1.1 : 1) * eventMod(s, 'heatMult'));
+  const heatGain = (s, h) => Math.ceil(h * eventMod(s, 'heatMult'));
   function respectGain(s, m) { return s.respect > m.unlock + 90 ? Math.ceil(m.respect / 3) : m.respect; }
 
   /* Economia */
@@ -1466,8 +1467,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     let em = eventMod(s, 'bizMult', { biz: b, district: b.district });
     if (em < 1 && hasPerk(s, 'empreendedor', 2)) em = 1 - (1 - em) / 2;
     v *= em;
-    if (s.career === 'empreendedor') v *= 1.25;
-    if (s.career === 'barao' && b.tags.includes('noite')) v *= hasPerk(s, 'barao', 3) ? 1.7 : 1.5;
+    if (s.career === 'empreendedor' && !b.tags.includes('noite')) v *= 1.35;
+    if (s.career === 'barao' && b.tags.includes('noite')) v *= hasPerk(s, 'barao', 3) ? 1.5 : 1.3;
     if (s.career === 'operador') v *= .9;
     if (controlled(s, b.district)) v *= 1.15;
     if (controlled(s, 'industrial')) v *= 1.12;
@@ -1486,11 +1487,12 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   /** Equipamentos e pontos de produção contam pela metade do que custaram. */
   const assetValue = s => Math.round(sum(SLOTS.map(sl => { const it = ITEMS.find(x => x.id === s.gear[sl.id]); return it ? it.cost * ITEM_RESALE : 0; })) + sum(LABS.map(l => [0, 1, 1.8, 3][s.labs[l.id]] * l.cost * .5)));
   const patrimony = s => s.cash + s.bank + resaleValue(s) + stockValue(s) + assetValue(s);
-  const depositFee = (s, amount) => Math.max(1, Math.ceil(amount * (hasPerk(s, 'empreendedor', 1) ? .01 : .03)));
-  const buyCost = (s, b) => Math.round(b.cost * (s.career === 'empreendedor' || (s.career === 'barao' && b.tags.includes('noite')) ? .88 : 1));
-  const trainCost = (s, id) => { const l = s.stats[id]; return Math.round((250 + l * 40 + l * l * 1.2) * (cityIs(s, 'poa') ? .9 : 1)); };
+  const depositRate = s => hasPerk(s, 'empreendedor', 1) ? .0075 : s.career === 'empreendedor' ? .015 : .03;
+  const depositFee = (s, amount) => Math.max(1, Math.ceil(amount * depositRate(s)));
+  const buyCost = (s, b) => Math.round(b.cost * (s.career === 'barao' && b.tags.includes('noite') ? .8 : s.career === 'empreendedor' ? .88 : 1));
+  const trainCost = (s, id) => { const l = s.stats[id]; return Math.round((250 + l * 40 + l * l * 1.2) * (cityIs(s, 'poa') ? .9 : 1) * (s.career === 'empreendedor' && id === 'forca' ? 1.25 : 1)); };
   const travelCost = s => ({ cash: cityIs(s, 'recife') ? 45 : 90, energy: cityIs(s, 'recife') || gearVal(s, 'freeRide') ? 0 : 5 });
-  const bailCost = s => s.jail > 0 ? 250 + s.jail * 250 + Math.floor(s.respect * 1.5) : 0;
+  const bailCost = s => s.jail > 0 ? Math.round((250 + s.jail * 250 + Math.floor(s.respect * 1.5)) * (s.career === 'empreendedor' ? .7 : 1)) : 0;
   const contactCost = s => Math.round(180 * (hasPerk(s, 'articulador', 1) ? .7 : 1) * (controlled(s, 'centro') ? .8 : 1));
   const allianceCost = s => Math.round(900 * (hasPerk(s, 'articulador', 2) ? .6 : 1));
   const allianceFee = s => 50 + s.gangLevel * 15;
@@ -1515,12 +1517,12 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   /** Chance de blitz ao viajar com a carga atual. */
   const blitzChance = s => { const load = sum(GOODS.map(g => s.goods[g.id] * g.risk)); return load > 0 ? clamp(Math.round(load / 12 - (hasPerk(s, 'traficante', 1) ? 12 : 0) + s.heat * .25 - gearVal(s, 'escape')), 0, 60) : 0; };
   /** Preço do comprador de fora. No último dia do mês atraca o Último Navio (+25%). */
-  const exportPrice = (g, s) => Math.round(g.base * 1.9 * (s && s.career === 'traficante' ? 1.05 : 1) * (s && s.day === MAXDAY ? 1.25 : 1));
+  const exportPrice = (g, s) => Math.round(g.base * 1.9 * (s && s.career === 'traficante' ? 1.1 : 1) * (s && s.day === MAXDAY ? 1.25 : 1));
   const EXPORT_LIMIT = 60;
   const exportLimit = s => hasPerk(s, 'traficante', 3) ? 70 : EXPORT_LIMIT;
   const labCost = (s, l) => Math.round(l.cost * (s.career === 'traficante' ? .9 : 1) * [1, .8, 1.2][s.labs[l.id]] || 0);
-  const labOutput = (s, l, n = l.out) => Math.round((n || 0) * LAB_MULT[s.labs[l.id]] * (s.career === 'traficante' ? 1.1 : 1));
-  const labCash = (s, l) => Math.round((l.cash || 0) * LAB_MULT[s.labs[l.id]]);
+  const labOutput = (s, l, n = l.out) => Math.round((n || 0) * LAB_MULT[s.labs[l.id]] * (s.career === 'traficante' ? 1.25 : s.career === 'operador' ? .9 : 1));
+  const labCash = (s, l) => Math.round((l.cash || 0) * LAB_MULT[s.labs[l.id]] * (s.career === 'empreendedor' ? 1.35 : s.career === 'operador' ? .9 : 1));
   const labUpkeep = s => sum(LABS.map(l => s.labs[l.id] * (30 + (l.bribe || 0))));
   const labRaid = (s, l) => l.cash || good(l.good).risk === 0 ? 0 : Math.round(raidChance(s) * (l.bribe ? .5 : 1));
   const raidChance = s => clamp(Math.round((s.heat - 40) * .5 * (hasPerk(s, 'traficante', 3) ? .5 : 1)), 0, 25);
@@ -1531,7 +1533,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   const nightCost = (s, n) => (ownTermas(s, n) || (n.id === 'boteco' && s.businesses.includes('bar')) || (n.id === 'inferninho' && s.businesses.includes('inferninho'))) ? 0 : Math.round(n.cost * (s.career === 'barao' ? .6 : 1) * (1 + s.today.night * .5));
   /** Dose: Barão paga 40% menos; dono do Bar paga metade no Boteco. */
   const doseCost = (s, d, n = NIGHT.find(x => x.id === s.today.venue)) => Math.round(d.price * (s.career === 'barao' ? .6 : 1) * (n && n.id === 'boteco' && s.businesses.includes('bar') ? .5 : 1));
-  const doseVicio = (s, d) => Math.ceil(d.vicio * (s.career === 'barao' ? .5 : 1));
+  const doseVicio = (s, d) => Math.ceil(d.vicio * (s.career === 'barao' && ['whisky', 'lolo', 'bala', 'po'].includes(d.id) ? .5 : 1));
   const doseOf = id => DOSES.find(d => d.id === id);
   /** Casa abastecida: tem o esquema produtor e estoque suficiente. Devolve o que seria gasto. */
   function supplyPlan(s, sp) {
@@ -1556,12 +1558,15 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
   /** Penalidade de saúde nas chances: começa abaixo de 60. */
   const healthPenalty = s => s.health < 60 ? Math.round((60 - s.health) * .4) : 0;
   const injured = s => s.health < 25;
-  const combatRating = s => Math.round(s.stats.forca * 1.6 + s.stats.astucia * .6 + gearVal(s, 'power') * 1.8 + gearVal(s, 'def') + s.gangLevel * 1.5);
+  /** Arma e colete como contam para você: Assaltante +15%; a arma do Dono da Noite conta 20% menos nos roubos. */
+  const armPower = (s, robbery = false) => gearVal(s, 'power') * (s.career === 'operador' ? 1.15 : s.career === 'barao' && robbery ? .8 : 1);
+  const armDef = s => gearVal(s, 'def') * (s.career === 'operador' ? 1.15 : 1);
+  const combatRating = s => Math.round(s.stats.forca * 1.6 + s.stats.astucia * .6 + armPower(s) * 1.8 + armDef(s) + s.gangLevel * 1.5);
   function duelOdds(s, r) { return clamp(Math.round(50 + (combatRating(s) - r.rating) * 2.2 - healthPenalty(s) - (s.today.duels || 0) * 4), 8, 92); }
   const clinicCost = s => Math.max(0, (100 - s.health) * CLINIC_PRICE);
   /** Aplica dano reduzido pela proteção; chegar a zero significa internação. Devolve o texto do resultado. */
   function hurt(s, amount) {
-    const dmg = Math.max(1, Math.round(amount - gearVal(s, 'def') * .8));
+    const dmg = Math.max(1, Math.round(amount - armDef(s) * .8));
     s.health = clamp(s.health - dmg, 0, 100);
     if (s.health > 0) return ` Saúde -${dmg}.`;
     s.hospital = 2; s.health = 35; addHeat(s, -10);
@@ -1674,7 +1679,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     const m = mission(id); if (!m) return refuse('Missão desconhecida.');
     const lock = missionLock(s, m); if (lock) return refuse(lock);
     const odds = missionChance(s, m), mult = missionRewardMult(s, m), d = s.district;
-    s.energy -= m.cost;
+    s.energy -= missionCost(s, m);
     s.today.missions[m.id] = (s.today.missions[m.id] || 0) + 1;
     if (s.tip > 0) s.tip = 0;
     s.dstate[d].vigil = clamp(s.dstate[d].vigil + m.vigil, 0, 100);
@@ -1796,7 +1801,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     return refuse('Operação bancária inválida.');
   }
   /** Maior depósito possível considerando a taxa. */
-  function maxDeposit(s) { let a = Math.floor(s.cash / (hasPerk(s, 'empreendedor', 1) ? 1.01 : 1.03)); while (a > 0 && a + depositFee(s, a) > s.cash) a--; return Math.max(0, a); }
+  function maxDeposit(s) { let a = Math.floor(s.cash / (1 + depositRate(s))); while (a > 0 && a + depositFee(s, a) > s.cash) a--; return Math.max(0, a); }
 
   function doBuy(s, id) {
     const b = business(id);
@@ -2278,7 +2283,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     s.dstate[d].vigil = clamp(s.dstate[d].vigil + 25, 0, 100);
     turfFriction(s, d, 8);
     if (roll(odds)) {
-      const total = Math.round(rand(h.low, h.high) * s.dstate[d].econ * (eventMod(s, 'payday') ? 1.3 : 1)), cut = Math.round(total * HEIST_CUT), take = total - cut;
+      const total = Math.round(rand(h.low, h.high) * s.dstate[d].econ * (eventMod(s, 'payday') ? 1.3 : 1) * (s.career === 'operador' ? 1.2 : 1)), cut = Math.round(total * HEIST_CUT), take = total - cut;
       s.cash += take; s.respect += h.respect; addHeat(s, heatGain(s, h.heat)); addMorale(s, 6);
       s.gangStats.heists++; memberXP(s, 2);
       unlock(s, 'primeiroassalto'); if (h.id === 'cofrecentral') unlock(s, 'golpedoano');
@@ -2608,6 +2613,8 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     }
 
     if (s.heist && s.day > Math.min(MAXDAY, s.heist.day + HEIST_WINDOW)) { lines.push(`O plano de ${heist(s.heist.id).name} esfriou: o prazo passou.`); s.heist = null; addMorale(s, -5); }
+    if (s.career === 'empreendedor' && s.bank >= 10000) { const r = Math.min(3, Math.floor(s.bank / 10000)); s.respect += r; lines.push(`Dono da Área: +${r} de respeito pelo dinheiro no banco.`); }
+    if (s.career === 'traficante') { const n = LABS.filter(l => s.labs[l.id] && !l.cash && !(s.labDown[l.id] >= s.day)).length; if (n) { addHeat(s, n); lines.push(`Polícia Federal de olho nos seus esquemas: +${n} de Procurado.`); } }
     // Galpão: preços oscilam, a produção rende e a polícia pode estourar um ponto.
     for (const d of DISTRICTS) for (const g of GOODS) { const m = s.market[d.id][g.id]; s.market[d.id][g.id] = clamp(Math.round(m + (100 - m) * .12 + rand(-14, 14)), 60, 150); }
     const labFee = labUpkeep(s);
@@ -2635,7 +2642,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     // Casa da noite abastecida com a própria produção: renda dobrada.
     for (const sp of SUPPLY) {
       const use = supplyPlan(s, sp); if (!use) continue;
-      const b = business(sp.biz), v = Math.round(b.net * s.dstate[b.district].econ); // dobra a renda base, sem somar bônus de classe
+      const b = business(sp.biz), v = Math.round(b.net * s.dstate[b.district].econ * SUPPLY_BONUS); // renda base, sem somar bônus de classe
       for (const g in use) s.goods[g] -= use[g];
       s.cash += v;
       lines.push(`${business(sp.biz).name} abastecido com a sua produção (${Object.entries(use).map(([g, q]) => `${q} × ${good(g).name}`).join(', ')}): +${money(v)}.`);
@@ -2809,12 +2816,12 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 
   const SB = {
     VERSION, SCHEMA, MAXDAY, STORAGE_KEY, RESALE, CAREER_XP,
-    STATS, MISSIONS, DISTRICTS, BUSINESSES, HEISTS, HEIST_MAX_HIRES, HEIST_WINDOW, HEIST_COOLDOWN, HEIST_CUT, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, AVATARS, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
+    STATS, MISSIONS, DISTRICTS, BUSINESSES, HEISTS, HEIST_MAX_HIRES, HEIST_WINDOW, HEIST_COOLDOWN, HEIST_CUT, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, AVATARS, CAREERS, OLD_CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
-    missionScore, missionChance, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    missionScore, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
@@ -3404,8 +3411,8 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
   function journal(max) { return `<ul class="timeline">${state.log.slice(0, max).map(i => `<li><time>Dia ${num(i.day)}</time>${esc(i.msg)}</li>`).join('')}</ul>`; }
 
   function careerCard() {
-    return `<section class="card choiceCard"><div class="eyebrow">Decisão permanente nesta temporada</div><h2>Escolha sua especialização</h2><p>Cada caminho tem vantagens, desvantagens e três habilidades desbloqueáveis com experiência.</p>
-      <div class="choiceGrid">${SB.CAREERS.map(c => `<article><strong>${c.name}</strong><p>${esc(c.desc)}<br><em class="mini">${esc(c.xpDesc)}</em></p>${button('Escolher ' + c.name, 'career', `data-id="${c.id}"`, false, 'small primary block')}</article>`).join('')}</div></section>`;
+    return `<section class="card choiceCard"><div class="eyebrow">Decisão permanente nesta temporada</div><h2>Escolha sua especialização</h2><p>Quatro caminhos para o topo do Respeito: cada um com vantagens, uma desvantagem e três habilidades desbloqueáveis com experiência.</p>
+      <div class="choiceGrid">${SB.CAREERS.map(c => `<article><strong>${c.name}</strong> <span class="mini">· ${c.tag}</span><p>${esc(c.desc)}<br><em class="mini">${esc(c.xpDesc)}</em></p>${button('Escolher ' + c.name, 'career', `data-id="${c.id}"`, false, 'small primary block')}</article>`).join('')}</div></section>`;
   }
   function newsCard() {
     const n = SB.currentNews(state); if (!n) return '';
@@ -3641,9 +3648,9 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
       ${stencil('Esquemas', 'do gelo à refinaria')}<div class="grid">${SB.LABS.map((l, i) => { const lvl = s.labs[l.id], c = SB.labCost(s, l), locked = s.respect < l.unlock, down = s.labDown[l.id] >= s.day, raid = SB.labRaid(s, l), sp = SB.SUPPLY.find(x => x.labs.includes(l.id));
         const makes = l.cash ? `${fmt(l.cash)} por dia no banco` : `${l.out} × ${esc(SB.good(l.good).name)}${l.good2 ? ` e ${l.out2} × ${esc(SB.good(l.good2).name)}` : ''} por dia`;
         return `<section class="card shopRow ${locked ? 'locked' : ''}"><div><h3><span class="tier">${i + 1}</span> ${esc(l.name)} <span class="pill">Nível ${lvl}/3</span></h3><p class="mini">${esc(l.desc)}</p>
-          <p class="mini">${lvl ? `Rende ${esc(SB.labYield(s, l))} por dia` : `Produz ${makes}`} · custo ${fmt(Math.max(1, lvl) * (30 + (l.bribe || 0)))}/dia${l.bribe ? ' com propina' : ''}${l.cash ? '' : ' · +40 de espaço'}${raid ? ` · <span class="negative">${raid}% de batida hoje</span>` : l.cash || SB.good(l.good).risk === 0 ? ' · sem batida' : ''}${sp ? ` · abastece ${esc(SB.business(sp.biz).name)} (renda em dobro)` : ''}${down ? ` · <span class="negative">fechado até o dia ${s.labDown[l.id]}</span>` : ''}</p>${locked ? `<div class="lockline">Requer ${l.unlock} de respeito.</div>` : ''}</div>
+          <p class="mini">${lvl ? `Rende ${esc(SB.labYield(s, l))} por dia` : `Produz ${makes}`} · custo ${fmt(Math.max(1, lvl) * (30 + (l.bribe || 0)))}/dia${l.bribe ? ' com propina' : ''}${l.cash ? '' : ' · +40 de espaço'}${raid ? ` · <span class="negative">${raid}% de batida hoje</span>` : l.cash || SB.good(l.good).risk === 0 ? ' · sem batida' : ''}${sp ? ` · abastece ${esc(SB.business(sp.biz).name)} (+70% de renda)` : ''}${down ? ` · <span class="negative">fechado até o dia ${s.labDown[l.id]}</span>` : ''}</p>${locked ? `<div class="lockline">Requer ${l.unlock} de respeito.</div>` : ''}</div>
           <div class="shopAct">${lvl >= 3 ? '<strong>Máximo</strong>' : `<strong>${fmt(c)}</strong>${button(lvl ? 'Ampliar' : 'Montar', 'build-lab', `data-id="${l.id}"`, locked || s.cash < c || s.jail > 0, 'small primary')}`}</div></section>`; }).join('')}</div>
-      <p class="mini" style="margin-top:6px">Com Procurado acima de 40, a polícia pode estourar um ponto: perde o estoque daquela mercadoria e fica 2 dias fechado. A propina do Laboratório e da Refinaria corta esse risco pela metade. Dono de Inferninho ou de Termas com o esquema certo e estoque abastece a casa e dobra a renda do dia.</p>`;
+      <p class="mini" style="margin-top:6px">Com Procurado acima de 40, a polícia pode estourar um ponto: perde o estoque daquela mercadoria e fica 2 dias fechado. A propina do Laboratório e da Refinaria corta esse risco pela metade. Dono de Inferninho ou de Termas com o esquema certo e estoque abastece a casa e ganha +70% da renda base do dia.</p>`;
   }
   function noite() {
     const s = state, here = SB.NIGHT.find(n => n.id === s.today.venue), blk = SB.blocked(s), full = s.energy >= 100, maxed = s.today.doses >= SB.DOSE_LIMIT, spent = SB.chemLeft(s) <= 0;
