@@ -35,6 +35,8 @@
 
 - [x] **v1.2**: telas reorganizadas em torno do ciclo (Rua, Roubar, Noite, Feira, Cidade), "E agora?", fases com lugares trancados, arma liberando roubo, 3 saídas na noite e primeiros passos na ordem do ciclo
 
+- [x] **v1.3**: cinco classes, casas da noite e banca do bicho, Termas própria, vício e desintoxicação, batida policial, apostas, colete na trocação, despachante, calendário do mês com quatro semanas e patentes
+
 O que falta para lançar está em **LANCAMENTO.md**.
 
 ## Pendências de balanceamento (prioridade alta)
@@ -107,3 +109,20 @@ Também sugerido: rebelião na cadeia com a gangue.
 - Empreendedor e Comerciante são os caminhos mais fracos depois da v1.2 (172 e 175 pontos).
 - No farm de roubos, o Articulador empata com o Operador (183 contra 180).
 - Atributos continuam Astúcia, Força, Lábia e Influência (o autor citou Força, Inteligência, Carisma e Resistência); decidir se renomeia.
+
+## Pendências da v1.3
+
+- **Traficante é o caminho mais forte** (226 pontos, 12 acima do segundo). Próximo ajuste: reduzir o bônus de blitz ou a remessa.
+- No farm de roubos, o Articulador (184) passa o Assaltante (177).
+- **Estouro de esquema**: polícia fechar casa ou banca de quem não paga propina (pedido pelo autor) ainda não existe.
+- **Rebelião na cadeia** e **guerra de território entre bandos** como eventos jogáveis.
+- **Caça-níquel** e outras casas de jogo como negócio.
+- Rótulo "Vigilância" continua; o autor chama de Calor / Procurado / Ficha suja. Decidir o nome e trocar em todo o jogo de uma vez.
+- Atributos continuam Astúcia, Força, Lábia e Influência.
+
+## Depende de servidor (visão do autor para o jogo online)
+
+- Rodada no calendário real (dia 1º ao último dia do mês) e eventos em datas reais (quinto dia útil, sextas e sábados).
+- Ranking de Respeito entre jogadores, com a fórmula única (patrimônio lavado, atributos, golpes) e as abas Reis da Noite, Maiores Assaltantes e Ranking de Bondes.
+- Galeria da fama, molduras e títulos históricos ("Rei de Novembro").
+- Renda por hora, mesmo offline. Bondes com jogadores de verdade.

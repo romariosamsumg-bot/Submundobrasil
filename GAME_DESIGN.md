@@ -1,4 +1,4 @@
-# Submundo Brasil — Game Design (v1.2)
+# Submundo Brasil — Game Design (v1.3)
 
 Documento de referência das mecânicas. Os números aqui são os do código em
 `src/engine.js`. Se você mudar um valor no código, atualize este documento.
@@ -599,3 +599,70 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 ### O que do fluxo do autor depende de servidor (não existe nesta versão)
 - Outros jogadores no bando, caçada a jogadores na noite e ranking nacional. Hoje: integrantes e grupos rivais simulados; a "emboscada" na noite é a briga do Baile.
 - Renda por hora de relógio. Hoje: renda ao dormir.
+
+---
+
+## 20. Sistemas paralelos (v1.3)
+
+O ciclo de roubos é a espinha dorsal; estes sistemas rodam em volta dele. Não há PvP: a disputa é contra a polícia, o vício, a falência e o relógio do mês.
+
+### Classes (cinco)
+| Classe | Vantagem | Desvantagem | Habilidades (10 / 25 / 45 XP) |
+|---|---|---|---|
+| **Assaltante** | +6 de chance, +8% nos roubos grandes, falhas custam 30% menos | vigilância +10%, negócios −10% | Rota de fuga · Ritmo de rua · Sangue frio |
+| **Traficante** | produção −10% de custo e +10% de volume; comprador de fora paga +5% | chance nos roubos −3; negócio de mercadoria chama 60% mais atenção | blitz −12 · carga +15 · batidas pela metade e remessas de 70 |
+| **Barão da Noite** | casas da noite +50% e −12% de custo; noitada −40%; +1 de respeito por saída; vício pela metade | recompensa dos roubos −5% | ressaca pela metade · sem batida nem briga na noite · casas +20% |
+| **Bicheiro** | negócios +25% e −12% de custo; o bicho paga 20× | chance nos roubos −3 | taxa do banco 1% · crises pela metade · banco rende |
+| **Articulador** | influência +30%, diálogos +8, disputas +5 | recompensa dos roubos −10% | contatos −30% · tréguas longas · tributo +60% |
+
+O "Cafetão" do gênero virou **Barão da Noite**: ele lucra com as casas, sem mecânica de contratar ou explorar pessoas. Assaltante e Bicheiro são os antigos Operador e Empreendedor (mesmo código interno; saves continuam válidos). O Articulador foi mantido porque bairros e acordos existem neste jogo.
+
+### Império da noite e do jogo (negócios novos)
+| Negócio | Custo | Renda base/dia | Observação |
+|---|---|---|---|
+| Pensão de beira de estrada | R$ 900 | 48 | casa da noite; o primeiro tijolo |
+| Banca do bicho | R$ 3.000 | 165 | |
+| Inferninho da Luz Vermelha | R$ 4.200 | 230 | casa da noite |
+| Termas VIP | R$ 15.000 | 620 | casa da noite; dá **uma recarga cheia por dia, grátis, sem vício e sem batida** |
+
+Bar e Casa de Shows também contam como casas da noite (bônus do Barão e da Noite de fluxo).
+
+### Vício, overdose e desintoxicação
+- Cada saída sobe o vício (Boteco +4, Pagode +5, Baile +9, Termas +3). Cai 3 por dia.
+- Recarga da noite × `max(40%, 1 − vício/160)`.
+- Com vício ≥ 70, cada saída tem `vício − 60`% de chance (até 40%) de **overdose**: um dia na UPA, −25 de saúde e −3% de respeito.
+- Hospital: **Soro na veia** (25 de energia, −20, uma vez por dia) ou **Clínica de desintoxicação** (R$ 18 por ponto, zera).
+- **Batida policial** nos lugares baratos (Boteco 8%, Pagode 4%, Baile 10%; ×1,6 na Noite de fluxo): 5% do caixa em mãos (até R$ 500) e +8 de vigilância.
+
+### Apostas (Cidade → Apostas, abre com 8 de respeito)
+| Jogo | Chance | Paga | Teto |
+|---|---|---|---|
+| Jogo do bicho | 1 em 25 | 18× (Bicheiro: 20×) | R$ 20.000 |
+| Sinuca valendo dinheiro | 34–49% (Astúcia e Lábia) | 2× | R$ 2.000 |
+| Roleta clandestina | 47% | 2× | R$ 20.000 |
+
+Até 6 apostas por dia. A banca tem vantagem em todos os jogos (testado com 10 mil apostas de cada).
+
+### O jogador contra o sistema
+- **Colete**: roubo armado que falha vira trocação com a segurança: dano de `8–14 + poder exigido`, reduzido em 80% da defesa. Sem colete, é UPA.
+- **Prisão custa respeito**: −4% ao ser preso.
+- **Despachante** (tela Roubar): `R$ 150 + 14 × vigilância`, −35 de vigilância, uma vez por dia.
+
+### O mês
+| Semana | Dias | Tema |
+|---|---|---|
+| 1 | 1–7 | A corrida da sarjeta |
+| 2 | 8–15 | A construção do império |
+| 3 | 16–23 | O bonde pesado |
+| 4 | 24–30 | Tudo ou nada |
+
+- **Dia de pagamento** (5 e 20): Mercadinho, Caixa eletrônico, Lotérica, Cofre da joalheria e assaltos do bando +30%.
+- **Noite de fluxo** (6, 7, 13, 14, 21, 27): casas da noite rendem o dobro; batida ×1,6.
+- **Operação Fecha-Mês** (28 a 30): risco +8 e vigilância gerada +15%.
+- **Último Navio** (dia 30): o comprador de fora paga +25%.
+
+### Patentes (por respeito)
+Pé de chinelo (0) · Rato de pista (30) · Linha de frente (90) · Gerente do movimento (150) · Dono do morro (230).
+
+### Depende de servidor (não existe nesta versão)
+Rodada no calendário real, ranking entre jogadores e de bondes, galeria da fama, renda enquanto offline e a fórmula única de Respeito como pontuação pública. A pontuação da temporada continua nas seis categorias (§9 e §14).

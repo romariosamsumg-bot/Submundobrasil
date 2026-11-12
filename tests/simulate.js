@@ -151,6 +151,20 @@ const STRATEGIES = {
       SB.perform(s, 'gangOp');
     }
     grind(s, 55, 40); trainBest(s, 'forca', 2500); } },
+  traficante_galpao: { career: 'traficante', goal: 'capital', day(s) { STRATEGIES.comerciante.day(s); } },
+  barao_noite: { career: 'barao', goal: 'capital', day(s) {
+    // Monta o império da noite e usa a própria noite para render mais roubos.
+    bail(s); handleNews(s);
+    if (s.bank) SB.perform(s, 'bank', 'withdraw', s.bank);
+    for (const id of ['termas', 'inferninho', 'pensao', 'show', 'bar', 'bicho', 'mercado', 'oficina']) if (s.day < 20 && !s.businesses.includes(id) && s.cash > SB.buyCost(s, SB.business(id)) + 300) SB.perform(s, 'buy', id);
+    if (s.vicio >= 60) SB.perform(s, 'detox', 'soro');
+    grind(s, 60);
+    for (let i = 0; i < 3; i++) if (s.energy < 30 && !s.jail && !s.hospital && s.vicio < 65) { const n = SB.NIGHT.filter(x => (!x.unlock || s.respect >= x.unlock || SB.ownTermas(s, x)) && SB.nightCost(s, x) <= s.cash - 300).pop(); if (!n || !SB.perform(s, 'night', n.id).ok) break; grind(s, 60); }
+    if (s.day >= 22) bankSurplus(s, 400); } },
+  apostador: { career: 'empreendedor', goal: 'capital', day(s) {
+    // Rouba como todo mundo e joga metade do que tem na roleta, três vezes por dia.
+    bail(s); handleNews(s); grind(s, 55);
+    for (let i = 0; i < 3; i++) { const st = Math.min(20000, Math.floor(s.cash / 2)); if (st >= 10) SB.perform(s, 'bet', 'roleta', st); } } },
   exploit_repetir: { career: 'operador', goal: 'capital', day(s) {
     // Repete sempre a missão de maior recompensa desbloqueada e deposita tudo.
     if (s.bank) SB.perform(s, 'bank', 'withdraw', s.bank);
@@ -173,7 +187,7 @@ const STRATEGIES = {
 function playSeason(strategy, s) {
   const st = STRATEGIES[strategy];
   if (st.career) SB.perform(s, 'career', st.career);
-  else SB.perform(s, 'career', SB.CAREERS[SB.rand(0, 2)].id);
+  else SB.perform(s, 'career', SB.CAREERS[SB.rand(0, SB.CAREERS.length - 1)].id);
   if (st.goal) SB.perform(s, 'goal', st.goal);
   while (s.day < SB.MAXDAY) { st.day(s); SB.perform(s, 'nextDay'); }
   st.day(s);

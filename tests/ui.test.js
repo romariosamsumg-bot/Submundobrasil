@@ -3,7 +3,7 @@
 'use strict';
 const { chromium } = require('playwright');
 const path = require('path');
-const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v1.2.html');
+const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v1.3.html');
 const V04 = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.4.html');
 let failures = 0;
 const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg); if (!cond) failures++; };
@@ -49,7 +49,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   }
 
   await go('hub');
-  check(await page.locator('.place.locked').count() === 4, 'iniciante vê 4 lugares trancados com o respeito exigido');
+  check(await page.locator('.place.locked').count() === 5, 'iniciante vê 5 lugares trancados com o respeito exigido');
   check((await page.textContent('.place.locked')).includes('respeito'), 'lugar trancado diz o que falta');
   await page.screenshot({ path: path.join(__dirname, 'screens', 'v12-cidade-iniciante.png'), fullPage: true });
   console.log('2. Ações e feedback');
@@ -91,7 +91,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   console.log('3b. Cidade, Feira do Rolo, Galpão, noite e Perfil (v0.7)');
   await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.cash = 6000; s.respect = 50; s.jail = 0; s.energy = 60; s.heat = 0; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
   await page.reload(); await go('hub');
-  check(await page.locator('.place').count() === 7, 'tela Cidade mostra 7 lugares');
+  check(await page.locator('.place').count() === 8, 'tela Cidade mostra 8 lugares');
   check(await page.locator('.place.locked').count() === 0, 'com 50 de respeito nada fica trancado');
   await page.click('.mobileNav [data-view=feira]');
   await page.click('[data-action=buy-item][data-id=cinquentinha]');
@@ -154,12 +154,32 @@ await page.click('[data-action=duel][data-id=marrento]');
   check(!(await page.isVisible('#help')), 'aviso 18+ não volta depois de confirmado');
   await go('gestao');
 
+  console.log('3d. Apostas, vício e despachante (v1.3)');
+  await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.jail = 0; s.hospital = 0; s.cash = 5000; s.vicio = 40; s.heat = 50; s.energy = 60; s.today.bets = 0; s.today.detox = false; s.today.despachante = false; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
+  await page.reload(); await go('apostas');
+  await page.fill('#betStake', '200'); await page.selectOption('#betAnimal', '6');
+  await page.click('[data-action=bet][data-id=bicho]');
+  let bs = await st();
+  check(bs.today.bets === 1 && (bs.cash === 4800 || bs.cash === 5000 + 200 * 17), 'jogo do bicho: aposta de R$ 200 perdida ou paga 18×');
+  await page.click('[data-action=bet-stake][data-id="50"]');
+  check(await page.inputValue('#betStake') === '50', 'atalho de valor preenche a aposta');
+  await go('hospital');
+  await page.click('[data-action=detox][data-id=soro]');
+  check((await st()).vicio === 20, 'soro na veia: -20 de vício');
+  await go('acoes');
+  await page.click('[data-action=clean-record]');
+  check((await st()).heat === 16, 'despachante: -35 de vigilância (50 + 1 da aposta - 35)');
+  await go('noite');
+  check((await page.textContent('#content')).includes('Vício'), 'tela da Noite mostra o vício');
+  await go('painel');
+  check((await page.textContent('.dayBar')).includes('Semana'), 'Rua mostra a semana do mês');
+
   console.log('3c. Arte (v1.1)');
   await go('hub');
-  check(await page.locator('.place .placeScene svg').count() === 7, 'os 7 lugares da Cidade têm cena ilustrada');
+  check(await page.locator('.place .placeScene svg').count() === 8, 'os 8 lugares da Cidade têm cena ilustrada');
   check(await page.evaluate(() => { window.SB_ART = { 'place-galpao': 'data:image/png;base64,iVBORw0KGgo=' }; return window.SBArt.place('galpao').startsWith('<img') && window.SBArt.place('feira').startsWith('<svg'); }), 'imagem pintada substitui só a chave correspondente');
   await page.evaluate(() => { window.SB_ART = {}; });
-  check(await page.evaluate(() => window.SBArt.keys().length) === 23, '23 chaves de arte (9 lugares, 8 adversários, 6 assaltos)');
+  check(await page.evaluate(() => window.SBArt.keys().length) === 24, '24 chaves de arte (10 lugares, 8 adversários, 6 assaltos)');
 
   console.log('4. Save inválido e XSS');
   await page.evaluate(() => localStorage.setItem('submundo_brasil_v01', '{"schema":1,"name":"Quebrado"'));
@@ -218,7 +238,7 @@ await page.click('[data-action=duel][data-id=marrento]');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-action=export]')]);
   const fpath = await dl.path();
   const payload = JSON.parse(require('fs').readFileSync(fpath, 'utf8'));
-  check(payload.game === 'Submundo Brasil' && payload.version === '1.2' && payload.checksum, 'arquivo exportado com versão e checksum');
+  check(payload.game === 'Submundo Brasil' && payload.version === '1.3' && payload.checksum, 'arquivo exportado com versão e checksum');
   await page.evaluate(() => localStorage.clear()); await page.reload();
   await page.setInputFiles('#welcomeImportFile', fpath);
   await page.waitForTimeout(300);

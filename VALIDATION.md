@@ -1,4 +1,4 @@
-# Validação — Submundo Brasil v1.2
+# Validação — Submundo Brasil v1.3
 
 Tudo abaixo foi **executado** neste ambiente (Node.js + Chromium/Playwright).
 Para reproduzir: `npm test` (build + motor + fuzz + interface), `npm run simulate`
@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**118 de 118 passaram** (v1.2; 4 novos sobre fases, lugares trancados, arma liberando roubo e vantagens de ser dono do Bar e da Casa de Shows; 3 antigos atualizados para as regras novas). Cenários cobertos:
+**136 de 136 passaram** (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**90 de 90 verificações passaram** (v1.2: abas na ordem do ciclo, fase na barra, lugares trancados para o iniciante, Perfil pelo retrato), com **0 erros de console**:
+**96 de 96 verificações passaram** (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
 
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
 - A missão consome energia e mostra o cartão de resultado com as variações.
@@ -65,39 +65,43 @@ ausência de cortes).
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 
-Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.2** em
+Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.3** em
 `node tests/simulate.js 300 2` (300 temporadas por estratégia, médias, em Recife):
 
 | Estratégia | Patrimônio | Respeito | Pontos | Meta | Detenções |
 |---|---|---|---|---|---|
-| Operador farmando roubos | 14.744 | 138 | 196 | 50% | 2,8 |
-| Empreendedor com negócios | 15.718 | 114 | 172 | 30% | 3,1 |
-| Articulador territorial | 711 | 129 | 205 | 100% | 1,6 |
-| Articulador diplomata | 1.768 | 105 | 211 | 90% | 2,6 |
-| Bonde (gangue) | 1.351 | 104 | 178 | 30% | 1,3 |
-| Comerciante (Galpão, produção, remessas) | 11.274 | 110 | 175 | 10% | 3,1 |
-| **Ciclo completo: roubo, noite e arsenal** | 16.781 | 132 | 197 | 50% | 3,1 |
-| Brigão (arsenal, duelos, hospital) | 15.583 | 155 | 194 | 0% | 1,8 |
-| Bando de assaltos | 2.375 | 88 | 178 | 40% | 1,4 |
-| **Exploit: repetir a melhor e depositar tudo** | 2.479 | 51 | **31** | 0% | **10,4** |
-| Aleatório | 438 | 44 | 49 | 0% | 0,7 |
+| Assaltante farmando roubos | 15.286 | 133 | 194 | 50% | 2,8 |
+| Bicheiro com negócios | 19.393 | 110 | 197 | 60% | 3,2 |
+| Articulador territorial | 632 | 126 | 202 | 100% | 1,5 |
+| Articulador diplomata | 1.710 | 100 | 214 | 90% | 2,5 |
+| Bonde (gangue) | 1.311 | 103 | 179 | 30% | 1,2 |
+| Comerciante sem a classe | 11.167 | 104 | 158 | 10% | 3,2 |
+| Ciclo completo: roubo, noite e arsenal | 16.806 | 122 | 188 | 40% | 3,1 |
+| Brigão (duelos) | 15.854 | 153 | 194 | 0% | 1,9 |
+| Bando de assaltos | 2.270 | 85 | 170 | 30% | 1,2 |
+| **Traficante (Galpão e remessas)** | 14.275 | 105 | **226** | 30% | 2,8 |
+| **Barão da Noite (império e noitadas)** | 16.599 | 112 | 180 | 40% | 3,5 |
+| **Apostador (metade do caixa na roleta, 3× ao dia)** | 5.258 | 84 | **77** | 20% | 3,6 |
+| **Exploit: repetir a melhor e depositar tudo** | 2.402 | 39 | **25** | 0% | **10,6** |
+| Aleatório | 404 | 43 | 48 | 0% | 0,7 |
 
-Leitura e calibração da v1.2:
-- Com "arma libera roubo" sozinha, os caminhos de roubo caíram de ~205 para ~160: a arma custava e não rendia. Duas medições intermediárias mostraram que comprar a arma mais cara possível piorava (156) e comprar só a necessária ajudava pouco (175).
-- Correção de regra: roubo armado paga +15% e arma acima do mínimo dá até +10 de chance; os dois roubos do topo passaram a pedir poder 7 e 9.
-- Resultado: nove estratégias entre **172 e 211** (antes 166 a 217). O robô que segue o ciclo completo (roubar, noite, arsenal) faz 197, empatado com o farm puro (196); antes ficava atrás (194 contra 202).
-- Os robôs foram atualizados para comprar a arma mais barata que destrava o próximo roubo, sacando do banco se preciso.
-- Empreendedor e Comerciante são agora os caminhos mais fracos (172 e 175).
+Leitura e calibração da v1.3:
+- **Traficante**: na primeira medição fez 316 pontos (o comerciante sem a classe fazia 172). Foram reduzidos os bônus (produção 10%, comprador +5%, carga +15, remessa 70), criada a desvantagem (mais atenção da polícia nos negócios) e subidas as faixas da medalha de Comércio (4.000 / 9.000 / 16.000). Medições intermediárias: 262, 251, 235, 226. **Continua o caminho mais forte**, 12 pontos acima do segundo.
+- **Barão da Noite**: começou em 143. Bar e Casa de Shows passaram a contar como casas da noite, o bônus foi a +50%, a noitada a −40%, e cada saída dá +1 de respeito. Resultado: 180.
+- **Apostas não são renda**: o apostador faz 77 pontos. Um teste separado mostra a banca com vantagem em 10 mil apostas de cada jogo.
+- As estratégias que não usam as mecânicas novas mudaram pouco (até 16 pontos), puxadas pelos dias de pagamento, pela perda de respeito na prisão e pelo dano maior nos roubos armados.
 
-### Especializações — `tests/careers.js` (150 temporadas por célula, v1.2)
+### Classes — `tests/careers.js` (100 temporadas por célula, v1.3)
 
-| Estratégia | Operador | Articulador | Empreendedor |
-|---|---|---|---|
-| Roubos | 180 | **183** | 164 |
-| Negócios | 175 | 157 | **181** |
-| Território | 202 | **205** | 203 |
-| Diplomacia | 189 | **215** | 160 |
-| Gangue | **177** | 173 | 168 |
+| Estratégia | Assaltante | Articulador | Bicheiro | Traficante | Barão |
+|---|---|---|---|---|---|
+| Roubos | 177 | **184** | 152 | 153 | 155 |
+| Negócios | 189 | 173 | **208** | 149 | 202 |
+| Território | 198 | **203** | 195 | 196 | 197 |
+| Diplomacia | 185 | **211** | 160 | 158 | 170 |
+| Gangue | **191** | 176 | 146 | 161 | 167 |
+
+(O Traficante só brilha na estratégia de mercadoria, medida na tabela acima.)
 
 ### Cidades (medido na v0.6; não refeito na v0.7)
 

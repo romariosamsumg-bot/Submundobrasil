@@ -13,7 +13,7 @@ ChatGPT, Firefly etc.) e trocar as que você quiser, uma a uma.
 5. Rode `node build.js`. A imagem substitui o SVG daquela chave; as que faltarem continuam em SVG.
 
 Pode trocar aos poucos, começando pelas telas que o jogador mais vê (Galpão, Feira, Noite, Duelos).
-Com as 23 imagens o arquivo final fica com cerca de 2 a 3 MB e continua funcionando offline.
+Com as 24 imagens o arquivo final fica com cerca de 2 a 3 MB e continua funcionando offline.
 
 ## Bloco de estilo (cole no início de todo prompt)
 
@@ -33,6 +33,7 @@ Mantenha sempre o mesmo modelo e, se a ferramenta permitir, a mesma "seed" ou im
 | `place-hospital.webp` | Fachada de UPA brasileira à noite, luz fria fluorescente, ambulância branca estacionada, cruz vermelha acesa, fila de pessoas cansadas na porta. |
 | `place-gestao.webp` | Fachada de banco antigo com colunas no centro da cidade, caixa eletrônico iluminado ao lado, calçada vazia de madrugada. |
 | `place-temporada.webp` | Parede de bar com troféu dourado de campeonato de várzea na prateleira, medalhas de bronze e prata penduradas, fotos desbotadas e bandeirinhas. |
+| `place-apostas.webp` | Fundo de bar com mesa de sinuca de pano verde sob lâmpada pendurada, quadro de anotações de jogo do bicho na parede, roleta pequena num canto, fumaça e copos. |
 | `place-assaltos.webp` | Van escura parada numa rua lateral de madrugada, porta lateral aberta, sacola de lona no chão, reflexo distante de giroflex vermelho e azul. |
 
 ## Adversários de duelo (512 × 512, retrato de busto, fundo liso escuro)

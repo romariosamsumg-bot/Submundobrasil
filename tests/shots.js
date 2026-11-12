@@ -13,7 +13,7 @@ const SB = require('./load-engine.js')();
   s.heist = { id: 'arrastao', day: 8, intel: 14, scoutDay: 8, hires: 0 }; s.goods.cigarro = 20; s.labs.plantacao = 1; s.exportDeal = { day: 10, good: 'erva' };
   const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 360, height: 780 }, deviceScaleFactor: 2 });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + path.join(__dirname, '..', 'Submundo-Brasil-v1.2.html'));
+  await p.goto('file://' + path.join(__dirname, '..', 'Submundo-Brasil-v1.3.html'));
   await p.evaluate(() => localStorage.clear()); await p.reload();
   await p.selectOption('#homeCity', 'Rio de Janeiro');
   await p.screenshot({ path: path.join(__dirname, 'screens', 'v12-capa.png') });
