@@ -4,7 +4,7 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 
 ## Regras obrigatórias
 
-1. **Nunca edite `Submundo-Brasil-v0.6.html` à mão.** Edite `src/` e rode `node build.js`.
+1. **Nunca edite `Submundo-Brasil-v0.7.html` à mão.** Edite `src/` e rode `node build.js`.
 2. **Regras só em `src/engine.js`; nada de DOM lá.** A interface (`src/ui.js`) só chama `SB.perform(...)` e lê funções derivadas.
 3. **Toda ação recusada não pode alterar o estado.** Valide tudo antes da primeira mutação. Existe teste para isso.
 4. **Compatibilidade de saves é sagrada.**
@@ -35,6 +35,12 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 - Valores monetários inteiros (`Math.round`); faixas sempre com `clamp`.
 - Funções derivadas puras (`missionChance(s, m)`); efeitos colaterais apenas em `do*`.
 - Aleatoriedade somente por `rand`/`roll`/`pick`/`weighted` do motor (para testes determinísticos).
+
+## Mercadorias e temas sensíveis
+
+- Mercadorias, produção e remessas são **comércio abstrato**: nomes de rua e números, nunca receitas, ingredientes reais, métodos ou rotas reais.
+- Pessoas não são mercadoria: nada de mecânica de exploração sexual ou tráfico de pessoas.
+- Item, mercadoria ou ponto de produção novo → entrada nas tabelas `ITEMS`/`GOODS`/`LABS`, com custo **e** risco, e leitura em `normalizeSave`.
 
 ## Primeiros passos e ajuda
 

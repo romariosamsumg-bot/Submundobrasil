@@ -1,4 +1,4 @@
-# Submundo Brasil — Game Design (v0.6)
+# Submundo Brasil — Game Design (v0.7)
 
 Documento de referência das mecânicas. Os números aqui são os do código em
 `src/engine.js`. Se você mudar um valor no código, atualize este documento.
@@ -356,3 +356,69 @@ Três camadas respondem "qual é o objetivo, aonde chegar e como":
 3. **Seu rumo**: cartão permanente no Início com a pontuação, o título atual, o próximo título e a **medalha mais próxima**, com a dica de como chegar nela. Avisa na reta final (dia 25 em diante).
 
 Para não sobrecarregar, a meta e a primeira notícia só aparecem depois da escolha da especialização.
+
+---
+
+## 14. Feira do Rolo, Galpão, vida noturna e Perfil (v0.7)
+
+Mecânicas clássicas do gênero (arsenal, mercadoria, produção, remessa, noite e
+ficha do personagem) com sistemas e nomes próprios. Tudo é comércio abstrato:
+comprar, produzir, transportar e vender, sem receitas nem métodos reais.
+Prostituição não entra como mecânica; a noite é feita de bares e casas noturnas.
+
+### Navegação
+Cinco abas: **Início, Serviços, Cidade, Gangue, Perfil**. A aba Cidade reúne os
+lugares (Bairros, Galpão, Feira do Rolo, Vida noturna, Banco e negócios,
+Temporada). Temporada também é acessível pelo Perfil.
+
+### Feira do Rolo (equipamentos)
+Um item por espaço; ao trocar, o antigo volta por 50%.
+
+| Espaço | Itens (preço · respeito) | Efeito |
+|---|---|---|
+| Arma | Soco-inglês (300 · 0), Peixeira (750 · 15), Três-oitão (1.700 · 35), Pistola (3.300 · 70), Doze (5.600 · 110), Fuzil (9.200 · 160) | Poder 2/4/7/10/13/17: confrontos +poder, operações +60% do poder, serviços de Força +50% do poder. **Custo:** com arma de fogo (poder ≥ 7), +1 dia de detenção |
+| Proteção | Jaqueta de couro (400 · 0), Colete usado (1.500 · 30), Colete tático (4.200 · 90) | Defesa 2/5/9: reduz a chance de detenção |
+| Veículo | Bicicleta cargueira (250), Cinquentinha (950 · 10), Moto 150 (2.400 · 40), Opala preto (5.200 · 80), Carro blindado (12.000 · 150) | Carga +10/15/25/60/90; fuga 1/3/6/8/12 (detenção e blitz); da Moto em diante, viajar não gasta energia |
+
+### Galpão (mercadorias)
+| Mercadoria | Base | Risco | Respeito |
+|---|---|---|---|
+| Cigarro da fronteira | R$ 20 | 1 | 0 |
+| Bebida batizada | R$ 45 | 1 | 10 |
+| Erva | R$ 70 | 2 | 20 |
+| Eletrônico sem nota | R$ 120 | 2 | 30 |
+| Bala | R$ 160 | 3 | 60 |
+| Pó | R$ 300 | 4 | 100 |
+
+- **Preço** = base × fator do bairro (60–150%), que oscila todo dia e volta aos poucos a 100%. A venda paga 95% do preço (+5% em território aliado).
+- **Impacto**: cada unidade negociada move o preço local (mais forte nas mercadorias caras), então comprar e revender no mesmo lugar dá prejuízo.
+- **Custos e riscos**: 3 de energia por negócio; vigilância pessoal e local sobem com a quantidade e o risco; vender na área de outro grupo gera atrito.
+- **Carga**: 30 + veículo + 40 por ponto de produção.
+- **Blitz**: viajar carregado tem chance de `carga×risco/12 + vigilância×0,25 − fuga` (máx. 60%) de perder metade da carga.
+- **Comprador de fora**: a cada 5 dias (5, 10, ... 30), no bairro de cargas, paga **1,9× a base** por uma mercadoria anunciada com antecedência, até 60 unidades, uma vez por dia. É a mecânica de planejamento: guardar estoque para a data certa.
+- **Produção própria** (3 níveis: ×1, ×1,8, ×2,6; custo de R$ 30 por nível ao dia):
+
+| Ponto | Produz | Custo · respeito |
+|---|---|---|
+| Alambique de fundo de quintal | 7 Bebida/dia | R$ 2.000 · 15 |
+| Plantação na mata | 6 Erva/dia | R$ 3.600 · 35 |
+| Laboratório de galpão | 4 Bala/dia | R$ 7.000 · 80 |
+
+  **Batida policial**: com vigilância acima de 40, cada ponto tem `(vigilância − 40) × 0,5%` de chance por dia (máx. 25%) de ser fechado por 2 dias, perdendo o estoque daquela mercadoria.
+- **Patrimônio** passa a contar estoque (70% da base), equipamentos e produção (50% do custo).
+- **Sexta categoria de medalha, Comércio**: lucro com mercadorias (vendas e remessas menos compras). Bronze R$ 3.000, prata R$ 7.000, ouro R$ 12.000.
+
+### Vida noturna
+Dinheiro vira energia hoje; a ressaca reduz a energia recuperada amanhã. Até 2
+saídas por dia; a segunda custa 50% a mais.
+
+| Lugar | Custo | Energia | Ressaca | Extra |
+|---|---|---|---|---|
+| Boteco | R$ 60 | +12 | −3 | — |
+| Baile (nome muda por cidade) | R$ 160 | +25 | −6 | equipe +3 de ânimo; +2 de vigilância |
+| Inferninho | R$ 360 | +40 | −10 | 55% de fazer contatos (+influência); senão, 40% de confusão (+6 de vigilância) |
+
+### Perfil
+Ficha do personagem: retrato, título, atributos em barras, os três espaços de
+equipamento, números da temporada (serviços, detenções, mercadoria vendida,
+remessas, blitze) e acesso a Temporada e Como jogar.

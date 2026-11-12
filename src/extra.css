@@ -302,3 +302,32 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 .helpBtns{display:flex;justify-content:space-between;gap:8px;margin-top:8px}.helpBtns .btn.primary{min-width:130px}.helpBtns .btn.ghost{color:#3a3226;border-color:#8a7a5a}
 .cityTrait{margin:7px 0 0;font-size:12px;line-height:1.45;color:#d7c9a8}.cityTrait strong{color:#f0c06e}
 @media(prefers-reduced-motion:reduce){.nav button.hint::after,.mobileNav button.hint::after{animation:none}}
+
+/* ===== v0.7: Cidade, Feira do Rolo, Galpão, noite e Perfil ===== */
+.mobileNav{grid-template-columns:repeat(5,1fr)!important}
+.backLink{background:transparent;border:0;color:#e7af63;font:800 11px/1 ui-monospace,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase;padding:4px 0 10px;min-height:0}
+.places{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:11px}
+.place{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;min-height:118px;padding:12px;border:1px solid #3d4a4f;border-bottom:4px solid #05080a;border-radius:6px;color:#f5f2e9;background:#182227;overflow:hidden}
+.place:hover{border-color:#a68352}
+.placeArt{display:grid;place-items:center;width:44px;height:44px;border-radius:6px;background:#0b1013;border:1px solid #4a4433;margin-bottom:5px}
+.placeArt svg{width:27px;height:27px;fill:none;stroke:#f0c06e;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.place b{font:700 17px/1.1 Georgia,serif}.place small{font-size:11px;line-height:1.35;color:#a9b7bb}
+.place.p-cidade{background:linear-gradient(160deg,#1d3040,#161d22 70%)}.place.p-galpao{background:linear-gradient(160deg,#33291c,#161d22 70%)}
+.place.p-feira{background:linear-gradient(160deg,#3a2420,#161d22 70%)}.place.p-noite{background:linear-gradient(160deg,#2c2140,#161d22 70%)}
+.place.p-gestao{background:linear-gradient(160deg,#1f3326,#161d22 70%)}.place.p-temporada{background:linear-gradient(160deg,#3a3320,#161d22 70%)}
+.placeBadge{position:absolute;top:9px;right:9px;font:800 9px/1 ui-monospace,Consolas,monospace;font-style:normal;letter-spacing:.06em;text-transform:uppercase;background:#f0c06e;color:#1a1408;padding:4px 6px;transform:rotate(3deg)}
+.shopRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}.shopRow h3{font-size:14px;margin:0 0 3px}.shopRow p{margin:0}
+.shopRow.mine{border-color:#7b6a3f;background:#211f19}.shopRow.locked,.goodRow.locked{opacity:.6}
+.shopAct{display:flex;flex-direction:column;align-items:flex-end;gap:5px;text-align:right}.shopAct strong{font-size:14px;color:#f3d09b;white-space:nowrap}
+.goodRow h3{font-size:14px;margin:0}.goodRow p{margin:5px 0 8px}
+.tradeBtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.tradeBtns .btn{font-size:11px;padding:7px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.sheet{display:flex;gap:14px;align-items:center;padding:14px;background:linear-gradient(120deg,#30271e,#161d22 70%);border:1px solid #61533d;border-radius:4px}
+.sheetAvatar{flex:none;width:84px;height:84px;border:2px solid #e0ab61;border-radius:4px;overflow:hidden;display:block}.sheetAvatar svg{width:100%;height:100%;display:block}
+.sheet h2{margin:0;font:700 23px/1.1 Georgia,serif;overflow-wrap:anywhere}.sheet p{margin:4px 0 0;color:#e6c190;font-size:13px}.sheet p.mini{color:#a9b7bb;font-size:11px}
+.statRow{display:grid;grid-template-columns:22px 78px minmax(0,1fr) 34px;gap:8px;align-items:center;padding:6px 0;font-size:12px}.statRow .ico{width:18px;height:18px;fill:none;stroke:#e0ab61;stroke-width:1.7}.statRow strong{text-align:right}
+.gearGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.gearSlot{display:flex;flex-direction:column;gap:3px;text-align:left;padding:10px 8px;background:#151c20;border:1px dashed #4e5e69;border-radius:4px;color:#f5f2e9;min-width:0}
+.gearSlot.on{border-style:solid;border-color:#7b6a3f;background:#211f19}.gearSlot span{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#a9b7bb}.gearSlot b{font-size:12px;line-height:1.2;overflow-wrap:anywhere}.gearSlot small{font-size:10px;color:#e0ab61}
+.tiles{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+@media(max-width:700px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(min-width:701px){.places{grid-template-columns:repeat(3,minmax(0,1fr))}}

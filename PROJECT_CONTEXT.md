@@ -4,18 +4,18 @@ RPG de crime e estratégia para navegador, com ambientação brasileira fictíci
 inspirado nos jogos clássicos de menus e cliques. Single-player, offline, em um
 único arquivo HTML.
 
-## Estado atual: v0.6
+## Estado atual: v0.7
 
 | Arquivo | Papel |
 |---|---|
-| `Submundo-Brasil-v0.6.html` | **Entregável**: jogo completo e autônomo (gerado, não editar à mão) |
+| `Submundo-Brasil-v0.7.html` | **Entregável**: jogo completo e autônomo (gerado, não editar à mão) |
 | `Submundo-Brasil-v0.4.html` | Versão anterior, mantida como referência e para o teste de compatibilidade |
 | `src/engine.js` | Motor de regras: dados, estado, migração, fórmulas, ações, IA, eventos, temporada (sem DOM) |
 | `src/ui.js` | Interface: persistência, renderização das 6 telas e eventos de clique |
 | `src/style.css` | CSS herdado da 0.4 (identidade visual) |
 | `src/extra.css` | Componentes novos da 0.5 no mesmo estilo |
 | `src/body.html` | Estrutura fixa (topo, menus, tela inicial) |
-| `build.js` | Concatena `src/` em `Submundo-Brasil-v0.6.html` |
+| `build.js` | Concatena `src/` em `Submundo-Brasil-v0.7.html` |
 | `tests/` | Motor, fuzz, interface (Playwright), simulação e comparação de carreiras |
 | `GAME_DESIGN.md` | Auditoria da 0.4 e todas as regras e números |
 | `VALIDATION.md` | O que foi testado, resultados e limitações |
@@ -26,7 +26,7 @@ inspirado nos jogos clássicos de menus e cliques. Single-player, offline, em um
 ## Arquitetura
 
 ```
-┌───────────── Submundo-Brasil-v0.6.html ─────────────┐
+┌───────────── Submundo-Brasil-v0.7.html ─────────────┐
 │ <style>  style.css + extra.css                       │
 │ <body>   body.html                                   │
 │ <script id="sb-engine">  window.SB  (regras puras)   │

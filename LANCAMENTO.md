@@ -1,6 +1,6 @@
 # O que falta para lançar o Submundo Brasil
 
-Análise crítica da proposta na v0.6. "Lançar" pode significar duas coisas muito
+Análise crítica da proposta, escrita na v0.6 (a v0.7 acrescentou arsenal, mercadorias, produção e noite; os bloqueadores abaixo continuam valendo). "Lançar" pode significar duas coisas muito
 diferentes, e a resposta muda conforme a escolha:
 
 - **Lançamento A — jogo solo gratuito na web** (o que existe hoje, publicado numa página). Falta pouco: semanas de trabalho, quase tudo fora do código.
@@ -14,7 +14,7 @@ reais antes de investir no B.
 **O que já funciona**
 - Ciclo claro: energia → serviços → dinheiro e respeito → investir → virar o dia.
 - Decisões com custo real (banco com taxa, liderar bairro atrai ataque, acordo tem compromisso).
-- Cinco formas de vencer medidas em simulação (166 a 219 pontos entre estratégias focadas).
+- Seis formas de vencer medidas em simulação (162 a 214 pontos entre estratégias focadas).
 - Identidade: seis cidades reais, festas do calendário brasileiro, direção de arte de rua.
 - Orientação: introdução, primeiros passos e "Seu rumo".
 

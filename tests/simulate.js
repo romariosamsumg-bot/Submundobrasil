@@ -82,6 +82,27 @@ const STRATEGIES = {
       else if (s.influence[s.district] < 20) SB.perform(s, 'contact');
     }
     grind(s, 55); trainBest(s, 'forca', 1500); } },
+  comerciante: { career: 'empreendedor', goal: 'capital', day(s) {
+    // Compra barato, viaja para onde vende melhor, produz e despacha para o comprador de fora.
+    bail(s); handleNews(s);
+    for (const id of ['bike', 'cinquentinha', 'moto', 'opala']) if (s.cash > SB.item(id).cost * 2.5) SB.perform(s, 'buyItem', id);
+    for (const l of SB.LABS) if (s.cash > SB.labCost(s, l) * 1.15 && s.day < 16) SB.perform(s, 'buildLab', l.id);
+    if (s.exportDeal.day === s.day && s.goods[s.exportDeal.good] > 0) { if (s.district !== 'cais') SB.perform(s, 'travel', 'cais'); SB.perform(s, 'exportGoods'); }
+    const sellHere = () => { for (const g of SB.GOODS) { if (s.goods[g.id] > 0 && s.market[s.district][g.id] >= 112 && !(g.id === s.exportDeal.good && s.exportDeal.day >= s.day && s.exportDeal.day - s.day <= 3)) SB.perform(s, 'sellGood', g.id, s.goods[g.id]); } };
+    sellHere();
+    // viaja se outro bairro paga bem mais pela carga
+    let best = null, gain = 0;
+    for (const d of SB.DISTRICTS) { let v = 0; for (const g of SB.GOODS) v += s.goods[g.id] * (SB.goodSellPrice(s, g, d.id) - SB.goodSellPrice(s, g, s.district)); if (v > gain) { gain = v; best = d; } }
+    if (best && gain > 250 && SB.blitzChance(s) < 25) { SB.perform(s, 'travel', best.id); sellHere(); }
+    for (const g of SB.GOODS.slice().reverse()) { if (s.respect < g.unlock || s.market[s.district][g.id] > 88) continue; let q = Math.min(SB.cargoCap(s) - SB.cargoUsed(s), 40); while (q > 0 && SB.buyTotal(s, g, q) > s.cash - 400) q -= 5; if (q > 0) SB.perform(s, 'buyGood', g.id, q); }
+    grind(s, 60); trainBest(s, 'astucia', 2500); if (s.day >= 24) bankSurplus(s, 400); } },
+  operador_noite: { career: 'operador', goal: 'renome', day(s) {
+    // Farma serviços, compra arsenal e usa a noite para render mais energia.
+    bail(s); handleNews(s);
+    for (const id of ['soco', 'jaqueta', 'peixeira', 'colete', 'trezoitao', 'pistola']) if (s.gear[SB.item(id).slot] !== id && s.cash > SB.item(id).cost * 3 && (SB.item(s.gear[SB.item(id).slot]) || { cost: 0 }).cost < SB.item(id).cost) SB.perform(s, 'buyItem', id);
+    grind(s, 55, 0);
+    for (let i = 0; i < 2; i++) if (s.cash > 2500 && s.energy < 55 && !s.jail) { SB.perform(s, 'night', 'inferninho'); grind(s, 55, 0); }
+    trainBest(s, 'astucia', 1200); bankSurplus(s, 900); } },
   exploit_repetir: { career: 'operador', goal: 'capital', day(s) {
     // Repete sempre a missão de maior recompensa desbloqueada e deposita tudo.
     if (s.bank) SB.perform(s, 'bank', 'withdraw', s.bank);
@@ -110,7 +131,7 @@ function playSeason(strategy, s) {
   st.day(s);
   const sc = SB.seasonScore(s);
   const out = { patrimony: SB.patrimony(s), respect: s.respect, score: sc.score, goal: s.goalDone ? 1 : 0, arrests: s.seasonStats.arrests,
-    controls: SB.controls(s).length, crew: s.crew.length, careerLvl: SB.careerLevel(s), success: s.successful, failed: s.failed };
+    sold: s.trade.sold, spent: s.trade.spent, exported: s.trade.exported, blitz: s.trade.blitz, labs: SB.LABS.filter(l => s.labs[l.id]).length, controls: SB.controls(s).length, crew: s.crew.length, careerLvl: SB.careerLevel(s), success: s.successful, failed: s.failed };
   for (const c of sc.cats) { out['v_' + c.id] = c.value; out['m_' + c.id] = c.medal; }
   return out;
 }

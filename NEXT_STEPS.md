@@ -23,6 +23,8 @@
 
 - [x] **v0.6**: seis cidades reais com bairros, grupos, negócios, festas e vantagem próprios; introdução "Como jogar", trilha de primeiros passos e cartão "Seu rumo"; Operador com +8% em serviços grandes
 
+- [x] **v0.7**: Feira do Rolo (armas, proteção, veículos), Galpão (mercadorias, produção, comprador de fora, blitz), vida noturna, Perfil, aba Cidade e categoria Comércio
+
 O que falta para lançar está em **LANCAMENTO.md**.
 
 ## Pendências de balanceamento (prioridade alta)
@@ -57,3 +59,15 @@ O que falta para lançar está em **LANCAMENTO.md**.
 - Versionar a migração com uma função por versão (`migrate1to2`, `migrate2to3`) quando surgir o schema 3.
 - Mover as tabelas de dados para um bloco JSON separado para facilitar o balanceamento.
 - Ver "Backend e multiplayer" em PROJECT_CONTEXT.md antes de qualquer recurso online.
+
+## Depois da v0.7 (ideias do gênero ainda não feitas)
+
+- **Arte dos lugares**: os lugares da aba Cidade usam ícones; merecem ilustrações próprias como as cenas dos bairros.
+- **Saúde e hospital**: confrontos e falhas ferem; hospital cura por dinheiro ou tempo.
+- **Duelos de rua** contra personagens nomeados (usa arma e proteção).
+- **Operações grandes de gangue** em etapas (planejar, reunir, executar), com requisito de poder da equipe.
+- **Negócios da noite**: comprar o boteco ou a casa noturna que você frequenta.
+- **Jogo do bicho, caça-níquel e agiotagem** como negócios de contravenção brasileiros.
+- **Estoque separado**: o que está no galpão não viaja com você (hoje toda a carga anda junto).
+- **Tarefas encadeadas** de um padrinho, com recompensas, como continuação dos primeiros passos.
+- Recalibrar as cidades com as mecânicas novas (a tabela de cidades é da v0.6).

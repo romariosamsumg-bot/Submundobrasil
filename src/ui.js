@@ -1,5 +1,5 @@
 /* =====================================================================
- * SUBMUNDO BRASIL — INTERFACE v0.6
+ * SUBMUNDO BRASIL — INTERFACE v0.7
  * Responsável por: persistência (localStorage, backup, importação e
  * exportação), renderização das telas e tratamento dos cliques.
  * Todas as regras ficam em window.SB (motor). Esta camada só chama
@@ -11,7 +11,10 @@
   const KEY = SB.STORAGE_KEY;
   const CORRUPT_KEY = 'submundo_brasil_corrupt_backup';
   const V04_BACKUP_KEY = 'submundo_brasil_v04_backup';
-  const VIEWS = ['painel', 'acoes', 'cidade', 'gestao', 'gangue', 'temporada'];
+  const VIEWS = ['painel', 'acoes', 'hub', 'cidade', 'gestao', 'feira', 'galpao', 'noite', 'gangue', 'perfil', 'temporada'];
+  /* Telas que ficam "dentro" de uma aba da navegação. */
+  const PARENT = { cidade: 'hub', gestao: 'hub', feira: 'hub', galpao: 'hub', noite: 'hub', temporada: 'perfil' };
+  const tabOf = v => PARENT[v] || v;
   const MAXDAY = SB.MAXDAY;
 
   let state = null, view = 'painel', result = null, toastTimer = null;
@@ -188,7 +191,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function exportSave() {
-    download(`submundo-brasil-v0.6-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
+    download(`submundo-brasil-v0.7-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
     notify('Cópia da carreira preparada para download.');
   }
   async function importFile(file, fromWelcome) {
@@ -224,7 +227,7 @@
     add('Ânimo', b.morale - a.morale);
     return out;
   }
-  const STAMPED = ['mission', 'gangOp', 'clash', 'dispute', 'dialogue'];
+  const STAMPED = ['mission', 'gangOp', 'clash', 'dispute', 'dialogue', 'exportGoods'];
   /** Transição curta de amanhecer ao virar o dia (ignorada com movimento reduzido). */
   function dawn() {
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -270,7 +273,8 @@
 
   /* ---------- componentes ---------- */
   function heading(label, desc, extra = '') {
-    return `<div class="pagehead"><div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>` + guideCard();
+    const up = PARENT[view];
+    return `${up ? `<button type="button" class="backLink" data-view="${up}">← ${up === 'hub' ? 'Cidade' : 'Perfil'}</button>` : ''}<div class="pagehead"><div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>` + guideCard();
   }
   function resultCard() {
     if (!result) return '';
@@ -316,7 +320,7 @@
   }
 
   /* ---------- primeiros passos, rumo e ajuda ---------- */
-  const VIEW_NAMES = { painel: 'Início', acoes: 'Missões', cidade: 'Bairros', gestao: 'Banco', gangue: 'Gangue', temporada: 'Temporada' };
+  
   /** Cartão do passo atual: completo no Início, em faixa nas outras telas. */
   function guideCard() {
     const st = SB.tutorialStep(state); if (!st) return '';
@@ -333,7 +337,8 @@
     fama: 'conclua serviços mais difíceis, treine e compre negócios',
     territorio: 'crie contatos até 60 de influência e mantenha a liderança de um bairro',
     diplomacia: 'dialogue com os grupos, firme tréguas e uma aliança',
-    gangue: 'faça a operação coletiva todo dia e vença confrontos'
+    gangue: 'faça a operação coletiva todo dia e vença confrontos',
+    comercio: 'no Galpão, compre onde está barato, venda onde está caro e guarde o que o comprador de fora quer'
   };
   /** Rumo: onde você está, o próximo título e a medalha mais próxima, com o caminho. */
   function rumoCard() {
@@ -352,10 +357,10 @@
     const c = state ? SB.cityOf(state.city) : SB.CITIES[0];
     return [
       ['O objetivo', `<p>Você chega a <strong>${esc(c.name)}</strong> com pouco dinheiro e nenhum nome. Tem <strong>30 dias</strong> (uma temporada) para virar alguém.</p>
-        <p>No fim, sua temporada recebe pontos e medalhas em <strong>cinco caminhos</strong>: Fortuna, Fama, Território, Diplomacia e Gangue. Não precisa ser bom em tudo: escolha um ou dois e vá fundo.</p>
+        <p>No fim, sua temporada recebe pontos e medalhas em <strong>seis caminhos</strong>: Fortuna, Fama, Território, Diplomacia, Gangue e Comércio. Não precisa ser bom em tudo: escolha um ou dois e vá fundo.</p>
         <p>Os títulos vão de <em>Aprendiz da rua</em> a <em>Lenda do Submundo</em>. O cartão <strong>Seu rumo</strong>, no Início, mostra sempre o próximo título e a medalha mais próxima.</p>`],
       ['Seu dia', `<p>Tudo gasta <strong>energia</strong> (barra verde). Um dia típico:</p>
-        <ol><li><strong>Serviços</strong> rendem dinheiro e respeito. Veja a chance antes.</li><li><strong>Treino</strong> melhora atributos e libera serviços maiores.</li><li><strong>Contatos</strong> nos bairros viram influência e tributo.</li><li>Sem energia? <strong>Avance o dia</strong>: +70 de energia, a renda entra e os grupos se movem.</li></ol>
+        <ol><li><strong>Serviços</strong> rendem dinheiro e respeito. Veja a chance antes.</li><li><strong>Treino</strong> melhora atributos e libera serviços maiores.</li><li><strong>Contatos</strong> nos bairros viram influência e tributo.</li><li>Na aba <strong>Cidade</strong> ficam os lugares: Feira do Rolo (armas, proteção e veículo), Galpão (comprar barato, vender caro, produzir e despachar) e a noite (energia extra, com ressaca).</li><li>Sem energia? <strong>Avance o dia</strong>: +70 de energia, a renda entra e os grupos se movem.</li></ol>
         <p>Respeito libera serviços, a gangue (30) e mais. Dinheiro compra treino, negócios e equipe.</p>`],
       ['Os riscos', `<p><strong>Vigilância</strong> (barra vermelha) sobe a cada serviço e derruba suas chances. Ela cai sozinha ao virar o dia, ou com “Ficar na sua”.</p>
         <p><strong>Falhar</strong> tira parte do dinheiro <em>em mãos</em> e pode dar <strong>detenção</strong> (dias perdidos, ou fiança). O banco protege o dinheiro por uma taxa.</p>
@@ -392,6 +397,7 @@
         <button class="tile" type="button" data-view="acoes"><b>${SB.MISSIONS.filter(x => !SB.missionLock(s, x)).length}</b><span>serviços aqui</span></button>
         <button class="tile" type="button" data-view="cidade"><b>${SB.controls(s).length}<small>/5</small></b><span>bairros seus</span></button>
         <button class="tile" type="button" data-view="gestao"><b class="${net < 0 ? 'neg' : ''}">${fmt(net)}</b><span>saldo por dia</span></button>
+        <button class="tile" type="button" data-view="galpao"><b>${SB.cargoUsed(s)}<small>/${SB.cargoCap(s)}</small></b><span>carga no galpão</span></button>
         <button class="tile" type="button" data-view="gangue"><b>${s.gangName ? s.crew.length : '—'}</b><span>${s.gangName ? 'no bonde · ânimo ' + s.crewMorale : 'sem gangue'}</span></button>
       </div>
       ${SB.activeEvents(s).some(e => e.id !== 'rotina') ? stencil('Na cidade hoje') + `<section class="poster"><ul class="eventList">${SB.activeEvents(s).filter(e => e.id !== 'rotina').map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
@@ -555,7 +561,7 @@
 
   function seasons() {
     const s = state, sc = SB.seasonScore(s);
-    return heading('Temporada', 'Trinta dias de decisões. Vença por fortuna, fama, território, diplomacia ou força da gangue.') + resultCard() + `<div class="seasonObjective">${goalCard()}</div>
+    return heading('Temporada', 'Trinta dias de decisões. Vença por fortuna, fama, território, diplomacia, gangue ou comércio.') + resultCard() + `<div class="seasonObjective">${goalCard()}</div>
       <div class="grid two"><section class="card"><div class="eyebrow">Temporada atual</div><div class="seasonnumber">${String(s.season).padStart(2, '0')}</div><div class="meter"><div style="width:${s.day / MAXDAY * 100}%"></div></div>
         <div class="statusbar"><span>Dia ${s.day} de ${MAXDAY}</span><strong>${MAXDAY - s.day} dia(s) restante(s)</strong></div><p class="mini">Cada temporada tem 30 dias jogáveis (29 viradas). A renda entra ao virar o dia; o dia 30 é o último para agir.</p><div class="divider"></div>
         ${s.day === MAXDAY ? button('Encerrar temporada', 'end-season', '', false, 'primary block') : nextDayButton('block')}</section>
@@ -585,11 +591,85 @@
     return `<section class="card"><div class="space"><div><div class="eyebrow">Sua meta</div><h2>${g.name}</h2></div><span class="pill">${s.goalDone ? 'Cumprida' : 'Em andamento'}</span></div><p>${esc(g.desc)}</p><div class="meter green"><div style="width:${s.goalDone ? 100 : pct(p.value / p.max * 100)}%"></div></div><div class="statusbar"><span>Progresso: ${s.goalDone ? 'concluído' : value}</span><strong>${s.goalDone ? 'Bônus garantido' : 'Bônus: ' + fmt(600)}</strong></div></section>`;
   }
 
+  /* ---------- v0.7: Cidade, Feira do Rolo, Galpão, Vida noturna e Perfil ---------- */
+  const PLACE_ICON = {
+    cidade: `<path d="M4 20V9l5-3v14M9 20V4l6 3v13M15 20v-8l5 2v6M2 20h20"/>`,
+    gestao: `<path d="M3 9l9-5 9 5M5 9v9M9 9v9M15 9v9M19 9v9M3 20h18"/>`,
+    feira: `<path d="M3 9l2-5h14l2 5M4 9v11h16V9M3 9c0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0M9 20v-6h6v6"/>`,
+    galpao: `<path d="M3 20V9l9-5 9 5v11M7 20v-7h10v7M7 16h10M10 13v7M14 13v7"/>`,
+    noite: `<path d="M8 3h8l-1 7a3 3 0 0 1-6 0zM12 13v7M8 20h8M17 4l3-1M18 7h3"/>`,
+    temporada: `<path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4c0 3 1.500 4.500 3.500 4.500M17 6h3c0 3-1.500 4.500-3.500 4.500M12 14v4M8 20h8"/>`.replace(/\.500/g, '.5')
+  };
+  const place = (v, name, info, badge = '') => `<button type="button" class="place p-${v}" data-view="${v}"><span class="placeArt"><svg viewBox="0 0 24 24" aria-hidden="true">${PLACE_ICON[v]}</svg></span><b>${name}</b><small>${info}</small>${badge ? `<i class="placeBadge">${badge}</i>` : ''}</button>`;
+  function hub() {
+    const s = state, deal = s.exportDeal, g = SB.good(deal.good), w = SB.item(s.gear.arma), v = SB.item(s.gear.veiculo);
+    return heading('Cidade', `${esc(s.city)}. Escolha aonde ir; você está em ${esc(D().name)}.`) + jailNotice() + resultCard() + localeStrip(false) + `<div class="places">
+      ${place('cidade', 'Bairros', `${SB.controls(s).length}/5 liderados · viajar, contatos e disputas`)}
+      ${place('galpao', 'Galpão', `Carga ${SB.cargoUsed(s)}/${SB.cargoCap(s)} · mercadoria e produção`, deal.day >= s.day ? (deal.day === s.day ? 'Comprador hoje' : `Comprador dia ${deal.day}`) : '')}
+      ${place('feira', 'Feira do Rolo', `${w ? esc(w.name) : 'Sem arma'} · ${v ? esc(v.name) : 'a pé'}`)}
+      ${place('noite', 'Vida noturna', `Saídas hoje ${s.today.night}/2${s.ressaca ? ' · ressaca ' + s.ressaca : ''}`)}
+      ${place('gestao', 'Banco e negócios', `${fmt(s.bank)} guardados · ${s.businesses.length} negócio(s)`)}
+      ${place('temporada', 'Temporada', `Dia ${s.day}/${MAXDAY} · ${num(SB.seasonScore(s).score)} pts`)}
+    </div><p class="quiet" style="margin-top:12px">Treinos e serviços ficam na aba Serviços. Sua ficha, na aba Perfil. ${esc(g.name)} é o que o comprador de fora quer no dia ${deal.day}.</p>`;
+  }
+  function itemEffect(it) {
+    if (it.slot === 'arma') return `Poder ${it.power}: confrontos +${it.power}, operações +${Math.round(it.power * .6)}, serviços de Força +${Math.round(it.power * .5)}${it.power >= 7 ? ' · arma de fogo: +1 dia se for detido' : ''}`;
+    if (it.slot === 'protecao') return `Defesa ${it.def}: chance de detenção -${it.def}`;
+    return `Carga +${it.cargo} · fuga ${it.escape} (detenção e blitz)${it.freeRide ? ' · viagem sem gastar energia' : ''}`;
+  }
+  function feira() {
+    const s = state;
+    return heading('Feira do Rolo', 'Tudo tem dono novo aqui. Um item por espaço; o antigo volta por metade do preço.') + jailNotice() + resultCard() +
+      SB.SLOTS.map(sl => { const cur = SB.item(s.gear[sl.id]), back = cur ? Math.round(cur.cost * SB.ITEM_RESALE) : 0;
+        return stencil(sl.name, cur ? 'em uso: ' + esc(cur.name) : 'nada equipado') + `<div class="grid">` + SB.ITEMS.filter(i => i.slot === sl.id).map(it => { const mine = s.gear[sl.id] === it.id, net = it.cost - back, locked = s.respect < it.unlock;
+          return `<section class="card shopRow ${mine ? 'mine' : ''} ${locked ? 'locked' : ''}"><div><h3>${esc(it.name)}${mine ? ' <span class="pill">Em uso</span>' : ''}</h3><p class="mini">${esc(itemEffect(it))}</p>${locked ? `<div class="lockline">Requer ${it.unlock} de respeito.</div>` : ''}</div>
+            <div class="shopAct"><strong>${fmt(it.cost)}</strong>${cur && !mine ? `<span class="mini">na troca: ${fmt(Math.max(0, net))}</span>` : ''}${mine ? '' : button('Comprar', 'buy-item', `data-id="${it.id}"`, locked || s.cash < net || s.jail > 0, 'small primary')}</div></section>`; }).join('') + `</div>`; }).join('');
+  }
+  function maxBuy(g) { const s = state; let q = Math.max(0, SB.cargoCap(s) - SB.cargoUsed(s)); while (q > 0 && SB.buyTotal(s, g, q) > s.cash) q = Math.floor(q * .9) - (q < 10 ? 1 : 0); return Math.max(0, q); }
+  function galpao() {
+    const s = state, deal = s.exportDeal, dg = SB.good(deal.good), used = SB.cargoUsed(s), cap = SB.cargoCap(s), open = SB.exportOpen(s), blitz = SB.blitzChance(s);
+    const dealTxt = deal.day < s.day ? 'O próximo comprador ainda não deu notícia.' : `${deal.day === s.day ? 'Hoje' : 'No dia ' + deal.day}, em ${esc(D('cais').name)}: paga ${fmt(SB.exportPrice(dg))} por ${esc(dg.unit)} de ${esc(dg.name)} (até ${SB.EXPORT_LIMIT}). Você tem ${s.goods[dg.id]}.`;
+    return heading('Galpão', 'Compre barato num bairro, venda caro em outro, produza o seu e despache para fora.') + jailNotice() + resultCard() + `
+      <section class="card"><div class="meterlabel"><span>Carga</span><strong>${used}/${cap}</strong></div><div class="meter"><div style="width:${pct(used / cap * 100)}%"></div></div>
+        <p class="mini" style="margin-top:7px">Veículos e pontos de produção aumentam o espaço. ${blitz ? `<span class="negative">Viajar com esta carga: ${blitz}% de chance de blitz (perde metade).</span>` : 'Sem carga, sem blitz.'}</p></section>
+      <section class="poster" style="margin-top:10px"><div class="posterHead">COMPRADOR DE FORA</div><p>${dealTxt}</p>${open ? button(`Entregar ${Math.min(SB.EXPORT_LIMIT, s.goods[dg.id])} × ${esc(dg.name)}`, 'export-goods', '', s.goods[dg.id] < 1 || s.exportDone === s.day || s.jail > 0, 'small block') : ''}</section>
+      ${stencil('Mercadorias', 'preço em ' + esc(D().name))}<div class="grid">${SB.GOODS.map(g => { const locked = s.respect < g.unlock, f = s.market[s.district][g.id], own = s.goods[g.id], mb = locked ? 0 : maxBuy(g);
+        const best = SB.DISTRICTS.reduce((a, d) => SB.goodSellPrice(s, g, d.id) > SB.goodSellPrice(s, g, a.id) ? d : a, SB.DISTRICTS[0]);
+        const off = s.jail > 0 || s.energy < 3;
+        return `<section class="card goodRow ${locked ? 'locked' : ''}"><div class="space"><h3>${esc(g.name)} <span class="chip ${f <= 90 ? 'up' : f >= 112 ? 'down' : ''}">${f <= 90 ? 'barato' : f >= 112 ? 'caro' : 'normal'} ${f}%</span></h3><strong>${own} un.</strong></div>
+          <p class="mini">Compra ${fmt(SB.goodPrice(s, g))} · venda ${fmt(SB.goodSellPrice(s, g))} por ${esc(g.unit)} · risco ${'●'.repeat(g.risk)}${'○'.repeat(4 - g.risk)} · melhor venda hoje: ${esc(best.name)} (${fmt(SB.goodSellPrice(s, g, best.id))})</p>
+          ${locked ? `<div class="lockline">Requer ${g.unlock} de respeito.</div>` : `<div class="tradeBtns">${button(`+5 · ${fmt(SB.buyTotal(s, g, 5))}`, 'buy-good', `data-id="${g.id}" data-qty="5"`, off || mb < 5, 'small')}${button(`+${mb} (máx.)`, 'buy-good', `data-id="${g.id}" data-qty="${mb}"`, off || mb < 1, 'small')}${button(`−5 · ${fmt(SB.sellTotal(s, g, Math.min(5, Math.max(1, own))))}`, 'sell-good', `data-id="${g.id}" data-qty="${Math.min(5, own)}"`, off || own < 1, 'small primary')}${button(`Vender tudo${own ? ' · ' + fmt(SB.sellTotal(s, g, own)) : ''}`, 'sell-good', `data-id="${g.id}" data-qty="${own}"`, off || own < 1, 'small primary')}</div>`}</section>`; }).join('')}</div>
+      <p class="mini" style="margin-top:6px">Cada negócio gasta 3 de energia. Comprar muito encarece e vender muito derruba o preço local. Vender na área de outro grupo gera atrito.</p>
+      ${stencil('Produção própria', `batida hoje: ${SB.raidChance(s)}% por ponto`)}<div class="grid">${SB.LABS.map(l => { const lvl = s.labs[l.id], c = SB.labCost(s, l), locked = s.respect < l.unlock, down = s.labDown[l.id] >= s.day, g = SB.good(l.good);
+        return `<section class="card shopRow ${locked ? 'locked' : ''}"><div><h3>${esc(l.name)} <span class="pill">Nível ${lvl}/3</span></h3><p class="mini">${lvl ? `Rende ${SB.labOutput(s, l)} × ${esc(g.name)} por dia · custo ${fmt(lvl * 30)}/dia · +40 de espaço` : `Produz ${l.out} × ${esc(g.name)} por dia e dá +40 de espaço`}${down ? ` · <span class="negative">fechado até o dia ${s.labDown[l.id]}</span>` : ''}</p>${locked ? `<div class="lockline">Requer ${l.unlock} de respeito.</div>` : ''}</div>
+          <div class="shopAct">${lvl >= 3 ? '<strong>Máximo</strong>' : `<strong>${fmt(c)}</strong>${button(lvl ? 'Ampliar' : 'Montar', 'build-lab', `data-id="${l.id}"`, locked || s.cash < c || s.jail > 0, 'small primary')}`}</div></section>`; }).join('')}</div>
+      <p class="mini" style="margin-top:6px">Com vigilância acima de 40, a polícia pode estourar um ponto: perde o estoque daquela mercadoria e fica 2 dias fechado.</p>`;
+  }
+  function noite() {
+    const s = state;
+    return heading('Vida noturna', 'Dinheiro vira energia para agir mais hoje. A conta chega amanhã, na ressaca.') + jailNotice() + resultCard() + `
+      <section class="card"><div class="kv"><div><span>Saídas hoje</span><strong>${s.today.night}/2</strong></div><div><span>Ressaca amanhã</span><strong>-${s.ressaca} de energia</strong></div></div></section>
+      <div class="grid" style="margin-top:10px">${SB.NIGHT.map(n => { const c = SB.nightCost(s, n);
+        return `<section class="card shopRow"><div><h3>${esc(n.id === 'baile' ? SB.mission('baile').name.replace('Bastidores d', 'Noite d') : n.name)}</h3><p class="mini">${esc(n.desc)}</p><p class="mini"><strong>+${n.energy} de energia</strong> · ressaca -${n.ressaca}${n.morale ? ` · equipe +${n.morale} de ânimo` : ''}${n.heat ? ` · +${n.heat} de vigilância` : ''}${n.mingle ? ' · chance de contatos ou de confusão' : ''}</p></div>
+          <div class="shopAct"><strong>${fmt(c)}</strong>${button('Ir', 'night', `data-id="${n.id}"`, s.cash < c || s.today.night >= 2 || s.energy >= 100 || s.jail > 0, 'small primary')}</div></section>`; }).join('')}</div>
+      <p class="mini" style="margin-top:6px">A segunda saída do dia custa 50% a mais.</p>`;
+  }
+  function perfil() {
+    const s = state, sc = SB.seasonScore(s), lvl = Math.min(99, Math.floor(s.respect / 35) + 1), c = s.career ? SB.CAREERS.find(x => x.id === s.career) : null;
+    const top = Math.max(20, ...SB.STATS.map(st => s.stats[st.id]));
+    return heading('Perfil', 'Sua ficha no submundo.') + resultCard() + `
+      <section class="sheet"><span class="sheetAvatar">${avatar(s.career)}</span><div><h2>${esc(s.name)}</h2><p>${esc(sc.title)} · nível ${lvl}</p><p class="mini">${esc(s.city)}${c ? ' · ' + c.name + ' ' + SB.careerLevel(s) + '/3' : ''}${s.gangName ? ' · ' + esc(s.gangName) : ''}${s.prestige ? ' · prestígio ' + s.prestige : ''}</p></div></section>
+      ${stencil('Atributos')}<section class="card">${SB.STATS.map(st => `<div class="statRow">${statIcon(st.id)}<span>${st.name}</span><div class="meter"><div style="width:${pct(s.stats[st.id] / top * 100)}%"></div></div><strong>${num(s.stats[st.id])}</strong></div>`).join('')}</section>
+      ${stencil('Equipamento', 'troque na Feira do Rolo')}<div class="gearGrid">${SB.SLOTS.map(sl => { const it = SB.item(s.gear[sl.id]); return `<button type="button" class="gearSlot ${it ? 'on' : ''}" data-view="feira"><span>${sl.name}</span><b>${it ? esc(it.name) : '—'}</b><small>${it ? esc(it.slot === 'arma' ? 'poder ' + it.power : it.slot === 'protecao' ? 'defesa ' + it.def : 'carga +' + it.cargo) : 'vazio'}</small></button>`; }).join('')}</div>
+      ${stencil('Nesta temporada')}<section class="card"><div class="kv"><div><span>Respeito</span><strong>${num(s.respect)}</strong></div><div><span>Patrimônio</span><strong>${fmt(SB.patrimony(s))}</strong></div><div><span>Serviços</span><strong>${num(s.successful)} certos · ${num(s.failed)} falhos</strong></div><div><span>Detenções</span><strong>${s.seasonStats.arrests}</strong></div><div><span>Mercadoria vendida</span><strong>${fmt(s.trade.sold)}</strong></div><div><span>Remessas / blitze</span><strong>${num(s.trade.exported)} un. · ${s.trade.blitz}</strong></div><div><span>Bairros liderados</span><strong>${SB.controls(s).length}/5</strong></div><div><span>Conquistas</span><strong>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length}</strong></div></div></section>
+      <div class="btnbar" style="margin-top:12px">${button('Temporada, medalhas e conquistas', 'switch', 'data-target="temporada"', false, 'primary')}${button('Como jogar', 'help', '', false, 'ghost')}</div>`;
+  }
+
   /* ---------- renderização ---------- */
   function render() {
     if (!state) return;
     SB.applyCity(state.city);
-    const pages = { painel: panel, acoes: actions, cidade: city, gestao: management, gangue: gang, temporada: seasons };
+    const pages = { painel: panel, acoes: actions, hub, cidade: city, gestao: management, feira, galpao, noite, gangue: gang, perfil, temporada: seasons };
     try {
       $('#content').innerHTML = (pages[view] || panel)() + `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • Cidades reais, bairros e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`;
     } catch (e) {
@@ -597,9 +677,9 @@
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
     }
     renderHud();
-    $all('.nav button, .mobileNav button').forEach(b => { const on = b.dataset.view === view; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    $all('.nav button, .mobileNav button').forEach(b => { const on = b.dataset.view === tabOf(view); b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     const st = SB.tutorialStep(state);
-    $all('.nav button, .mobileNav button').forEach(b => b.classList.toggle('hint', !!st && st.view === b.dataset.view && st.view !== view));
+    $all('.nav button, .mobileNav button').forEach(b => b.classList.toggle('hint', !!st && tabOf(st.view) === b.dataset.view && st.view !== view && tabOf(view) !== b.dataset.view));
   }
   function switchView(target) {
     if (!VIEWS.includes(target)) return;
@@ -630,6 +710,12 @@
     switch (a) {
       case 'switch': switchView(btn.dataset.target); break;
       case 'dismiss-result': result = null; render(); break;
+      case 'buy-item': run('buyItem', id); break;
+      case 'buy-good': run('buyGood', id, Number(btn.dataset.qty)); break;
+      case 'sell-good': run('sellGood', id, Number(btn.dataset.qty)); break;
+      case 'export-goods': run('exportGoods'); break;
+      case 'build-lab': run('buildLab', id); break;
+      case 'night': run('night', id); break;
       case 'help': openHelp(0); break;
       case 'help-next': helpPage++; renderHelp(); break;
       case 'help-prev': helpPage--; renderHelp(); break;
@@ -714,5 +800,5 @@
 
   state = load();
   if (state) { save(); render(); } else showWelcome();
-  window.__SB_UI = { get state() { return state; } }; // apoio a testes automatizados
+  window.__SB_UI = { get state() { return state; }, go: switchView }; // apoio a testes automatizados
 })();

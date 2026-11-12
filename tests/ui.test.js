@@ -3,7 +3,7 @@
 'use strict';
 const { chromium } = require('playwright');
 const path = require('path');
-const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.6.html');
+const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.7.html');
 const V04 = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.4.html');
 let failures = 0;
 const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg); if (!cond) failures++; };
@@ -18,6 +18,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   page.on('dialog', d => d.accept());
   const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   const st = () => page.evaluate(() => JSON.parse(localStorage.getItem('submundo_brasil_v01')));
+  const go = v => page.evaluate(x => window.__SB_UI.go(x), v);
 
   console.log('1. Novo jogo e navegação (360×780)');
   await page.goto(FILE); await page.evaluate(() => localStorage.clear()); await page.reload();
@@ -37,19 +38,19 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check((await page.textContent('.plate')).includes('Largo das Ladeiras'), 'placa do bairro com nome de Salvador');
   check(await page.isVisible('.rumo'), 'cartão "Seu rumo" visível');
   await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-inicio.png'), fullPage: true });
-  for (const v of ['painel', 'acoes', 'cidade', 'gestao', 'gangue', 'temporada']) {
-    await page.click(`.mobileNav [data-view=${v}]`);
+  for (const v of ['painel', 'acoes', 'hub', 'cidade', 'gestao', 'feira', 'galpao', 'noite', 'gangue', 'perfil', 'temporada']) {
+    await go(v);
     check(await overflow() <= 0, `sem rolagem horizontal em "${v}"`);
     await page.screenshot({ path: path.join(__dirname, 'screens', `360-${v}.png`), fullPage: v === 'painel' || v === 'acoes' });
   }
 
   console.log('2. Ações e feedback');
-  await page.click('.mobileNav [data-view=painel]');
+  await go('painel');
   await page.click('[data-action=career][data-id=operador]');
   check((await st()).career === 'operador', 'carreira escolhida (com confirmação)');
   check((await st()).tutorial.step === 1, 'guia avançou para o passo 2');
   check(await page.isVisible('.mobileNav [data-view=acoes].hint'), 'aba do próximo passo fica destacada');
-  await page.click('.mobileNav [data-view=acoes]');
+  await go('acoes');
   const before = await st();
   await page.click('[data-action=mission][data-id=correria]');
   const after = await st();
@@ -61,7 +62,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   // a missão acima pode falhar e prender o personagem (sem confirmação nesse caso): normaliza antes de testar
   await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.jail = 0; s.energy = 80; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
   await page.reload();
-  await page.click('.mobileNav [data-view=painel]');
+  await go('painel');
   await page.click('[data-action=next-day]');
   check((await st()).day === 1, 'primeiro toque em "Avançar dia" pede confirmação');
   check(await page.isVisible('.btn.armed'), 'botão armado visível');
@@ -71,13 +72,40 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   await page.screenshot({ path: path.join(__dirname, 'screens', '360-resumo-dia.png') });
 
   console.log('3. Banco com taxa');
-  await page.click('.mobileNav [data-view=gestao]');
+  await go('gestao');
   const c0 = (await st()).cash;
   await page.fill('#bankAmount', '1000'); await page.click('[data-action=bank][data-mode=deposit]');
   const s3 = await st();
   check(s3.bank === 1000 && s3.cash === c0 - 1030, 'depósito de R$ 1.000 cobra 3% (R$ 30)');
   await page.fill('#bankAmount', '-5'); await page.click('[data-action=bank][data-mode=deposit]');
   check((await st()).bank === 1000, 'valor negativo recusado');
+
+  console.log('3b. Cidade, Feira do Rolo, Galpão, noite e Perfil (v0.7)');
+  await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.cash = 6000; s.respect = 50; s.jail = 0; s.energy = 60; s.heat = 0; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
+  await page.reload(); await go('hub');
+  check(await page.locator('.place').count() === 6, 'tela Cidade mostra 6 lugares');
+  await page.click('.place[data-view=feira]');
+  await page.click('[data-action=buy-item][data-id=cinquentinha]');
+  check((await st()).gear.veiculo === 'cinquentinha', 'veículo comprado na Feira do Rolo');
+  check(await page.isDisabled('[data-action=buy-item][data-id=fuzil]'), 'item acima do seu respeito fica bloqueado');
+  await go('galpao');
+  await page.click('[data-action=buy-good][data-id=cigarro][data-qty="5"]');
+  let g7 = await st();
+  check(g7.goods.cigarro === 5 && g7.energy === 57, 'compra de mercadoria: +5 unidades e -3 de energia');
+  await page.click('[data-action=sell-good][data-id=cigarro][data-qty="5"]');
+  check((await st()).goods.cigarro === 0, 'venda de mercadoria esvazia o estoque');
+  check(await page.isDisabled('[data-action=build-lab][data-id=laboratorio]'), 'produção acima do seu respeito fica bloqueada');
+  await go('noite');
+  const e0 = (await st()).energy;
+  await page.click('[data-action=night][data-id=boteco]');
+  g7 = await st();
+  check(g7.energy === e0 + 12 && g7.ressaca === 3, 'boteco: +12 de energia e ressaca registrada');
+  await go('perfil');
+  check((await page.textContent('.gearGrid')).includes('Cinquentinha'), 'Perfil mostra o equipamento');
+  check(await page.isVisible('.mobileNav [data-view=perfil].active'), 'aba Perfil ativa');
+  await go('temporada');
+  check(await page.isVisible('.mobileNav [data-view=perfil].active') && await page.isVisible('.backLink'), 'Temporada fica dentro de Perfil, com botão de voltar');
+  await go('gestao');
 
   console.log('4. Save inválido e XSS');
   await page.evaluate(() => localStorage.setItem('submundo_brasil_v01', '{"schema":1,"name":"Quebrado"'));
@@ -91,7 +119,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   evil.gangName = '<img src=x onerror="window.__xss=5">';
   await page.evaluate(s => localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)), evil);
   await page.reload();
-  for (const v of ['painel', 'gangue', 'temporada']) await page.click(`.mobileNav [data-view=${v}]`);
+  for (const v of ['painel', 'gangue', 'temporada']) await go(v);
   await page.waitForTimeout(200);
   check(!(await page.evaluate(() => window.__xss)), 'nenhum script injetado executou');
 
@@ -115,12 +143,12 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check(await page.evaluate(() => !!localStorage.getItem('submundo_brasil_v04_backup')), 'cópia original da 0.4 guardada');
   check(await page.isVisible('.resultCard'), 'aviso de conversão exibido');
   await page.screenshot({ path: path.join(__dirname, 'screens', '360-migracao.png') });
-  for (const v of ['acoes', 'cidade', 'gestao', 'gangue', 'temporada']) { await page.click(`.mobileNav [data-view=${v}]`); check(await overflow() <= 0, `migrado: sem rolagem horizontal em "${v}"`); }
+  for (const v of ['acoes', 'cidade', 'gestao', 'gangue', 'temporada']) { await go(v); check(await overflow() <= 0, `migrado: sem rolagem horizontal em "${v}"`); }
   await page.screenshot({ path: path.join(__dirname, 'screens', '360-gangue-migrada.png'), fullPage: true });
 
   console.log('6. Temporada completa pela interface');
   await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.day = 29; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
-  await page.reload(); await page.click('.mobileNav [data-view=temporada]');
+  await page.reload(); await go('temporada');
   await page.click('[data-action=next-day]'); await page.click('[data-action=next-day]').catch(() => {});
   let sv = await st(); if (sv.day === 29) { await page.click('[data-action=next-day]'); sv = await st(); }
   check(sv.day === 30, 'chegou ao dia 30');
@@ -134,7 +162,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-action=export]')]);
   const fpath = await dl.path();
   const payload = JSON.parse(require('fs').readFileSync(fpath, 'utf8'));
-  check(payload.game === 'Submundo Brasil' && payload.version === '0.6' && payload.checksum, 'arquivo exportado com versão e checksum');
+  check(payload.game === 'Submundo Brasil' && payload.version === '0.7' && payload.checksum, 'arquivo exportado com versão e checksum');
   await page.evaluate(() => localStorage.clear()); await page.reload();
   await page.setInputFiles('#welcomeImportFile', fpath);
   await page.waitForTimeout(300);
@@ -142,7 +170,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
 
   console.log('8. Tela larga (1280×900)');
   await page.setViewportSize({ width: 1280, height: 900 });
-  for (const v of ['painel', 'gangue']) { await page.click(`.nav [data-view=${v}]`); check(await overflow() <= 0, `desktop sem rolagem horizontal em "${v}"`); }
+  for (const v of ['painel', 'gangue']) { await go(v); check(await overflow() <= 0, `desktop sem rolagem horizontal em "${v}"`); }
   await page.screenshot({ path: path.join(__dirname, 'screens', '1280-painel.png') });
 
   check(errors.length === 0, 'nenhum erro de console/página' + (errors.length ? ': ' + errors.join(' | ') : ''));
