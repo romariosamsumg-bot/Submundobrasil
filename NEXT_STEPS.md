@@ -124,7 +124,8 @@ Também sugerido: rebelião na cadeia com a gangue.
 
 ## Pendências da v1.4 (noite e esquemas)
 
-- Império da noite (227) e Traficante (223) empatados no topo; vigiar depois de cada ajuste.
+- Império da noite (233) passou o Traficante (220) por 13 pontos; se crescer, reduzir o abastecimento para +70% da renda base.
+- [x] Freio do ciclo eterno: tolerância por tipo (−15% por dose repetida) e teto de 150 de energia em doses por dia. Online: "Ir pra casa" por tempo real.
 - Refinaria do pó é meta de fim de jogo: quase ninguém chega a 150 de respeito com R$ 25.000 numa temporada.
 - No farm de roubos, o Assaltante voltou a liderar (182 contra 169 do Articulador).
 - Online: produção e mensalidades por hora em vez de ao dormir.

@@ -633,6 +633,8 @@ A casa cobra a **entrada** (conta como uma das 3 saídas do dia e traz os riscos
 | Inferninho da Luz Vermelha | R$ 150 | 40 de respeito | cigarro, whisky, loló, bala |
 | Termas VIP | R$ 400 | 60 de respeito | whisky, bala, pó |
 
+**O corpo se acostuma**: cada dose do mesmo tipo no dia rende 15% menos (×0,85 por dose repetida; outro tipo rende cheio) e, somando tudo, as doses devolvem no máximo **150 de energia por dia**. Dormir zera os dois. Isso impede o ciclo eterno rouba → droga → clínica → droga: com dinheiro infinito, o máximo cai de cerca de 85 roubos por dia para cerca de 14. No online, o descanso por tempo real ("Ir pra casa") fará o papel do Dormir.
+
 Cada saída a mais no dia encarece a entrada em 50%. Barão: entrada e doses 40% mais baratas, metade do vício. Dono do Bar entra de graça e paga metade no Boteco; dono do Inferninho entra de graça no Inferninho; dono da Termas tem uma recarga cheia, grátis e sem vício por dia. Mercadoria do Galpão serve como dose (cigarro, whisky, erva, loló, bala e pó do estoque).
 
 ### Esquemas de produção (v1.4)

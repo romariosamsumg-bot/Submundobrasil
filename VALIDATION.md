@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**146 de 146 passaram** (v1.4: + retrato do jogador; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
+**148 de 148 passaram** (v1.4: + retrato do jogador; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -72,7 +72,7 @@ ausência de cortes).
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 
-Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.4** (noite com cardápio e sete esquemas) em
+Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.4** (noite com cardápio, sete esquemas, tolerância e teto do corpo) em
 `node tests/simulate.js 300 2` (300 temporadas por estratégia, médias, em Recife):
 
 | Estratégia | Patrimônio | Respeito | Pontos | Meta | Detenções |
@@ -83,20 +83,21 @@ Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.4** (n
 | Articulador diplomata | 1.693 | 98 | 208 | 90% | 2,5 |
 | Bonde (gangue) | 1.287 | 104 | 181 | 30% | 1,1 |
 | Comerciante sem a classe | 12.314 | 99 | **197** | 10% | 2,9 |
-| Ciclo completo: roubo, noite e arsenal | 16.463 | 123 | 188 | 40% | 3,3 |
-| Brigão (duelos) | 15.710 | 152 | 194 | 0% | 2,0 |
-| Bando de assaltos | 2.406 | 88 | 183 | 30% | 1,3 |
-| Traficante (Galpão e remessas) | 13.523 | 95 | 223 | 20% | 2,8 |
-| Barão da Noite (império e noitadas) | 16.384 | 111 | 178 | 40% | 3,5 |
-| **Império da noite (Barão + bebida falsa, laboratório e casas abastecidas)** | 16.798 | 104 | **227** | 40% | 3,1 |
-| Apostador (metade do caixa na roleta, 3× ao dia) | 6.459 | 85 | 80 | 20% | 3,5 |
-| Exploit: repetir a melhor e depositar tudo | 2.344 | 38 | 25 | 0% | 10,5 |
-| Aleatório | 435 | 43 | 49 | 0% | 0,7 |
+| Ciclo completo: roubo, noite e arsenal | 16.755 | 124 | 190 | 40% | 3,3 |
+| Brigão (duelos) | 15.969 | 154 | 196 | 0% | 1,9 |
+| Bando de assaltos | 2.237 | 85 | 173 | 30% | 1,4 |
+| Traficante (Galpão e remessas) | 13.325 | 95 | 220 | 20% | 3,0 |
+| Barão da Noite (império e noitadas) | 16.419 | 112 | 177 | 40% | 3,4 |
+| **Império da noite (Barão + bebida falsa, laboratório e casas abastecidas)** | 17.071 | 103 | **233** | 50% | 3,2 |
+| Apostador (metade do caixa na roleta, 3× ao dia) | 4.059 | 86 | 79 | 20% | 3,6 |
+| Exploit: repetir a melhor e depositar tudo | 2.441 | 39 | 26 | 0% | 10,7 |
+| Aleatório | 424 | 43 | 49 | 0% | 0,6 |
 
 Leitura e calibração da v1.4:
 - **Noite com cardápio**: as estratégias que usam a noite ficaram onde estavam (ciclo completo 188, Barão 178). O vício continua sendo o freio: uma bala dá 75 de energia e 18 de vício, e acima de 70 as doses fortes podem dar overdose.
 - **Casa abastecida**: na primeira medição, o império da noite fez **241 pontos**, porque a renda dobrada somava em cima do bônus do Barão. Passou a dobrar só a renda base da casa: **227**, empatado com o Traficante (223) no topo.
 - **Comerciante sem a classe** subiu de 158 para 197 com os esquemas baratos (gelo e cigarro). Deixou de ser o caminho mais fraco.
+- **Tolerância e teto do corpo** (`node tests/maratona.js`): um jogador com dinheiro infinito, que rouba, se droga e zera o vício na clínica sem parar, fazia **84,9 roubos e 1.313 de energia em drogas por dia**; agora faz **13,6 roubos e 150**. Sem a clínica, caiu de 11,4 para 9,3 roubos por dia. Nos robôs comuns a diferença ficou no ruído (até 6 pontos), porque quase ninguém passa de 150 por dia; o império da noite foi a 233, 13 acima do Traficante.
 - A refinaria (R$ 25.000, 150 de respeito) quase não é alcançada numa temporada: é meta de fim de jogo.
 
 ### Classes — `tests/careers.js` (100 temporadas por célula, v1.4)

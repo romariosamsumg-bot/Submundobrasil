@@ -363,7 +363,7 @@
       ['Os riscos', `<p><strong>Procurado</strong> (barra vermelha) sobe a cada serviço e derruba suas chances. Ele cai sozinha ao virar o dia, ou com “Ficar na sua”.</p>
         <p><strong>Falhar</strong> tira parte do dinheiro <em>em mãos</em> e pode dar <strong>detenção</strong> (dias perdidos, ou fiança). O banco protege o dinheiro por uma taxa.</p>
         <p><strong>Assaltos do bando</strong> (Cidade → Bando): planeje, estude o terreno nos dias seguintes e execute dentro do prazo. Do arrastão no shopping ao cofre central; os maiores pedem bando grande e arma pesada.</p>
-        <p><strong>Noite</strong>: entre numa casa (a entrada conta como saída) e peça doses no balcão, de cigarro (+2) a pó (+100). Quanto mais forte, mais vício.</p>
+        <p><strong>Noite</strong>: entre numa casa (a entrada conta como saída) e peça doses no balcão, de cigarro (+2) a pó (+100). Quanto mais forte, mais vício. Cada dose repetida no dia rende 15% menos, e o corpo aguenta no máximo 150 de energia em doses por dia: depois, só dormindo.</p>
         <p><strong>Vício</strong> (barra roxa): cada dose sobe o vício; alto, a dose recarrega menos e loló, bala e pó podem dar overdose. O Hospital limpa.</p>
         <p><strong>Colete</strong>: roubo armado que dá errado vira trocação com a segurança. O colete decide se você sai ferido ou vai para a UPA. Ser preso custa respeito.</p>
         <p><strong>Saúde</strong> (barra azul) cai em confrontos, duelos e serviços de força que dão errado. Abaixo de 60 suas chances caem; a zero, você é internado. Cure no Hospital ou esperando.</p>
@@ -389,7 +389,7 @@
   function nextMove() {
     const s = state;
     if (SB.blocked(s)) return null;
-    const best = suggestion(), lowEnergy = s.energy < 16, canNight = (s.today.night < SB.NIGHT_LIMIT || !!s.today.venue) && s.energy < 100 && s.today.doses < SB.DOSE_LIMIT;
+    const best = suggestion(), lowEnergy = s.energy < 16, canNight = (s.today.night < SB.NIGHT_LIMIT || !!s.today.venue) && s.energy < 100 && s.today.doses < SB.DOSE_LIMIT && SB.chemLeft(s) > 0;
     const curCost = (SB.item(s.gear.arma) || { cost: 0 }).cost, back = Math.round(curCost * SB.ITEM_RESALE);
     const upgrade = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && i.cost > curCost && s.respect >= i.unlock && s.cash + back >= i.cost * 1.5).pop();
     const lockedByGun = SB.MISSIONS.find(m => (SB.missionLock(s, m) || '').startsWith('Requer arma'));
@@ -683,16 +683,16 @@
       <p class="mini" style="margin-top:6px">Com Procurado acima de 40, a polícia pode estourar um ponto: perde o estoque daquela mercadoria e fica 2 dias fechado. A propina do Laboratório e da Refinaria corta esse risco pela metade. Dono de Inferninho ou de Termas com o esquema certo e estoque abastece a casa e dobra a renda do dia.</p>`;
   }
   function noite() {
-    const s = state, here = SB.NIGHT.find(n => n.id === s.today.venue), blk = SB.blocked(s), full = s.energy >= 100, maxed = s.today.doses >= SB.DOSE_LIMIT;
-    const why = blk || (full ? 'Energia cheia: volte quando cansar.' : maxed ? `Limite de ${SB.DOSE_LIMIT} doses por hoje.` : '');
+    const s = state, here = SB.NIGHT.find(n => n.id === s.today.venue), blk = SB.blocked(s), full = s.energy >= 100, maxed = s.today.doses >= SB.DOSE_LIMIT, spent = SB.chemLeft(s) <= 0;
+    const why = blk || (full ? 'Energia cheia: volte quando cansar.' : spent ? `Seu corpo não aguenta mais nada hoje (${SB.CHEM_CAP} de energia em doses). Vá descansar.` : maxed ? `Limite de ${SB.DOSE_LIMIT} doses por hoje.` : '');
     const doseRow = d => { const c = SB.doseCost(s, d, here), own = d.good ? s.goods[d.good] : 0, cap = d.max && (s.today.dose[d.id] || 0) >= d.max, off = !!why || cap;
       return `<section class="card shopRow doseRow"><div><h3>${esc(d.name)}${d.strong && s.vicio >= 70 ? ' <span class="pill bad">risco de overdose</span>' : ''}</h3><p class="mini">${esc(d.desc)}</p>
-        <p class="mini"><strong>+${SB.nightEnergy(s, d)} de energia</strong> · vício +${SB.doseVicio(s, d)}${d.ressaca ? ` · ressaca −${d.ressaca}` : ''}${d.max ? ` · ${s.today.dose[d.id] || 0}/${d.max} hoje` : ''}</p></div>
+        <p class="mini"><strong>+${Math.min(SB.nightEnergy(s, d), SB.chemLeft(s))} de energia</strong>${s.today.dose[d.id] ? ` <span class="negative">(rende ${Math.round(SB.doseTolerance(s, d) * 100)}%: tolerância)</span>` : ''} · vício +${SB.doseVicio(s, d)}${d.ressaca ? ` · ressaca −${d.ressaca}` : ''}${d.max ? ` · ${s.today.dose[d.id] || 0}/${d.max} hoje` : ''}</p></div>
         <div class="shopAct"><strong>${fmt(c)}</strong>${button('Pedir', 'dose', `data-id="${d.id}"`, off || s.cash < c, 'small primary')}${own ? button(`Do estoque (${own})`, 'dose', `data-id="${d.id}" data-stock="1"`, off, 'small') : ''}</div></section>`; };
     return heading('Noite', 'Acabou a energia? Entre numa casa e peça no balcão: dinheiro vira energia agora, a ressaca vem amanhã.') + `<div class="screenArt">${window.SBArt.place('noite')}</div>` + jailNotice() + resultCard() + `
-      <section class="card"><div class="kv"><div><span>Saídas hoje</span><strong>${s.today.night}/${SB.NIGHT_LIMIT}</strong></div><div><span>Doses hoje</span><strong>${s.today.doses}/${SB.DOSE_LIMIT}</strong></div><div><span>Ressaca amanhã</span><strong>−${s.ressaca} de energia</strong></div></div>
+      <section class="card"><div class="kv"><div><span>Saídas hoje</span><strong>${s.today.night}/${SB.NIGHT_LIMIT}</strong></div><div><span>Doses hoje</span><strong>${s.today.doses}/${SB.DOSE_LIMIT}</strong></div><div><span>Corpo hoje</span><strong>${s.today.chem}/${SB.CHEM_CAP} de energia</strong></div><div><span>Ressaca amanhã</span><strong>−${s.ressaca} de energia</strong></div></div>
         <div class="meterlabel" style="margin-top:10px"><span>Vício</span><strong>${s.vicio}/100</strong></div><div class="meter red"><div style="width:${s.vicio}%"></div></div>
-        <p class="mini" style="margin-top:6px">Quanto mais forte a dose, mais energia e mais vício; com vício alto, cada dose recarrega menos. ${s.vicio >= 70 ? `<span class="negative">Acima de 70: loló, bala e pó têm ${SB.overdoseChance(s)}% de chance de overdose.</span>` : 'A partir de 70, loló, bala e pó podem dar overdose.'} Cai 3 por dia; o Hospital limpa.</p></section>
+        <p class="mini" style="margin-top:6px">Quanto mais forte a dose, mais energia e mais vício. O corpo se acostuma: cada dose do mesmo tipo no dia rende 15% menos, e as doses devolvem no máximo ${SB.CHEM_CAP} de energia por dia. Dormir zera. Com vício alto, cada dose recarrega menos. ${s.vicio >= 70 ? `<span class="negative">Acima de 70: loló, bala e pó têm ${SB.overdoseChance(s)}% de chance de overdose.</span>` : 'A partir de 70, loló, bala e pó podem dar overdose.'} Cai 3 por dia; o Hospital limpa.</p></section>
       ${here ? `${stencil('No balcão', esc(here.name))}${why ? `<p class="lockline">${esc(why)}</p>` : ''}<div class="grid">${here.menu.map(id => doseRow(SB.doseOf(id))).join('')}</div>` : ''}
       ${stencil('Casas da noite', 'a entrada conta como saída')}<div class="grid">${SB.NIGHT.map(n => { const c = SB.nightCost(s, n), own = SB.ownTermas(s, n), lock = n.unlock && s.respect < n.unlock && !own, inside = here && here.id === n.id;
         return `<section class="card shopRow ${inside ? 'here' : ''} ${lock ? 'locked' : ''}"><div><h3>${esc(n.name)}${inside ? ' <span class="pill">Você está aqui</span>' : own ? ' <span class="pill">Sua casa</span>' : lock ? ` <span class="pill">Requer ${n.unlock} de respeito</span>` : ''}</h3><p class="mini">${esc(n.desc)}</p>

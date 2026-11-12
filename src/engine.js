@@ -299,6 +299,10 @@
     { id: 'po', name: 'Pó', energy: 100, vicio: 30, ressaca: 3, price: 600, strong: true, good: 'po', desc: 'Um só e o cansaço some. Vício extremo: a clínica cobra caro depois.' }
   ];
   const DOSE_LIMIT = 15;
+  /* v1.4: o corpo se acostuma. Cada dose do mesmo tipo no dia rende 15% menos (zera ao dormir)
+   * e, somando tudo, as doses devolvem no máximo CHEM_CAP de energia por dia. */
+  const TOLERANCE = .85;
+  const CHEM_CAP = 150;
   /* Casa da noite abastecida com a sua produção: renda dobrada no dia. */
   const SUPPLY = [
     { biz: 'inferninho', labs: ['alambique', 'laboratorio'], goods: ['bebida', 'lolo', 'bala'], qty: 5 },
@@ -522,7 +526,7 @@
     return [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, f.id === owner ? (legacyRivals && isNum(legacyRivals[d.id]) ? clamp(Math.round(legacyRivals[d.id]), 0, 100) : 22 + i * 3) : (f.id === 'aurora' ? 4 : 2)]))];
   }));
   const initialDistrictState = () => Object.fromEntries(DISTRICTS.map(d => [d.id, { vigil: 0, econ: 1 }]));
-  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false, bribe: false, bets: 0, detox: false, despachante: false, termas: false, venue: null, doses: 0, dose: {} });
+  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false, bribe: false, bets: 0, detox: false, despachante: false, termas: false, venue: null, doses: 0, dose: {}, chem: 0 });
   const startMarket = () => Object.fromEntries(DISTRICTS.map((d, i) => [d.id, Object.fromEntries(GOODS.map((g, j) => [g.id, 85 + ((i * 7 + j * 11) % 5) * 8]))]));
   const emptySeasonStats = () => ({ arrests: 0, startRespect: 5, bailPaid: 0, controlDays: Object.fromEntries(DISTRICTS.map(d => [d.id, 0])), bestCash: 0 });
 
@@ -696,6 +700,7 @@
       for (const k of ['detox', 'despachante', 'termas']) s.today[k] = saved.today[k] === true;
       s.today.venue = NIGHT.some(n => n.id === saved.today.venue) ? saved.today.venue : null;
       s.today.doses = toInt(saved.today.doses, 0, 0, 99);
+      s.today.chem = toInt(saved.today.chem, 0, 0, CHEM_CAP);
       for (const d of DOSES) if (isNum(saved.today.dose && saved.today.dose[d.id])) s.today.dose[d.id] = toInt(saved.today.dose[d.id], 0, 0, 99);
     }
     const ss = saved.seasonStats || {};
@@ -955,7 +960,10 @@
     return need > 0 ? null : use;
   }
   /** Quanto mais viciado, menos cada saída recarrega (no mínimo 40%). */
-  const nightEnergy = (s, d) => Math.max(1, Math.round(d.energy * Math.max(.4, 1 - s.vicio / 160)));
+  /** Quanto a próxima dose deste tipo rende hoje: tolerância do dia (por tipo) e vício. */
+  const doseTolerance = (s, d) => Math.pow(TOLERANCE, (s.today.dose && s.today.dose[d.id]) || 0);
+  const nightEnergy = (s, d) => Math.max(1, Math.round(d.energy * Math.max(.4, 1 - s.vicio / 160) * doseTolerance(s, d)));
+  const chemLeft = s => Math.max(0, CHEM_CAP - (s.today.chem || 0));
   const overdoseChance = s => s.vicio >= 70 ? clamp(s.vicio - 60, 0, 40) : 0;
   const detoxCost = s => s.vicio * 18;
   /** Dono da Casa de Shows não corre risco de briga no baile: a segurança é sua. */
@@ -1560,14 +1568,15 @@
     if (s.today.doses >= DOSE_LIMIT) return refuse(`Por hoje chega: ${DOSE_LIMIT} doses é o limite do corpo.`);
     if (d.max && (s.today.dose[d.id] || 0) >= d.max) return refuse(`${d.name}: no máximo ${d.max} por dia.`);
     if (s.energy >= 100) return refuse('Você já está com a energia cheia.');
+    if (chemLeft(s) <= 0) return refuse(`Seu corpo não aguenta mais nada hoje (${CHEM_CAP} de energia em doses). Vá descansar.`);
     const stock = !!fromStock;
     if (stock && (!d.good || s.goods[d.good] < 1)) return refuse('Você não tem isso no estoque.');
     const c = stock ? 0 : doseCost(s, d, n);
     if (s.cash < c) return refuse(`Custa ${money(c)} em mãos.`);
-    const gain = nightEnergy(s, d), od = d.strong ? overdoseChance(s) : 0;
+    const gain = Math.min(nightEnergy(s, d), chemLeft(s), 100 - s.energy), od = d.strong ? overdoseChance(s) : 0;
     if (stock) s.goods[d.good]--; else s.cash -= c;
     s.today.doses++; s.today.dose[d.id] = (s.today.dose[d.id] || 0) + 1; s.tutorial.nighted = true;
-    s.energy = clamp(s.energy + gain, 0, 100);
+    s.energy = clamp(s.energy + gain, 0, 100); s.today.chem += gain;
     s.vicio = clamp(s.vicio + doseVicio(s, d), 0, 100);
     s.ressaca = clamp(s.ressaca + Math.ceil(d.ressaca * (hasPerk(s, 'barao', 1) ? .5 : 1)), 0, 30);
     let extra = '';
@@ -2222,7 +2231,7 @@
     STATS, MISSIONS, DISTRICTS, BUSINESSES, HEISTS, HEIST_MAX_HIRES, HEIST_WINDOW, HEIST_COOLDOWN, HEIST_CUT, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, AVATARS, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
-    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
     missionScore, missionChance, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
