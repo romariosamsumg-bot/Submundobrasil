@@ -1,4 +1,4 @@
-# Validação — Submundo Brasil v1.4
+# Validação — Submundo Brasil v1.5
 
 Tudo abaixo foi **executado** neste ambiente (Node.js + Chromium/Playwright).
 Para reproduzir: `npm test` (build + motor + fuzz + interface), `npm run simulate`

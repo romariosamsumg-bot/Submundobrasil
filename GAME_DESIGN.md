@@ -608,7 +608,7 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 
 - **Nomes**: a vigilância pessoal (`heat`) aparece ao jogador como **Procurado**; a do bairro (`vigil`) como **Vigia local**. As regras e os números não mudaram, só o nome.
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
-- **Tela Rua**, de cima para baixo: placa do bairro → cartão do dia com "Dormir" → resultado → lambe-lambe "Hoje na cidade" (eventos) → primeiros passos ou "E agora?" (só um conselho) → notícia com decisão → **Sua temporada** (patente, classe, meta e título num cartão só) → diário.
+- **Tela Rua (v1.5)**, de cima para baixo: placa do bairro ("Quem manda", economia, vigia) → resultado → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, meta, título) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
 
 ### Quatro classes (v1.4)
 

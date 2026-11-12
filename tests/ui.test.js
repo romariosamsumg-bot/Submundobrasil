@@ -3,7 +3,7 @@
 'use strict';
 const { chromium } = require('playwright');
 const path = require('path');
-const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v1.4.html');
+const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v1.5.html');
 const V04 = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.4.html');
 let failures = 0;
 const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg); if (!cond) failures++; };
@@ -247,7 +247,7 @@ await page.click('[data-action=duel][data-id=marrento]');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-action=export]')]);
   const fpath = await dl.path();
   const payload = JSON.parse(require('fs').readFileSync(fpath, 'utf8'));
-  check(payload.game === 'Submundo Brasil' && payload.version === '1.4' && payload.checksum, 'arquivo exportado com versão e checksum');
+  check(payload.game === 'Submundo Brasil' && payload.version === '1.5' && payload.checksum, 'arquivo exportado com versão e checksum');
   await page.evaluate(() => localStorage.clear()); await page.reload();
   await page.setInputFiles('#welcomeImportFile', fpath);
   await page.waitForTimeout(300);

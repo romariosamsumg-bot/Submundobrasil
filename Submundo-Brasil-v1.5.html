@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111b1e">
   <meta name="description" content="Submundo Brasil — RPG urbano brasileiro de estratégia por turnos para navegador.">
-  <title>Submundo Brasil | Jogo de estratégia 1.4</title>
+  <title>Submundo Brasil | Jogo de estratégia 1.5</title>
   <style>
     :root{color-scheme:dark;--bg:#0d1319;--panel:#151e26;--panel2:#1a2630;--line:#30404d;--muted:#9eabb5;--text:#f0f2f1;--accent:#e8a04b;--accent2:#ffbd6e;--green:#81c9a6;--red:#ee948a;--info:#8dbedb;--radius:9px}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}a{color:var(--accent)}.hidden{display:none!important}
@@ -540,6 +540,21 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 .pill.bad{background:#5a2320;color:#ffd0c9;border-color:#a8473e}
 .tier{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:2px;border-radius:50%;background:var(--ambar);color:#1b1712;font:800 11px/1 system-ui,sans-serif;vertical-align:2px}
 
+/* v1.5: Rua com a ação na frente, dia em faixa e temporada em 4 blocos */
+.dayStrip{display:flex;gap:12px;align-items:center;margin:0 0 10px;padding:9px 12px;background:#141b1f;border:1px solid #2f3b40;border-left:3px solid var(--ambar);border-radius:4px}
+.dayStrip .dayInfo b{font-size:22px}
+.dayStrip .dayInfo span{font-size:10px;margin:2px 0 6px;color:#e2c48f;white-space:normal}
+.dayStrip .btn{flex:none;min-height:40px;min-width:92px;font-size:14px;max-width:46%}
+.dayStrip .btn.ghost{color:#cfd8da;border-color:#4a575b}
+.nextMove{margin-top:2px}.nextMove h3{font-size:18px}
+.fichaGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.ficha .fichaRow{padding:9px 9px 8px;border:1px solid #2c3a3e;border-radius:4px;background:#121a1e;min-width:0}
+.ficha .fichaRow b{display:block;font:700 14px/1.15 Georgia,serif;color:#f3d6ae;margin:3px 0 2px;overflow-wrap:anywhere}
+.ficha .fichaRow em{display:block;font-style:normal;font-size:10px;line-height:1.3;color:#a9b7bb;margin-bottom:6px}
+.ficha .fichaRow.pick{border-color:var(--ambar)}
+.fichaGo{margin-top:9px;gap:6px}.fichaGo .btn{flex:1}
+@media(min-width:701px){.fichaGrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
   </style>
 </head>
 <body>
@@ -560,7 +575,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
     <button type="button" data-view="noite"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l-1 7a3 3 0 0 1-6 0zM12 13v7M8 20h8M17 4l3-1M18 7h3"/></svg>Noite</button>
     <button type="button" data-view="feira"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l2-5h14l2 5M4 9v11h16V9M9 20v-6h6v6M3 9c0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0"/></svg>Feira</button>
     <button type="button" data-view="hub"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V10l5-3v14M8 21V4l7 3v14M15 21v-9l6 2v7M2 21h20"/></svg>Cidade</button>
-  </nav><div class="sidefoot"><strong>Versão local 1.4.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.<br><button type="button" class="btn small ghost" data-action="help" style="margin-top:8px">Como jogar</button></div></aside>
+  </nav><div class="sidefoot"><strong>Versão local 1.5.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.<br><button type="button" class="btn small ghost" data-action="help" style="margin-top:8px">Como jogar</button></div></aside>
   <main class="content" id="content" tabindex="-1" aria-live="polite"></main></div>
   <nav class="mobileNav" aria-label="Navegação principal no celular">
     <button type="button" data-view="painel" class="active"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v9h5v-5h4v5h5v-9"/></svg>Rua</button>
@@ -601,7 +616,7 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 (function (root) {
   'use strict';
 
-  const VERSION = '1.4';
+  const VERSION = '1.5';
   const SCHEMA = 2;
   const MAXDAY = 30;
   const MAX_LOG = 60;
@@ -2969,7 +2984,7 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
   </script>
   <script id="sb-ui">
 /* =====================================================================
- * SUBMUNDO BRASIL — INTERFACE v1.4
+ * SUBMUNDO BRASIL — INTERFACE v1.5
  * Responsável por: persistência (localStorage, backup, importação e
  * exportação), renderização das telas e tratamento dos cliques.
  * Todas as regras ficam em window.SB (motor). Esta camada só chama
@@ -3165,7 +3180,7 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function exportSave() {
-    download(`submundo-brasil-v1.4-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
+    download(`submundo-brasil-v1.5-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
     notify('Cópia da carreira preparada para download.');
   }
   async function importFile(file, fromWelcome) {
@@ -3282,7 +3297,7 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
     return `<section class="locale ${tall ? 'tall' : ''}" aria-label="Onde você está">${scene(d.id)}
       <div class="localeTop">${plate(d.name, s.city)}${(flyers ? evs : []).map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
-      <div class="localeBottom"><span>${SB.controlled(s, d.id) ? 'Você lidera' : esc(F(l.id).short) + ' ' + l.value + ' × você ' + s.influence[d.id]}</span><span class="fix">Econ. ${Math.round(ds.econ * 100)}%</span><span class="fix ${ds.vigil >= 40 ? 'hot' : ''}">Vigia ${ds.vigil}</span></div></section>`;
+      <div class="localeBottom"><span>${SB.controlled(s, d.id) ? 'Você manda aqui' : 'Quem manda: ' + esc(F(l.id).short)}</span><span class="fix">Econ. ${Math.round(ds.econ * 100)}%</span><span class="fix ${ds.vigil >= 40 ? 'hot' : ''}">Vigia ${ds.vigil}</span></div></section>`;
   }
   const statName = id => SB.STATS.find(x => x.id === id).name;
   const chanceClass = p => p < 55 ? 'danger' : p < 75 ? 'risky' : '';
@@ -3375,37 +3390,33 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
   function panel() {
     const s = state, mv = nextMove(), guide = guideCard();
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
-    return jailNotice() + localeStrip(false, false) + `
-      <section class="dayBar dayCard"><div class="dayTop"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span></div>${nextDayButton('')}</div>
-        <div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></section>
+    const tired = s.energy < 16 || s.day >= MAXDAY;
+    const sleep = s.day >= MAXDAY ? button('Encerrar temporada', 'switch', 'data-target="temporada"', false, 'primary small')
+      : button(armedNext ? `Dormir com ${s.energy} de energia?` : 'Dormir', 'next-day', '', false, (armedNext ? 'armed' : tired ? 'primary' : 'ghost') + ' small');
+    return jailNotice() + localeStrip(true, false) + `
       ${resultCard()}
-      ${evs.length ? `<section class="poster dayNews"><div class="posterHead">HOJE NA CIDADE</div><ul class="eventList">${evs.map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
       ${guide}${s.career ? '' : careerCard()}
       ${mv && !guide ? `<section class="boardLead job nextMove"><div class="jobIcon">${statIcon(mv.icon || 'astucia')}</div><div class="jobMain"><div class="eyebrow">E agora? · ${esc(mv.tag)}</div><h3>${esc(mv.title)}</h3><p class="jobMeta">${esc(mv.text)}</p></div><div class="jobAct">${mv.btn}</div></section>` : ''}
+      <section class="dayBar dayStrip"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span><div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></div>${sleep}</section>
+      ${evs.length ? `<section class="poster dayNews"><div class="posterHead">HOJE NA CIDADE</div><ul class="eventList">${evs.map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
       ${s.career || s.tutorial.done ? newsCard() : ''}
       ${fichaCard()}
-      ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(3)}</section>`;
+      ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(2)}</section>`;
   }
-  /** Ficha da temporada: patente, classe, meta e título num cartão só. */
+  /** Temporada em 4 blocos: patente, classe, meta e título, cada um com a sua barra. */
   function fichaCard() {
     const s = state, sc = SB.seasonScore(s), pi = SB.phaseIndex(s), ph = SB.PHASES[pi], nx = SB.PHASES[pi + 1];
-    const row = (label, main, side, fill, extra = '') => `<div class="fichaRow"><span class="fichaLabel">${label}</span><div class="fichaLine"><b>${main}</b><em>${side}</em></div>${fill === null ? '' : `<div class="meter"><div style="width:${pct(fill)}%"></div></div>`}${extra}</div>`;
-    let o = row('Patente', esc(ph.name), nx ? `${num(s.respect)}/${nx.at} respeito → ${esc(nx.name)}` : 'patente máxima', nx ? (s.respect - ph.at) / (nx.at - ph.at) * 100 : 100);
-    if (s.career) {
-      const c = SB.CAREERS.find(x => x.id === s.career), lvl = SB.careerLevel(s), next = SB.CAREER_XP[lvl];
-      o += row('Classe', `${c.name} · nível ${lvl}/3`, next ? `${s.careerXP}/${next} XP` : 'completa', next ? s.careerXP / next * 100 : 100,
-        `<details class="fichaMore"><summary>Habilidades da classe</summary><p class="mini">${esc(c.desc)} ${esc(c.xpDesc)}</p><ul class="perkList">${c.perks.map((p, i) => `<li class="${i < lvl ? 'on' : ''}">${i < lvl ? '✓' : '○'} Nível ${i + 1} (${SB.CAREER_XP[i]} XP): ${esc(p)}</li>`).join('')}</ul></details>`);
-    }
-    if (s.goal) {
-      const g = SB.GOALS.find(x => x.id === s.goal), p = SB.goalProgress(s, s.goal);
-      o += row('Meta', esc(g.name), s.goalDone ? 'cumprida ✓' : p.unit === 'money' ? fmt(p.value) + ' / ' + fmt(p.max) : Math.round(p.value) + '%', s.goalDone ? 100 : p.value / p.max * 100);
-    } else if (s.day <= 5) o += row('Meta', 'Ainda sem meta', 'escolha até o dia 5', null, `<div class="fichaBtn">${button('Escolher meta', 'switch', 'data-target="temporada"', false, 'small ghost')}</div>`);
-    let best = null;
-    for (const c of sc.cats) { const cat = SB.CATEGORIES.find(x => x.id === c.id), next = cat.tiers[c.medal]; if (!next) continue; const prev = c.medal ? cat.tiers[c.medal - 1] : 0, gap = (next - c.value) / (next - prev); if (!best || gap < best.gap) best = { c, cat, next, gap }; }
+    const tile = (label, main, side, fill, cls = '') => `<div class="fichaRow ${cls}"><span class="fichaLabel">${label}</span><b>${main}</b><em>${side}</em>${fill === null ? '' : `<div class="meter"><div style="width:${pct(fill)}%"></div></div>`}</div>`;
+    let o = tile('Patente', esc(ph.name), nx ? `${esc(nx.name)} com ${nx.at}` : 'patente máxima', nx ? (s.respect - ph.at) / (nx.at - ph.at) * 100 : 100);
+    const c = s.career ? SB.CAREERS.find(x => x.id === s.career) : null;
+    if (c) { const lvl = SB.careerLevel(s), next = SB.CAREER_XP[lvl]; o += tile('Classe', `${c.name} ${lvl}/3`, next ? `${s.careerXP}/${next} XP` : 'completa', next ? s.careerXP / next * 100 : 100); }
+    else o += tile('Classe', 'A escolher', 'decida acima', null);
+    if (s.goal) { const g = SB.GOALS.find(x => x.id === s.goal), p = SB.goalProgress(s, s.goal); o += tile('Meta', esc(g.name), s.goalDone ? 'cumprida ✓' : p.unit === 'money' ? fmt(p.value) + ' / ' + fmt(p.max) : Math.round(p.value) + '%', s.goalDone ? 100 : p.value / p.max * 100); }
+    else o += tile('Meta', s.day <= 5 ? 'Escolha até o dia 5' : 'Sem meta', s.day <= 5 ? 'em Temporada' : 'nesta temporada', null, s.day <= 5 ? 'pick' : '');
     const base = (SB.TITLES.find(t => t[1] === sc.title) || [0])[0];
-    o += row('Título', esc(sc.title), sc.next ? `→ ${esc(sc.next.title)} com ${num(sc.next.at)} pts` : 'título máximo', sc.next ? (sc.score - base) / (sc.next.at - base) * 100 : 100,
-      best ? `<p class="fichaTip"><b>Medalha mais perto:</b> ${best.c.name} ${SB.MEDALS[best.c.medal + 1]}, faltam ${best.cat.unit === 'money' ? fmt(best.next - best.c.value) : num(best.next - best.c.value)}. ${CAT_TIPS[best.c.id].charAt(0).toUpperCase() + CAT_TIPS[best.c.id].slice(1)}.</p>` : '<p class="fichaTip">Todas as medalhas de ouro conquistadas.</p>');
-    return `<section class="rumo ficha" aria-label="Sua temporada"><div class="rumoHead"><span>Sua temporada</span><b>${num(sc.score)} pts</b></div>${o}
+    o += tile('Título', esc(sc.title), sc.next ? `${esc(sc.next.title)} com ${num(sc.next.at)}` : 'título máximo', sc.next ? (sc.score - base) / (sc.next.at - base) * 100 : 100);
+    return `<section class="rumo ficha" aria-label="Sua temporada"><div class="rumoHead"><span>Sua temporada</span><b>${num(sc.score)} pts</b></div><div class="fichaGrid">${o}</div>
+      <div class="btnbar fichaGo">${button('Medalhas', 'switch', 'data-target="temporada"', false, 'small ghost')}${c ? button('Habilidades', 'switch', 'data-target="perfil"', false, 'small ghost') : ''}</div>
       ${s.day >= 25 && s.day < MAXDAY ? `<p class="warn">Reta final: faltam ${MAXDAY - s.day} dia(s).</p>` : ''}</section>`;
   }
   function journal(max) { return `<ul class="timeline">${state.log.slice(0, max).map(i => `<li><time>Dia ${num(i.day)}</time>${esc(i.msg)}</li>`).join('')}</ul>`; }
@@ -3750,6 +3761,7 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
     return heading('Perfil', 'Sua ficha no submundo.') + resultCard() + `
       <section class="sheet"><span class="sheetAvatar">${portrait(s)}</span><div><h2>${esc(s.name)}</h2><p>${esc(sc.title)} · nível ${lvl}</p><p class="mini">${esc(s.city)}${c ? ' · ' + c.name + ' ' + SB.careerLevel(s) + '/3' : ''}${s.gangName ? ' · ' + esc(s.gangName) : ''}${s.prestige ? ' · prestígio ' + s.prestige : ''}</p></div></section>
       ${stencil('Retrato', 'só aparência, troque quando quiser')}<div class="avatarGrid" role="group" aria-label="Escolher retrato">${SB.AVATARS.filter(a => window.SBArt.avatar(a.id)).map(a => `<button type="button" class="avatarPick ${s.avatar === a.id ? 'on' : ''}" data-action="avatar" data-id="${a.id}" aria-pressed="${s.avatar === a.id}" title="${a.name}">${window.SBArt.avatar(a.id)}<small>${a.name}</small></button>`).join('')}<button type="button" class="avatarPick ${s.avatar ? '' : 'on'}" data-action="avatar" data-id="none" aria-pressed="${!s.avatar}" title="Silhueta da classe">${avatar(s.career)}<small>Classe</small></button></div>
+      ${c ? `${stencil('Classe', esc(c.name) + ' · ' + esc(c.tag))}<section class="card"><p class="mini" style="margin:0">${esc(c.desc)} ${esc(c.xpDesc)}</p><ul class="perkList">${c.perks.map((p, i) => `<li class="${i < SB.careerLevel(s) ? 'on' : ''}">${i < SB.careerLevel(s) ? '✓' : '○'} Nível ${i + 1} (${SB.CAREER_XP[i]} XP): ${esc(p)}</li>`).join('')}</ul></section>` : ''}
       ${stencil('Atributos')}<section class="card">${SB.STATS.map(st => `<div class="statRow">${statIcon(st.id)}<span>${st.name}</span><div class="meter"><div style="width:${pct(s.stats[st.id] / top * 100)}%"></div></div><strong>${num(s.stats[st.id])}</strong></div>`).join('')}</section>
       ${stencil('Equipamento', 'troque na Feira do Rolo')}<div class="gearGrid">${SB.SLOTS.map(sl => { const it = SB.item(s.gear[sl.id]); return `<button type="button" class="gearSlot ${it ? 'on' : ''}" data-view="feira"><span>${sl.name}</span><b>${it ? esc(it.name) : '—'}</b><small>${it ? esc(it.slot === 'arma' ? 'poder ' + it.power : it.slot === 'protecao' ? 'defesa ' + it.def : 'carga +' + it.cargo) : 'vazio'}</small></button>`; }).join('')}</div>
       ${stencil('Nesta temporada')}<section class="card"><div class="kv"><div><span>Respeito</span><strong>${num(s.respect)}</strong></div><div><span>Patrimônio</span><strong>${fmt(SB.patrimony(s))}</strong></div><div><span>Serviços</span><strong>${num(s.successful)} certos · ${num(s.failed)} falhos</strong></div><div><span>Detenções</span><strong>${s.seasonStats.arrests}</strong></div><div><span>Saúde</span><strong>${s.health}/100${s.hospital ? ' · internado' : ''}</strong></div><div><span>Duelos</span><strong>${s.duelStats.wins} vitórias · ${s.duelStats.losses} derrotas</strong></div><div><span>Mercadoria vendida</span><strong>${fmt(s.trade.sold)}</strong></div><div><span>Remessas / blitze</span><strong>${num(s.trade.exported)} un. · ${s.trade.blitz}</strong></div><div><span>Bairros liderados</span><strong>${SB.controls(s).length}/5</strong></div><div><span>Conquistas</span><strong>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length}</strong></div></div></section>

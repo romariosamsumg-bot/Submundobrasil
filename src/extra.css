@@ -458,3 +458,18 @@ body.jailed .hudAvatar::after{content:"";position:absolute}
 .doseRow .shopAct{display:flex;flex-direction:column;gap:5px;align-items:stretch}
 .pill.bad{background:#5a2320;color:#ffd0c9;border-color:#a8473e}
 .tier{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:2px;border-radius:50%;background:var(--ambar);color:#1b1712;font:800 11px/1 system-ui,sans-serif;vertical-align:2px}
+
+/* v1.5: Rua com a ação na frente, dia em faixa e temporada em 4 blocos */
+.dayStrip{display:flex;gap:12px;align-items:center;margin:0 0 10px;padding:9px 12px;background:#141b1f;border:1px solid #2f3b40;border-left:3px solid var(--ambar);border-radius:4px}
+.dayStrip .dayInfo b{font-size:22px}
+.dayStrip .dayInfo span{font-size:10px;margin:2px 0 6px;color:#e2c48f;white-space:normal}
+.dayStrip .btn{flex:none;min-height:40px;min-width:92px;font-size:14px;max-width:46%}
+.dayStrip .btn.ghost{color:#cfd8da;border-color:#4a575b}
+.nextMove{margin-top:2px}.nextMove h3{font-size:18px}
+.fichaGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.ficha .fichaRow{padding:9px 9px 8px;border:1px solid #2c3a3e;border-radius:4px;background:#121a1e;min-width:0}
+.ficha .fichaRow b{display:block;font:700 14px/1.15 Georgia,serif;color:#f3d6ae;margin:3px 0 2px;overflow-wrap:anywhere}
+.ficha .fichaRow em{display:block;font-style:normal;font-size:10px;line-height:1.3;color:#a9b7bb;margin-bottom:6px}
+.ficha .fichaRow.pick{border-color:var(--ambar)}
+.fichaGo{margin-top:9px;gap:6px}.fichaGo .btn{flex:1}
+@media(min-width:701px){.fichaGrid{grid-template-columns:repeat(4,minmax(0,1fr))}}

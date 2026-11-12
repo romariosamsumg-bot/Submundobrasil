@@ -1,5 +1,5 @@
 /* =====================================================================
- * SUBMUNDO BRASIL — INTERFACE v1.4
+ * SUBMUNDO BRASIL — INTERFACE v1.5
  * Responsável por: persistência (localStorage, backup, importação e
  * exportação), renderização das telas e tratamento dos cliques.
  * Todas as regras ficam em window.SB (motor). Esta camada só chama
@@ -195,7 +195,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function exportSave() {
-    download(`submundo-brasil-v1.4-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
+    download(`submundo-brasil-v1.5-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
     notify('Cópia da carreira preparada para download.');
   }
   async function importFile(file, fromWelcome) {
@@ -312,7 +312,7 @@
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
     return `<section class="locale ${tall ? 'tall' : ''}" aria-label="Onde você está">${scene(d.id)}
       <div class="localeTop">${plate(d.name, s.city)}${(flyers ? evs : []).map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
-      <div class="localeBottom"><span>${SB.controlled(s, d.id) ? 'Você lidera' : esc(F(l.id).short) + ' ' + l.value + ' × você ' + s.influence[d.id]}</span><span class="fix">Econ. ${Math.round(ds.econ * 100)}%</span><span class="fix ${ds.vigil >= 40 ? 'hot' : ''}">Vigia ${ds.vigil}</span></div></section>`;
+      <div class="localeBottom"><span>${SB.controlled(s, d.id) ? 'Você manda aqui' : 'Quem manda: ' + esc(F(l.id).short)}</span><span class="fix">Econ. ${Math.round(ds.econ * 100)}%</span><span class="fix ${ds.vigil >= 40 ? 'hot' : ''}">Vigia ${ds.vigil}</span></div></section>`;
   }
   const statName = id => SB.STATS.find(x => x.id === id).name;
   const chanceClass = p => p < 55 ? 'danger' : p < 75 ? 'risky' : '';
@@ -405,37 +405,33 @@
   function panel() {
     const s = state, mv = nextMove(), guide = guideCard();
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
-    return jailNotice() + localeStrip(false, false) + `
-      <section class="dayBar dayCard"><div class="dayTop"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span></div>${nextDayButton('')}</div>
-        <div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></section>
+    const tired = s.energy < 16 || s.day >= MAXDAY;
+    const sleep = s.day >= MAXDAY ? button('Encerrar temporada', 'switch', 'data-target="temporada"', false, 'primary small')
+      : button(armedNext ? `Dormir com ${s.energy} de energia?` : 'Dormir', 'next-day', '', false, (armedNext ? 'armed' : tired ? 'primary' : 'ghost') + ' small');
+    return jailNotice() + localeStrip(true, false) + `
       ${resultCard()}
-      ${evs.length ? `<section class="poster dayNews"><div class="posterHead">HOJE NA CIDADE</div><ul class="eventList">${evs.map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
       ${guide}${s.career ? '' : careerCard()}
       ${mv && !guide ? `<section class="boardLead job nextMove"><div class="jobIcon">${statIcon(mv.icon || 'astucia')}</div><div class="jobMain"><div class="eyebrow">E agora? · ${esc(mv.tag)}</div><h3>${esc(mv.title)}</h3><p class="jobMeta">${esc(mv.text)}</p></div><div class="jobAct">${mv.btn}</div></section>` : ''}
+      <section class="dayBar dayStrip"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span><div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></div>${sleep}</section>
+      ${evs.length ? `<section class="poster dayNews"><div class="posterHead">HOJE NA CIDADE</div><ul class="eventList">${evs.map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
       ${s.career || s.tutorial.done ? newsCard() : ''}
       ${fichaCard()}
-      ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(3)}</section>`;
+      ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(2)}</section>`;
   }
-  /** Ficha da temporada: patente, classe, meta e título num cartão só. */
+  /** Temporada em 4 blocos: patente, classe, meta e título, cada um com a sua barra. */
   function fichaCard() {
     const s = state, sc = SB.seasonScore(s), pi = SB.phaseIndex(s), ph = SB.PHASES[pi], nx = SB.PHASES[pi + 1];
-    const row = (label, main, side, fill, extra = '') => `<div class="fichaRow"><span class="fichaLabel">${label}</span><div class="fichaLine"><b>${main}</b><em>${side}</em></div>${fill === null ? '' : `<div class="meter"><div style="width:${pct(fill)}%"></div></div>`}${extra}</div>`;
-    let o = row('Patente', esc(ph.name), nx ? `${num(s.respect)}/${nx.at} respeito → ${esc(nx.name)}` : 'patente máxima', nx ? (s.respect - ph.at) / (nx.at - ph.at) * 100 : 100);
-    if (s.career) {
-      const c = SB.CAREERS.find(x => x.id === s.career), lvl = SB.careerLevel(s), next = SB.CAREER_XP[lvl];
-      o += row('Classe', `${c.name} · nível ${lvl}/3`, next ? `${s.careerXP}/${next} XP` : 'completa', next ? s.careerXP / next * 100 : 100,
-        `<details class="fichaMore"><summary>Habilidades da classe</summary><p class="mini">${esc(c.desc)} ${esc(c.xpDesc)}</p><ul class="perkList">${c.perks.map((p, i) => `<li class="${i < lvl ? 'on' : ''}">${i < lvl ? '✓' : '○'} Nível ${i + 1} (${SB.CAREER_XP[i]} XP): ${esc(p)}</li>`).join('')}</ul></details>`);
-    }
-    if (s.goal) {
-      const g = SB.GOALS.find(x => x.id === s.goal), p = SB.goalProgress(s, s.goal);
-      o += row('Meta', esc(g.name), s.goalDone ? 'cumprida ✓' : p.unit === 'money' ? fmt(p.value) + ' / ' + fmt(p.max) : Math.round(p.value) + '%', s.goalDone ? 100 : p.value / p.max * 100);
-    } else if (s.day <= 5) o += row('Meta', 'Ainda sem meta', 'escolha até o dia 5', null, `<div class="fichaBtn">${button('Escolher meta', 'switch', 'data-target="temporada"', false, 'small ghost')}</div>`);
-    let best = null;
-    for (const c of sc.cats) { const cat = SB.CATEGORIES.find(x => x.id === c.id), next = cat.tiers[c.medal]; if (!next) continue; const prev = c.medal ? cat.tiers[c.medal - 1] : 0, gap = (next - c.value) / (next - prev); if (!best || gap < best.gap) best = { c, cat, next, gap }; }
+    const tile = (label, main, side, fill, cls = '') => `<div class="fichaRow ${cls}"><span class="fichaLabel">${label}</span><b>${main}</b><em>${side}</em>${fill === null ? '' : `<div class="meter"><div style="width:${pct(fill)}%"></div></div>`}</div>`;
+    let o = tile('Patente', esc(ph.name), nx ? `${esc(nx.name)} com ${nx.at}` : 'patente máxima', nx ? (s.respect - ph.at) / (nx.at - ph.at) * 100 : 100);
+    const c = s.career ? SB.CAREERS.find(x => x.id === s.career) : null;
+    if (c) { const lvl = SB.careerLevel(s), next = SB.CAREER_XP[lvl]; o += tile('Classe', `${c.name} ${lvl}/3`, next ? `${s.careerXP}/${next} XP` : 'completa', next ? s.careerXP / next * 100 : 100); }
+    else o += tile('Classe', 'A escolher', 'decida acima', null);
+    if (s.goal) { const g = SB.GOALS.find(x => x.id === s.goal), p = SB.goalProgress(s, s.goal); o += tile('Meta', esc(g.name), s.goalDone ? 'cumprida ✓' : p.unit === 'money' ? fmt(p.value) + ' / ' + fmt(p.max) : Math.round(p.value) + '%', s.goalDone ? 100 : p.value / p.max * 100); }
+    else o += tile('Meta', s.day <= 5 ? 'Escolha até o dia 5' : 'Sem meta', s.day <= 5 ? 'em Temporada' : 'nesta temporada', null, s.day <= 5 ? 'pick' : '');
     const base = (SB.TITLES.find(t => t[1] === sc.title) || [0])[0];
-    o += row('Título', esc(sc.title), sc.next ? `→ ${esc(sc.next.title)} com ${num(sc.next.at)} pts` : 'título máximo', sc.next ? (sc.score - base) / (sc.next.at - base) * 100 : 100,
-      best ? `<p class="fichaTip"><b>Medalha mais perto:</b> ${best.c.name} ${SB.MEDALS[best.c.medal + 1]}, faltam ${best.cat.unit === 'money' ? fmt(best.next - best.c.value) : num(best.next - best.c.value)}. ${CAT_TIPS[best.c.id].charAt(0).toUpperCase() + CAT_TIPS[best.c.id].slice(1)}.</p>` : '<p class="fichaTip">Todas as medalhas de ouro conquistadas.</p>');
-    return `<section class="rumo ficha" aria-label="Sua temporada"><div class="rumoHead"><span>Sua temporada</span><b>${num(sc.score)} pts</b></div>${o}
+    o += tile('Título', esc(sc.title), sc.next ? `${esc(sc.next.title)} com ${num(sc.next.at)}` : 'título máximo', sc.next ? (sc.score - base) / (sc.next.at - base) * 100 : 100);
+    return `<section class="rumo ficha" aria-label="Sua temporada"><div class="rumoHead"><span>Sua temporada</span><b>${num(sc.score)} pts</b></div><div class="fichaGrid">${o}</div>
+      <div class="btnbar fichaGo">${button('Medalhas', 'switch', 'data-target="temporada"', false, 'small ghost')}${c ? button('Habilidades', 'switch', 'data-target="perfil"', false, 'small ghost') : ''}</div>
       ${s.day >= 25 && s.day < MAXDAY ? `<p class="warn">Reta final: faltam ${MAXDAY - s.day} dia(s).</p>` : ''}</section>`;
   }
   function journal(max) { return `<ul class="timeline">${state.log.slice(0, max).map(i => `<li><time>Dia ${num(i.day)}</time>${esc(i.msg)}</li>`).join('')}</ul>`; }
@@ -780,6 +776,7 @@
     return heading('Perfil', 'Sua ficha no submundo.') + resultCard() + `
       <section class="sheet"><span class="sheetAvatar">${portrait(s)}</span><div><h2>${esc(s.name)}</h2><p>${esc(sc.title)} · nível ${lvl}</p><p class="mini">${esc(s.city)}${c ? ' · ' + c.name + ' ' + SB.careerLevel(s) + '/3' : ''}${s.gangName ? ' · ' + esc(s.gangName) : ''}${s.prestige ? ' · prestígio ' + s.prestige : ''}</p></div></section>
       ${stencil('Retrato', 'só aparência, troque quando quiser')}<div class="avatarGrid" role="group" aria-label="Escolher retrato">${SB.AVATARS.filter(a => window.SBArt.avatar(a.id)).map(a => `<button type="button" class="avatarPick ${s.avatar === a.id ? 'on' : ''}" data-action="avatar" data-id="${a.id}" aria-pressed="${s.avatar === a.id}" title="${a.name}">${window.SBArt.avatar(a.id)}<small>${a.name}</small></button>`).join('')}<button type="button" class="avatarPick ${s.avatar ? '' : 'on'}" data-action="avatar" data-id="none" aria-pressed="${!s.avatar}" title="Silhueta da classe">${avatar(s.career)}<small>Classe</small></button></div>
+      ${c ? `${stencil('Classe', esc(c.name) + ' · ' + esc(c.tag))}<section class="card"><p class="mini" style="margin:0">${esc(c.desc)} ${esc(c.xpDesc)}</p><ul class="perkList">${c.perks.map((p, i) => `<li class="${i < SB.careerLevel(s) ? 'on' : ''}">${i < SB.careerLevel(s) ? '✓' : '○'} Nível ${i + 1} (${SB.CAREER_XP[i]} XP): ${esc(p)}</li>`).join('')}</ul></section>` : ''}
       ${stencil('Atributos')}<section class="card">${SB.STATS.map(st => `<div class="statRow">${statIcon(st.id)}<span>${st.name}</span><div class="meter"><div style="width:${pct(s.stats[st.id] / top * 100)}%"></div></div><strong>${num(s.stats[st.id])}</strong></div>`).join('')}</section>
       ${stencil('Equipamento', 'troque na Feira do Rolo')}<div class="gearGrid">${SB.SLOTS.map(sl => { const it = SB.item(s.gear[sl.id]); return `<button type="button" class="gearSlot ${it ? 'on' : ''}" data-view="feira"><span>${sl.name}</span><b>${it ? esc(it.name) : '—'}</b><small>${it ? esc(it.slot === 'arma' ? 'poder ' + it.power : it.slot === 'protecao' ? 'defesa ' + it.def : 'carga +' + it.cargo) : 'vazio'}</small></button>`; }).join('')}</div>
       ${stencil('Nesta temporada')}<section class="card"><div class="kv"><div><span>Respeito</span><strong>${num(s.respect)}</strong></div><div><span>Patrimônio</span><strong>${fmt(SB.patrimony(s))}</strong></div><div><span>Serviços</span><strong>${num(s.successful)} certos · ${num(s.failed)} falhos</strong></div><div><span>Detenções</span><strong>${s.seasonStats.arrests}</strong></div><div><span>Saúde</span><strong>${s.health}/100${s.hospital ? ' · internado' : ''}</strong></div><div><span>Duelos</span><strong>${s.duelStats.wins} vitórias · ${s.duelStats.losses} derrotas</strong></div><div><span>Mercadoria vendida</span><strong>${fmt(s.trade.sold)}</strong></div><div><span>Remessas / blitze</span><strong>${num(s.trade.exported)} un. · ${s.trade.blitz}</strong></div><div><span>Bairros liderados</span><strong>${SB.controls(s).length}/5</strong></div><div><span>Conquistas</span><strong>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length}</strong></div></div></section>
