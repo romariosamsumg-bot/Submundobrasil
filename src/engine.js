@@ -20,7 +20,7 @@
 (function (root) {
   'use strict';
 
-  const VERSION = '1.1';
+  const VERSION = '1.2';
   const SCHEMA = 2;
   const MAXDAY = 30;
   const MAX_LOG = 60;
@@ -83,11 +83,11 @@
     { id: 'correria', name: 'Bater carteira', desc: 'Horário de pico, ônibus lotado e mão leve. O primeiro trocado de todo mundo.', stat: 'astucia', difficulty: 14, cost: 16, low: 150, high: 290, heat: 6, vigil: 5, respect: 2, unlock: 0, arrest: 28, loss: .10, tension: 1 },
     { id: 'rolo', name: 'Rolo na feira', desc: 'Convencer um atravessador fictício a fechar negócio fora da tabela.', stat: 'labia', difficulty: 16, cost: 18, low: 190, high: 340, heat: 3, vigil: 3, respect: 2, unlock: 6, arrest: 18, loss: .06, tension: 1 },
     { id: 'mercadoria', name: 'Celular no ponto de ônibus', desc: 'Lucro rápido na revenda de peças. Às vezes a vítima reage.', stat: 'forca', difficulty: 19, cost: 23, low: 300, high: 560, heat: 10, vigil: 7, respect: 3, unlock: 0, arrest: 38, loss: .12, tension: 2 },
-    { id: 'cobranca', name: 'Cobrança atrasada', desc: 'Um comerciante quer receber uma dívida antiga. Exige presença.', stat: 'forca', difficulty: 27, cost: 26, low: 420, high: 740, heat: 12, vigil: 6, respect: 4, unlock: 20, arrest: 38, loss: .10, tension: 3 },
-    { id: 'deposito', name: 'Mercadinho Dois Irmãos', desc: 'Limpar o caixa antes que o dono puxe o que guarda debaixo do balcão.', stat: 'astucia', difficulty: 33, cost: 32, low: 580, high: 980, heat: 15, vigil: 10, respect: 5, unlock: 32, arrest: 44, loss: .12, tension: 3 },
+    { id: 'cobranca', name: 'Cobrança atrasada', desc: 'Um comerciante quer receber uma dívida antiga. Exige presença.', stat: 'forca', difficulty: 27, cost: 26, low: 420, high: 740, heat: 12, vigil: 6, respect: 4, unlock: 20, req: { power: 2 }, arrest: 38, loss: .10, tension: 3 },
+    { id: 'deposito', name: 'Mercadinho Dois Irmãos', desc: 'Limpar o caixa antes que o dono puxe o que guarda debaixo do balcão.', stat: 'astucia', difficulty: 33, cost: 32, low: 580, high: 980, heat: 15, vigil: 10, respect: 5, unlock: 32, req: { power: 4 }, arrest: 44, loss: .12, tension: 3 },
     { id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', stat: 'labia', difficulty: 37, cost: 30, low: 680, high: 1120, heat: 8, vigil: 6, respect: 6, unlock: 50, req: { influence: 25 }, arrest: 28, loss: .08, tension: 2 },
-    { id: 'comboio', name: 'Caminhão de carga na rodovia', desc: 'Fechar a pista e levar a carga fechada. Só com o bonde junto.', stat: 'forca', difficulty: 46, cost: 40, low: 1050, high: 1750, heat: 19, vigil: 12, respect: 8, unlock: 75, req: { gang: true }, arrest: 50, loss: .14, tension: 5 },
-    { id: 'cofre', name: 'Cofre da joalheria', desc: 'O serviço solo mais pesado da temporada. Uma vez por dia.', stat: 'astucia', difficulty: 58, cost: 52, low: 1900, high: 3100, heat: 26, vigil: 18, respect: 13, unlock: 120, req: { stat: ['astucia', 22], oncePerDay: true }, arrest: 55, loss: .15, tension: 6 },
+    { id: 'comboio', name: 'Caminhão de carga na rodovia', desc: 'Fechar a pista e levar a carga fechada. Só com o bonde junto.', stat: 'forca', difficulty: 46, cost: 40, low: 1050, high: 1750, heat: 19, vigil: 12, respect: 8, unlock: 75, req: { power: 7, gang: true }, arrest: 50, loss: .14, tension: 5 },
+    { id: 'cofre', name: 'Cofre da joalheria', desc: 'O serviço solo mais pesado da temporada. Uma vez por dia.', stat: 'astucia', difficulty: 58, cost: 52, low: 1900, high: 3100, heat: 26, vigil: 18, respect: 13, unlock: 120, req: { power: 9, stat: ['astucia', 22], oncePerDay: true }, arrest: 55, loss: .15, tension: 6 },
     { id: 'fiacao', name: 'Fiação de cobre', desc: 'Pouco confronto, mas a guarda municipal ronda e o cobre vale pouco.', stat: 'astucia', difficulty: 17, cost: 18, low: 110, high: 190, heat: 4, vigil: 4, respect: 1, unlock: 3, arrest: 24, loss: .06, tension: 1 },
     { id: 'pastel', name: 'Barraquinha de pastel', desc: 'O dinheiro do caldo de cana e o primeiro respeito de verdade na rua.', stat: 'forca', difficulty: 17, cost: 19, low: 130, high: 230, heat: 7, vigil: 6, respect: 3, unlock: 2, arrest: 30, loss: .08, tension: 2 },
     { id: 'caixa', name: 'Caixa eletrônico na maquita', desc: 'Posto de gasolina afastado, barulho alto e notas que podem queimar.', stat: 'astucia', difficulty: 38, cost: 36, low: 560, high: 940, heat: 17, vigil: 14, respect: 5, unlock: 45, req: { power: 5 }, arrest: 46, loss: .12, tension: 3 },
@@ -95,9 +95,9 @@
     { id: 'cartao', name: 'Clonar cartão de velho rico', desc: 'Lábia e paciência. Golpe limpo, mas a vítima um dia percebe.', stat: 'labia', difficulty: 35, cost: 30, low: 500, high: 820, heat: 6, vigil: 4, respect: 4, unlock: 40, arrest: 26, loss: .06, tension: 1 },
     // Oportunidades exclusivas de bairro
     { id: 'camelodromo', district: 'centro', name: 'Esquema do camelódromo', desc: 'Organizar a revenda de um lote sem nota no comércio popular.', stat: 'labia', difficulty: 23, cost: 22, low: 330, high: 560, heat: 7, vigil: 8, respect: 3, unlock: 10, arrest: 30, loss: .08, tension: 2 },
-    { id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Uma carga esquecida nos galpões. O grupo que manda ali não vai gostar.', stat: 'forca', difficulty: 29, cost: 28, low: 560, high: 900, heat: 12, vigil: 10, respect: 4, unlock: 15, arrest: 40, loss: .12, tension: 5 },
+    { id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Uma carga esquecida nos galpões. O grupo que manda ali não vai gostar.', stat: 'forca', difficulty: 29, cost: 28, low: 560, high: 900, heat: 12, vigil: 10, respect: 4, unlock: 15, req: { power: 4 }, arrest: 40, loss: .12, tension: 5 },
     { id: 'favor', district: 'jardim', name: 'Favor de vizinhança', desc: 'Resolver um problema de moradores e ganhar contatos. Pouco dinheiro.', stat: 'influencia', difficulty: 12, cost: 18, low: 90, high: 170, heat: 1, vigil: 2, respect: 3, unlock: 0, arrest: 10, loss: .04, tension: 0, influence: 4 },
-    { id: 'galpao', district: 'industrial', name: 'Galpão desativado', desc: 'Material valioso parado num galpão sob patrulha reforçada.', stat: 'astucia', difficulty: 41, cost: 36, low: 900, high: 1500, heat: 18, vigil: 16, respect: 6, unlock: 40, arrest: 50, loss: .14, tension: 3 },
+    { id: 'galpao', district: 'industrial', name: 'Galpão desativado', desc: 'Material valioso parado num galpão sob patrulha reforçada.', stat: 'astucia', difficulty: 41, cost: 36, low: 900, high: 1500, heat: 18, vigil: 16, respect: 6, unlock: 40, req: { power: 5 }, arrest: 50, loss: .14, tension: 3 },
     { id: 'baile', district: 'vila', name: 'Bastidores do baile', desc: 'Cuidar da “organização paralela” de um baile de rua.', stat: 'labia', difficulty: 22, cost: 22, low: 300, high: 520, heat: 6, vigil: 6, respect: 4, unlock: 12, arrest: 26, loss: .08, tension: 2, festive: true }
   ];
 
@@ -319,16 +319,30 @@
     return c;
   }
 
+  /* Fases da carreira (por respeito) e quando cada lugar da cidade se abre.
+     Quem já fechou uma temporada vê tudo aberto desde o começo. */
+  const PHASES = [
+    { at: 0, name: 'Pé de chinelo', desc: 'Sobrevivência e improviso: roube, recarregue na noite, compre a primeira arma.' },
+    { at: 30, name: 'Subindo no movimento', desc: 'Bando, negócios, mercadoria e bairros: o dinheiro de verdade.' },
+    { at: 90, name: 'Linha de frente', desc: 'Assaltos grandes, arma pesada e guerra pelos bairros.' },
+    { at: 150, name: 'Dono do crime', desc: 'Topo da cidade: os maiores golpes da temporada.' }
+  ];
+  const GATES = { duelos: 10, galpao: 15, cidade: 20, gangue: 30 };
+  const phaseIndex = s => PHASES.filter(p => s.respect >= p.at).length - 1;
+  const phase = s => PHASES[phaseIndex(s)];
+  const placeOpen = (s, view) => !GATES[view] || s.respect >= GATES[view] || s.seasonHistory.length > 0 || (view === 'gangue' && !!s.gangName);
+
   /* Primeiros passos: trilha guiada com pequenas recompensas. `view` é a tela onde o passo acontece. */
   const TUTORIAL = [
-    { id: 'career', title: 'Escolha sua especialização', text: 'Ela define seu estilo na temporada: Operador vive de serviços, Articulador de influência e acordos, Empreendedor de negócios.', view: 'painel', cta: 'Ver especializações', reward: 0, check: s => !!s.career },
-    { id: 'mission', title: 'Faça seu primeiro serviço', text: 'Serviços gastam energia e rendem dinheiro e respeito. Olhe a chance antes: falhar custa caixa e pode dar detenção.', view: 'acoes', cta: 'Abrir quadro de serviços', reward: 80, check: s => s.successful + s.failed >= 1 },
-    { id: 'train', title: 'Treine um atributo', text: 'Cada serviço usa um atributo. Treinar aumenta a chance e libera serviços melhores.', view: 'acoes', cta: 'Ir para o treino', reward: 60, check: s => s.tutorial.trained },
+    { id: 'career', title: 'Escolha sua especialização', text: 'Ela define seu estilo na temporada: Operador vive de roubo, Articulador de influência e acordos, Empreendedor de negócios.', view: 'painel', cta: 'Ver especializações', reward: 0, check: s => !!s.career },
+    { id: 'mission', title: 'Faça seu primeiro roubo', text: 'Roubar gasta energia e rende dinheiro e respeito. Olhe a chance antes: falhar custa caixa e pode dar cadeia.', view: 'acoes', cta: 'Ir roubar', reward: 80, check: s => s.successful + s.failed >= 1 },
+    { id: 'gear', title: 'Compre sua primeira arma', text: 'Arma é o que abre os roubos maiores. Comece com o que o bolso permite: um pedaço de pau já serve.', view: 'feira', cta: 'Ir à Feira do Rolo', reward: 60, check: s => !!s.gear.arma },
+    { id: 'night', title: 'Recarregue na noitada', text: 'Acabou a energia? A noite troca dinheiro por energia para você continuar agindo hoje. Amanhã vem a ressaca.', view: 'noite', cta: 'Ir para a noite', reward: 40, check: s => s.tutorial.nighted },
+    { id: 'train', title: 'Treine um atributo', text: 'Cada roubo usa um atributo. Treinar aumenta a chance e o seu poder de luta.', view: 'acoes', cta: 'Ir treinar', reward: 60, check: s => s.tutorial.trained },
+    { id: 'day', title: 'Durma: vire o dia', text: 'Sem energia e sem saída na noite, durma: +70 de energia, a vigilância cai, a renda entra e os grupos se movem. A temporada tem 30 dias.', view: 'painel', cta: 'Voltar para a rua', reward: 60, check: s => s.day >= 2 },
     { id: 'goal', title: 'Escolha a meta da temporada', text: 'A meta é o seu norte: cumprir rende bônus e pontos. Escolha até o dia 5.', view: 'temporada', cta: 'Escolher meta', reward: 0, check: s => !!s.goal || s.day > 5 },
-    { id: 'day', title: 'Vire o dia', text: 'Quando a energia acabar, avance o dia: você recupera 70 de energia, a vigilância cai, a renda entra e as facções se movem. A temporada tem 30 dias.', view: 'painel', cta: 'Voltar ao início', reward: 60, check: s => s.day >= 2 },
-    { id: 'contact', title: 'Crie contatos no bairro', text: 'Influência é o caminho para liderar bairros, que pagam tributo todo dia e dão vantagens.', view: 'cidade', cta: 'Abrir bairros', reward: 80, check: s => s.tutorial.contacted },
     { id: 'bank', title: 'Guarde dinheiro no banco', text: 'Falhas tiram parte do dinheiro em mãos. O banco protege, cobrando uma taxa pequena.', view: 'gestao', cta: 'Abrir banco', reward: 40, check: s => s.tutorial.banked },
-    { id: 'gang', title: 'Chegue a 30 de respeito e funde sua gangue', text: 'Com um grupo você faz operações coletivas, confronta facções e firma tréguas e alianças.', view: 'gangue', cta: 'Abrir gangue', reward: 200, check: s => !!s.gangName }
+    { id: 'gang', title: 'Chegue a 30 de respeito e funde seu bando', text: 'Sozinho você não chega ao dinheiro de verdade. Com o bando vêm os assaltos planejados, os confrontos e os acordos.', view: 'gangue', cta: 'Abrir bando', reward: 200, check: s => !!s.gangName }
   ];
 
   /* Eventos: mods são números ou funções (ctx, evento) → número.
@@ -474,7 +488,7 @@
       factions: startFactions(), gangStats: startGangStats(), treachery: 0,
       today: emptyToday(), seasonStats: emptySeasonStats(),
       achievements: {}, prestige: 0, nemesis: null, records: {},
-      tutorial: { step: 0, done: false, trained: false, contacted: false, banked: false },
+      tutorial: { step: 0, done: false, trained: false, contacted: false, banked: false, nighted: false },
       gear: { arma: null, protecao: null, veiculo: null }, goods: Object.fromEntries(GOODS.map(g => [g.id, 0])), market: startMarket(),
       labs: Object.fromEntries(LABS.map(l => [l.id, 0])), labDown: {}, exportDeal: { day: 5, good: 'cigarro' }, exportDone: 0, ressaca: 0,
       trade: { sold: 0, spent: 0, exported: 0, blitz: 0 },
@@ -655,8 +669,8 @@
     s.heistReady = toInt(saved.heistReady, 0, 0, MAXDAY + HEIST_COOLDOWN);
     // Primeiros passos: saves anteriores à 0.6 não tinham tutorial; quem já jogou não é obrigado a refazê-lo.
     const tu = saved.tutorial;
-    if (tu && typeof tu === 'object') s.tutorial = { step: toInt(tu.step, 0, 0, TUTORIAL.length), done: tu.done === true, trained: tu.trained === true, contacted: tu.contacted === true, banked: tu.banked === true };
-    else s.tutorial = { step: 0, done: s.season > 1 || s.day > 1, trained: false, contacted: false, banked: false };
+    if (tu && typeof tu === 'object') s.tutorial = { step: toInt(tu.step, 0, 0, TUTORIAL.length), done: tu.done === true, trained: tu.trained === true, contacted: tu.contacted === true, banked: tu.banked === true, nighted: tu.nighted === true };
+    else s.tutorial = { step: 0, done: s.season > 1 || s.day > 1, trained: false, contacted: false, banked: false, nighted: false };
     if (s.tutorial.step >= TUTORIAL.length) s.tutorial.done = true;
     s.schema = SCHEMA; s.version = VERSION;
     return { state: s, notes };
@@ -753,6 +767,8 @@
     if (s.tip > 0) c += 12;
     c -= healthPenalty(s);
     if (m.stat === 'forca') c += gearVal(s, 'power') * .5;
+    // Arma acima do mínimo exigido dá folga no roubo (até +10).
+    if (m.req && m.req.power) c += Math.min(10, (gearVal(s, 'power') - m.req.power) * 1.5);
     return clamp(Math.round(c), 8, 95);
   }
   function missionRewardMult(s, m) {
@@ -763,6 +779,7 @@
     if (s.career === 'articulador') mult *= .9;
     if (s.career === 'operador' && m.difficulty >= 33) mult *= 1.08; // especialista em serviços grandes
     if (d === 'vila' && cityIs(s, 'rio')) mult *= 1.1;
+    if (m.req && m.req.power) mult *= 1.15; // roubo armado paga mais
     return Math.max(.2, mult);
   }
   function arrestChance(s, m) {
@@ -848,7 +865,11 @@
   const labOutput = (s, l) => Math.round(l.out * LAB_MULT[s.labs[l.id]]);
   const labUpkeep = s => sum(LABS.map(l => s.labs[l.id] * 30));
   const raidChance = s => clamp(Math.round((s.heat - 40) * .5), 0, 25);
-  const nightCost = (s, n) => Math.round(n.cost * (1 + s.today.night * .5));
+  const NIGHT_LIMIT = 3;
+  /** Dono do Bar bebe de graça no boteco; cada saída extra no dia custa 50% a mais. */
+  const nightCost = (s, n) => (n.id === 'boteco' && s.businesses.includes('bar')) ? 0 : Math.round(n.cost * (1 + s.today.night * .5));
+  /** Dono da Casa de Shows não corre risco de briga no baile: a segurança é sua. */
+  const nightSafe = (s, n) => n.id === 'baile' && s.businesses.includes('show');
 
 
   /* Saúde e duelos (v0.8) */
@@ -1408,17 +1429,17 @@
   function doNight(s, id) {
     const n = NIGHT.find(x => x.id === id); if (!n) return refuse('Lugar desconhecido.');
     if (blocked(s)) return refuse(blocked(s));
-    if (s.today.night >= 2) return refuse('Duas saídas por dia já é demais. Amanhã tem mais.');
+    if (s.today.night >= NIGHT_LIMIT) return refuse('Três saídas por dia já é demais. Durma e amanhã tem mais.');
     if (s.energy >= 100) return refuse('Você já está com a energia cheia.');
     if (n.unlock && s.respect < n.unlock) return refuse(`A porta só abre para quem tem ${n.unlock} de respeito.`);
     const c = nightCost(s, n);
     if (s.cash < c) return refuse(`Custa ${money(c)} em mãos.`);
-    s.cash -= c; s.today.night++; s.energy = clamp(s.energy + n.energy, 0, 100); s.ressaca = clamp(s.ressaca + n.ressaca, 0, 30);
+    s.cash -= c; s.today.night++; s.tutorial.nighted = true; s.energy = clamp(s.energy + n.energy, 0, 100); s.ressaca = clamp(s.ressaca + n.ressaca, 0, 30);
     if (n.morale) addMorale(s, n.morale);
     if (n.heat) addHeat(s, n.heat);
     let extra = '';
     if (n.contact && roll(n.contact)) { const b = 3 + Math.floor(s.stats.labia / 8); addInf(s, s.district, b); extra += ` Você firmou contatos: +${b} de influência em ${district(s).name}.`; }
-    if (n.brawl && roll(n.brawl)) { addHeat(s, 5); extra += ` Cruzou com gente de outra gangue e saiu na mão:${hurt(s, rand(8, 16))}`; }
+    if (n.brawl && !nightSafe(s, n) && roll(n.brawl)) { addHeat(s, 5); extra += ` Cruzou com gente de outra gangue e saiu na mão:${hurt(s, rand(8, 16))}`; }
     if (n.boss) { const l = leader(s, s.district); addRel(s, l.id, 5); extra += ` Negócio fechado com ${faction(l.id).short}: relação +5.`; }
     log(s, `${n.name}: energia ${s.energy}/100 por ${money(c)}.${extra} Ressaca amanhã: -${s.ressaca} de energia.`);
     return done(true, `${n.name}: energia ${s.energy}/100.${extra}`);
@@ -1974,7 +1995,7 @@
     STATS, MISSIONS, DISTRICTS, BUSINESSES, HEISTS, HEIST_MAX_HIRES, HEIST_WINDOW, HEIST_COOLDOWN, HEIST_CUT, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
-    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
     missionScore, missionChance, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,

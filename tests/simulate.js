@@ -20,7 +20,23 @@ function bestMission(s, minChance = 50) {
   for (const m of SB.MISSIONS) { const v = ev(s, m); if (v > bv && SB.missionChance(s, m) >= minChance) { bv = v; best = m; } }
   return best;
 }
+/** Compra a melhor arma que cabe no bolso quando algum roubo está travado por arma (ou não há arma). */
+/** Compra a arma mais barata que destrava o próximo roubo travado por arma (sacando do banco se preciso). */
+function armUp(s, factor = 1.25) {
+  if (s.jail || s.hospital) return;
+  const cur = SB.item(s.gear.arma) || { cost: 0, power: 0 };
+  const locked = SB.MISSIONS.filter(m => (SB.missionLock(s, m) || '').startsWith('Requer arma')).map(m => m.req.power);
+  const want = locked.length ? Math.min(...locked) : (s.gear.arma ? 0 : 1);
+  if (!want) return;
+  const funds = s.cash + s.bank + cur.cost / 2;
+  const pick = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && i.power >= want && i.power > cur.power && s.respect >= i.unlock && funds >= i.cost * factor)[0];
+  if (!pick) return;
+  const missing = pick.cost - cur.cost / 2 - s.cash;
+  if (missing > 0) SB.perform(s, 'bank', 'withdraw', Math.min(s.bank, Math.ceil(missing)));
+  SB.perform(s, 'buyItem', pick.id);
+}
 function grind(s, minChance, reserve = 0) {
+  armUp(s);
   for (let i = 0; i < 12; i++) {
     if (s.energy - reserve < 16) break;
     if (s.heat >= 65 && s.energy >= 18) { SB.perform(s, 'layLow'); continue; }

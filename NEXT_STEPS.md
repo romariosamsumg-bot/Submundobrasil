@@ -33,6 +33,8 @@
 
 - [x] **v1.1**: ilustrações SVG para lugares, adversários e assaltos; encaixe para imagens pintadas em `art/` com guia de prompts
 
+- [x] **v1.2**: telas reorganizadas em torno do ciclo (Rua, Roubar, Noite, Feira, Cidade), "E agora?", fases com lugares trancados, arma liberando roubo, 3 saídas na noite e primeiros passos na ordem do ciclo
+
 O que falta para lançar está em **LANCAMENTO.md**.
 
 ## Pendências de balanceamento (prioridade alta)
@@ -96,3 +98,12 @@ Também sugerido: rebelião na cadeia com a gangue.
 - Os 4 degraus de cima (Agência em diante) quase não são alcançados numa temporada de 30 dias: pedem 80 a 155 de respeito, e o robô de assaltos termina com ~92. Decidir se ficam como meta de longo prazo ou se o respeito exigido cai.
 - O bando ainda termina a temporada com pouco dinheiro (~R$ 2.300); a parte de 25% e o custo dos avulsos pesam.
 - Rebelião na cadeia com a gangue (sugerida pelo autor) ainda não existe.
+
+## Pendências da v1.2 (do fluxo descrito pelo autor)
+
+- **Negócios da noite**: comprar pensão, inferninho ou termas próprias para recarregar sem risco. Hoje só Bar e Casa de Shows dão vantagem na noite.
+- **Rival que te caça**: um adversário nomeado que aparece na noite e cresce com a temporada (substituto solo da "caçada" entre jogadores).
+- **Fim de jogo**: os assaltos grandes ainda pedem respeito que pouca gente alcança em 30 dias.
+- Empreendedor e Comerciante são os caminhos mais fracos depois da v1.2 (172 e 175 pontos).
+- No farm de roubos, o Articulador empata com o Operador (183 contra 180).
+- Atributos continuam Astúcia, Força, Lábia e Influência (o autor citou Força, Inteligência, Carisma e Resistência); decidir se renomeia.

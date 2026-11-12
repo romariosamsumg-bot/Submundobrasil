@@ -1,4 +1,4 @@
-# Submundo Brasil — Game Design (v1.1)
+# Submundo Brasil — Game Design (v1.2)
 
 Documento de referência das mecânicas. Os números aqui são os do código em
 `src/engine.js`. Se você mudar um valor no código, atualize este documento.
@@ -556,3 +556,46 @@ O serviço solo que se chamava "Carro-forte na serra" passou a se chamar **Cofre
 
 - **SVG em código** (`src/art.js`): cena para cada lugar da Cidade (Bairros, Galpão, Feira do Rolo, Vida noturna, Duelos, Hospital, Banco, Temporada) e para Assaltos do bando; retrato de busto para os 8 adversários de duelo; cena para os 6 assaltos, também no cartaz do plano em andamento. Itens bloqueados aparecem dessaturados.
 - **Imagens pintadas opcionais**: arquivos em `art/` com as chaves `place-<id>`, `rival-<id>` e `heist-<id>` substituem o SVG correspondente no build. As que faltarem continuam em SVG. Guia de estilo e prompts em `PROMPTS_ARTE.md`.
+
+---
+
+## 19. O ciclo do jogo e a organização das telas (v1.2)
+
+Baseado no fluxo descrito pelo autor: **um ciclo rápido de ambição**.
+
+```
+Roubar (gasta energia) → dinheiro, atributos e respeito
+   ↓ acabou a energia
+Noite (dinheiro vira energia; ressaca amanhã)
+   ↓ bolso cheio
+Feira do Rolo (arma melhor) → roubo maior
+   ↓ sem energia e sem saída
+Dormir (vira o dia: +70 de energia, renda, grupos se movem)
+```
+
+### Fases (por respeito)
+| Fase | Respeito | O que entra |
+|---|---|---|
+| Pé de chinelo | 0 | Roubar, Noite, Feira, Treino, Banco e negócios, Hospital |
+| Subindo no movimento | 30 | Bando e assaltos (30); antes disso: Duelos (10), Galpão (15), Bairros (20) |
+| Linha de frente | 90 | Assaltos grandes e arma pesada |
+| Dono do crime | 150 | Os maiores golpes |
+
+A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancados, com o respeito que falta**. Quem já fechou uma temporada vê tudo aberto.
+
+### Navegação
+- Abas na ordem do ciclo: **Rua, Roubar, Noite, Feira, Cidade**.
+- **Rua**: cena do bairro, dia e fase, botão Dormir, o cartão **"E agora?"**, os quatro passos do ciclo, notícia, rumo e diário.
+- **"E agora?"** escolhe o próximo passo pelo estado, nesta ordem: saúde baixa → Hospital; vigilância alta → ficar na sua; dinheiro para arma que destrava roubo → Feira; sem energia → Noite (se houver saída e dinheiro) ou Dormir; senão, o melhor roubo. Enquanto os primeiros passos estiverem ativos, só o guia fala.
+- **Cidade**: Bando e assaltos, Banco e negócios, Galpão, Bairros, Duelos, Hospital, Perfil e temporada.
+- **Perfil** abre tocando no retrato da barra do personagem.
+
+### Regras que mudaram para sustentar o ciclo
+- **Arma libera roubo**: Cobrança (poder 2), Mercadinho e Carga sem dono (4), Galpão desativado e Caixa eletrônico (5), Lotérica e Caminhão na rodovia (7), Cofre da joalheria (9).
+- **Arma melhor vale a pena**: roubo armado paga +15%, e cada ponto de poder acima do mínimo dá +1,5 de chance (até +10).
+- **Noite**: 3 saídas por dia (antes 2); cada saída a mais custa +50%. Dono do **Bar** bebe de graça no Boteco; dono da **Casa de Shows** não corre risco de briga no Baile.
+- **Primeiros passos** na ordem do ciclo (9 passos): especialização, primeiro roubo, primeira arma, noitada, treino, dormir, meta, banco, bando.
+
+### O que do fluxo do autor depende de servidor (não existe nesta versão)
+- Outros jogadores no bando, caçada a jogadores na noite e ranking nacional. Hoje: integrantes e grupos rivais simulados; a "emboscada" na noite é a briga do Baile.
+- Renda por hora de relógio. Hoje: renda ao dormir.

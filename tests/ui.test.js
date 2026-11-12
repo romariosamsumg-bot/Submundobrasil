@@ -3,7 +3,7 @@
 'use strict';
 const { chromium } = require('playwright');
 const path = require('path');
-const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v1.1.html');
+const FILE = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v1.2.html');
 const V04 = 'file://' + path.join(__dirname, '..', 'Submundo-Brasil-v0.4.html');
 let failures = 0;
 const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg); if (!cond) failures++; };
@@ -36,7 +36,9 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check((await page.textContent('#helpBox')).includes('Largo das Ladeiras'), 'ajuda mostra os bairros da cidade escolhida');
   await page.click('#helpBox .btn.primary');
   check(!(await page.isVisible('#help')), 'introdução fecha');
-  check((await page.textContent('.guide')).includes('1/8'), 'guia de primeiros passos no passo 1');
+  check((await page.textContent('.guide')).includes('1/9'), 'guia de primeiros passos no passo 1');
+  check((await page.locator('.mobileNav button').allTextContents()).join('>') === 'Rua>Roubar>Noite>Feira>Cidade', 'abas na ordem do ciclo');
+  check((await page.textContent('#hudSub')).includes('Pé de chinelo'), 'fase aparece na barra do personagem');
   check((await page.textContent('.plate')).includes('Largo das Ladeiras'), 'placa do bairro com nome de Salvador');
   check(await page.isVisible('.rumo'), 'cartão "Seu rumo" visível');
   await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-inicio.png'), fullPage: true });
@@ -46,6 +48,10 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
     await page.screenshot({ path: path.join(__dirname, 'screens', `360-${v}.png`), fullPage: v === 'painel' || v === 'acoes' });
   }
 
+  await go('hub');
+  check(await page.locator('.place.locked').count() === 4, 'iniciante vê 4 lugares trancados com o respeito exigido');
+  check((await page.textContent('.place.locked')).includes('respeito'), 'lugar trancado diz o que falta');
+  await page.screenshot({ path: path.join(__dirname, 'screens', 'v12-cidade-iniciante.png'), fullPage: true });
   console.log('2. Ações e feedback');
   await go('painel');
   await page.click('[data-action=career][data-id=operador]');
@@ -85,8 +91,9 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   console.log('3b. Cidade, Feira do Rolo, Galpão, noite e Perfil (v0.7)');
   await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.cash = 6000; s.respect = 50; s.jail = 0; s.energy = 60; s.heat = 0; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
   await page.reload(); await go('hub');
-  check(await page.locator('.place').count() === 8, 'tela Cidade mostra 8 lugares');
-  await page.click('.place[data-view=feira]');
+  check(await page.locator('.place').count() === 7, 'tela Cidade mostra 7 lugares');
+  check(await page.locator('.place.locked').count() === 0, 'com 50 de respeito nada fica trancado');
+  await page.click('.mobileNav [data-view=feira]');
   await page.click('[data-action=buy-item][data-id=cinquentinha]');
   check((await st()).gear.veiculo === 'cinquentinha', 'veículo comprado na Feira do Rolo');
   check(await page.isDisabled('[data-action=buy-item][data-id=fuzil]'), 'item acima do seu respeito fica bloqueado');
@@ -104,9 +111,11 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check(g7.energy === e0 + 12 && g7.ressaca === 3, 'boteco: +12 de energia e ressaca registrada');
   await go('perfil');
   check((await page.textContent('.gearGrid')).includes('Cinquentinha'), 'Perfil mostra o equipamento');
-  check(await page.isVisible('.mobileNav [data-view=perfil].active'), 'aba Perfil ativa');
+  check(await page.isVisible('.mobileNav [data-view=hub].active') && await page.isVisible('.backLink'), 'Perfil fica dentro de Cidade');
+  await go('painel'); await page.click('#hud .hudWho');
+  check(await page.isVisible('.sheet'), 'tocar no retrato abre o Perfil');
   await go('temporada');
-  check(await page.isVisible('.mobileNav [data-view=perfil].active') && await page.isVisible('.backLink'), 'Temporada fica dentro de Perfil, com botão de voltar');
+  check(await page.isVisible('.mobileNav [data-view=hub].active') && await page.isVisible('.backLink'), 'Temporada fica dentro de Perfil, com botão de voltar');
   await go('duelos');
   const d0 = await st();
 await page.click('[data-action=duel][data-id=marrento]');
@@ -147,7 +156,7 @@ await page.click('[data-action=duel][data-id=marrento]');
 
   console.log('3c. Arte (v1.1)');
   await go('hub');
-  check(await page.locator('.place .placeScene svg').count() === 8, 'os 8 lugares da Cidade têm cena ilustrada');
+  check(await page.locator('.place .placeScene svg').count() === 7, 'os 7 lugares da Cidade têm cena ilustrada');
   check(await page.evaluate(() => { window.SB_ART = { 'place-galpao': 'data:image/png;base64,iVBORw0KGgo=' }; return window.SBArt.place('galpao').startsWith('<img') && window.SBArt.place('feira').startsWith('<svg'); }), 'imagem pintada substitui só a chave correspondente');
   await page.evaluate(() => { window.SB_ART = {}; });
   check(await page.evaluate(() => window.SBArt.keys().length) === 23, '23 chaves de arte (9 lugares, 8 adversários, 6 assaltos)');
@@ -209,7 +218,7 @@ await page.click('[data-action=duel][data-id=marrento]');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-action=export]')]);
   const fpath = await dl.path();
   const payload = JSON.parse(require('fs').readFileSync(fpath, 'utf8'));
-  check(payload.game === 'Submundo Brasil' && payload.version === '1.1' && payload.checksum, 'arquivo exportado com versão e checksum');
+  check(payload.game === 'Submundo Brasil' && payload.version === '1.2' && payload.checksum, 'arquivo exportado com versão e checksum');
   await page.evaluate(() => localStorage.clear()); await page.reload();
   await page.setInputFiles('#welcomeImportFile', fpath);
   await page.waitForTimeout(300);

@@ -1,4 +1,4 @@
-# Validação — Submundo Brasil v1.1
+# Validação — Submundo Brasil v1.2
 
 Tudo abaixo foi **executado** neste ambiente (Node.js + Chromium/Playwright).
 Para reproduzir: `npm test` (build + motor + fuzz + interface), `npm run simulate`
@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**114 de 114 passaram** (v1.0; 9 novos sobre assaltos: requisitos, avulsos, noite de espera, reconhecimento, sucesso e fracasso, prazo, cancelamento e categoria Gangue). Cenários cobertos:
+**118 de 118 passaram** (v1.2; 4 novos sobre fases, lugares trancados, arma liberando roubo e vantagens de ser dono do Bar e da Casa de Shows; 3 antigos atualizados para as regras novas). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**84 de 84 verificações passaram** (v1.1: inclui as cenas dos 8 lugares, a troca de uma imagem pintada só na chave certa e as 23 chaves de arte), com **0 erros de console**:
+**90 de 90 verificações passaram** (v1.2: abas na ordem do ciclo, fase na barra, lugares trancados para o iniciante, Perfil pelo retrato), com **0 erros de console**:
 
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
 - A missão consome energia e mostra o cartão de resultado com as variações.
@@ -65,37 +65,39 @@ ausência de cortes).
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 
-Bots com estratégias fixas jogam temporadas completas. Resultado da **v0.9** em
+Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.2** em
 `node tests/simulate.js 300 2` (300 temporadas por estratégia, médias, em Recife):
 
 | Estratégia | Patrimônio | Respeito | Pontos | Meta | Detenções |
 |---|---|---|---|---|---|
-| Operador farmando missões | 16.334 | 131 | 202 | 40% | 2,7 |
-| Empreendedor com negócios | 19.612 | 121 | 214 | 60% | 2,6 |
-| Articulador territorial | 563 | 132 | 206 | 100% | 1,6 |
-| Articulador diplomata | 1.676 | 105 | 217 | 90% | 2,8 |
-| Bonde (gangue) | 593 | 95 | 166 | 30% | 1,0 |
-| Comerciante (Galpão, produção, remessas) | 12.210 | 119 | 208 | 20% | 2,9 |
-| Operador com arsenal e noite | 16.563 | 128 | 194 | 40% | 3,0 |
-| Brigão (arsenal, duelos, hospital) | 15.001 | 139 | 186 | 10% | 2,0 |
-| **Bando de assaltos (v1.0)** | 2.321 | 92 | 191 | 40% | 1,2 |
-| **Exploit: repetir a melhor e depositar tudo** | 2.236 | 47 | **29** | 0% | **11,0** |
-| Aleatório | 620 | 49 | 55 | 0% | 1,0 |
+| Operador farmando roubos | 14.744 | 138 | 196 | 50% | 2,8 |
+| Empreendedor com negócios | 15.718 | 114 | 172 | 30% | 3,1 |
+| Articulador territorial | 711 | 129 | 205 | 100% | 1,6 |
+| Articulador diplomata | 1.768 | 105 | 211 | 90% | 2,6 |
+| Bonde (gangue) | 1.351 | 104 | 178 | 30% | 1,3 |
+| Comerciante (Galpão, produção, remessas) | 11.274 | 110 | 175 | 10% | 3,1 |
+| **Ciclo completo: roubo, noite e arsenal** | 16.781 | 132 | 197 | 50% | 3,1 |
+| Brigão (arsenal, duelos, hospital) | 15.583 | 155 | 194 | 0% | 1,8 |
+| Bando de assaltos | 2.375 | 88 | 178 | 40% | 1,4 |
+| **Exploit: repetir a melhor e depositar tudo** | 2.479 | 51 | **31** | 0% | **10,4** |
+| Aleatório | 438 | 44 | 49 | 0% | 0,7 |
 
-Leitura:
-- **Calibração da v0.9:** com os 5 serviços novos nas recompensas propostas, o farm de missões e os negócios subiram para 224 e 233 pontos (o espaço entre as estratégias foi de 56 para 65). Com mais opções, a penalidade por repetir quase sumia. Recompensas e dificuldade dos 5 serviços novos foram reduzidas; o resultado acima é depois do ajuste (166 a 217).
-- **Assaltos (v1.0):** um robô que vive de assaltos faz 186 a 191 pontos (duas sementes), contra 166 a 179 da gangue sem assaltos. Faz cerca de 2 assaltos certos e 0,5 errado por temporada e não passa do 2º degrau (o respeito médio dele é 92). As tabelas das outras estratégias não mudaram, porque elas não fazem assaltos.
-- O exploit da 0.4 continua a pior estratégia.
+Leitura e calibração da v1.2:
+- Com "arma libera roubo" sozinha, os caminhos de roubo caíram de ~205 para ~160: a arma custava e não rendia. Duas medições intermediárias mostraram que comprar a arma mais cara possível piorava (156) e comprar só a necessária ajudava pouco (175).
+- Correção de regra: roubo armado paga +15% e arma acima do mínimo dá até +10 de chance; os dois roubos do topo passaram a pedir poder 7 e 9.
+- Resultado: nove estratégias entre **172 e 211** (antes 166 a 217). O robô que segue o ciclo completo (roubar, noite, arsenal) faz 197, empatado com o farm puro (196); antes ficava atrás (194 contra 202).
+- Os robôs foram atualizados para comprar a arma mais barata que destrava o próximo roubo, sacando do banco se preciso.
+- Empreendedor e Comerciante são agora os caminhos mais fracos (172 e 175).
 
-### Especializações — `tests/careers.js` (150 temporadas por célula, v0.9; idênticas na v1.0)
+### Especializações — `tests/careers.js` (150 temporadas por célula, v1.2)
 
 | Estratégia | Operador | Articulador | Empreendedor |
 |---|---|---|---|
-| Missões | **206** | 188 | 174 |
-| Negócios | **209** | 174 | 200 |
-| Território | 202 | **206** | 200 |
-| Diplomacia | 197 | **227** | 166 |
-| Gangue | 159 | **166** | 161 |
+| Roubos | 180 | **183** | 164 |
+| Negócios | 175 | 157 | **181** |
+| Território | 202 | **205** | 203 |
+| Diplomacia | 189 | **215** | 160 |
+| Gangue | **177** | 173 | 168 |
 
 ### Cidades (medido na v0.6; não refeito na v0.7)
 

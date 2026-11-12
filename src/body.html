@@ -1,5 +1,5 @@
   <header class="topbar hud" id="hud"><div class="topwrap hudwrap">
-    <div class="hudWho"><span class="hudAvatar" id="hudAvatar" aria-hidden="true"></span><div class="hudId"><strong id="hudName">SUBMUNDO BRASIL</strong><small id="hudSub">v1.1</small></div></div>
+    <button type="button" class="hudWho" data-view="perfil" aria-label="Abrir perfil"><span class="hudAvatar" id="hudAvatar" aria-hidden="true"></span><div class="hudId"><strong id="hudName">SUBMUNDO BRASIL</strong><small id="hudSub">v1.2</small></div></button>
     <div class="hudMoney"><strong id="topCash" title="Dinheiro em mãos">R$ 0</strong><small><span id="hudRespect">0</span> respeito · <span id="topDay">Dia 1</span></small></div>
     <div class="hudBars">
       <div class="hudBar en" role="img" id="hudEnergyBox" aria-label="Energia"><i id="hudEnergy"></i><b id="hudEnergyTxt">Energia</b></div>
@@ -9,19 +9,19 @@
     <button id="menuToggle" class="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">Menu</button>
   </div></header>
   <div class="layout"><aside class="sidebar" id="sidebar"><div class="sidehead">Submundo Brasil</div><nav class="nav" aria-label="Navegação principal">
-    <button type="button" data-view="painel" class="active"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v9h5v-5h4v5h5v-9"/></svg>Início</button>
-    <button type="button" data-view="acoes"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Serviços</button>
+    <button type="button" data-view="painel" class="active"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v9h5v-5h4v5h5v-9"/></svg>Rua</button>
+    <button type="button" data-view="acoes"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Roubar</button>
+    <button type="button" data-view="noite"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l-1 7a3 3 0 0 1-6 0zM12 13v7M8 20h8M17 4l3-1M18 7h3"/></svg>Noite</button>
+    <button type="button" data-view="feira"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l2-5h14l2 5M4 9v11h16V9M9 20v-6h6v6M3 9c0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0"/></svg>Feira</button>
     <button type="button" data-view="hub"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V10l5-3v14M8 21V4l7 3v14M15 21v-9l6 2v7M2 21h20"/></svg>Cidade</button>
-    <button type="button" data-view="gangue"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="4.5" cy="10" r="2"/><circle cx="19.5" cy="10" r="2"/></svg>Gangue</button>
-    <button type="button" data-view="perfil"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg>Perfil</button>
-  </nav><div class="sidefoot"><strong>Versão local 1.1.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.<br><button type="button" class="btn small ghost" data-action="help" style="margin-top:8px">Como jogar</button></div></aside>
+  </nav><div class="sidefoot"><strong>Versão local 1.2.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.<br><button type="button" class="btn small ghost" data-action="help" style="margin-top:8px">Como jogar</button></div></aside>
   <main class="content" id="content" tabindex="-1" aria-live="polite"></main></div>
   <nav class="mobileNav" aria-label="Navegação principal no celular">
-    <button type="button" data-view="painel" class="active"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v9h5v-5h4v5h5v-9"/></svg>Início</button>
-    <button type="button" data-view="acoes"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Serviços</button>
+    <button type="button" data-view="painel" class="active"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v9h5v-5h4v5h5v-9"/></svg>Rua</button>
+    <button type="button" data-view="acoes"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Roubar</button>
+    <button type="button" data-view="noite"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l-1 7a3 3 0 0 1-6 0zM12 13v7M8 20h8M17 4l3-1M18 7h3"/></svg>Noite</button>
+    <button type="button" data-view="feira"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l2-5h14l2 5M4 9v11h16V9M9 20v-6h6v6M3 9c0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0"/></svg>Feira</button>
     <button type="button" data-view="hub"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V10l5-3v14M8 21V4l7 3v14M15 21v-9l6 2v7M2 21h20"/></svg>Cidade</button>
-    <button type="button" data-view="gangue"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="4.5" cy="10" r="2"/><circle cx="19.5" cy="10" r="2"/></svg>Gangue</button>
-    <button type="button" data-view="perfil"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg>Perfil</button>
   </nav>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <div class="welcome hidden" id="welcome"><form id="newGameForm" class="intro"><div id="welcomeNotice"></div><div class="cover" id="coverArt" aria-hidden="true"></div><div class="logo"><span class="logoTop">SUBMUNDO</span><span class="logoBottom">BRASIL</span><i class="logoStripe"></i></div><p class="tagline">Faça seu nome. Encare as consequências.</p>
