@@ -18,7 +18,7 @@
   const MAXDAY = SB.MAXDAY;
 
   let state = null, view = 'painel', result = null, toastTimer = null;
-  let armedNext = false, armTimer = null, missionFilter = 'disponiveis', corrupt = null, saveFailed = false;
+  let localeHelp = false, armedNext = false, armTimer = null, missionFilter = 'disponiveis', corrupt = null, saveFailed = false;
 
   /* ---------- utilidades de apresentação ---------- */
   const $ = sel => document.querySelector(sel);
@@ -116,10 +116,13 @@
     const evs = withEvents && state ? SB.activeEvents(state) : [];
     const has = k => evs.some(e => e.id === k && (!e.district || e.district === id));
     const [a, b] = SKY[id] || SKY.centro;
+    const art = window.SB_ART && window.SB_ART['bairro-' + id];
+    let fx = '';
     let o = `<svg class="scene" viewBox="0 0 360 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="sky-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>`;
     o += R(0, 0, 360, 120, `url(#sky-${id})`) + `<circle cx="${id === 'cais' ? 300 : 78}" cy="${id === 'industrial' ? 40 : 30}" r="13" fill="#f3d9a4" opacity="${has('temporal') ? .15 : .8}"/>`;
     o += (LANDMARK[SB.cityOf(cityName || (state && state.city)).id] || LANDMARK.rio)();
     o += (SCENES[id] || SCENES.centro)();
+    const base = o.length;
     if (has('carnaval') || has('festival') || has('saojoao')) {
       const cols = ['#f0c06e', '#c9503a', '#7fc8a4', '#5c8fd6', '#e7d9b8'];
       let seed = 11; for (let i = 0; i < 46; i++) { seed = (seed * 37 + 11) % 359; o += `<rect class="cf" x="${seed}" y="${(seed * 7) % 96}" width="3" height="5" fill="${cols[i % 5]}" transform="rotate(${seed % 90} ${seed} ${(seed * 7) % 96})" style="animation-delay:-${i % 7 * .4}s"/>`; }
@@ -130,6 +133,7 @@
     if (has('guerra')) o += `<g class="siren"><circle cx="180" cy="96" r="44" fill="#d0463a" opacity=".22"/></g><path d="M150 60q8 -14 4 -26M172 54q10 -16 2 -34" stroke="#55606a" stroke-width="5" fill="none" opacity=".6" stroke-linecap="round"/>`;
     if (has('greve')) o += [120, 150, 180].map((x, i) => R(x, 96, 14, 9, '#e7d9b8') + R(x + 6, 105, 2, 12, '#05080a')).join('');
     if (has('crise')) o += R(0, 0, 360, 120, '#1a1410', 'opacity=".35"');
+    if (art) { fx = o.slice(base); return `<span class="scene paintedScene"><img class="art painted" src="${art}" alt="" loading="lazy">${fx ? `<svg class="sceneFx" viewBox="0 0 360 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${fx}</svg>` : ''}</span>`; }
     return o + R(0, 118, 360, 2, '#05080a') + '</svg>';
   }
   /** Placa de rua esmaltada. */
@@ -307,12 +311,21 @@
     return SB.activeEvents(state).map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > state.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('');
   }
   /** Faixa do local atual: cena do bairro, placa de rua e condições. */
+  /** Explicação curta da faixa da placa (abre ao tocar). */
+  function localeInfo() {
+    if (!localeHelp || !state) return '';
+    const s = state, d = D(), ds = s.dstate[d.id], l = SB.leader(s, d.id), f = F(l.id);
+    return `<section class="card localeInfo"><p><b>Dono</b>: ${SB.controlled(s, d.id) ? 'você manda aqui: recebe tributo todo dia e a vantagem do bairro.' : `quem manda aqui: ${esc(f.name)}. Roubar no território dele gera atrito e retaliação; dá para conversar, firmar trégua ou tomar o bairro.`}</p>
+      <p><b>Grana ${Math.round(ds.econ * 100)}%</b>: quanto dinheiro circula aqui hoje (de 60% a 140%). Multiplica o que você ganha nos roubos e nos negócios deste bairro.</p>
+      <p><b>Polícia ${ds.vigil}</b>: a polícia de olho neste bairro (0 a 100), diferente do seu Procurado. Sobe a cada roubo aqui e derruba suas chances; cai um pouco por dia. Acima de 40, mude de bairro.</p>
+      <div class="btnbar">${button('Ver bairros', 'switch', 'data-target="cidade"', false, 'small ghost')}${button('Entendi', 'locale-help', '', false, 'small')}</div></section>`;
+  }
   function localeStrip(tall, flyers = true) {
     const s = state, d = D(), ds = s.dstate[d.id], l = SB.leader(s, d.id);
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
     return `<section class="locale ${tall ? 'tall' : ''}" aria-label="Onde você está">${scene(d.id)}
       <div class="localeTop">${plate(d.name, s.city)}${(flyers ? evs : []).map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
-      <div class="localeBottom"><span>${SB.controlled(s, d.id) ? 'Você manda aqui' : 'Quem manda: ' + esc(F(l.id).short)}</span><span class="fix">Econ. ${Math.round(ds.econ * 100)}%</span><span class="fix ${ds.vigil >= 40 ? 'hot' : ''}">Vigia ${ds.vigil}</span></div></section>`;
+      <button type="button" class="localeBottom" data-action="locale-help" aria-expanded="${localeHelp}" aria-label="O que significam dono, grana e polícia"><span>${SB.controlled(s, d.id) ? 'Você é o dono' : 'Dono: ' + esc(F(l.id).short)}</span><span class="fix">Grana ${Math.round(ds.econ * 100)}%</span><span class="fix ${ds.vigil >= 40 ? 'hot' : ''}">Polícia ${ds.vigil}</span><i class="localeQ" aria-hidden="true">?</i></button></section>`;
   }
   const statName = id => SB.STATS.find(x => x.id === id).name;
   const chanceClass = p => p < 55 ? 'danger' : p < 75 ? 'risky' : '';
@@ -408,7 +421,7 @@
     const tired = s.energy < 16 || s.day >= MAXDAY;
     const sleep = s.day >= MAXDAY ? button('Encerrar temporada', 'switch', 'data-target="temporada"', false, 'primary small')
       : button(armedNext ? `Dormir com ${s.energy} de energia?` : 'Dormir', 'next-day', '', false, (armedNext ? 'armed' : tired ? 'primary' : 'ghost') + ' small');
-    return jailNotice() + localeStrip(true, false) + `
+    return jailNotice() + localeStrip(true, false) + localeInfo() + `
       ${resultCard()}
       ${guide}${s.career ? '' : careerCard()}
       ${mv && !guide ? `<section class="boardLead job nextMove"><div class="jobIcon">${statIcon(mv.icon || 'astucia')}</div><div class="jobMain"><div class="eyebrow">E agora? · ${esc(mv.tag)}</div><h3>${esc(mv.title)}</h3><p class="jobMeta">${esc(mv.text)}</p></div><div class="jobAct">${mv.btn}</div></section>` : ''}
@@ -482,7 +495,7 @@
     const agreed = SB.agreement(s, l.id), cc = SB.contactCost(s), used = s.today.contacts[d.id] || 0;
     const disputeBlock = s.jail > 0 || s.cash < 320 || s.energy < 33 || s.influence[d.id] < 20 || agreed || lr.lastActionDay === s.day;
     const special = SB.MISSIONS.find(m => m.district === d.id);
-    return heading('Bairros', 'Cada bairro tem economia, vigia local e facções próprias, que mudam a cada dia.') + jailNotice() + resultCard() + localeStrip(true) + `
+    return heading('Bairros', 'Cada bairro tem dono, grana e polícia próprios, que mudam a cada dia.') + jailNotice() + resultCard() + localeStrip(true) + `
       <section class="card"><div class="space factionHeader"><div><h2>Influência em ${esc(d.name)}</h2><p>Quem lidera: <strong>${SB.controlled(s, d.id) ? 'você' : esc(lf.name)}</strong>. ${esc(SB.factionStatus(s, l.id))}. Liderar exige 60 de influência e 10 acima da maior facção.</p></div>${SB.controlled(s, d.id) ? '<span class="pill">Você lidera</span>' : ''}</div>
         <div class="dualMeters"><div><div class="meterlabel"><span>Sua influência</span><strong>${s.influence[d.id]}</strong></div><div class="meter green"><div style="width:${s.influence[d.id]}%"></div></div></div>
         <div><div class="meterlabel"><span>${esc(lf.short)} (maior facção)</span><strong>${l.value}</strong></div><div class="meter red"><div style="width:${l.value}%"></div></div></div></div>
@@ -490,7 +503,7 @@
         <div class="btnbar" style="margin-top:12px">${button(`Criar contatos · ${fmt(cc)}`, 'contact', '', s.jail > 0 || s.cash < cc || s.energy < 22 || used >= 2, 'small primary')}${button(`Disputar área · R$ 320 (${SB.disputeOdds(s, d.id)}%)`, 'dispute', '', disputeBlock, 'small')}</div>
         <p class="mini" style="margin-top:8px">Contatos: 22 energia, até 2 por bairro ao dia (o segundo rende metade). Disputa: 33 energia, exige 20 de influência; uma ação por facção ao dia; bloqueada por acordos.${agreed ? ` Você tem acordo com ${esc(lf.short)}.` : ''}</p></section>
       <section class="brandpanel" style="margin-top:13px"><p>${esc(d.desc)}</p>
-        <div class="kv"><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigia local</span><strong>${ds.vigil}</strong></div><div><span>Recompensas</span><strong>${signed(d.bonus)}%</strong></div><div><span>Risco base</span><strong>${signed(d.risk)}</strong></div><div><span>Tributo se liderar</span><strong>${fmt(SB.tribute(s, d.id))}/dia</strong></div><div><span>Oportunidade</span><strong>${special ? esc(special.name) : '—'}</strong></div></div>
+        <div class="kv"><div><span>Grana</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Polícia no bairro</span><strong>${ds.vigil}</strong></div><div><span>Recompensas</span><strong>${signed(d.bonus)}%</strong></div><div><span>Risco base</span><strong>${signed(d.risk)}</strong></div><div><span>Tributo se liderar</span><strong>${fmt(SB.tribute(s, d.id))}/dia</strong></div><div><span>Oportunidade</span><strong>${special ? esc(special.name) : '—'}</strong></div></div>
         <p class="mini" style="margin-top:9px">Vantagem de liderar: ${esc(d.advantage)} Cada bairro liderado também gera +2 de Procurado por dia e atrai as facções.</p></section>
       <div class="section"><h2>Mapa da cidade</h2><small>Viagem: ${fmt(SB.travelCost(s).cash)}${SB.travelCost(s).energy ? ' e ' + SB.travelCost(s).energy + ' energia' : ''}</small></div>
       <div class="grid two">${SB.DISTRICTS.map(x => districtCard(x)).join('')}</div>
@@ -502,7 +515,7 @@
     const s = state, l = SB.leader(s, x.id), here = x.id === s.district, ds = s.dstate[x.id];
     const evs = SB.activeEvents(s).filter(e => e.district === x.id);
     return `<section class="card district ${here ? 'selected' : ''}"><div class="miniScene">${scene(x.id)}${plate(x.name)}${here ? '<span class="pill here">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill here">Você lidera</span>' : ''}</div>
-      <div class="kv"><div><span>Líder</span><strong>${SB.controlled(s, x.id) ? 'Você' : esc(F(l.id).short) + ' ' + l.value}</strong></div><div><span>Sua influência</span><strong>${s.influence[x.id]}</strong></div><div><span>Economia</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Vigia local</span><strong>${ds.vigil}</strong></div></div>
+      <div class="kv"><div><span>Líder</span><strong>${SB.controlled(s, x.id) ? 'Você' : esc(F(l.id).short) + ' ' + l.value}</strong></div><div><span>Sua influência</span><strong>${s.influence[x.id]}</strong></div><div><span>Grana</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Polícia no bairro</span><strong>${ds.vigil}</strong></div></div>
       ${evs.length ? `<div class="chips">${evs.map(e => `<span class="chip warn">${esc(SB.eventTitle(e))}</span>`).join('')}</div>` : ''}
       <div class="statusbar"><span class="mini">${esc(x.advantage)}</span>${here ? '' : button('Viajar', 'travel', `data-id="${x.id}"`, s.cash < SB.travelCost(s).cash || s.energy < SB.travelCost(s).energy || s.jail > 0, 'small')}</div></section>`;
   }
@@ -827,6 +840,7 @@
     if (a !== 'next-day') disarm();
     switch (a) {
       case 'switch': switchView(btn.dataset.target); break;
+      case 'locale-help': localeHelp = !localeHelp; render(); break;
       case 'dismiss-result': result = null; render(); break;
       case 'buy-item': run('buyItem', id); break;
       case 'buy-good': run('buyGood', id, Number(btn.dataset.qty)); break;

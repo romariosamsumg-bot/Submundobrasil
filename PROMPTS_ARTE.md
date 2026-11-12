@@ -62,6 +62,18 @@ Mantenha sempre o mesmo modelo e, se a ferramenta permitir, a mesma "seed" ou im
 | `heist-transportadora.webp` | Muro alto com arame farpado de uma base de transportadora de valores, guarita com holofote, caminhões blindados no pátio. |
 | `heist-cofrecentral.webp` | Porta de cofre redondo gigante de aço com volante, iluminada de cima, maços de dinheiro em pilhas, atmosfera de grande golpe. |
 
+## Bairros (1200 × 600, sem monumentos: servem para as 6 cidades)
+
+Aparecem atrás da placa do bairro na Rua e em Bairros. Os efeitos de evento (chuva, sirene, confete) continuam desenhados por cima. Sem a imagem, fica a cena desenhada atual.
+
+| Arquivo | Prompt (depois do bloco de estilo) |
+|---|---|
+| `bairro-centro.webp` | Centro antigo de cidade grande brasileira à noite: sobrados coloniais coloridos e descascados, camelôs com lonas, fios emaranhados nos postes, calçada de pedra portuguesa, gente apressada. Sem monumentos reconhecíveis. |
+| `bairro-cais.webp` | Região portuária à noite: galpões e armazéns antigos, guindastes, contêineres empilhados, trilhos no chão, poças refletindo a luz dos postes, um navio cargueiro ao longe. Sem monumentos reconhecíveis. |
+| `bairro-jardim.webp` | Bairro residencial de trabalhadores à noite: casas simples de tijolo sem reboco subindo o morro, lajes com caixas d'água, varais, escadaria estreita, uma birosca iluminada. Sem monumentos reconhecíveis. |
+| `bairro-industrial.webp` | Distrito industrial à noite: fábricas com chaminés soltando fumaça, muros altos com arame farpado, portões de galpão, caminhões parados, luz de giroflex ao fundo. Sem monumentos reconhecíveis. |
+| `bairro-vila.webp` | Rua boêmia de bairro à noite: bares com mesas de plástico na calçada, palmeiras, bandeirinhas, letreiros sem texto legível, gente conversando, motos estacionadas. Sem monumentos reconhecíveis. |
+
 ## Fotos de perfil do jogador (512 × 512, retrato de busto, fundo liso escuro)
 
 Já no jogo (v1.4): escolha de retrato no Perfil, reduzidas para 256 px. Novo retrato → entrada em `AVATARS` (`engine.js`) e arquivo `art/avatar-<id>`.

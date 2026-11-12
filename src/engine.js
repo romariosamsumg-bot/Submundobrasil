@@ -420,7 +420,7 @@
       mods: { reward: (c, e) => inD(e, c, 20), econ: (c, e) => inD(e, c, .15), morale: 2, bizMult: c => c.biz && c.biz.id === 'oficina' ? 1.2 : 1, festive: 1 } },
     crise: { title: 'Crise no comércio', desc: 'Economia em queda por 4 dias: negócios -25%, missões -8%, bicos -20%. Em compensação, recrutar custa 30% menos.', dur: [4, 4], weight: 1,
       mods: { econ: -.2, bizMult: .75, reward: -8, recruitMult: .7, gigMult: .8, crisis: 1 } },
-    operacao: { title: 'Operação policial em {d}', desc: 'Vigia local +35 ao começar e risco +15 no bairro por 2 dias.', dur: [2, 2], weight: 2, randomDistrict: true,
+    operacao: { title: 'Operação policial em {d}', desc: 'Polícia no bairro +35 ao começar e risco +15 no bairro por 2 dias.', dur: [2, 2], weight: 2, randomDistrict: true,
       onStart: (s, e) => { s.dstate[e.district].vigil = clamp(s.dstate[e.district].vigil + 35, 0, 100); },
       mods: { risk: (c, e) => inD(e, c, 15), heatMult: 1 } },
     greve: { title: 'Greve em {d}', desc: '{cais} com economia -30% e missões -20% por 3 dias. {docas} perde força.', dur: [3, 3], weight: 1, district: 'cais',
@@ -1175,7 +1175,7 @@
     if (blocked(s)) return refuse(blocked(s));
     if (s.energy < 18 || s.heat === 0) return refuse('Não é necessário reduzir exposição agora.');
     s.energy -= 18; addHeat(s, -20); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil - 10, 0, 100);
-    log(s, 'Você ficou longe dos holofotes: -20 de Procurado e -10 vigia local.');
+    log(s, 'Você ficou longe dos holofotes: -20 de Procurado e -10 de polícia no bairro.');
     return done(true, 'Procurado reduzido.');
   }
   function doBail(s) {
@@ -1940,7 +1940,7 @@
       }
       if (P.pressure === 'denuncia') {
         addHeat(s, 10); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil + 10, 0, 100);
-        return `Retaliação de ${f.short}: denúncia anônima. +10 de Procurado e +10 vigia local.`;
+        return `Retaliação de ${f.short}: denúncia anônima. +10 de Procurado e +10 de polícia no bairro.`;
       }
       const best = DISTRICTS.filter(d => s.presence[d.id][f.id] > 0).sort((a, b) => s.influence[b.id] - s.influence[a.id])[0] || district(s);
       const removed = Math.min(rand(5, 9), s.influence[best.id]);
