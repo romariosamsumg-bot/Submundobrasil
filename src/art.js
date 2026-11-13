@@ -123,6 +123,7 @@
     rival: id => painted('rival-' + id) || (RIVALS[id] ? svg('0 0 64 64', R(0, 0, 64, 64, RIVALS[id][0]) + RIVALS[id][1], 'art portrait') : ''),
     avatar: id => painted('avatar-' + id),
     bairro: id => painted('bairro-' + id),
+    item: id => painted('item-' + id),
     heist: id => painted('heist-' + id) || (HEISTS[id] ? svg('0 0 160 70', HEISTS[id]()) : ''),
     keys: () => [...Object.keys(PLACES).map(k => 'place-' + k), ...Object.keys(RIVALS).map(k => 'rival-' + k), ...Object.keys(HEISTS).map(k => 'heist-' + k)],
     paintedCount: () => root.SB_ART ? Object.keys(root.SB_ART).length : 0
