@@ -82,6 +82,17 @@ Feitas em três grades (armas 4 × 4, proteções 3 × 2, veículos 3 × 2), fun
 
 Cortar com `python3 tools/cortar-grade.py <imagem> 3 3 roubo <ids>`. Grade 1: correria, rolo, fiacao, pastel, mercadoria, cobranca, deposito, cartao, leilao. Grade 2: caixa, loterica, comboio, cofre, favor, baile, camelodromo, carga, galpao. As cenas mostram o lugar e o clima, nunca o método.
 
+## Próximas artes (encaixe pronto na v1.5; ainda sem imagem)
+
+| Grupo | Arquivos | Como pedir |
+|---|---|---|
+| Casas da noite (5) | `casa-boteco`, `casa-pagode`, `casa-baile`, `casa-inferninho`, `casa-termas` | uma grade 3 × 2 (a última vazia) |
+| Esquemas do Galpão (7) | `esquema-gelo`, `esquema-paraguai`, `esquema-alambique`, `esquema-gatonet`, `esquema-plantacao`, `esquema-laboratorio`, `esquema-refinaria` | uma grade 3 × 3 (as duas últimas vazias) |
+| Cadeia | `place-cadeia` (1200 × 600, sai no topo da tela quando preso) | imagem única |
+| Capa | `capa-entrada` (1200 × 600, tela de entrada) | imagem única |
+
+Cortar grades com `python3 tools/cortar-grade.py <imagem> <colunas> <linhas> <prefixo> <ids>`. Esquemas: só o lugar, nunca o processo.
+
 ## Fotos de perfil do jogador (512 × 512, retrato de busto, fundo liso escuro)
 
 Já no jogo (v1.4): escolha de retrato no Perfil, reduzidas para 256 px. Novo retrato → entrada em `AVATARS` (`engine.js`) e arquivo `art/avatar-<id>`.

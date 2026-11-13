@@ -57,7 +57,7 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 ## Arte
 
 - Ilustrações em SVG ficam em `src/art.js` (lugares, adversários, assaltos), geradas em código e sem arquivos externos.
-- Imagens pintadas opcionais: `art/<chave>.(webp|jpg|png)` com prefixo `place-`, `rival-`, `heist-`, `avatar-`, `bairro-`, `item-` (Feira) ou `roubo-`, até 400 KB cada; o build embute e elas substituem o SVG da mesma chave. Prompts e nomes em `PROMPTS_ARTE.md`.
+- Imagens pintadas opcionais: `art/<chave>.(webp|jpg|png)` com prefixo `place-`, `rival-`, `heist-`, `avatar-`, `bairro-`, `item-` (Feira), `roubo-`, `casa-` (noite), `esquema-` (Galpão) ou `capa-entrada`; a cadeia usa `place-cadeia`, até 400 KB cada; o build embute e elas substituem o SVG da mesma chave. Prompts e nomes em `PROMPTS_ARTE.md`.
 - Lugar, adversário ou assalto novo → desenho em `src/art.js` **e** linha de prompt em `PROMPTS_ARTE.md`.
 
 ## Primeiros passos e ajuda
