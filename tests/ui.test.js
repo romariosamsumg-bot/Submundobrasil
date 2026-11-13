@@ -260,6 +260,21 @@ await page.click('[data-action=duel][data-id=marrento]');
   await page.waitForTimeout(300);
   check((await st())?.season === 2, 'importação pela tela inicial restaura a carreira');
 
+  console.log('7b. Nenhum texto cortado no celular (360 px)');
+  {
+    const cutViews = ['painel', 'acoes', 'noite', 'feira', 'hub', 'cidade', 'gestao', 'galpao', 'duelos', 'apostas', 'hospital', 'gangue', 'assaltos', 'perfil', 'temporada'];
+    const cutStates = await page.evaluate(() => { const out = []; for (const c of SB.CITIES) { const s = SB.defaultState('Wellington Aparecido S', c.name); s.tutorial.done = true; Object.assign(s, { respect: 180, cash: 123456, bank: 987654, day: 18, heat: 72, vicio: 48, career: 'barao', gangName: 'Bonde do Morro Alto', gangLevel: 3, crewMorale: 66, avatar: 'golpista' }); s.businesses = ['pensao', 'bar', 'inferninho']; s.labs.gelo = 1; s.labs.laboratorio = 2; out.push(JSON.stringify(s)); } out.push(JSON.stringify(SB.defaultState('Zé', SB.CITIES[0].name))); return out; });
+    const cuts = new Set();
+    const scan = () => page.evaluate(() => { const bad = []; for (const el of document.querySelectorAll('#hud *, #content *, #helpBox *')) { if (!el.getClientRects().length) continue; const cs = getComputedStyle(el); if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue; const hid = cs.overflowX !== 'visible' || cs.textOverflow === 'ellipsis' || cs.webkitLineClamp !== 'none'; if (hid && (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 2)) bad.push(el.textContent.trim().slice(0, 50)); if (el.getBoundingClientRect().right > innerWidth + 1) bad.push('fora da tela: ' + el.textContent.trim().slice(0, 40)); } return bad; });
+    for (const st of cutStates) {
+      await page.evaluate(x => { localStorage.setItem('submundo_brasil_v01', x); localStorage.setItem('submundo_brasil_18', '1'); }, st); await page.reload();
+      if (!await page.isVisible('#hud .hudWho')) { cuts.add('save não carregou'); continue; }
+      for (const v of cutViews) { await go(v); for (const x of await scan()) cuts.add(v + ': ' + x); }
+    }
+    await page.click('#hud .hudWho'); await page.click('[data-action=help]').catch(() => {});
+    for (let i = 0; i < 8 && await page.isVisible('#help'); i++) { for (const x of await scan()) cuts.add('ajuda: ' + x); const nx = page.locator('#helpBox .btn.primary'); if (await nx.count()) await nx.first().click(); else break; }
+    check(cuts.size === 0, 'nenhum texto cortado em 15 telas, 6 cidades, nome longo e valores altos' + (cuts.size ? ': ' + [...cuts].slice(0, 5).join(' | ') : ''));
+  }
   console.log('8. Tela larga (1280×900)');
   await page.setViewportSize({ width: 1280, height: 900 });
   for (const v of ['painel', 'gangue']) { await go(v); check(await overflow() <= 0, `desktop sem rolagem horizontal em "${v}"`); }

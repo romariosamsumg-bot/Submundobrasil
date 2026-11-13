@@ -246,7 +246,7 @@
   function renderHud() {
     const s = state, lvl = Math.min(99, Math.floor(s.respect / 35) + 1), c = s.career ? SB.CAREERS.find(x => x.id === s.career).name : 'Sem especialização';
     const pk = s.career + '|' + s.avatar; if ($('#hudAvatar').dataset.pic !== pk) { $('#hudAvatar').innerHTML = portrait(s); $('#hudAvatar').dataset.pic = pk; }
-    $('#hudName').textContent = s.name; $('#hudSub').textContent = `${SB.phase(s).name} · ${c}`;
+    $('#hudName').textContent = s.name; $('#hudSub').innerHTML = `<span>${esc(SB.phase(s).name)}</span><span>${esc(c)}</span>`;
     $('#hudRespect').textContent = num(s.respect);
     $('#hudEnergy').style.width = s.energy + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`;
     $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Procurado ${s.heat}`;

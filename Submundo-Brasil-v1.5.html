@@ -581,6 +581,19 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
 .hudBar.ht.alert,.hudBar.vc.alert{border-color:#e05a48}
 @media(max-width:400px){.hudBar.en b,.hudBar.hp b{font-size:10px}}
 
+/* v1.5: nenhuma informação cortada no celular (texto quebra linha em vez de reticências) */
+.hudwrap{padding:10px 12px 11px;gap:8px 10px;align-items:start}
+.hudAvatar{width:52px;height:52px}
+.hudId strong,.hudId small,.plate b,.dayInfo span,.memberCard strong,.tradeBtns .btn,.avatarPick small,.hudBar b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+.hudId strong{font-size:18px;line-height:1.15}
+.hudId small span{display:block;line-height:1.35}
+.hudBar b{white-space:nowrap}
+.localeBottom{flex-wrap:wrap!important;overflow:visible!important;row-gap:4px}.localeBottom span{white-space:nowrap;overflow:visible!important;text-overflow:clip!important}
+.avatarPick small{line-height:1.15}
+.hudId small{font-size:10px;letter-spacing:.02em}
+.hudMoney strong{font-size:22px}
+.hudwrap{column-gap:8px}
+
   </style>
 </head>
 <body>
@@ -3295,7 +3308,7 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
   function renderHud() {
     const s = state, lvl = Math.min(99, Math.floor(s.respect / 35) + 1), c = s.career ? SB.CAREERS.find(x => x.id === s.career).name : 'Sem especialização';
     const pk = s.career + '|' + s.avatar; if ($('#hudAvatar').dataset.pic !== pk) { $('#hudAvatar').innerHTML = portrait(s); $('#hudAvatar').dataset.pic = pk; }
-    $('#hudName').textContent = s.name; $('#hudSub').textContent = `${SB.phase(s).name} · ${c}`;
+    $('#hudName').textContent = s.name; $('#hudSub').innerHTML = `<span>${esc(SB.phase(s).name)}</span><span>${esc(c)}</span>`;
     $('#hudRespect').textContent = num(s.respect);
     $('#hudEnergy').style.width = s.energy + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`;
     $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Procurado ${s.heat}`;
