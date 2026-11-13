@@ -611,6 +611,22 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
 - **Tela Rua (v1.5)**, de cima para baixo: placa do bairro (Dono, Grana e Polícia do bairro; tocar na faixa explica os três) → resultado → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, meta, título) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
 
+### Relógio do modo online (v1.5, fase 1b)
+
+Só no online. O jogo local continua com o botão Dormir e 30 dias por temporada.
+
+| Regra | Online |
+|---|---|
+| Dia | Vira sozinho à **meia-noite de Brasília**; o dia do jogo é o dia do mês (o dia 31 conta como 30). Na virada entram renda, produção, eventos e facções, e os limites do dia zeram. Quem ficou fora recebe as viradas atrasadas (até 33). |
+| Energia | **+1 a cada 3 minutos** (cheia em 5 horas), até 100. A virada não dá mais +70. |
+| Ir pra casa | 3 horas sem roubar, noite ou viagem (banco, compras e decisões do bando continuam). No fim: energia cheia, tolerância e teto do corpo zerados. **Até 2 vezes por dia.** Sair antes não dá o descanso. |
+| Procurado | Cai aos poucos, no ritmo de 15 por dia (com os mesmos bônus de antes). |
+| Vício | −1 a cada 8 horas. |
+| Cadeia e hospital | 1 dia do jogo = **2 horas** reais. Fiança, suborno e clínica continuam valendo na hora. |
+| Temporada | É o **mês do calendário**: fecha sozinha na virada do mês, com legado, e o ranking recomeça. |
+
+O tempo é contado pelo servidor; o aparelho só prevê energia, Procurado e os contadores entre um pedido e outro. "Dormir" e "Encerrar temporada" são recusados no online.
+
 ### Economia do começo (v1.5)
 
 - **Começa sem dinheiro** (R$ 0). A partir da 2ª temporada, entra só o legado (até R$ 2.600 + medalhas). O **Bico** (28 de energia, R$ 110–170, sem risco) é a rede de segurança.

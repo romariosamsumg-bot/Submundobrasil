@@ -530,7 +530,7 @@
     return [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, f.id === owner ? (legacyRivals && isNum(legacyRivals[d.id]) ? clamp(Math.round(legacyRivals[d.id]), 0, 100) : 22 + i * 3) : (f.id === 'aurora' ? 4 : 2)]))];
   }));
   const initialDistrictState = () => Object.fromEntries(DISTRICTS.map(d => [d.id, { vigil: 0, econ: 1 }]));
-  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false, bribe: false, bets: 0, detox: false, despachante: false, termas: false, venue: null, doses: 0, dose: {}, chem: 0 });
+  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false, bribe: false, bets: 0, detox: false, despachante: false, termas: false, venue: null, doses: 0, dose: {}, chem: 0, home: 0 });
   const startMarket = () => Object.fromEntries(DISTRICTS.map((d, i) => [d.id, Object.fromEntries(GOODS.map((g, j) => [g.id, 85 + ((i * 7 + j * 11) % 5) * 8]))]));
   const emptySeasonStats = () => ({ arrests: 0, startRespect: 5, bailPaid: 0, controlDays: Object.fromEntries(DISTRICTS.map(d => [d.id, 0])), bestCash: 0 });
 
@@ -544,7 +544,7 @@
       district: 'centro', jail: 0, businesses: [], gangName: null, gangLevel: 0,
       successful: 0, failed: 0, seasonHistory: [],
       log: [{ day: 1, msg: 'Você chegou à cidade com algum dinheiro, poucos contatos e muita ambição.' }],
-      avatar: null, career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
+      avatar: null, clock: null, career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
       influence: initialInfluence(), presence: initialPresence(null), dstate: initialDistrictState(),
       events: [{ id: 'rotina', start: 1, until: 1, district: null }],
       newsPending: { id: 'feira', day: 1, faction: null }, lastEvent: 'rotina', nextBonus: 0, tip: 0, contracts: [], extorted: {},
@@ -612,6 +612,13 @@
     if (!s.gangName) s.gangLevel = 0;
     else s.gangLevel = Math.max(1, s.gangLevel);
     s.career = CAREERS.some(c => c.id === saved.career) ? saved.career : null;
+    // Relógio do modo online (null no jogo local).
+    s.clock = null;
+    if (saved.clock && typeof saved.clock === 'object' && isNum(saved.clock.t) && saved.clock.t > 0) {
+      const c = saved.clock, tt = toInt(c.t, 0, 1, 1e14);
+      s.clock = { t: tt, day: /^\d{4}-\d{2}-\d{2}$/.test(c.day) ? c.day : dayKey(tt), month: /^\d{4}-\d{2}$/.test(c.month) ? c.month : monthKey(tt), home: toInt(c.home, 0, 0, 1e14),
+        e: toInt(c.e, 0, 0, 864e5), h: toInt(c.h, 0, 0, 864e5), v: toInt(c.v, 0, 0, 864e5), j: toInt(c.j, 0, 0, 864e5) };
+    }
     s.avatar = AVATARS.some(a => a.id === saved.avatar) ? saved.avatar : null;
     s.careerXP = toInt(saved.careerXP, fromV04 && s.career ? Math.min(20, Math.floor(s.successful / 2)) : 0, 0, 9999);
     s.goal = GOALS.some(g => g.id === saved.goal) ? saved.goal : null;
@@ -705,6 +712,7 @@
       s.today.venue = NIGHT.some(n => n.id === saved.today.venue) ? saved.today.venue : null;
       s.today.doses = toInt(saved.today.doses, 0, 0, 99);
       s.today.chem = toInt(saved.today.chem, 0, 0, CHEM_CAP);
+      s.today.home = toInt(saved.today.home, 0, 0, 9);
       for (const d of DOSES) if (isNum(saved.today.dose && saved.today.dose[d.id])) s.today.dose[d.id] = toInt(saved.today.dose[d.id], 0, 0, 99);
     }
     const ss = saved.seasonStats || {};
@@ -881,6 +889,7 @@
     if (r.oncePerDay && s.today.missions[m.id]) return 'Já realizada hoje.';
     if (s.jail > 0) return 'Você está detido.';
     if (s.hospital > 0) return 'Você está internado.';
+    if (atHome(s)) return 'Você está em casa descansando.';
     if (s.energy < missionCost(s, m)) return 'Energia insuficiente.';
     return '';
   }
@@ -1003,7 +1012,8 @@
   /** Perde uma fração do respeito (a moral cai na rua). Devolve quanto perdeu. */
   function loseRespect(s, frac) { const l = Math.min(s.respect, Math.max(1, Math.ceil(s.respect * frac))); s.respect -= l; return l; }
   /** Bloqueio comum a ações físicas: detenção e internação. */
-  const blocked = s => s.jail > 0 ? 'Você está detido.' : s.hospital > 0 ? 'Você está internado.' : '';
+  const atHome = s => !!(s.clock && s.clock.home > s.clock.t);
+  const blocked = s => s.jail > 0 ? 'Você está detido.' : s.hospital > 0 ? 'Você está internado.' : atHome(s) ? 'Você está em casa descansando.' : '';
 
 
   /* Assaltos do bando (v1.0) */
@@ -2002,27 +2012,116 @@
     return '';
   }
 
-  function nextDay(s) {
-    if (s.day >= MAXDAY) return refuse('Fim de temporada. Acesse Temporada para encerrar.');
+  /** Virada do dia. No jogo local é o botão Dormir; com relógio (online), `clockDay` é o dia do
+   *  calendário e a virada vem de tick(): energia, Procurado, vício e detenção correm pelo tempo real. */
+  /* ------------------------------------------------------------------ */
+  /* v1.5 — Relógio do modo online. O tempo é sempre recebido de fora     */
+  /* (`now`, em ms): o motor não lê o relógio da máquina.                 */
+  /* ------------------------------------------------------------------ */
+  const CLOCK = { energyMs: 3 * 60000, lockMs: 2 * 3600000, homeMs: 3 * 3600000, vicioMs: 8 * 3600000, homesPerDay: 2, maxDays: 33 };
+  const BR = 3 * 3600000; // Brasília = UTC−3, sem horário de verão
+  const brIso = ms => new Date(ms - BR).toISOString();
+  const dayKey = ms => brIso(ms).slice(0, 10), monthKey = ms => brIso(ms).slice(0, 7), calDay = ms => Number(brIso(ms).slice(8, 10));
+  const nextMidnight = ms => (Math.floor((ms - BR) / 864e5) + 1) * 864e5 + BR;
+  /** Liga o relógio: o dia do jogo passa a ser o dia do mês. */
+  function startClock(s, now) {
+    s.clock = { t: now, day: dayKey(now), month: monthKey(now), home: 0, e: 0, h: 0, v: 0, j: 0 };
+    s.day = clamp(calDay(now), 1, MAXDAY);
+    s.events = s.events.filter(e => e.until >= s.day); // o que era do dia 1 não vale no meio do mês
+    if (s.newsPending && s.newsPending.day !== s.day) s.newsPending = null;
+    return s;
+  }
+  /** O que corre pelo tempo real entre dois instantes do mesmo dia. */
+  function flow(s, from, to, lines) {
+    const c = s.clock, dt = to - from; if (dt <= 0) return;
+    if (c.home && to >= c.home) { c.home = 0; s.energy = 100; s.today.doses = 0; s.today.dose = {}; s.today.chem = 0; lines.push('Você descansou em casa: energia cheia e o corpo zerado.'); }
+    if (s.energy < 100) { c.e += dt; const n = Math.floor(c.e / CLOCK.energyMs); c.e -= n * CLOCK.energyMs; s.energy = clamp(s.energy + n, 0, 100); }
+    if (s.energy >= 100) c.e = 0;
+    const d = heatDecayPerDay(s);
+    if (s.heat > 0 && d > 0) { c.h += dt; const step = 864e5 / d, n = Math.floor(c.h / step); c.h -= n * step; addHeat(s, -n); } else c.h = 0;
+    if (s.vicio > 0) { c.v += dt; const n = Math.floor(c.v / CLOCK.vicioMs); c.v -= n * CLOCK.vicioMs; s.vicio = clamp(s.vicio - n, 0, 100); } else c.v = 0;
+    if (s.jail > 0 || s.hospital > 0) {
+      c.j += dt;
+      while (c.j >= CLOCK.lockMs && (s.jail > 0 || s.hospital > 0)) {
+        c.j -= CLOCK.lockMs;
+        if (s.jail > 0) { s.jail--; if (!s.jail) lines.push('Você saiu da cadeia.'); }
+        if (s.hospital > 0) { s.hospital--; s.health = clamp(s.health + 15, 0, 100); if (!s.hospital) lines.push('Alta do hospital.'); }
+      }
+    }
+    if (!(s.jail > 0 || s.hospital > 0)) c.j = 0;
+  }
+  /** Avança o jogo até `now`. Devolve o estado (pode ser outro, se o mês virou), os avisos e, com
+   *  `local: true` (previsão no aparelho), para antes da meia-noite e avisa que há virada pendente. */
+  function tick(s, now, opts) {
+    const lines = [], local = !!(opts && opts.local);
+    if (!s.clock || !isNum(now) || !(now > s.clock.t)) return { state: s, lines, pending: false };
+    applyCity(s.city);
+    for (let guard = 0; guard < CLOCK.maxDays; guard++) {
+      const mid = nextMidnight(s.clock.t);
+      if (now < mid) break;
+      if (local) { flow(s, s.clock.t, mid - 1, lines); s.clock.t = mid - 1; return { state: s, lines, pending: true }; }
+      flow(s, s.clock.t, mid, lines); s.clock.t = mid;
+      if (monthKey(mid) !== s.clock.month) {
+        const r = closeSeason(s, true);
+        lines.push(r.msg, `Pontuação do mês: ${r.record.score}. Começa uma temporada nova.`);
+        s = startClock(r.state, mid);
+      } else {
+        const r = turnDay(s, clamp(calDay(mid), 1, MAXDAY));
+        s.clock.day = dayKey(mid);
+        lines.push(`Virou o dia ${s.day}.`, ...(r.lines || []));
+      }
+    }
+    if (nextMidnight(s.clock.t) <= now) { // ausência longa demais: retoma de agora
+      if (monthKey(now) !== s.clock.month) { const r = closeSeason(s, true); lines.push(r.msg); s = r.state; }
+      startClock(s, now);
+    }
+    flow(s, s.clock.t, now, lines); s.clock.t = now;
+    return { state: s, lines, pending: false };
+  }
+  /** Tempos que a interface mostra (ms a partir do último tick). */
+  const clockInfo = s => s.clock ? {
+    home: Math.max(0, s.clock.home - s.clock.t), nextEnergy: s.energy >= 100 ? 0 : CLOCK.energyMs - s.clock.e,
+    lock: Math.max(0, Math.max(s.jail, s.hospital) * CLOCK.lockMs - s.clock.j), midnight: nextMidnight(s.clock.t) - s.clock.t, homesLeft: Math.max(0, CLOCK.homesPerDay - (s.today.home || 0))
+  } : null;
+  function doGoHome(s) {
+    if (!s.clock) return refuse('No jogo local, use Dormir.');
+    if (blocked(s)) return refuse(blocked(s));
+    if ((s.today.home || 0) >= CLOCK.homesPerDay) return refuse(`Só dá para ir pra casa ${CLOCK.homesPerDay} vezes por dia.`);
+    if (s.energy >= 100 && !s.today.doses) return refuse('Você está inteiro: não precisa ir pra casa agora.');
+    s.clock.home = s.clock.t + CLOCK.homeMs; s.today.home = (s.today.home || 0) + 1; s.today.venue = null;
+    log(s, 'Você foi pra casa: 3 horas de descanso.');
+    return done(true, 'Você foi pra casa. Em 3 horas: energia cheia e o corpo zerado.');
+  }
+  function doLeaveHome(s) {
+    if (!atHome(s)) return refuse('Você não está em casa.');
+    s.clock.home = 0;
+    log(s, 'Você saiu de casa antes da hora.');
+    return done(true, 'Você saiu de casa antes da hora: sem o descanso completo.');
+  }
+
+  const heatDecayPerDay = s => 15 + eventMod(s, 'heatDecay') + (controlled(s, 'vila') ? 5 : 0) - controls(s).length * 2;
+  function turnDay(s, clockDay) {
+    const rt = clockDay !== undefined;
+    if (s.clock && !rt) return refuse('O dia vira sozinho à meia-noite (horário de Brasília).');
+    if (!rt && s.day >= MAXDAY) return refuse('Fim de temporada. Acesse Temporada para encerrar.');
     const lines = [];
     if (s.newsPending) { const n = currentNews(s); if (n && n.offer && s.newsPending.faction) addRel(s, s.newsPending.faction, -3); lines.push('Uma notícia passou sem resposta.'); }
-    s.day++;
-    s.jail = Math.max(0, s.jail - 1);
-    if (s.hospital > 0) { s.hospital--; s.health = clamp(s.health + 15, 0, 100); lines.push(s.hospital ? 'Internado: mais 1 dia de recuperação.' : 'Alta do hospital.'); }
+    if (rt) s.day = clockDay; else s.day++;
+    if (!rt) s.jail = Math.max(0, s.jail - 1);
+    if (s.hospital > 0) { if (!rt) { s.hospital--; s.health = clamp(s.health + 15, 0, 100); lines.push(s.hospital ? 'Internado: mais 1 dia de recuperação.' : 'Alta do hospital.'); } }
     else if (s.health < 100) { const h = s.jail > 0 ? 6 : 10; s.health = clamp(s.health + h, 0, 100); }
     s.today = emptyToday();
     if (s.tip > 0) s.tip--;
     tickEvents(s, lines);
 
     // Energia e vigilância
-    s.energy = clamp(s.energy + 70 + eventMod(s, 'energy') - s.ressaca, 0, 100);
+    s.energy = clamp(s.energy + (rt ? 0 : 70 + eventMod(s, 'energy')) - s.ressaca, 0, 100);
     if (s.ressaca) lines.push(`Ressaca: -${s.ressaca} de energia ao acordar.`);
-    if (s.vicio > 0) s.vicio = clamp(s.vicio - 3, 0, 100);
+    if (!rt && s.vicio > 0) s.vicio = clamp(s.vicio - 3, 0, 100);
     s.ressaca = 0;
     const ctrl = controls(s);
     if (gearVal(s, 'heavy')) { addHeat(s, 3); lines.push('Arma pesada não passa despercebida: +3 de Procurado.'); }
-    const decay = 15 + eventMod(s, 'heatDecay') + (controlled(s, 'vila') ? 5 : 0) - ctrl.length * 2;
-    addHeat(s, -decay);
+    if (!rt) addHeat(s, -heatDecayPerDay(s));
 
     // Bairros: vigilância local e economia
     for (const d of DISTRICTS) {
@@ -2212,8 +2311,9 @@
     return rows.sort((a, b) => b.power - a.power);
   }
 
-  function endSeason(s) {
-    if (s.day !== MAXDAY) return refuse('A temporada termina no dia 30.');
+  function closeSeason(s, force) {
+    if (s.clock && force !== true) return refuse('A temporada fecha sozinha no fim do mês.');
+    if (force !== true && s.day !== MAXDAY) return refuse('A temporada termina no dia 30.');
     const sc = seasonScore(s);
     const medals = Object.fromEntries(sc.cats.map(c => [c.id, c.medal]));
     const medalCount = sc.cats.filter(c => c.medal > 0).length;
@@ -2258,7 +2358,7 @@
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
     duel: doDuel, clinic: doClinic, bribe: doBribe, detox: doDetox, cleanRecord: doCleanRecord, bet: doBet, heistPlan: doHeistPlan, heistScout: doHeistScout, heistRun: doHeistRun, heistCancel: doHeistCancel, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, dose: doDose, night: doNight,
-    avatar: doAvatar, career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay, endSeason
+    avatar: doAvatar, career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay: s => turnDay(s), endSeason: s => closeSeason(s), goHome: doGoHome, leaveHome: doLeaveHome // sem repassar argumentos do pedido
   };
   /** Executa uma ação e roda verificações pós-ação. */
   function perform(s, name, ...args) {
@@ -2284,7 +2384,7 @@
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
-    chainLock, chainList, CHAIN_KINDS, act, perform
+    chainLock, chainList, CHAIN_KINDS, CLOCK, startClock, tick, clockInfo, atHome, dayKey, monthKey, act, perform
   };
   applyCity(CITIES[0].name); // as tabelas sempre refletem uma cidade real
   root.SB = SB;

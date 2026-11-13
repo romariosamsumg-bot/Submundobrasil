@@ -20,14 +20,14 @@ Deno.serve(async (req) => {
     const pedido = await req.json().catch(() => null);
     const db = createClient(url, service, { auth: { persistSession: false } });
     const { data: linha } = await db.from('saves').select('estado').eq('jogador', user.id).maybeSingle();
-    const saida = aplicar(SB, linha ? linha.estado : null, pedido);
+    const saida = aplicar(SB, linha ? linha.estado : null, pedido, Date.now());
     if (saida.novo) {
       const { error } = await db.from('jogadores').upsert({ id: user.id, codinome: saida.novo.codinome, cidade: saida.novo.cidade }, { onConflict: 'id' });
       if (error) return json(409, { erro: error.code === '23505' ? 'Esse codinome já está em uso. Escolha outro.' : 'Não foi possível criar o personagem.' });
     }
     if (saida.salvar) {
       const e = saida.salvar;
-      const { error } = await db.from('saves').upsert({ jogador: user.id, estado: e, temporada: e.season, dia: e.day, respeito: e.respect, patrimonio: SB.patrimony(e), atualizado_em: new Date().toISOString() }, { onConflict: 'jogador' });
+      const { error } = await db.from('saves').upsert({ jogador: user.id, estado: e, temporada: e.season, dia: e.day, mes: e.clock ? e.clock.month : null, respeito: e.respect, patrimonio: SB.patrimony(e), atualizado_em: new Date().toISOString() }, { onConflict: 'jogador' });
       if (error) return json(500, { erro: 'Não foi possível salvar no servidor.' });
     }
     return json(saida.status, saida.corpo);

@@ -149,7 +149,10 @@ Também sugerido: rebelião na cadeia com a gangue.
 
 - [x] **Fase 1**: conta com e-mail e senha, servidor de regras (`jogar`), save na nuvem e ranking de respeito no Perfil.
 - **Confirmação de e-mail**: desligada pelo autor (cadastro na hora). Antes de abrir ao público, avaliar religar com um serviço de e-mail próprio (SMTP), para ninguém criar conta com o e-mail de outra pessoa e para existir recuperação de senha.
-- **Fase 1b**: dia pelo relógio real (sem Dormir), energia voltando com o tempo, temporada = mês do calendário e ranking zerando todo mês.
+- [x] **Fase 1b**: dia pelo relógio real (sem Dormir), energia +1 a cada 3 min, ir pra casa, cadeia em horas, temporada = mês do calendário e ranking do mês.
+- **Recalibrar o online**: com 480 de energia por dia (contra uns 150 a 250 no jogo local), medalhas, metas e preços ficam fáceis demais no online. Medir com um robô de tempo real antes de abrir ao público.
+- Conferir a primeira virada de meia-noite e a primeira virada de mês com contas reais.
+- Cada ação leva cerca de 1 s (login conferido, leitura e gravação a cada pedido): avaliar resposta otimista no aparelho.
 - Fase 2: mercado entre jogadores. Fase 3: gangues de jogadores e ranking de gangues.
 - Login com Google (exige configurar o Google Cloud).
 

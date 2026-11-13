@@ -71,6 +71,8 @@ O jogo em si não tem dependências: basta abrir o HTML.
 | `supabase/migrations/0001_inicio.sql` | banco | tabelas `jogadores` e `saves`, regras de acesso (cada um lê só o seu) e a função `ranking()` |
 | `supabase/functions/jogar/` | servidor | `index.ts` (rede e banco), `logica.js` (regras do pedido, testada em `tests/online.test.js`) e `engine.js` (cópia exata de `src/engine.js`) |
 
+O relógio (fase 1b) fica no motor: `SB.startClock`, `SB.tick(state, agora)` e `SB.clockInfo`. O servidor chama `tick` com a própria hora antes de cada pedido; o aparelho usa `tick(..., { local: true })` só para prever. A migração `0002_relogio.sql` faz o ranking contar só o mês corrente.
+
 Fluxo: o jogador entra com e-mail e senha (Supabase Auth) → cada ação vai para a função `jogar` → o servidor aplica `SB.perform` no save guardado e devolve o estado → o jogo mostra. O ranking lê só codinome, cidade, respeito e dia.
 
 Publicar de novo depois de mudar as regras (o token fica guardado no ambiente, nunca no código):

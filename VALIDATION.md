@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**158 de 158 passaram** (v1.5: + 2 sobre o começo do zero e os preços da Feira; + 4 sobre a trilha de compra; v1.4: + retrato do jogador; + 4 sobre as quatro classes; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
+**172 de 172 passaram** (v1.5: + 14 sobre o relógio do online; + 2 sobre o começo do zero e os preços da Feira; + 4 sobre a trilha de compra; v1.4: + retrato do jogador; + 4 sobre as quatro classes; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**115 de 115 verificações passaram** (v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
+**118 de 118 verificações passaram** (v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
 
 - **Nenhum texto cortado** (v1.5): 15 telas nas 6 cidades, com nome de 22 letras, R$ 123.456 e a patente mais longa, mais as páginas de "Como jogar". O detector foi conferido contra a versão anterior, onde acusou o corte do topo.
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
@@ -76,6 +76,8 @@ ausência de cortes).
 - `tests/online.test.js` (6 testes): o servidor usa o mesmo motor; codinome e cidade validados; ação recusada não grava; ação ou argumento estranho (`__proto__`, objeto, infinito, texto longo) é barrado; save adulterado no banco é normalizado; fim de temporada troca o estado.
 - Interface com servidor simulado (8 verificações): cadastro, criação do personagem com R$ 0, roubo calculado pelo servidor, nada salvo no aparelho, ranking no Perfil, sair e entrar de novo.
 - No projeto real: a função recusa quem não entrou (401), o ranking responde e ninguém lê a tabela de saves sem login (regras de acesso do banco).
+- **Relógio (fase 1b)**: 14 testes no motor (energia a cada 3 min, tempo que não anda para trás, Procurado e vício pelo tempo, cadeia em horas, virada à meia-noite de Brasília, ausência de dias e de meses, fim do mês, ir pra casa, argumentos forjados em Dormir e Encerrar temporada, relógio adulterado no save); `tests/online.test.js` com 8 testes (a hora é sempre a do servidor); interface com servidor simulado, incluindo ir pra casa e voltar 3 horas depois.
+- **Teste real com o relógio** (função versão 2): personagem criado no dia 13 do mês 2026-11, três roubos pelo servidor em 1,0 a 1,4 s cada (medido de fora do Brasil), faixa do dia com "O dia vira em 16 h 7 min", ir pra casa e sair, ranking do mês. Conta de teste apagada. **Não testado de verdade**: a virada da meia-noite e a do mês no servidor (só nos testes, com a hora simulada).
 - **Teste real de ponta a ponta** (confirmação de e-mail desligada pelo autor): conta criada, personagem com R$ 0, roubo calculado pelo servidor (1,2 s na primeira chamada), ranking com o jogador em 1º e continuação após recarregar a página. A conta de teste foi apagada em seguida.
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`

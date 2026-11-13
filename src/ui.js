@@ -302,14 +302,24 @@
       ${result.lines.length ? `<ul>${result.lines.slice(0, 10).map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}</section>`;
   }
   function jailNotice() {
-    if (state.hospital > 0) return `<div class="notice error tape"><strong>INTERNADO · ${state.hospital} dia(s)</strong> Você não pode sair para serviços, treinos, viagens, duelos ou negócios. Banco, gangue (decisões) e notícias continuam. A saúde volta +15 por dia.<div class="inlineBtns">${nextDayButton('small')}</div></div>`;
+    if (SB.atHome(state)) return `<div class="notice tape homeNote"><strong>EM CASA · volta em ${dur(SB.clockInfo(state).home)}</strong> Descansando: sem roubos, noite ou viagens. Banco, compras e decisões do bando continuam. No fim: energia cheia e o corpo zerado.<div class="inlineBtns">${button('Sair de casa antes da hora', 'leave-home', '', false, 'small ghost')}</div></div>`;
+    if (state.hospital > 0) return `<div class="notice error tape"><strong>INTERNADO · ${state.clock ? 'alta em ' + dur(SB.clockInfo(state).lock) : state.hospital + ' dia(s)'}</strong> Você não pode sair para serviços, treinos, viagens, duelos ou negócios. Banco, gangue (decisões) e notícias continuam. A saúde volta +15 por dia.<div class="inlineBtns">${nextDayButton('small')}</div></div>`;
     if (state.jail <= 0) return '';
     const c = SB.bailCost(state);
     const bc = SB.bribeCost(state);
-    return `<div class="notice error tape"><strong>NA CADEIA · ${state.jail} dia(s)</strong> Missões, treinos, viagens e negócios ficam bloqueados; o banco continua disponível.
+    return `<div class="notice error tape"><strong>NA CADEIA · ${state.clock ? 'sai em ' + dur(SB.clockInfo(state).lock) : state.jail + ' dia(s)'}</strong> Missões, treinos, viagens e negócios ficam bloqueados; o banco continua disponível.
       <div class="inlineBtns">${button(`Advogado de porta de cadeia · ${fmt(c)}`, 'bail', '', state.cash < c, 'small danger')}${button(`Molhar a mão do carcereiro · ${fmt(bc)}`, 'bribe', '', state.cash < bc || state.today.bribe, 'small ghost')}${nextDayButton('small')}</div><p class="mini" style="margin:6px 0 0">O advogado é garantido. O carcereiro é mais barato, mas pode te dedurar (+1 dia).</p></div>`;
   }
+  /** "2 h 13 min" a partir de milissegundos. */
+  const dur = ms => { const m = Math.max(1, Math.ceil(ms / 60000)); return m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ' ' + (m % 60) + ' min' : ''}` : `${m} min`; };
   function nextDayButton(cls = '') {
+    if (state.clock) { // online: o dia vira sozinho; o descanso é ir pra casa
+      const ci = SB.clockInfo(state);
+      if (SB.atHome(state)) return button('Sair de casa', 'leave-home', '', false, 'ghost ' + cls);
+      if (state.jail > 0 || state.hospital > 0) return '';
+      const full = state.energy >= 100 && !state.today.doses;
+      return button(ci.homesLeft ? 'Ir pra casa · 3 h' : 'Casa: 2 vezes por dia', 'go-home', '', !ci.homesLeft || full, (cls.includes('ghost') || cls.includes('primary') ? '' : 'primary ') + cls);
+    }
     if (state.day >= MAXDAY) return button('Encerrar temporada', 'switch', 'data-target="temporada"', false, 'primary ' + cls);
     return button(armedNext ? `Dormir com ${state.energy} de energia?` : 'Dormir', 'next-day', '', false, (armedNext ? 'armed ' : 'primary ') + cls);
   }
@@ -388,6 +398,7 @@
         <p><strong>Saúde</strong> (barra azul) cai em confrontos, duelos e serviços de força que dão errado. Abaixo de 60 suas chances caem; a zero, você é internado. Cure no Hospital ou esperando.</p>
         <p>Toque no seu retrato, no topo, para abrir o <strong>Perfil</strong> e escolher outra foto.</p>
         <p><strong>Trilha de compra</strong>: na Feira (armas, proteções e veículos) e nos negócios, o próximo só abre depois que você compra o anterior nesta temporada.</p>
+        ${state && state.clock ? '<p><strong>Online</strong>: o dia vira sozinho à meia-noite de Brasília e a temporada é o mês do calendário. A energia volta +1 a cada 3 minutos. <strong>Ir pra casa</strong> (3 horas, até 2 vezes por dia) enche a energia e zera o corpo. Na cadeia e no hospital, 1 dia vale 2 horas.</p>' : ''}
         <p><strong>Repetir</strong> o mesmo serviço no dia ou insistir no mesmo bairro piora chance e pagamento. Varie.</p>
         <p>Os <strong>grupos rivais</strong> reagem: agir no território deles gera atrito, retaliação e extorsão. Dá para conversar, firmar trégua ou aliança.</p>`],
       ['Sua cidade', `<p><strong>${esc(c.name)} — ${esc(c.trait)}.</strong> ${esc(c.traitDesc)}</p>
@@ -418,6 +429,7 @@
     if (s.heat >= 65 && s.energy >= 18) return { tag: 'Procurado alto', title: 'Fique na sua', text: 'A polícia está de olho: cada roubo agora tem mais chance de dar cadeia.', btn: button('Reduzir exposição · 18 energia', 'lay-low', '', false, 'primary') };
     if (upgrade && (lockedByGun || !s.gear.arma)) return { tag: 'Dinheiro no bolso', title: `Dá para comprar: ${upgrade.name}`, text: lockedByGun ? `Arma melhor abre roubo maior, como “${lockedByGun.name}”.` : 'Arma é o que abre os roubos maiores.', btn: button('Ir à Feira do Rolo', 'switch', 'data-target="feira"', false, 'primary') };
     if (lowEnergy && canNight) { const n = SB.NIGHT.filter(x => (!x.unlock || s.respect >= x.unlock) && SB.nightCost(s, x) <= s.cash).pop(); if (n) return { tag: 'Sem energia', title: 'Hora da noitada', text: s.today.venue ? `Você ainda está na casa: peça uma dose e volte a roubar. Doses: ${s.today.doses}/${SB.DOSE_LIMIT}.` : `Entre numa casa e peça uma dose. Saídas: ${s.today.night}/${SB.NIGHT_LIMIT}.`, btn: button(s.today.venue ? 'Ir ao balcão' : 'Ir para a noite', 'switch', 'data-target="noite"', false, 'primary') }; }
+    if (lowEnergy && s.clock) return SB.atHome(s) ? { tag: 'Em casa', title: `Descansando: volta em ${dur(SB.clockInfo(s).home)}`, text: 'No fim, energia cheia e o corpo zerado. Banco e compras continuam.', btn: nextDayButton('') } : { tag: 'Sem energia', title: SB.clockInfo(s).homesLeft ? 'Vá pra casa ou espere' : 'Espere a energia voltar', text: `A energia volta +1 a cada 3 minutos (próximo ponto em ${dur(SB.clockInfo(s).nextEnergy)}). Em casa, 3 horas enchem tudo.`, btn: nextDayButton('') };
     if (lowEnergy) return { tag: 'Sem energia', title: s.day >= MAXDAY ? 'Fim da temporada' : 'Durma e vire o dia', text: s.day >= MAXDAY ? 'Último dia: encerre a temporada.' : '+70 de energia, o Procurado cai e a renda entra.', btn: nextDayButton('') };
     if (best) { const p = SB.missionChance(s, best); return { tag: 'Roubo da vez', title: best.name, text: `${best.cost} energia · ${fmt(best.low * SB.missionRewardMult(s, best))}–${fmt(best.high * SB.missionRewardMult(s, best))} · ${p}% de chance`, btn: button('Executar', 'mission', `data-id="${best.id}"`, false, 'primary'), icon: best.stat }; }
     return { tag: 'Nada com boa chance', title: 'Treine ou mude de ares', text: 'Treine um atributo, baixe o Procurado ou vá a outro bairro.', btn: button('Ver roubos e treino', 'switch', 'data-target="acoes"', false, 'primary') };
@@ -426,13 +438,13 @@
     const s = state, mv = nextMove(), guide = guideCard();
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
     const tired = s.energy < 16 || s.day >= MAXDAY;
-    const sleep = s.day >= MAXDAY ? button('Encerrar temporada', 'switch', 'data-target="temporada"', false, 'primary small')
+    const sleep = s.clock ? nextDayButton('small ' + (tired ? 'primary' : 'ghost')) : s.day >= MAXDAY ? button('Encerrar temporada', 'switch', 'data-target="temporada"', false, 'primary small')
       : button(armedNext ? `Dormir com ${s.energy} de energia?` : 'Dormir', 'next-day', '', false, (armedNext ? 'armed' : tired ? 'primary' : 'ghost') + ' small');
     return jailNotice() + localeStrip(true, false) + localeInfo() + `
       ${resultCard()}
       ${guide}${s.career ? '' : careerCard()}
       ${mv && !guide ? `<section class="boardLead job nextMove"><div class="jobIcon">${statIcon(mv.icon || 'astucia')}</div><div class="jobMain"><div class="eyebrow">E agora? · ${esc(mv.tag)}</div><h3>${esc(mv.title)}</h3><p class="jobMeta">${esc(mv.text)}</p></div><div class="jobAct">${mv.btn}</div></section>` : ''}
-      <section class="dayBar dayStrip"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span><div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></div>${sleep}</section>
+      <section class="dayBar dayStrip"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span>${s.clock ? `<span class="clockLine">O dia vira em ${dur(SB.clockInfo(s).midnight)}${s.energy < 100 ? ` · +1 de energia em ${dur(SB.clockInfo(s).nextEnergy)}` : ''}</span>` : ''}<div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></div>${sleep}</section>
       ${evs.length ? `<section class="poster dayNews"><div class="posterHead">HOJE NA CIDADE</div><ul class="eventList">${evs.map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
       ${s.career || s.tutorial.done ? newsCard() : ''}
       ${fichaCard()}
@@ -710,7 +722,7 @@
     return heading('Noite', 'Acabou a energia? Entre numa casa e peça no balcão: dinheiro vira energia agora, a ressaca vem amanhã.') + `<div class="screenArt">${window.SBArt.place('noite')}</div>` + jailNotice() + resultCard() + `
       <section class="card"><div class="kv"><div><span>Saídas hoje</span><strong>${s.today.night}/${SB.NIGHT_LIMIT}</strong></div><div><span>Doses hoje</span><strong>${s.today.doses}/${SB.DOSE_LIMIT}</strong></div><div><span>Corpo hoje</span><strong>${s.today.chem}/${SB.CHEM_CAP} de energia</strong></div><div><span>Ressaca amanhã</span><strong>−${s.ressaca} de energia</strong></div></div>
         <div class="meterlabel" style="margin-top:10px"><span>Vício</span><strong>${s.vicio}/100</strong></div><div class="meter red"><div style="width:${s.vicio}%"></div></div>
-        <p class="mini" style="margin-top:6px">Quanto mais forte a dose, mais energia e mais vício. O corpo se acostuma: cada dose do mesmo tipo no dia rende 15% menos, e as doses devolvem no máximo ${SB.CHEM_CAP} de energia por dia. Dormir zera. Com vício alto, cada dose recarrega menos. ${s.vicio >= 70 ? `<span class="negative">Acima de 70: loló, bala e pó têm ${SB.overdoseChance(s)}% de chance de overdose.</span>` : 'A partir de 70, loló, bala e pó podem dar overdose.'} Cai 3 por dia; o Hospital limpa.</p></section>
+        <p class="mini" style="margin-top:6px">Quanto mais forte a dose, mais energia e mais vício. O corpo se acostuma: cada dose do mesmo tipo no dia rende 15% menos, e as doses devolvem no máximo ${SB.CHEM_CAP} de energia por dia. ${s.clock ? 'Ir pra casa ou a virada do dia zera.' : 'Dormir zera.'} Com vício alto, cada dose recarrega menos. ${s.vicio >= 70 ? `<span class="negative">Acima de 70: loló, bala e pó têm ${SB.overdoseChance(s)}% de chance de overdose.</span>` : 'A partir de 70, loló, bala e pó podem dar overdose.'} Cai 3 por dia; o Hospital limpa.</p></section>
       ${here ? `${stencil('No balcão', esc(here.name))}${why ? `<p class="lockline">${esc(why)}</p>` : ''}<div class="grid">${here.menu.map(id => doseRow(SB.doseOf(id))).join('')}</div>` : ''}
       ${stencil('Casas da noite', 'a entrada conta como saída')}<div class="grid">${SB.NIGHT.map(n => { const c = SB.nightCost(s, n), own = SB.ownTermas(s, n), cl = own || s.businesses.includes(n.id) ? '' : SB.chainLock(s, 'night', n.id), lock = !!cl || (n.unlock && s.respect < n.unlock && !own), inside = here && here.id === n.id;
         return `<section class="card shopRow ${inside ? 'here' : ''} ${lock ? 'locked' : ''}"><div><h3>${esc(n.name)}${inside ? ' <span class="pill">Você está aqui</span>' : own ? ' <span class="pill">Sua casa</span>' : lock ? ` <span class="pill">${cl ? esc(cl.replace(/\.$/, '')) : `Requer ${n.unlock} de respeito`}</span>` : ''}</h3><p class="mini">${esc(n.desc)}</p>
@@ -860,6 +872,8 @@
       case 'night': run('night', id); break;
       case 'dose': run('dose', id, btn.dataset.stock === '1'); break;
       case 'duel': run('duel', id); break;
+      case 'go-home': run('goHome'); break;
+      case 'leave-home': run('leaveHome'); break;
       case 'avatar': run('avatar', id); break;
       case 'detox': run('detox', id); break;
       case 'clean-record': run('cleanRecord'); break;
@@ -971,7 +985,8 @@
    * Opcional: só aparece quando o build tem online.json. No online, cada ação vai para o servidor,
    * que aplica as regras com o mesmo motor e devolve o estado; o aparelho não decide nada. */
   const ON = window.SB_ONLINE || null, SESSION_KEY = 'submundo_brasil_sessao';
-  let online = false, pendingOnline = false, busy = false, session = null, rankingRows = null;
+  let online = false, pendingOnline = false, busy = false, session = null, rankingRows = null, skew = 0, syncing = false;
+  const serverNow = () => Date.now() + skew;
   function storeSession(v) { session = v; try { if (v) localStorage.setItem(SESSION_KEY, JSON.stringify(v)); else localStorage.removeItem(SESSION_KEY); } catch (e) { /* sem armazenamento */ } }
   function readSession() { try { const v = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); return v && typeof v.access === 'string' && typeof v.refresh === 'string' ? v : null; } catch (e) { return null; } }
   function authMsg(d) {
@@ -1001,19 +1016,22 @@
     const r = await fetch(ON.url + '/functions/v1/jogar', { method: 'POST', headers: { apikey: ON.anonKey, Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json' }, body: JSON.stringify(pedido) });
     const d = await r.json().catch(() => ({ erro: 'Resposta inválida do servidor.' }));
     if (!r.ok) throw new Error(d.erro || 'Erro no servidor do jogo.');
+    if (typeof d.agora === 'number') skew = d.agora - Date.now();
     return d;
   }
   /** Estado vindo do servidor: passa pela mesma verificação de qualquer save. */
   function fromServer(estado) { const p = SB.parseSave(JSON.stringify(estado)); if (!p.ok) throw new Error('O servidor mandou um save ilegível.'); return p.state; }
   function onlineStatus(html) { const el = $('#onlineStatus'); if (el) el.innerHTML = html; }
-  function enterOnline(estado) {
-    state = fromServer(estado); online = true; pendingOnline = false; view = 'painel'; result = null;
+  /** O que aconteceu enquanto o jogador estava fora (viradas, alta, fim do mês). */
+  const awayCard = avisos => { if (Array.isArray(avisos) && avisos.length) result = { good: true, msg: 'Enquanto você esteve fora', lines: avisos.map(String), deltas: [] }; };
+  function enterOnline(estado, avisos) {
+    state = fromServer(estado); online = true; pendingOnline = false; view = 'painel'; result = null; awayCard(avisos);
     $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); render();
     if (!ageConfirmed()) ageGate();
   }
   async function afterLogin() {
     const d = await server({ acao: 'estado' });
-    if (d.estado) return enterOnline(d.estado);
+    if (d.estado) return enterOnline(d.estado, d.avisos);
     pendingOnline = true; $('#onlineFields').hidden = true;
     onlineStatus(`<p class="notice">Conectado como <b>${esc(session.email)}</b>. Agora escolha seu codinome e sua cidade acima e toque em <b>Entrar na cidade</b>.</p>`);
   }
@@ -1030,6 +1048,7 @@
       const r = d.resultado || { ok: false, msg: 'Resposta inválida do servidor.' };
       if (!r.ok) { notify(r.msg, true); return r; }
       state = fromServer(d.estado);
+      if (Array.isArray(d.avisos) && d.avisos.length) r.lines = d.avisos.map(String).concat(r.lines || []);
       return finish(name, r, before);
     } catch (e) { notify(e.message, true); return null; }
     finally { busy = false; document.body.classList.remove('busy'); }
@@ -1068,6 +1087,22 @@
     } catch (err) { notify(err.message, true); }
     finally { btn.disabled = false; }
   });
+  /** Entre um pedido e outro, o aparelho prevê o que o tempo faz (energia, Procurado, cadeia, casa).
+   *  A virada do dia tem sorteio e renda: essa só o servidor faz. */
+  async function clockBeat() {
+    if (!online || !state || !state.clock || busy || syncing || document.hidden) return;
+    const was = [state.jail, state.hospital, SB.atHome(state)].join();
+    const r = SB.tick(state, serverNow(), { local: true });
+    if (r.pending) {
+      syncing = true;
+      try { const d = await server({ acao: 'estado' }); if (d.estado) { state = fromServer(d.estado); awayCard(d.avisos); render(); } } catch (e) { /* tenta de novo na próxima batida */ }
+      finally { syncing = false; }
+      return;
+    }
+    if (was !== [state.jail, state.hospital, SB.atHome(state)].join() || view === 'painel' && !document.activeElement.matches('input,select,textarea')) render(); else renderHud();
+  }
+  setInterval(clockBeat, 20000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) clockBeat(); });
   async function bootOnline() {
     if (!ON) return;
     $('#onlineBox').hidden = false;
