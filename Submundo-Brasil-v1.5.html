@@ -1622,10 +1622,10 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
     return clamp(Math.round(40 + (heistPower(s, hires) - h.rating) * 1.2 + intel * .5 + (s.crewMorale - 50) * .15 - s.heat * .3 - healthPenalty(s) - eventMod(s, 'risk', { district: s.district }) * .5), 5, 90);
   }
   /** Motivo de bloqueio para planejar ('' se pode). */
-  /* v1.5: trilha de progresso. Em cada lista, o item só libera depois que o anterior foi feito
-   * (roubo concluído, item ou negócio comprado, adversário vencido, assalto feito, esquema montado,
-   * casa da noite visitada) nesta temporada. Os roubos exclusivos de bairro ficam fora da trilha. */
-  const CHAIN_KINDS = ['missions', 'items', 'rivals', 'heists', 'labs', 'biz', 'night'];
+  /* v1.5: trilha de compra. Na Feira (por prateleira: arma, proteção, veículo) e nos negócios (casas da
+   * noite e negócios de rua), o item só libera depois que o anterior foi comprado nesta temporada.
+   * As outras listas (roubos, noite, duelos, esquemas, assaltos) não têm trilha. */
+  const CHAIN_KINDS = ['items', 'biz'];
   function chainList(kind, ref) {
     if (kind === 'missions') return MISSIONS.filter(m => !m.district).slice().sort((a, b) => a.difficulty - b.difficulty);
     if (kind === 'items') return ITEMS.filter(i => i.slot === ref.slot && !i.trophy);
@@ -1640,13 +1640,14 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
   const CHAIN_VERB = { missions: 'Primeiro faça', items: 'Primeiro compre', rivals: 'Primeiro vença', heists: 'Primeiro faça o assalto', labs: 'Primeiro monte', biz: 'Primeiro compre', night: 'Primeiro conheça' };
   /** Devolve o motivo do bloqueio pela trilha ("Primeiro faça: Bater carteira.") ou ''. */
   function chainLock(s, kind, id) {
+    if (!CHAIN_KINDS.includes(kind)) return '';
     const list = chainList(kind, kind === 'items' ? item(id) || {} : kind === 'biz' ? business(id) || {} : null), i = list.findIndex(x => x.id === id);
     if (i <= 0) return '';
     const prev = list[i - 1];
     return chainDone(s, kind, prev.id) ? '' : `${CHAIN_VERB[kind]}: ${prev.name}.`;
   }
   /** Marca o item como feito na trilha (sem repetir). */
-  function markDone(s, kind, id) { if (!s.done[kind].includes(id)) s.done[kind].push(id); }
+  function markDone(s, kind, id) { if (CHAIN_KINDS.includes(kind) && !s.done[kind].includes(id)) s.done[kind].push(id); }
   const emptyDone = () => Object.fromEntries(CHAIN_KINDS.map(k => [k, []]));
   function heistLock(s, h) {
     if (!s.gangName) return 'Requer uma gangue fundada.';
@@ -1739,7 +1740,7 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
     s.dstate[d].vigil = clamp(s.dstate[d].vigil + m.vigil, 0, 100);
     if (roll(odds)) {
       const reward = Math.max(1, Math.round(rand(m.low, m.high) * mult));
-      const first = !s.done.missions.includes(m.id), rg = respectGain(s, m) * (first ? 2 : 1); // primeira vez vale o dobro
+      const rg = respectGain(s, m);
       s.cash += reward; s.respect += rg; addHeat(s, heatGain(s, m.heat)); s.successful++; markDone(s, 'missions', m.id);
       if (roll(30)) s.stats[m.stat] += 1;
       if (m.influence) addInf(s, d, m.influence * (s.career === 'articulador' ? 1.3 : 1));
@@ -1747,7 +1748,7 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
       turfFriction(s, d, m.tension);
       if (m.id === 'cofre') unlock(s, 'cofre');
       unlock(s, 'primeira');
-      log(s, `${m.name}: sucesso (${odds}%). +${money(reward)} e +${rg} de respeito${first ? ' (primeira vez: dobro)' : ''}.`);
+      log(s, `${m.name}: sucesso (${odds}%). +${money(reward)} e +${rg} de respeito.`);
       return done(true, `${m.name}: sucesso! +${money(reward)}`);
     }
     const lost = Math.min(s.cash, Math.ceil(s.cash * failLoss(s, m)));
@@ -3411,7 +3412,7 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
         <p><strong>Colete</strong>: roubo armado que dá errado vira trocação com a segurança. O colete decide se você sai ferido ou vai para a UPA. Ser preso custa respeito.</p>
         <p><strong>Saúde</strong> (barra azul) cai em confrontos, duelos e serviços de força que dão errado. Abaixo de 60 suas chances caem; a zero, você é internado. Cure no Hospital ou esperando.</p>
         <p>Toque no seu retrato, no topo, para abrir o <strong>Perfil</strong> e escolher outra foto.</p>
-        <p><strong>Trilha</strong>: em cada lista (roubos, Feira, noite, duelos, esquemas, negócios e assaltos), o próximo só abre depois que você faz ou compra o anterior nesta temporada.</p>
+        <p><strong>Trilha de compra</strong>: na Feira (armas, proteções e veículos) e nos negócios, o próximo só abre depois que você compra o anterior nesta temporada.</p>
         <p><strong>Repetir</strong> o mesmo serviço no dia ou insistir no mesmo bairro piora chance e pagamento. Varie.</p>
         <p>Os <strong>grupos rivais</strong> reagem: agir no território deles gera atrito, retaliação e extorsão. Dá para conversar, firmar trégua ou aliança.</p>`],
       ['Sua cidade', `<p><strong>${esc(c.name)} — ${esc(c.trait)}.</strong> ${esc(c.traitDesc)}</p>
@@ -3510,7 +3511,7 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
     const hard = lock && !['Energia insuficiente.', 'Você está detido.', 'Você está internado.'].includes(lock);
     return `<section class="job ${hard ? 'locked' : ''}"><div class="jobIcon" title="${statName(m.stat)}">${statIcon(m.stat)}<small>${statName(m.stat)}</small></div>
       <div class="jobMain"><h3>${esc(m.name)}${m.district ? ` <span class="pill">só aqui</span>` : ''}</h3><p class="jobDesc">${esc(m.desc)}</p>
-      <p class="jobMeta"><b>${fmt(m.low * mult)}–${fmt(m.high * mult)}</b> · ${SB.missionCost(s, m)} energia · +${m.heat} Procurado · ${s.done.missions.includes(m.id) ? `+${SB.respectGain(s, m)} respeito` : `<strong>+${SB.respectGain(s, m) * 2} respeito (1ª vez: dobro)</strong>`}</p>
+      <p class="jobMeta"><b>${fmt(m.low * mult)}–${fmt(m.high * mult)}</b> · ${SB.missionCost(s, m)} energia · +${m.heat} Procurado · +${SB.respectGain(s, m)} respeito</p>
       <p class="jobRisk">Se falhar: -${Math.round(SB.failLoss(s, m) * 100)}% do caixa em mãos, detenção ${SB.arrestChance(s, m)}%</p>
       ${reps ? `<div class="lockline">Repetida ${reps}× hoje: chance e recompensa menores.</div>` : ''}${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div>
       <div class="jobAct"><span class="seal ${chanceClass(p)}">${p}%</span>${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary')}</div></section>`;

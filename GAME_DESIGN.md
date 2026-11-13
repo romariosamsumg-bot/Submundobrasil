@@ -610,21 +610,19 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
 - **Tela Rua (v1.5)**, de cima para baixo: placa do bairro (Dono, Grana e Polícia do bairro; tocar na faixa explica os três) → resultado → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, meta, título) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
 
-### Trilha de progresso (v1.5)
+### Trilha de compra (v1.5)
 
-Em cada lista, o próximo só abre depois que o anterior foi feito **nesta temporada** (a trilha recomeça a cada mês, como o respeito). Os requisitos antigos (respeito, arma, sede) continuam valendo; a trilha vem antes deles no motivo do bloqueio.
+Na **Feira do Rolo** e nos **negócios**, o próximo item só abre depois que o anterior foi comprado **nesta temporada** (a trilha recomeça a cada mês). Os requisitos antigos (respeito, troféu) continuam valendo; a trilha vem antes deles no motivo do bloqueio. Roubos, noite, duelos, esquemas e assaltos do bando **não têm trilha** (o autor decidiu tirar).
 
-| Trilha | Conta como feito | Ordem |
-|---|---|---|
-| Roubos | roubo **concluído com sucesso** | por dificuldade: Bater carteira → Rolo na feira → Fiação de cobre → … → Cofre da joalheria (os 5 exclusivos de bairro ficam fora) |
-| Feira do Rolo | item comprado | uma trilha por prateleira (arma, proteção, veículo); o Fuzil dourado é troféu e fica fora |
-| Noite | entrar na casa | Boteco → Pagode → Baile → Inferninho → Termas (dono da casa entra direto) |
-| Duelos | vencer o adversário | Zé Marrento → … → Rei do Pedaço |
-| Esquemas | montar | Gelo → Cigarro → Bebida falsa → Gatonet → Plantação → Laboratório → Refinaria |
-| Negócios | comprar | duas prateleiras por preço: casas da noite (Pensão → Bar → Inferninho → Casa de Shows → Termas) e negócios de rua (Oficina → Banca do bicho → Mercadinho → Depósito) |
-| Assaltos do bando | assalto bem-sucedido | Arrastão → Caminhão → Agência → Carro-forte → Transportadora → Cofre central |
+| Trilha | Ordem |
+|---|---|
+| Armas | Pedaço de pau → Chave de fenda → Vergalhão → … → Lança-rojão (o Fuzil dourado é troféu, fora da trilha) |
+| Proteções | Lista telefônica → Jaqueta → Colete vencido → … → Traje tático |
+| Veículos | Bicicleta → Cinquentinha → Moto → Opala → Blindado |
+| Casas da noite | Pensão → Bar → Inferninho → Casa de Shows → Termas |
+| Negócios de rua | Oficina → Banca do bicho → Mercadinho → Depósito |
 
-**Primeira vez vale o dobro**: o primeiro roubo bem-sucedido de cada tipo dá o dobro de respeito (como a primeira vitória nos duelos). Save anterior à v1.5 entra com a trilha toda liberada até a próxima temporada.
+Save anterior à v1.5 entra com a trilha toda liberada até a próxima temporada.
 
 ### Quatro classes (v1.4)
 

@@ -1018,10 +1018,10 @@
     return clamp(Math.round(40 + (heistPower(s, hires) - h.rating) * 1.2 + intel * .5 + (s.crewMorale - 50) * .15 - s.heat * .3 - healthPenalty(s) - eventMod(s, 'risk', { district: s.district }) * .5), 5, 90);
   }
   /** Motivo de bloqueio para planejar ('' se pode). */
-  /* v1.5: trilha de progresso. Em cada lista, o item só libera depois que o anterior foi feito
-   * (roubo concluído, item ou negócio comprado, adversário vencido, assalto feito, esquema montado,
-   * casa da noite visitada) nesta temporada. Os roubos exclusivos de bairro ficam fora da trilha. */
-  const CHAIN_KINDS = ['missions', 'items', 'rivals', 'heists', 'labs', 'biz', 'night'];
+  /* v1.5: trilha de compra. Na Feira (por prateleira: arma, proteção, veículo) e nos negócios (casas da
+   * noite e negócios de rua), o item só libera depois que o anterior foi comprado nesta temporada.
+   * As outras listas (roubos, noite, duelos, esquemas, assaltos) não têm trilha. */
+  const CHAIN_KINDS = ['items', 'biz'];
   function chainList(kind, ref) {
     if (kind === 'missions') return MISSIONS.filter(m => !m.district).slice().sort((a, b) => a.difficulty - b.difficulty);
     if (kind === 'items') return ITEMS.filter(i => i.slot === ref.slot && !i.trophy);
@@ -1036,13 +1036,14 @@
   const CHAIN_VERB = { missions: 'Primeiro faça', items: 'Primeiro compre', rivals: 'Primeiro vença', heists: 'Primeiro faça o assalto', labs: 'Primeiro monte', biz: 'Primeiro compre', night: 'Primeiro conheça' };
   /** Devolve o motivo do bloqueio pela trilha ("Primeiro faça: Bater carteira.") ou ''. */
   function chainLock(s, kind, id) {
+    if (!CHAIN_KINDS.includes(kind)) return '';
     const list = chainList(kind, kind === 'items' ? item(id) || {} : kind === 'biz' ? business(id) || {} : null), i = list.findIndex(x => x.id === id);
     if (i <= 0) return '';
     const prev = list[i - 1];
     return chainDone(s, kind, prev.id) ? '' : `${CHAIN_VERB[kind]}: ${prev.name}.`;
   }
   /** Marca o item como feito na trilha (sem repetir). */
-  function markDone(s, kind, id) { if (!s.done[kind].includes(id)) s.done[kind].push(id); }
+  function markDone(s, kind, id) { if (CHAIN_KINDS.includes(kind) && !s.done[kind].includes(id)) s.done[kind].push(id); }
   const emptyDone = () => Object.fromEntries(CHAIN_KINDS.map(k => [k, []]));
   function heistLock(s, h) {
     if (!s.gangName) return 'Requer uma gangue fundada.';
@@ -1135,7 +1136,7 @@
     s.dstate[d].vigil = clamp(s.dstate[d].vigil + m.vigil, 0, 100);
     if (roll(odds)) {
       const reward = Math.max(1, Math.round(rand(m.low, m.high) * mult));
-      const first = !s.done.missions.includes(m.id), rg = respectGain(s, m) * (first ? 2 : 1); // primeira vez vale o dobro
+      const rg = respectGain(s, m);
       s.cash += reward; s.respect += rg; addHeat(s, heatGain(s, m.heat)); s.successful++; markDone(s, 'missions', m.id);
       if (roll(30)) s.stats[m.stat] += 1;
       if (m.influence) addInf(s, d, m.influence * (s.career === 'articulador' ? 1.3 : 1));
@@ -1143,7 +1144,7 @@
       turfFriction(s, d, m.tension);
       if (m.id === 'cofre') unlock(s, 'cofre');
       unlock(s, 'primeira');
-      log(s, `${m.name}: sucesso (${odds}%). +${money(reward)} e +${rg} de respeito${first ? ' (primeira vez: dobro)' : ''}.`);
+      log(s, `${m.name}: sucesso (${odds}%). +${money(reward)} e +${rg} de respeito.`);
       return done(true, `${m.name}: sucesso! +${money(reward)}`);
     }
     const lost = Math.min(s.cash, Math.ceil(s.cash * failLoss(s, m)));

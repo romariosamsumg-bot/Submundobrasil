@@ -133,10 +133,10 @@ Também sugerido: rebelião na cadeia com a gangue.
 
 ## Pendências da v1.5 (trilha)
 
-- [x] Trilha de progresso em roubos, Feira, noite, duelos, esquemas, negócios (duas prateleiras) e assaltos, com o dobro de respeito no primeiro roubo de cada tipo.
-- Dono da Noite (174) e diplomacia (155) ficaram abaixo do grupo; o Assaltante faz só 176 em negócios. Reavaliar com pessoas.
-- Detenções subiram (cerca de +0,5 por temporada): avaliar se a trilha deve aceitar o roubo que falhou sem prisão.
-- Online: decidir se a trilha recomeça todo mês (hoje sim) ou se parte dela vira progresso permanente da conta.
+- [x] Trilha de compra na Feira (por prateleira) e nos negócios (casas da noite e rua). Roubos, noite, duelos, esquemas e assaltos ficaram sem trilha, a pedido do autor.
+- Traficante (241) e império da noite (236) abriram 20 pontos sobre o terceiro: calibrar (por exemplo, reduzir a produção do Traficante para +20% ou a casa abastecida para +50%).
+- O Assaltante lidera até em negócios (204) nas classes: rever o +20% de dinheiro em roubo quando o jogador não rouba muito.
+- Online: decidir se a trilha recomeça todo mês (hoje sim) ou vira progresso permanente da conta.
 
 ## Depende de servidor (visão do autor para o jogo online)
 
