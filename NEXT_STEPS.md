@@ -148,7 +148,7 @@ Também sugerido: rebelião na cadeia com a gangue.
 ## Online (Supabase)
 
 - [x] **Fase 1**: conta com e-mail e senha, servidor de regras (`jogar`), save na nuvem e ranking de respeito no Perfil.
-- **Confirmação de e-mail**: ligada, com limite de 2 e-mails por hora no plano grátis. Para abrir ao público: configurar um serviço de e-mail próprio (SMTP) ou desligar a confirmação (decisão do autor).
+- **Confirmação de e-mail**: desligada pelo autor (cadastro na hora). Antes de abrir ao público, avaliar religar com um serviço de e-mail próprio (SMTP), para ninguém criar conta com o e-mail de outra pessoa e para existir recuperação de senha.
 - **Fase 1b**: dia pelo relógio real (sem Dormir), energia voltando com o tempo, temporada = mês do calendário e ranking zerando todo mês.
 - Fase 2: mercado entre jogadores. Fase 3: gangues de jogadores e ranking de gangues.
 - Login com Google (exige configurar o Google Cloud).
