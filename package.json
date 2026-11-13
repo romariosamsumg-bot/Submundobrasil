@@ -8,6 +8,7 @@
     "test": "node build.js && node tests/engine.test.js && node tests/fuzz.js 1 20 && node tests/ui.test.js",
     "simulate": "node tests/simulate.js 300 1",
     "careers": "node tests/careers.js 200",
-    "maratona": "node tests/maratona.js"
+    "maratona": "node tests/maratona.js",
+    "ritmo": "node tests/ritmo.js"
   }
 }

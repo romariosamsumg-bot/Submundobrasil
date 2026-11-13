@@ -779,7 +779,7 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
   const CAREER_XP = [10, 25, 45];
 
   const GOALS = [
-    { id: 'capital', name: 'Patrimônio', desc: 'Alcançar R$ 18.000 de patrimônio (caixa, banco e valor de revenda dos negócios).' },
+    { id: 'capital', name: 'Patrimônio', desc: 'Alcançar R$ 10.000 de patrimônio (caixa, banco e valor de revenda dos negócios).' },
     { id: 'renome', name: 'Renome', desc: 'Alcançar 130 de respeito e 25 missões concluídas.' },
     { id: 'dominio', name: 'Territórios', desc: 'Somar 12 dias liderando bairros (um bairro por 12 dias ou vários ao mesmo tempo).' },
     { id: 'diplomacia', name: 'Diplomacia', desc: 'Firmar 3 acordos (tréguas ou aliança) e terminar com relação +50 com 2 grupos.' },
@@ -856,37 +856,39 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
   /* Equipamentos: um por espaço (arma, proteção, veículo). `unlock` é o respeito exigido. */
   const ITEMS = [
     // Armas: do improviso ao arsenal pesado. `loud` = arma de fogo; `heavy` = chama atenção todo dia.
-    { id: 'porrete', slot: 'arma', name: 'Pedaço de pau com prego', cost: 120, unlock: 0, power: 1 },
-    { id: 'soco', slot: 'arma', name: 'Chave de fenda amolada', cost: 300, unlock: 0, power: 2 },
-    { id: 'vergalhao', slot: 'arma', name: 'Vergalhão de obra', cost: 500, unlock: 8, power: 3 },
-    { id: 'peixeira', slot: 'arma', name: 'Facão', cost: 750, unlock: 15, power: 4 },
-    { id: 'maquita', slot: 'arma', name: 'Maquita', cost: 1200, unlock: 25, power: 5 },
-    { id: 'trezoitao', slot: 'arma', name: 'Três-oitão raspado', cost: 1700, unlock: 35, power: 7 },
-    { id: 'pistola', slot: 'arma', name: 'Pistola .40', cost: 3300, unlock: 60, power: 9 },
-    { id: 'doze', slot: 'arma', name: 'Doze de cano serrado', cost: 4800, unlock: 80, power: 11 },
-    { id: 'uzi', slot: 'arma', name: 'Uzi de pente estendido', cost: 6500, unlock: 100, power: 13 },
-    { id: 'submetra', slot: 'arma', name: 'Submetralhadora', cost: 8000, unlock: 115, power: 14 },
-    { id: 'fuzil', slot: 'arma', name: 'FAL 7.62, o Vovô', cost: 9200, unlock: 130, power: 16 },
-    { id: 'ar15', slot: 'arma', name: 'Fuzil AR-15', cost: 12000, unlock: 150, power: 18, heavy: true },
+    { id: 'porrete', slot: 'arma', name: 'Pedaço de pau com prego', cost: 150, unlock: 0, power: 1 },
+    { id: 'soco', slot: 'arma', name: 'Chave de fenda amolada', cost: 900, unlock: 0, power: 2 },
+    { id: 'vergalhao', slot: 'arma', name: 'Vergalhão de obra', cost: 1500, unlock: 8, power: 3 },
+    { id: 'peixeira', slot: 'arma', name: 'Facão', cost: 2200, unlock: 15, power: 4 },
+    { id: 'maquita', slot: 'arma', name: 'Maquita', cost: 3000, unlock: 25, power: 5 },
+    { id: 'trezoitao', slot: 'arma', name: 'Três-oitão raspado', cost: 3500, unlock: 35, power: 7 },
+    { id: 'pistola', slot: 'arma', name: 'Pistola .40', cost: 4500, unlock: 60, power: 9 },
+    { id: 'doze', slot: 'arma', name: 'Doze de cano serrado', cost: 6000, unlock: 80, power: 11 },
+    { id: 'uzi', slot: 'arma', name: 'Uzi de pente estendido', cost: 7500, unlock: 100, power: 13 },
+    { id: 'submetra', slot: 'arma', name: 'Submetralhadora', cost: 9000, unlock: 115, power: 14 },
+    { id: 'fuzil', slot: 'arma', name: 'FAL 7.62, o Vovô', cost: 10500, unlock: 130, power: 16 },
+    { id: 'ar15', slot: 'arma', name: 'Fuzil AR-15', cost: 13000, unlock: 150, power: 18, heavy: true },
     { id: 'ponto50', slot: 'arma', name: 'Ponto Cinquenta', cost: 18000, unlock: 175, power: 21, heavy: true },
     { id: 'mag', slot: 'arma', name: 'Metralhadora MAG', cost: 24000, unlock: 200, power: 24, heavy: true },
     { id: 'rojao', slot: 'arma', name: 'Lança-rojão', cost: 30000, unlock: 220, power: 26, heavy: true },
     { id: 'dourado', slot: 'arma', name: 'Fuzil dourado de tambor duplo', cost: 30000, unlock: 150, power: 26, heavy: true, trophy: 'reidopedaco' },
     // Proteção
-    { id: 'lista', slot: 'protecao', name: 'Lista telefônica com silver tape', cost: 150, unlock: 0, def: 1 },
-    { id: 'jaqueta', slot: 'protecao', name: 'Camisa de time na cara e jaqueta de couro', cost: 400, unlock: 0, def: 2 },
-    { id: 'colete', slot: 'protecao', name: 'Colete de vigilante vencido', cost: 1500, unlock: 30, def: 5 },
-    { id: 'kevlar', slot: 'protecao', name: 'Colete de kevlar da polícia', cost: 2800, unlock: 60, def: 7 },
-    { id: 'tatico', slot: 'protecao', name: 'Colete tático com placa de cerâmica', cost: 4200, unlock: 90, def: 9 },
-    { id: 'traje', slot: 'protecao', name: 'Traje tático com escudo balístico', cost: 8000, unlock: 140, def: 12 },
+    { id: 'lista', slot: 'protecao', name: 'Lista telefônica com silver tape', cost: 200, unlock: 0, def: 1 },
+    { id: 'jaqueta', slot: 'protecao', name: 'Camisa de time na cara e jaqueta de couro', cost: 1000, unlock: 0, def: 2 },
+    { id: 'colete', slot: 'protecao', name: 'Colete de vigilante vencido', cost: 2800, unlock: 30, def: 5 },
+    { id: 'kevlar', slot: 'protecao', name: 'Colete de kevlar da polícia', cost: 4500, unlock: 60, def: 7 },
+    { id: 'tatico', slot: 'protecao', name: 'Colete tático com placa de cerâmica', cost: 7000, unlock: 90, def: 9 },
+    { id: 'traje', slot: 'protecao', name: 'Traje tático com escudo balístico', cost: 12000, unlock: 140, def: 12 },
     // Veículos
-    { id: 'bike', slot: 'veiculo', name: 'Bicicleta cargueira', cost: 250, unlock: 0, cargo: 10, escape: 1 },
-    { id: 'cinquentinha', slot: 'veiculo', name: 'Cinquentinha', cost: 950, unlock: 10, cargo: 15, escape: 3 },
-    { id: 'moto', slot: 'veiculo', name: 'Moto 150', cost: 2400, unlock: 40, cargo: 25, escape: 6, freeRide: true },
-    { id: 'opala', slot: 'veiculo', name: 'Opala preto', cost: 5200, unlock: 80, cargo: 60, escape: 8, freeRide: true },
-    { id: 'blindado', slot: 'veiculo', name: 'Carro blindado', cost: 12000, unlock: 150, cargo: 90, escape: 12, freeRide: true }
+    { id: 'bike', slot: 'veiculo', name: 'Bicicleta cargueira', cost: 300, unlock: 0, cargo: 10, escape: 1 },
+    { id: 'cinquentinha', slot: 'veiculo', name: 'Cinquentinha', cost: 1800, unlock: 10, cargo: 15, escape: 3 },
+    { id: 'moto', slot: 'veiculo', name: 'Moto 150', cost: 4000, unlock: 40, cargo: 25, escape: 6, freeRide: true },
+    { id: 'opala', slot: 'veiculo', name: 'Opala preto', cost: 7500, unlock: 80, cargo: 60, escape: 8, freeRide: true },
+    { id: 'blindado', slot: 'veiculo', name: 'Carro blindado', cost: 15000, unlock: 150, cargo: 90, escape: 12, freeRide: true }
   ];
   const SLOTS = [{ id: 'arma', name: 'Arma' }, { id: 'protecao', name: 'Proteção' }, { id: 'veiculo', name: 'Veículo' }];
+  /** v1.5: começa sem dinheiro nenhum (só o legado, a partir da 2ª temporada). */
+  const START_CASH = 0;
   const ITEM_RESALE = 0.5;
   /* Mercadorias: preço = base × fator do bairro (60–150%). `risk` pesa na vigilância e nas blitze. */
   const GOODS = [
@@ -1108,12 +1110,12 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
   ];
 
   const CATEGORIES = [
-    { id: 'fortuna', name: 'Fortuna', desc: 'Patrimônio final (caixa, banco e revenda dos negócios).', unit: 'money', tiers: [11000, 17000, 24000] },
-    { id: 'fama', name: 'Fama', desc: 'Respeito acumulado na temporada.', unit: 'num', tiers: [110, 160, 220] },
+    { id: 'fortuna', name: 'Fortuna', desc: 'Patrimônio final (caixa, banco e revenda dos negócios).', unit: 'money', tiers: [6500, 10000, 14500] },
+    { id: 'fama', name: 'Fama', desc: 'Respeito acumulado na temporada.', unit: 'num', tiers: [95, 135, 185] },
     { id: 'territorio', name: 'Território', desc: 'Soma dos dias liderando bairros.', unit: 'num', tiers: [10, 25, 45] },
     { id: 'diplomacia', name: 'Diplomacia', desc: 'Acordos, alianças, diálogos e boas relações.', unit: 'num', tiers: [35, 70, 110] },
     { id: 'gangue', name: 'Gangue', desc: 'Operações coletivas, confrontos vencidos e experiência da equipe.', unit: 'num', tiers: [40, 90, 140] },
-    { id: 'comercio', name: 'Comércio', desc: 'Lucro com mercadorias: vendas e remessas menos compras.', unit: 'money', tiers: [4000, 9000, 16000] }
+    { id: 'comercio', name: 'Comércio', desc: 'Lucro com mercadorias: vendas e remessas menos compras.', unit: 'money', tiers: [3500, 8000, 14000] }
   ];
   const MEDALS = ['—', 'Bronze', 'Prata', 'Ouro'];
 
@@ -1172,7 +1174,7 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
   function defaultState(name, city) {
     return {
       schema: SCHEMA, version: VERSION, name, city, season: 1, day: 1,
-      cash: 1900, bank: 0, energy: 100, heat: 0, respect: 5,
+      cash: START_CASH, bank: 0, energy: 100, heat: 0, respect: 5,
       stats: { astucia: 6, forca: 4, labia: 4, influencia: 3 },
       district: 'centro', jail: 0, businesses: [], gangName: null, gangLevel: 0,
       successful: 0, failed: 0, seasonHistory: [],
@@ -1491,10 +1493,11 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
     if (eventMod(s, 'payday') && PAYDAY_MISSIONS.includes(m.id)) mult *= 1.3;
     if (s.career === 'operador') mult *= 1.2; // linha de frente
     if (d === 'vila' && cityIs(s, 'rio')) mult *= 1.1;
-    if (m.req && m.req.power) mult *= 1.15; // roubo armado paga mais
+    if (m.req && m.req.power) mult *= 1.25; // roubo armado paga mais: a arma se paga
     return Math.max(.2, mult);
   }
   function arrestChance(s, m) {
+    if (!s.tutorial.done && s.successful === 0) return 0; // primeiros passos: o primeiro roubo que falha não dá cadeia
     let a = m.arrest + s.heat * .3 + s.dstate[s.district].vigil * .15 - Math.min(20, roleLevels(s, 'olheiro') * 2) - gearVal(s, 'def') - gearVal(s, 'escape');
     if (hasPerk(s, 'operador', 1)) a -= 15;
     return clamp(Math.round(a), 5, 90);
@@ -2787,7 +2790,7 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
 
   function goalProgress(s, id) {
     const goodRel = FACTIONS.filter(f => s.factions[f.id].relation >= 50).length;
-    if (id === 'capital') { const v = patrimony(s); return { value: v, max: 18000, unit: 'money', complete: v >= 18000 }; }
+    if (id === 'capital') { const v = patrimony(s); return { value: v, max: 10000, unit: 'money', complete: v >= 10000 }; }
     if (id === 'renome') return { value: Math.min(130, s.respect) / 130 * 50 + Math.min(25, s.successful) / 25 * 50, max: 100, unit: 'pct', complete: s.respect >= 130 && s.successful >= 25 };
     if (id === 'dominio') { const days = sum(Object.values(s.seasonStats.controlDays)); return { value: Math.min(100, days / 12 * 100), max: 100, unit: 'pct', complete: days >= 12 }; }
     if (id === 'diplomacia') return { value: Math.min(3, s.gangStats.pacts) / 3 * 50 + Math.min(2, goodRel) * 25, max: 100, unit: 'pct', complete: s.gangStats.pacts >= 3 && goodRel >= 2 };
@@ -2876,8 +2879,8 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
     n.nemesis = nemesis;
     n.tutorial = { ...s.tutorial, done: true };
     if (nemesis) { n.factions[nemesis].relation -= 25; n.factions[nemesis].tension += 15; n.factions[nemesis].grudge = 2; }
-    n.cash = 1900 + Math.min(1200, Math.floor(money_ * .05)) + (s.goalDone ? 600 : 0) + medalBonus;
-    n.log = [{ day: 1, msg: `Temporada ${n.season} iniciada. Anterior: “${sc.title}” (${sc.score} pontos). Legado: ${money(n.cash - 1900)} extras.${nemesis ? ` ${faction(nemesis).name} não esqueceu a rivalidade.` : ''}` }];
+    n.cash = START_CASH + Math.min(1200, Math.floor(money_ * .05)) + (s.goalDone ? 600 : 0) + medalBonus;
+    n.log = [{ day: 1, msg: `Temporada ${n.season} iniciada. Anterior: “${sc.title}” (${sc.score} pontos). Legado: ${money(n.cash - START_CASH)} para começar.${nemesis ? ` ${faction(nemesis).name} não esqueceu a rivalidade.` : ''}` }];
     return done(true, `Temporada ${s.season} encerrada: ${sc.title}.`, { state: n, record });
   }
 

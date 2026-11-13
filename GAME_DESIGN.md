@@ -611,6 +611,33 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
 - **Tela Rua (v1.5)**, de cima para baixo: placa do bairro (Dono, Grana e Polícia do bairro; tocar na faixa explica os três) → resultado → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, meta, título) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
 
+### Economia do começo (v1.5)
+
+- **Começa sem dinheiro** (R$ 0). A partir da 2ª temporada, entra só o legado (até R$ 2.600 + medalhas). O **Bico** (28 de energia, R$ 110–170, sem risco) é a rede de segurança.
+- **Primeiros passos**: enquanto o guia está ativo, roubo que falha antes do primeiro sucesso não dá cadeia.
+- **Preços da Feira** recalibrados (antes, 3 roubos compravam a 4ª arma). Regra: a primeira arma sai com 1 roubo; cada arma seguinte custa vários roubos do nível em que você está.
+
+| Arma | Antes | Agora | Poder |
+|---|---|---|---|
+| Pedaço de pau | 120 | 150 | 1 |
+| Chave de fenda | 300 | 900 | 2 |
+| Vergalhão | 500 | 1.500 | 3 |
+| Facão | 750 | 2.200 | 4 |
+| Maquita | 1.200 | 3.000 | 5 |
+| Três-oitão | 1.700 | 3.500 | 7 |
+| Pistola .40 | 3.300 | 4.500 | 9 |
+| Doze | 4.800 | 6.000 | 11 |
+| Uzi | 6.500 | 7.500 | 13 |
+| Submetralhadora | 8.000 | 9.000 | 14 |
+| FAL | 9.200 | 10.500 | 16 |
+| AR-15 | 12.000 | 13.000 | 18 |
+| Ponto Cinquenta, MAG, Lança-rojão | 18.000 / 24.000 / 30.000 | iguais | 21–26 |
+
+Proteções: Lista 200, Jaqueta 1.000, Colete vencido 2.800, Kevlar 4.500, Tático 7.000, Traje 12.000. Veículos: Bicicleta 300, Cinquentinha 1.800, Moto 4.000, Opala 7.500, Blindado 15.000.
+
+- **Roubo armado paga +25%** (antes +15%), para a arma se pagar.
+- **Medalhas e meta acompanham a economia**: Fortuna 6.500 / 10.000 / 14.500 (antes 11 / 17 / 24 mil), Fama 95 / 135 / 185 de respeito (antes 110 / 160 / 220), Comércio 3.500 / 8.000 / 14.000 (antes 4 / 9 / 16 mil); meta Patrimônio R$ 10.000 (antes 18.000).
+
 ### Trilha de compra (v1.5)
 
 Na **Feira do Rolo** e nos **negócios**, o próximo item só abre depois que o anterior foi comprado **nesta temporada** (a trilha recomeça a cada mês). Os requisitos antigos (respeito, troféu) continuam valendo; a trilha vem antes deles no motivo do bloqueio. Roubos, noite, duelos, esquemas e assaltos do bando **não têm trilha** (o autor decidiu tirar).

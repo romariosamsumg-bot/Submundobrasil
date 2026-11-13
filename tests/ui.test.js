@@ -80,6 +80,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   await page.screenshot({ path: path.join(__dirname, 'screens', '360-resumo-dia.png') });
 
   console.log('3. Banco com taxa');
+  await page.evaluate(() => { const k = 'submundo_brasil_v01', s = JSON.parse(localStorage.getItem(k)); s.cash += 5000; localStorage.setItem(k, JSON.stringify(s)); }); await page.reload();
   await go('gestao');
   const c0 = (await st()).cash;
   await page.fill('#bankAmount', '1000'); await page.click('[data-action=bank][data-mode=deposit]');

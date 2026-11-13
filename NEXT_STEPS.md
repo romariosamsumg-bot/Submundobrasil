@@ -138,6 +138,13 @@ Também sugerido: rebelião na cadeia com a gangue.
 - O Assaltante lidera até em negócios (204) nas classes: rever o +20% de dinheiro em roubo quando o jogador não rouba muito.
 - Online: decidir se a trilha recomeça todo mês (hoje sim) ou vira progresso permanente da conta.
 
+## Pendências da v1.5 (economia do começo)
+
+- [x] Começa com R$ 0, primeiro roubo sem cadeia no guia, Feira recalibrada (`npm run ritmo`), roubo armado +25%, medalhas e meta de dinheiro reduzidas.
+- **Bando de assaltos caiu para 130**: avaliar fundar a gangue mais barato, primeiro assalto (Arrastão) com arma 2, ou bando ajudando a pagar a arma do líder.
+- **Assaltante forte demais nas classes** (lidera 5 de 5 estratégias): o +20% em roubo somado ao roubo armado +25% pesa; considerar +15% na classe.
+- Traficante (239) e Comerciante (238) lideram as estratégias.
+
 ## Depende de servidor (visão do autor para o jogo online)
 
 - Rodada no calendário real (dia 1º ao último dia do mês) e eventos em datas reais (quinto dia útil, sextas e sábados).
