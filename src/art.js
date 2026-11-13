@@ -128,6 +128,7 @@
     casa: id => painted('casa-' + id),
     esquema: id => painted('esquema-' + id),
     capa: () => painted('capa-entrada'),
+    grupo: (city, id) => painted('grupo-' + city + '-' + id),
     heist: id => painted('heist-' + id) || (HEISTS[id] ? svg('0 0 160 70', HEISTS[id]()) : ''),
     keys: () => [...Object.keys(PLACES).map(k => 'place-' + k), ...Object.keys(RIVALS).map(k => 'rival-' + k), ...Object.keys(HEISTS).map(k => 'heist-' + k)],
     paintedCount: () => root.SB_ART ? Object.keys(root.SB_ART).length : 0

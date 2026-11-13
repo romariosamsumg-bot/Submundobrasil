@@ -93,6 +93,10 @@ Cortar com `python3 tools/cortar-grade.py <imagem> 3 3 roubo <ids>`. Grade 1: co
 
 Cortar grades com `python3 tools/cortar-grade.py <imagem> <colunas> <linhas> <prefixo> <ids>`. Esquemas: só o lugar, nunca o processo.
 
+## Grupos rivais (encaixe pronto na v1.5)
+
+Uma grade 6 × 3 por cidade, ou seis grades 3 × 1. Arquivos `grupo-<cidade>-<esquina|docas|aurora>`; cidades: rio, sp, bh, salvador, recife, poa. Cortar com `tools/cortar-grade.py <imagem> 3 1 grupo-<cidade> esquina,docas,aurora`. Pessoas e grupos **inventados**, sem símbolos de facções reais.
+
 ## Fotos de perfil do jogador (512 × 512, retrato de busto, fundo liso escuro)
 
 Já no jogo (v1.4): escolha de retrato no Perfil, reduzidas para 256 px. Novo retrato → entrada em `AVATARS` (`engine.js`) e arquivo `art/avatar-<id>`.
