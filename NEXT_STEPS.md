@@ -131,6 +131,13 @@ Também sugerido: rebelião na cadeia com a gangue.
 - No farm de roubos, o Assaltante voltou a liderar (182 contra 169 do Articulador).
 - Online: produção e mensalidades por hora em vez de ao dormir.
 
+## Pendências da v1.5 (trilha)
+
+- [x] Trilha de progresso em roubos, Feira, noite, duelos, esquemas, negócios (duas prateleiras) e assaltos, com o dobro de respeito no primeiro roubo de cada tipo.
+- Dono da Noite (174) e diplomacia (155) ficaram abaixo do grupo; o Assaltante faz só 176 em negócios. Reavaliar com pessoas.
+- Detenções subiram (cerca de +0,5 por temporada): avaliar se a trilha deve aceitar o roubo que falhou sem prisão.
+- Online: decidir se a trilha recomeça todo mês (hoje sim) ou se parte dela vira progresso permanente da conta.
+
 ## Depende de servidor (visão do autor para o jogo online)
 
 - Rodada no calendário real (dia 1º ao último dia do mês) e eventos em datas reais (quinto dia útil, sextas e sábados).

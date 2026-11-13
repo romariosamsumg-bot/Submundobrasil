@@ -94,6 +94,8 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check(await page.locator('.place').count() === 8, 'tela Cidade mostra 8 lugares');
   check(await page.locator('.place.locked').count() === 0, 'com 50 de respeito nada fica trancado');
   await page.click('.mobileNav [data-view=feira]');
+  check(await page.isDisabled('[data-action=buy-item][data-id=cinquentinha]') && (await page.textContent('.shopRow:has([data-id=cinquentinha])')).includes('Primeiro compre: Bicicleta'), 'trilha: a Cinquentinha pede a bicicleta antes, com o motivo à vista');
+  await page.click('[data-action=buy-item][data-id=bike]');
   await page.click('[data-action=buy-item][data-id=cinquentinha]');
   check((await st()).gear.veiculo === 'cinquentinha', 'veículo comprado na Feira do Rolo');
   check(await page.isDisabled('[data-action=buy-item][data-id=fuzil]'), 'item acima do seu respeito fica bloqueado');

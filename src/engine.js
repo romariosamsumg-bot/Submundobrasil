@@ -554,7 +554,7 @@
       gear: { arma: null, protecao: null, veiculo: null }, goods: Object.fromEntries(GOODS.map(g => [g.id, 0])), market: startMarket(),
       labs: Object.fromEntries(LABS.map(l => [l.id, 0])), labDown: {}, exportDeal: { day: 5, good: 'cigarro' }, exportDone: 0, ressaca: 0,
       trade: { sold: 0, spent: 0, exported: 0, blitz: 0 },
-      health: 100, hospital: 0, beaten: {}, duelStats: { wins: 0, losses: 0 },
+      health: 100, hospital: 0, beaten: {}, done: emptyDone(), duelStats: { wins: 0, losses: 0 },
       heist: null, heistReady: 0, vicio: 0, overdoses: 0, betStats: { won: 0, lost: 0 }
     };
   }
@@ -730,6 +730,9 @@
     s.health = toInt(saved.health, 100, 0, 100);
     s.hospital = toInt(saved.hospital, 0, 0, 5);
     s.beaten = {};
+    // Trilha: save sem o campo (anterior à v1.5) entra com tudo liberado nesta temporada.
+    s.done = emptyDone();
+    for (const k of Object.keys(s.done)) { const all = (k === 'items' ? ITEMS : k === 'biz' ? BUSINESSES : chainList(k)).map(x => x.id); s.done[k] = saved.done && typeof saved.done === 'object' ? (Array.isArray(saved.done[k]) ? [...new Set(saved.done[k].filter(id => all.includes(id)))] : []) : all; }
     if (saved.beaten && typeof saved.beaten === 'object') for (const r of RIVALS) if (isNum(saved.beaten[r.id])) s.beaten[r.id] = toInt(saved.beaten[r.id], 1, 1, 999);
     s.duelStats = { wins: toInt(saved.duelStats && saved.duelStats.wins, 0, 0, 99999), losses: toInt(saved.duelStats && saved.duelStats.losses, 0, 0, 99999) };
     // v1.3: vício e apostas.
@@ -865,6 +868,7 @@
   /** Motivo de bloqueio ('' se pode executar). */
   function missionLock(s, m) {
     if (m.district && m.district !== s.district) return 'Disponível somente em ' + district(s, m.district).name + '.';
+    { const c = chainLock(s, 'missions', m.id); if (c) return c; }
     if (s.respect < m.unlock) return `Requer ${m.unlock} de respeito.`;
     const r = m.req || {};
     if (r.gang && !s.gangName) return 'Requer uma gangue fundada.';
@@ -1014,8 +1018,35 @@
     return clamp(Math.round(40 + (heistPower(s, hires) - h.rating) * 1.2 + intel * .5 + (s.crewMorale - 50) * .15 - s.heat * .3 - healthPenalty(s) - eventMod(s, 'risk', { district: s.district }) * .5), 5, 90);
   }
   /** Motivo de bloqueio para planejar ('' se pode). */
+  /* v1.5: trilha de progresso. Em cada lista, o item só libera depois que o anterior foi feito
+   * (roubo concluído, item ou negócio comprado, adversário vencido, assalto feito, esquema montado,
+   * casa da noite visitada) nesta temporada. Os roubos exclusivos de bairro ficam fora da trilha. */
+  const CHAIN_KINDS = ['missions', 'items', 'rivals', 'heists', 'labs', 'biz', 'night'];
+  function chainList(kind, ref) {
+    if (kind === 'missions') return MISSIONS.filter(m => !m.district).slice().sort((a, b) => a.difficulty - b.difficulty);
+    if (kind === 'items') return ITEMS.filter(i => i.slot === ref.slot && !i.trophy);
+    if (kind === 'rivals') return RIVALS;
+    if (kind === 'heists') return HEISTS;
+    if (kind === 'labs') return LABS;
+    if (kind === 'biz') { const night = !!(ref && ref.tags && ref.tags.includes('noite')); return BUSINESSES.filter(b => b.tags.includes('noite') === night).sort((a, b) => a.cost - b.cost); }
+    if (kind === 'night') return NIGHT;
+    return [];
+  }
+  const chainDone = (s, kind, id) => s.done[kind].includes(id);
+  const CHAIN_VERB = { missions: 'Primeiro faça', items: 'Primeiro compre', rivals: 'Primeiro vença', heists: 'Primeiro faça o assalto', labs: 'Primeiro monte', biz: 'Primeiro compre', night: 'Primeiro conheça' };
+  /** Devolve o motivo do bloqueio pela trilha ("Primeiro faça: Bater carteira.") ou ''. */
+  function chainLock(s, kind, id) {
+    const list = chainList(kind, kind === 'items' ? item(id) || {} : kind === 'biz' ? business(id) || {} : null), i = list.findIndex(x => x.id === id);
+    if (i <= 0) return '';
+    const prev = list[i - 1];
+    return chainDone(s, kind, prev.id) ? '' : `${CHAIN_VERB[kind]}: ${prev.name}.`;
+  }
+  /** Marca o item como feito na trilha (sem repetir). */
+  function markDone(s, kind, id) { if (!s.done[kind].includes(id)) s.done[kind].push(id); }
+  const emptyDone = () => Object.fromEntries(CHAIN_KINDS.map(k => [k, []]));
   function heistLock(s, h) {
     if (!s.gangName) return 'Requer uma gangue fundada.';
+    { const c = chainLock(s, 'heists', h.id); if (c) return c; }
     if (s.respect < h.unlock) return `Requer ${h.unlock} de respeito.`;
     if (s.gangLevel < h.sede) return `Requer sede nível ${h.sede}.`;
     if (gearVal(s, 'power') < h.minPower) return `Requer arma de poder ${h.minPower} ou mais com o líder.`;
@@ -1104,15 +1135,15 @@
     s.dstate[d].vigil = clamp(s.dstate[d].vigil + m.vigil, 0, 100);
     if (roll(odds)) {
       const reward = Math.max(1, Math.round(rand(m.low, m.high) * mult));
-      const rg = respectGain(s, m);
-      s.cash += reward; s.respect += rg; addHeat(s, heatGain(s, m.heat)); s.successful++;
+      const first = !s.done.missions.includes(m.id), rg = respectGain(s, m) * (first ? 2 : 1); // primeira vez vale o dobro
+      s.cash += reward; s.respect += rg; addHeat(s, heatGain(s, m.heat)); s.successful++; markDone(s, 'missions', m.id);
       if (roll(30)) s.stats[m.stat] += 1;
       if (m.influence) addInf(s, d, m.influence * (s.career === 'articulador' ? 1.3 : 1));
       addXP(s, 'operador', m.difficulty >= 33 ? 2 : 1);
       turfFriction(s, d, m.tension);
       if (m.id === 'cofre') unlock(s, 'cofre');
       unlock(s, 'primeira');
-      log(s, `${m.name}: sucesso (${odds}%). +${money(reward)} e +${rg} de respeito.`);
+      log(s, `${m.name}: sucesso (${odds}%). +${money(reward)} e +${rg} de respeito${first ? ' (primeira vez: dobro)' : ''}.`);
       return done(true, `${m.name}: sucesso! +${money(reward)}`);
     }
     const lost = Math.min(s.cash, Math.ceil(s.cash * failLoss(s, m)));
@@ -1226,9 +1257,10 @@
     const b = business(id);
     if (!b || s.businesses.includes(id)) return refuse('Compra indisponível.');
     if (s.jail > 0) return refuse('Não é possível fechar negócios detido.');
+    { const cl = chainLock(s, 'biz', id); if (cl) return refuse(cl); }
     const c = buyCost(s, b);
     if (s.cash < c) return refuse(`Você precisa de ${money(c)} em mãos.`);
-    s.cash -= c; s.businesses.push(id); s.respect += b.respect;
+    s.cash -= c; s.businesses.push(id); s.respect += b.respect; markDone(s, 'biz', id);
     addXP(s, 'empreendedor', 3);
     if (b.tags.includes('noite')) addXP(s, 'barao', 3);
     if (s.businesses.filter(x => business(x).tags.includes('noite')).length >= 3) unlock(s, 'reidanoite');
@@ -1464,12 +1496,13 @@
     const it = item(id); if (!it) return refuse('Item desconhecido.');
     if (s.jail > 0) return refuse('Você está detido.');
     if (s.gear[it.slot] === id) return refuse('Você já usa este item.');
+    { const c = chainLock(s, 'items', it.id); if (c) return refuse(c); }
     if (s.respect < it.unlock) return refuse(`Requer ${it.unlock} de respeito.`);
     if (it.trophy && !s.achievements[it.trophy]) return refuse('Só para quem venceu o Rei do Pedaço (conquista).');
     const old = item(s.gear[it.slot]), back = old ? Math.round(old.cost * ITEM_RESALE) : 0;
     if (s.cash + back < it.cost) return refuse(`Você precisa de ${money(it.cost - back)} em mãos.`);
     if (it.slot === 'veiculo' && cargoUsed(s) > 30 + (it.cargo || 0) + 40 * LABS.filter(l => s.labs[l.id] > 0).length) return refuse('Sua carga não cabe neste veículo. Venda parte antes.');
-    s.cash += back - it.cost; s.gear[it.slot] = id;
+    s.cash += back - it.cost; s.gear[it.slot] = id; markDone(s, 'items', id);
     if (it.id === 'fuzil' || it.id === 'blindado') unlock(s, 'arsenal');
     log(s, `Feira do Rolo: ${it.name} por ${money(it.cost)}${old ? ` (o ${old.name} voltou por ${money(back)})` : ''}.`);
     return done(true, `${it.name} agora é seu.`);
@@ -1531,10 +1564,11 @@
     const l = LABS.find(x => x.id === id); if (!l) return refuse('Produção desconhecida.');
     if (s.jail > 0) return refuse('Você está detido.');
     if (s.labs[l.id] >= 3) return refuse('Produção no nível máximo.');
+    if (!s.labs[l.id]) { const c = chainLock(s, 'labs', l.id); if (c) return refuse(c); }
     if (s.respect < l.unlock) return refuse(`Requer ${l.unlock} de respeito.`);
     const c = labCost(s, l);
     if (s.cash < c) return refuse(`Custa ${money(c)} em mãos.`);
-    s.cash -= c; s.labs[l.id]++;
+    s.cash -= c; s.labs[l.id]++; markDone(s, 'labs', l.id);
     addXP(s, 'traficante', 2);
     if (LABS.filter(x => s.labs[x.id] > 0).length >= 3) unlock(s, 'industria');
     log(s, `${l.name} ${s.labs[l.id] === 1 ? 'montado' : 'ampliado para o nível ' + s.labs[l.id]} por ${money(c)}: ${labYield(s, l)} por dia.`);
@@ -1547,10 +1581,11 @@
     if (s.today.night >= NIGHT_LIMIT) return refuse('Três saídas por dia já é demais. Durma e amanhã tem mais.');
     if (s.energy >= 100) return refuse('Você já está com a energia cheia.');
     const own = ownTermas(s, n), barao2 = hasPerk(s, 'barao', 2);
+    if (!own && !s.businesses.includes(n.id)) { const c = chainLock(s, 'night', n.id); if (c) return refuse(c); }
     if (n.unlock && s.respect < n.unlock && !own) return refuse(`A porta só abre para quem tem ${n.unlock} de respeito.`);
     const c = nightCost(s, n);
     if (s.cash < c) return refuse(`A entrada custa ${money(c)} em mãos.`);
-    s.cash -= c; s.today.night++; s.today.venue = n.id;
+    s.cash -= c; s.today.night++; s.today.venue = n.id; markDone(s, 'night', n.id);
     addXP(s, 'barao', 1);
     if (s.career === 'barao') s.respect += 1; // é visto, é lembrado
     if (n.morale) addMorale(s, n.morale);
@@ -1602,6 +1637,7 @@
   function doDuel(s, id) {
     const r = rival(id); if (!r) return refuse('Adversário desconhecido.');
     if (blocked(s)) return refuse(blocked(s));
+    { const c = chainLock(s, 'rivals', r.id); if (c) return refuse(c); }
     if (s.respect < r.unlock) return refuse(`Requer ${r.unlock} de respeito.`);
     if (injured(s)) return refuse('Você está ferido demais para duelar. Cuide da saúde.');
     if (s.today.duels >= DUEL_LIMIT) return refuse(`Limite de ${DUEL_LIMIT} duelos por dia.`);
@@ -1613,7 +1649,7 @@
     if (roll(odds)) {
       const prize = rand(r.low, r.high), first = !s.beaten[r.id];
       const rg = first ? r.respect * 2 : r.respect;
-      s.cash += prize; s.respect += rg; s.duelStats.wins++; s.beaten[r.id] = (s.beaten[r.id] || 0) + 1;
+      s.cash += prize; s.respect += rg; s.duelStats.wins++; s.beaten[r.id] = (s.beaten[r.id] || 0) + 1; markDone(s, 'rivals', r.id);
       if (roll(25)) s.stats.forca += 1;
       const wound = hurt(s, rand(3, 9));
       if (r.id === 'rei') unlock(s, 'reidopedaco');
@@ -1704,7 +1740,7 @@
     if (roll(odds)) {
       const total = Math.round(rand(h.low, h.high) * s.dstate[d].econ * (eventMod(s, 'payday') ? 1.3 : 1) * (s.career === 'operador' ? 1.2 : 1)), cut = Math.round(total * HEIST_CUT), take = total - cut;
       s.cash += take; s.respect += h.respect; addHeat(s, heatGain(s, h.heat)); addMorale(s, 6);
-      s.gangStats.heists++; memberXP(s, 2);
+      s.gangStats.heists++; memberXP(s, 2); markDone(s, 'heists', h.id);
       unlock(s, 'primeiroassalto'); if (h.id === 'cofrecentral') unlock(s, 'golpedoano');
       log(s, `${h.name}: deu certo (${odds}%). Total ${money(total)}; o bando ficou com ${money(cut)} e você com ${money(take)}. +${h.respect} de respeito.`);
       return done(true, `${h.name}: deu certo! Sua parte: ${money(take)}.`, { lines: [`Total: ${money(total)} · parte do bando (25%): ${money(cut)}.`] });
@@ -2244,7 +2280,7 @@
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
-    act, perform
+    chainLock, chainList, CHAIN_KINDS, act, perform
   };
   applyCity(CITIES[0].name); // as tabelas sempre refletem uma cidade real
   root.SB = SB;

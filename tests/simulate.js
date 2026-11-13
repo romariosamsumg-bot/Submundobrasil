@@ -4,6 +4,18 @@
  */
 'use strict';
 const SB = require('./load-engine.js')();
+/* v1.5, trilha de progresso: para chegar ao item ou negócio X, o robô compra antes o que falta na
+ * trilha, como faria um jogador. As escolhas de duelo, assalto e noite olham só o que está liberado. */
+const perform0 = SB.perform;
+SB.perform = (s, a, ...args) => {
+  const kind = a === 'buyItem' ? 'items' : a === 'buy' ? 'biz' : a === 'buildLab' ? 'labs' : null;
+  const it = kind === 'items' ? SB.item(args[0]) : kind === 'biz' ? SB.business(args[0]) : kind === 'labs' ? SB.LABS.find(l => l.id === args[0] && !s.labs[l.id]) : null;
+  if (it && !it.trophy) {
+    const list = SB.chainList(kind, it), i = list.findIndex(x => x.id === it.id);
+    for (let j = 0; j < i; j++) if (!s.done[kind].includes(list[j].id)) { const r = perform0(s, a, list[j].id); if (!r.ok) return r; }
+  }
+  return perform0(s, a, ...args);
+};
 const RUNS = Number(process.argv[2] || 300);
 const SEED = Number(process.argv[3] || 1);
 
@@ -16,6 +28,9 @@ function ev(s, m) {
   return (p * avg - (1 - p) * loss) / m.cost - s.heat * .4;
 }
 function bestMission(s, minChance = 50) {
+  // v1.5: tenta o próximo roubo da trilha quando a chance é razoável, para destravar os seguintes.
+  const next = SB.chainList('missions').find(m => !s.done.missions.includes(m.id));
+  if (next && !SB.missionLock(s, next) && SB.missionChance(s, next) >= Math.min(minChance, 50)) return next;
   let best = null, bv = 0;
   for (const m of SB.MISSIONS) { const v = ev(s, m); if (v > bv && SB.missionChance(s, m) >= minChance) { bv = v; best = m; } }
   return best;
@@ -49,6 +64,7 @@ function grind(s, minChance, reserve = 0) {
 function trainBest(s, stat, keep) { while (s.cash - SB.trainCost(s, stat) > keep && SB.perform(s, 'train', stat).ok); }
 /** Noite v1.4: entra na casa e pede a dose mais forte que cabe no bolso e no vício, até encher. */
 function nightOut(s, venueId, maxVicio = 60, reserve = 300) {
+  if (SB.chainLock(s, 'night', venueId) && !s.businesses.includes(venueId)) venueId = (SB.NIGHT.find(n => !s.done.night.includes(n.id)) || SB.NIGHT[0]).id;
   if (s.today.venue !== venueId && !SB.perform(s, 'night', venueId).ok) return false;
   for (let i = 0; i < SB.DOSE_LIMIT && s.energy < 85 && !s.hospital; i++) {
     const n = SB.NIGHT.find(x => x.id === s.today.venue); if (!n) break;
@@ -138,7 +154,7 @@ const STRATEGIES = {
       if (s.gear[SB.item(id).slot] !== id && s.cash > SB.item(id).cost * 1.8 && (SB.item(s.gear[SB.item(id).slot]) || { cost: 0 }).cost < SB.item(id).cost) SB.perform(s, 'buyItem', id);
     if (s.health < 60) { SB.perform(s, 'clinic', 'posto'); if (s.health < 50 && s.cash > SB.clinicCost(s) * 3) SB.perform(s, 'clinic', 'clinica'); }
     for (let i = 0; i < 3; i++) {
-      const r = SB.RIVALS.filter(x => s.respect >= x.unlock && SB.duelOdds(s, x) >= 55).sort((a, b) => b.rating - a.rating)[0];
+      const r = SB.RIVALS.filter(x => s.respect >= x.unlock && !SB.chainLock(s, 'rivals', x.id) && SB.duelOdds(s, x) >= 55).sort((a, b) => b.rating - a.rating)[0];
       if (!r || s.health < 45 || !SB.perform(s, 'duel', r.id).ok) break;
     }
     grind(s, 55); trainBest(s, 'forca', 1500); bankSurplus(s, 1200); } },

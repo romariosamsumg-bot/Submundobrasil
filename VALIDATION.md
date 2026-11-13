@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**152 de 152 passaram** (v1.4: + retrato do jogador; + 4 sobre as quatro classes; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
+**158 de 158 passaram** (v1.5: + 6 sobre a trilha de progresso; v1.4: + retrato do jogador; + 4 sobre as quatro classes; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**102 de 102 verificações passaram** (v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
+**106 de 106 verificações passaram** (v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
 
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
 - A missão consome energia e mostra o cartão de resultado com as variações.
@@ -72,26 +72,32 @@ ausência de cortes).
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 
-Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.4** (quatro classes, noite com cardápio, sete esquemas, tolerância e teto do corpo) em
+Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.5** (trilha de progresso, quatro classes, noite com cardápio, sete esquemas, tolerância e teto do corpo) em
 `node tests/simulate.js 300 2` (300 temporadas por estratégia, médias, em Recife):
 
 | Estratégia | Patrimônio | Respeito | Pontos | Meta | Detenções |
 |---|---|---|---|---|---|
-| Assaltante farmando roubos | 16.243 | 141 | 210 | 60% | 3,3 |
-| Bicheiro com negócios | 20.325 | 118 | 213 | 60% | 3,4 |
-| Território (Bicheiro) | 714 | 125 | 199 | 100% | 1,8 |
-| Diplomacia (Bicheiro) | 1.350 | 96 | 173 | 90% | 2,6 |
-| Bonde (gangue) | 1.299 | 100 | 167 | 20% | 1,7 |
-| Comerciante sem a classe | 13.297 | 104 | 211 | 20% | 3,2 |
-| Ciclo completo: roubo, noite e arsenal | 18.687 | 130 | 201 | 50% | 3,8 |
-| Brigão (duelos) | 18.066 | 158 | 210 | 0% | 2,3 |
-| Bando de assaltos | 2.785 | 93 | 192 | 40% | 1,5 |
-| **Traficante (Galpão e remessas)** | 13.810 | 94 | **225** | 20% | 2,7 |
-| Dono da Noite (casas e noitadas) | 16.986 | 114 | 184 | 40% | 3,4 |
-| **Império da noite (Dono da Noite + produção e casas abastecidas)** | 16.971 | 104 | **226** | 40% | 3,4 |
-| Apostador (metade do caixa na roleta, 3× ao dia) | 7.393 | 94 | 92 | 30% | 3,5 |
-| Exploit: repetir a melhor e depositar tudo | 2.007 | 37 | 23 | 0% | 11,5 |
-| Aleatório | 419 | 42 | 38 | 0% | 0,7 |
+| Assaltante farmando roubos | 16.604 | 128 | 200 | 50% | 3,7 |
+| Bicheiro com negócios | 18.917 | 119 | 201 | 50% | 4,0 |
+| Território (Bicheiro) | 627 | 122 | 196 | 100% | 2,7 |
+| Diplomacia (Bicheiro) | 993 | 98 | 155 | 80% | 3,2 |
+| Bonde (gangue) | 839 | 104 | 178 | 30% | 2,1 |
+| Comerciante sem a classe | 12.534 | 110 | 204 | 10% | 3,7 |
+| Ciclo completo: roubo, noite e arsenal | 15.718 | 122 | 184 | 40% | 4,2 |
+| Brigão (duelos) | 17.571 | 151 | 206 | 10% | 3,0 |
+| Bando de assaltos | 2.726 | 102 | 207 | 50% | 1,6 |
+| **Traficante (Galpão e remessas)** | 13.292 | 101 | **225** | 20% | 3,5 |
+| Dono da Noite (casas e noitadas) | 15.784 | 113 | 174 | 30% | 4,3 |
+| **Império da noite (Dono da Noite + produção e casas abastecidas)** | 14.456 | 103 | **211** | 30% | 3,9 |
+| Apostador (metade do caixa na roleta, 3× ao dia) | 4.517 | 97 | 87 | 20% | 4,1 |
+| Exploit: repetir a melhor e depositar tudo | 1.870 | 37 | 22 | 0% | 12,5 |
+| Aleatório | 527 | 38 | 34 | 0% | 0,2 |
+
+Leitura e calibração da v1.5 (trilha de progresso):
+- Os robôs passaram a comprar e montar o que falta na trilha antes do que querem, e a tentar o próximo roubo da trilha quando a chance é de 50% ou mais.
+- Sem compensação, o Assaltante caiu de 210 para 181 (cada roubo novo precisa dar certo uma vez, e as tentativas levam mais gente à cadeia). Com **o dobro de respeito na primeira vez**, voltou a 200.
+- Negócios numa fila só obrigavam a comprar os 8 antes da Termas (Dono da Noite foi a 151). Com duas prateleiras (noite e rua), 174.
+- Detenções subiram em quase todas as estratégias (3,3 → 3,7 no Assaltante): é o custo de abrir caminho.
 
 Leitura e calibração da v1.4:
 - **Quatro classes**: com os números propostos, o Traficante foi a 243 e o império da noite a 247 (os demais perto de 210). O Navio do Traficante caiu de +15% para +10% e a casa abastecida de +100% para +70%: **225** e **226**, 12 pontos acima do grupo seguinte. Os robôs de território e diplomacia, que eram do Articulador, jogam de Bicheiro; a diplomacia perdeu força (173), e o bonde caiu para 167.
@@ -101,15 +107,15 @@ Leitura e calibração da v1.4:
 - **Tolerância e teto do corpo** (`node tests/maratona.js`): um jogador com dinheiro infinito, que rouba, se droga e zera o vício na clínica sem parar, fazia **84,9 roubos e 1.313 de energia em drogas por dia**; agora faz **13,6 roubos e 150**. Sem a clínica, caiu de 11,4 para 9,3 roubos por dia. Nos robôs comuns a diferença ficou no ruído (até 6 pontos), porque quase ninguém passa de 150 por dia; o império da noite foi a 233, 13 acima do Traficante.
 - A refinaria (R$ 25.000, 150 de respeito) quase não é alcançada numa temporada: é meta de fim de jogo.
 
-### Classes — `tests/careers.js` (100 temporadas por célula, v1.4)
+### Classes — `tests/careers.js` (100 temporadas por célula, v1.5)
 
 | Estratégia | Assaltante | Dono da Noite | Traficante | Bicheiro |
 |---|---|---|---|---|
-| Roubos | **215** | 169 | 165 | 171 |
-| Negócios | 208 | **219** | 162 | 213 |
-| Território | **200** | 197 | 196 | 198 |
-| Diplomacia | **196** | 176 | 174 | 163 |
-| Gangue | **183** | 148 | 157 | 167 |
+| Roubos | **191** | 152 | 155 | 156 |
+| Negócios | 176 | 196 | 149 | **210** |
+| Território | **201** | 198 | 197 | 199 |
+| Diplomacia | **187** | 158 | 167 | 159 |
+| Gangue | **187** | 178 | 170 | 166 |
 
 (O Traficante só brilha na estratégia de mercadoria, medida na tabela acima.)
 
