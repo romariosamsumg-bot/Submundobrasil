@@ -62,7 +62,28 @@ npm run careers          # carreiras × estratégias
 Requisitos: Node 18+ e, para o teste de interface, Playwright com Chromium.
 O jogo em si não tem dependências: basta abrir o HTML.
 
-## Backend e multiplayer (futuro, não implementado)
+## Modo online (v1.5, fase 1)
+
+| Peça | Onde | Papel |
+|---|---|---|
+| Projeto Supabase | `submundo-brasil`, região São Paulo (`sa-east-1`) | banco, contas e funções |
+| `online.json` | raiz do repositório | endereço do projeto e chave pública (anon); o `build.js` embute no HTML |
+| `supabase/migrations/0001_inicio.sql` | banco | tabelas `jogadores` e `saves`, regras de acesso (cada um lê só o seu) e a função `ranking()` |
+| `supabase/functions/jogar/` | servidor | `index.ts` (rede e banco), `logica.js` (regras do pedido, testada em `tests/online.test.js`) e `engine.js` (cópia exata de `src/engine.js`) |
+
+Fluxo: o jogador entra com e-mail e senha (Supabase Auth) → cada ação vai para a função `jogar` → o servidor aplica `SB.perform` no save guardado e devolve o estado → o jogo mostra. O ranking lê só codinome, cidade, respeito e dia.
+
+Publicar de novo depois de mudar as regras (o token fica guardado no ambiente, nunca no código):
+
+```bash
+node build.js   # copia o motor para a função
+curl -X POST -H "Authorization: Bearer <token>" \
+  -F 'metadata={"entrypoint_path":"index.ts","name":"jogar","verify_jwt":true};type=application/json' \
+  -F file=@index.ts -F file=@logica.js -F file=@engine.js \
+  "https://api.supabase.com/v1/projects/bfnketwyttblsfljbafn/functions/deploy?slug=jogar"   # dentro de supabase/functions/jogar
+```
+
+## Backend e multiplayer (próximas fases)
 
 A 0.5 é deliberadamente local. Não há nada simulando "online". Para competição
 real seriam necessários:

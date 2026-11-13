@@ -18,6 +18,9 @@ if (fs.existsSync(artDir)) for (const f of fs.readdirSync(artDir).sort()) {
   art[key] = `data:${MIME[ext]};base64,${buf.toString('base64')}`;
 }
 if (engine.includes('</script')) throw new Error('engine.js não pode conter </script');
+// Modo online opcional: endereço do projeto e chave pública (anon), que é feita para ficar no cliente.
+const onlineFile = path.join(__dirname, 'online.json');
+const online = fs.existsSync(onlineFile) ? JSON.stringify((({ url, anonKey }) => ({ url, anonKey }))(JSON.parse(fs.readFileSync(onlineFile, 'utf8')))) : 'null';
 const html = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -40,6 +43,9 @@ ${engine}
 window.SB_ART = ${JSON.stringify(art)};
 ${src('art.js')}
   </script>
+  <script id="sb-online">
+window.SB_ONLINE = ${online};
+  </script>
   <script id="sb-ui">
 ${src('ui.js')}
   </script>
@@ -47,4 +53,6 @@ ${src('ui.js')}
 </html>
 `;
 fs.writeFileSync(path.join(__dirname, 'Submundo-Brasil-v1.5.html'), html);
+// O servidor online usa exatamente o mesmo motor: copia a cada build.
+fs.copyFileSync(path.join(__dirname, 'src', 'engine.js'), path.join(__dirname, 'supabase', 'functions', 'jogar', 'engine.js'));
 console.log('Gerado Submundo-Brasil-v1.5.html (' + Math.round(html.length / 1024) + ' KB, ' + Object.keys(art).length + ' imagem(ns) pintada(s))');

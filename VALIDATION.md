@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**107 de 107 verificações passaram** (v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
+**115 de 115 verificações passaram** (v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
 
 - **Nenhum texto cortado** (v1.5): 15 telas nas 6 cidades, com nome de 22 letras, R$ 123.456 e a patente mais longa, mais as páginas de "Como jogar". O detector foi conferido contra a versão anterior, onde acusou o corte do topo.
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
@@ -70,6 +70,13 @@ ausência de cortes).
 - `npm test` repetido com as imagens embutidas: 136/136 no motor, fuzz sem erros, 96/96 na interface, sem rolagem horizontal a 360 px.
 - Capturas `tests/screens/v14-*.png` revisadas: Cidade, Duelos e Assaltos. As 4 últimas (Zé Marrento, Agência, Transportadora, Apostas) entraram depois e foram conferidas nas capturas de Apostas e Duelos.
 - Nenhuma regra mudou: as tabelas de simulação abaixo são as da v1.3.
+
+## 3d. Online (v1.5)
+
+- `tests/online.test.js` (6 testes): o servidor usa o mesmo motor; codinome e cidade validados; ação recusada não grava; ação ou argumento estranho (`__proto__`, objeto, infinito, texto longo) é barrado; save adulterado no banco é normalizado; fim de temporada troca o estado.
+- Interface com servidor simulado (8 verificações): cadastro, criação do personagem com R$ 0, roubo calculado pelo servidor, nada salvo no aparelho, ranking no Perfil, sair e entrar de novo.
+- No projeto real: a função recusa quem não entrou (401), o ranking responde e ninguém lê a tabela de saves sem login (regras de acesso do banco).
+- Ainda **não** testado com uma conta real: depende da confirmação de e-mail.
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 

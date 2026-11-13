@@ -145,6 +145,14 @@ Também sugerido: rebelião na cadeia com a gangue.
 - **Assaltante forte demais nas classes** (lidera 5 de 5 estratégias): o +20% em roubo somado ao roubo armado +25% pesa; considerar +15% na classe.
 - Traficante (239) e Comerciante (238) lideram as estratégias.
 
+## Online (Supabase)
+
+- [x] **Fase 1**: conta com e-mail e senha, servidor de regras (`jogar`), save na nuvem e ranking de respeito no Perfil.
+- **Confirmação de e-mail**: ligada, com limite de 2 e-mails por hora no plano grátis. Para abrir ao público: configurar um serviço de e-mail próprio (SMTP) ou desligar a confirmação (decisão do autor).
+- **Fase 1b**: dia pelo relógio real (sem Dormir), energia voltando com o tempo, temporada = mês do calendário e ranking zerando todo mês.
+- Fase 2: mercado entre jogadores. Fase 3: gangues de jogadores e ranking de gangues.
+- Login com Google (exige configurar o Google Cloud).
+
 ## Depende de servidor (visão do autor para o jogo online)
 
 - Rodada no calendário real (dia 1º ao último dia do mês) e eventos em datas reais (quinto dia útil, sextas e sábados).

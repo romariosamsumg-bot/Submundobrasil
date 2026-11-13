@@ -276,6 +276,48 @@ await page.click('[data-action=duel][data-id=marrento]');
     for (let i = 0; i < 8 && await page.isVisible('#help'); i++) { for (const x of await scan()) cuts.add('ajuda: ' + x); const nx = page.locator('#helpBox .btn.primary'); if (await nx.count()) await nx.first().click(); else break; }
     check(cuts.size === 0, 'nenhum texto cortado em 15 telas, 6 cidades, nome longo e valores altos' + (cuts.size ? ': ' + [...cuts].slice(0, 5).join(' | ') : ''));
   }
+  console.log('7c. Online com servidor simulado (mesma lógica do servidor, sem rede)');
+  {
+    const SBn = require('./load-engine.js')();
+    const { aplicar } = await import(path.join(__dirname, '..', 'supabase', 'functions', 'jogar', 'logica.js'));
+    let saved = null, calls = 0, codinome = null;
+    const octx = await browser.newContext({ viewport: { width: 360, height: 780 } });
+    const op = await octx.newPage();
+    op.on('pageerror', e => errors.push('online: ' + e.message)); op.on('dialog', d => d.accept());
+    const reply = (route, status, body) => route.fulfill({ status, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(body) });
+    await op.route('**/auth/v1/**', route => reply(route, 200, { access_token: 'tk', refresh_token: 'rf', expires_in: 3600, user: { email: 'teste@exemplo.com' } }));
+    await op.route('**/functions/v1/jogar', route => { calls++; const out = aplicar(SBn, saved, JSON.parse(route.request().postData() || 'null')); if (out.salvar) saved = JSON.parse(JSON.stringify(out.salvar)); if (out.novo) codinome = out.novo.codinome; return reply(route, out.status, out.corpo); });
+    await op.route('**/rest/v1/rpc/ranking', route => reply(route, 200, saved ? [{ posicao: 1, codinome, cidade: saved.city, respeito: saved.respect, dia: saved.day }] : []));
+    await op.goto(FILE);
+    check(await op.isVisible('#onlineBox'), 'tela inicial oferece jogar online');
+    await op.fill('#onEmail', 'teste@exemplo.com'); await op.fill('#onPass', 'segredo1'); await op.check('#ageOk');
+    await op.click('[data-action=on-signup]');
+    await op.waitForSelector('#onlineStatus .notice');
+    check((await op.textContent('#onlineStatus')).includes('codinome'), 'conta criada: pede codinome e cidade');
+    await op.fill('#playerName', 'Zé Online'); await op.selectOption('#homeCity', 'Recife');
+    await op.click('#newGameForm button[type=submit]');
+    await op.waitForFunction(() => window.__SB_UI.state && window.__SB_UI.state.name === 'Zé Online');
+    check(saved && saved.name === 'Zé Online' && saved.cash === 0, 'personagem criado no servidor, começando com R$ 0');
+    await op.evaluate(() => { const h = document.querySelector('#help'); if (h) h.classList.add('hidden'); });
+    const before = calls;
+    await op.evaluate(() => window.__SB_UI.go('acoes'));
+    await op.click('[data-action=mission][data-id=correria]');
+    await op.waitForFunction(() => window.__SB_UI.state.energy < 100);
+    check(calls === before + 1 && saved.energy === (await op.evaluate(() => window.__SB_UI.state.energy)), 'roubo calculado pelo servidor e mostrado no jogo');
+    check(await op.evaluate(() => localStorage.getItem('submundo_brasil_v01') === null), 'no online o save não fica no aparelho');
+    await op.evaluate(() => window.__SB_UI.go('perfil'));
+    await op.click('[data-action=on-ranking]');
+    await op.waitForSelector('.rankList li');
+    check((await op.textContent('.rankList')).includes('Zé Online'), 'ranking de respeito aparece no Perfil');
+    await op.click('[data-action=on-logout]');
+    check(await op.isVisible('#welcome') && await op.evaluate(() => localStorage.getItem('submundo_brasil_sessao') === null), 'sair da conta volta para a tela inicial e apaga a sessão');
+    await op.reload(); await op.waitForTimeout(300);
+    await op.fill('#onEmail', 'teste@exemplo.com'); await op.fill('#onPass', 'segredo1'); await op.check('#ageOk');
+    await op.click('[data-action=on-login]');
+    await op.waitForFunction(() => window.__SB_UI.state && window.__SB_UI.state.name === 'Zé Online');
+    check(true, 'entrar de novo continua do mesmo ponto');
+    await octx.close();
+  }
   console.log('8. Tela larga (1280×900)');
   await page.setViewportSize({ width: 1280, height: 900 });
   for (const v of ['painel', 'gangue']) { await go(v); check(await overflow() <= 0, `desktop sem rolagem horizontal em "${v}"`); }

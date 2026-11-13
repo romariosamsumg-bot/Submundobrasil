@@ -171,6 +171,7 @@
 
   /* ---------- persistência ---------- */
   function save() {
+    if (online) return; // no online, quem guarda é o servidor
     try { localStorage.setItem(KEY, JSON.stringify(state)); saveFailed = false; }
     catch (e) { if (!saveFailed) notify('Não foi possível salvar no navegador. Exporte uma cópia em Temporada.', true); saveFailed = true; }
   }
@@ -264,14 +265,19 @@
   /** Executa uma ação do motor, registra o resultado e redesenha. */
   function run(name, ...args) {
     if (!state) return null;
+    if (online) return runOnline(name, args);
     const before = snap();
     let r;
     try { r = SB.perform(state, name, ...args); }
     catch (e) { console.error(e); notify('Erro inesperado na ação. Seu progresso anterior foi mantido.', true); return null; }
     if (!r.ok) { notify(r.msg, true); return r; }
+    return finish(name, r, before);
+  }
+  /** Monta o cartão de resultado e redesenha (vale para o jogo local e para o online). */
+  function finish(name, r, before) {
     if (name === 'endSeason') {
       const rec = r.record;
-      state = r.state;
+      if (r.state) state = r.state;
       result = { good: true, msg: r.msg, lines: [`Pontuação: ${rec.score}.`, ...SB.CATEGORIES.map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`), `Meta: ${rec.goal ? (rec.goalComplete ? 'cumprida' : 'não cumprida') : 'não escolhida'}.`], deltas: [] };
     } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()), fresh: true, stamp: STAMPED.includes(name) };
     if (name === 'nextDay') dawn();
@@ -796,6 +802,7 @@
       ${stencil('Atributos')}<section class="card">${SB.STATS.map(st => `<div class="statRow">${statIcon(st.id)}<span>${st.name}</span><div class="meter"><div style="width:${pct(s.stats[st.id] / top * 100)}%"></div></div><strong>${num(s.stats[st.id])}</strong></div>`).join('')}</section>
       ${stencil('Equipamento', 'troque na Feira do Rolo')}<div class="gearGrid">${SB.SLOTS.map(sl => { const it = SB.item(s.gear[sl.id]); return `<button type="button" class="gearSlot ${it ? 'on' : ''}" data-view="feira"><span>${sl.name}</span><b>${it ? esc(it.name) : '—'}</b><small>${it ? esc(it.slot === 'arma' ? 'poder ' + it.power : it.slot === 'protecao' ? 'defesa ' + it.def : 'carga +' + it.cargo) : 'vazio'}</small></button>`; }).join('')}</div>
       ${stencil('Nesta temporada')}<section class="card"><div class="kv"><div><span>Respeito</span><strong>${num(s.respect)}</strong></div><div><span>Patrimônio</span><strong>${fmt(SB.patrimony(s))}</strong></div><div><span>Serviços</span><strong>${num(s.successful)} certos · ${num(s.failed)} falhos</strong></div><div><span>Detenções</span><strong>${s.seasonStats.arrests}</strong></div><div><span>Saúde</span><strong>${s.health}/100${s.hospital ? ' · internado' : ''}</strong></div><div><span>Duelos</span><strong>${s.duelStats.wins} vitórias · ${s.duelStats.losses} derrotas</strong></div><div><span>Mercadoria vendida</span><strong>${fmt(s.trade.sold)}</strong></div><div><span>Remessas / blitze</span><strong>${num(s.trade.exported)} un. · ${s.trade.blitz}</strong></div><div><span>Bairros liderados</span><strong>${SB.controls(s).length}/5</strong></div><div><span>Conquistas</span><strong>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length}</strong></div></div></section>
+      ${onlineCard()}
       <div class="btnbar" style="margin-top:12px">${button('Temporada, medalhas e conquistas', 'switch', 'data-target="temporada"', false, 'primary')}${button('Como jogar', 'help', '', false, 'ghost')}</div>`;
   }
 
@@ -915,6 +922,7 @@
     if (name.length < 2 || name.length > 22) return notify('Escolha um codinome entre 2 e 22 caracteres.', true);
     if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true);
     ageConfirm();
+    if (pendingOnline) { createOnline(name, $('#homeCity').value); return; }
     state = SB.defaultState(name, $('#homeCity').value); view = 'painel'; result = null;
     $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); save(); render(); openHelp(0);
   });
@@ -958,7 +966,117 @@
   }
   document.addEventListener('click', e => { if (e.target.closest('[data-action="age-ok"]')) { ageConfirm(); closeHelp(); } });
 
+
+  /* ---------- online (Supabase): conta, servidor do jogo e ranking ----------
+   * Opcional: só aparece quando o build tem online.json. No online, cada ação vai para o servidor,
+   * que aplica as regras com o mesmo motor e devolve o estado; o aparelho não decide nada. */
+  const ON = window.SB_ONLINE || null, SESSION_KEY = 'submundo_brasil_sessao';
+  let online = false, pendingOnline = false, busy = false, session = null, rankingRows = null;
+  function storeSession(v) { session = v; try { if (v) localStorage.setItem(SESSION_KEY, JSON.stringify(v)); else localStorage.removeItem(SESSION_KEY); } catch (e) { /* sem armazenamento */ } }
+  function readSession() { try { const v = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); return v && typeof v.access === 'string' && typeof v.refresh === 'string' ? v : null; } catch (e) { return null; } }
+  function authMsg(d) {
+    const m = String(d.msg || d.error_description || d.message || d.error || '').toLowerCase();
+    if (m.includes('invalid login')) return 'E-mail ou senha errados.';
+    if (m.includes('not confirmed')) return 'Confirme o e-mail pelo link que enviamos e tente de novo.';
+    if (m.includes('already') && m.includes('regist')) return 'Esse e-mail já tem conta. Use Entrar.';
+    if (m.includes('rate limit') || m.includes('too many')) return 'Muitas tentativas agora. Espere um pouco e tente de novo.';
+    if (m.includes('password')) return 'A senha precisa de pelo menos 6 caracteres.';
+    if (m.includes('email')) return 'Confira o e-mail digitado.';
+    return 'Não foi possível falar com o servidor agora.';
+  }
+  async function authReq(pathq, body) {
+    const r = await fetch(ON.url + '/auth/v1/' + pathq, { method: 'POST', headers: { apikey: ON.anonKey, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(authMsg(d));
+    return d;
+  }
+  const keepSession = d => storeSession({ access: d.access_token, refresh: d.refresh_token, exp: Date.now() + (Number(d.expires_in) || 3600) * 1000 - 60000, email: d.user && d.user.email ? String(d.user.email).slice(0, 80) : '' });
+  async function accessToken() {
+    if (!session) return null;
+    if (Date.now() > session.exp) { try { keepSession(await authReq('token?grant_type=refresh_token', { refresh_token: session.refresh })); } catch (e) { storeSession(null); return null; } }
+    return session.access;
+  }
+  async function server(pedido) {
+    const tk = await accessToken(); if (!tk) throw new Error('Sua sessão expirou. Entre de novo.');
+    const r = await fetch(ON.url + '/functions/v1/jogar', { method: 'POST', headers: { apikey: ON.anonKey, Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json' }, body: JSON.stringify(pedido) });
+    const d = await r.json().catch(() => ({ erro: 'Resposta inválida do servidor.' }));
+    if (!r.ok) throw new Error(d.erro || 'Erro no servidor do jogo.');
+    return d;
+  }
+  /** Estado vindo do servidor: passa pela mesma verificação de qualquer save. */
+  function fromServer(estado) { const p = SB.parseSave(JSON.stringify(estado)); if (!p.ok) throw new Error('O servidor mandou um save ilegível.'); return p.state; }
+  function onlineStatus(html) { const el = $('#onlineStatus'); if (el) el.innerHTML = html; }
+  function enterOnline(estado) {
+    state = fromServer(estado); online = true; pendingOnline = false; view = 'painel'; result = null;
+    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); render();
+    if (!ageConfirmed()) ageGate();
+  }
+  async function afterLogin() {
+    const d = await server({ acao: 'estado' });
+    if (d.estado) return enterOnline(d.estado);
+    pendingOnline = true; $('#onlineFields').hidden = true;
+    onlineStatus(`<p class="notice">Conectado como <b>${esc(session.email)}</b>. Agora escolha seu codinome e sua cidade acima e toque em <b>Entrar na cidade</b>.</p>`);
+  }
+  async function createOnline(name, city) {
+    try { const d = await server({ acao: 'novo', codinome: name, cidade: city }); enterOnline(d.estado); openHelp(0); }
+    catch (e) { notify(e.message, true); }
+  }
+  async function runOnline(name, args) {
+    if (busy) return null;
+    busy = true; document.body.classList.add('busy');
+    const before = snap();
+    try {
+      const d = await server({ acao: 'agir', nome: name, args });
+      const r = d.resultado || { ok: false, msg: 'Resposta inválida do servidor.' };
+      if (!r.ok) { notify(r.msg, true); return r; }
+      state = fromServer(d.estado);
+      return finish(name, r, before);
+    } catch (e) { notify(e.message, true); return null; }
+    finally { busy = false; document.body.classList.remove('busy'); }
+  }
+  async function loadRanking() {
+    try {
+      const r = await fetch(ON.url + '/rest/v1/rpc/ranking', { method: 'POST', headers: { apikey: ON.anonKey, 'Content-Type': 'application/json' }, body: JSON.stringify({ limite: 50 }) });
+      rankingRows = r.ok ? await r.json() : [];
+    } catch (e) { rankingRows = []; notify('Não foi possível carregar o ranking.', true); }
+    render();
+  }
+  /** Cartão da conta e do ranking (Perfil, só no online). */
+  function onlineCard() {
+    if (!online) return '';
+    const rows = Array.isArray(rankingRows) ? rankingRows : null;
+    return `${stencil('Online', 'save na nuvem')}<section class="card onlineCard"><p class="mini" style="margin:0 0 8px">Conta: <b>${esc(session && session.email)}</b>. As regras rodam no servidor do jogo.</p>
+      ${rows ? (rows.length ? `<ol class="rankList">${rows.map(x => `<li class="${x.codinome === state.name ? 'me' : ''}"><span>${num(x.posicao)}º</span><b>${esc(x.codinome)}</b><small>${esc(x.cidade)}</small><strong>★ ${num(x.respeito)}</strong></li>`).join('')}</ol>` : '<p class="mini">Ninguém no ranking ainda.</p>') : ''}
+      <div class="btnbar">${button(rows ? 'Atualizar ranking' : 'Ver ranking de respeito', 'on-ranking', '', false, 'small')}${button('Sair da conta', 'on-logout', '', false, 'small ghost')}</div></section>`;
+  }
+  document.addEventListener('click', async e => {
+    const btn = e.target.closest('[data-action^="on-"]'); if (!btn || !ON) return;
+    const a = btn.dataset.action;
+    if (a === 'on-ranking') return loadRanking();
+    if (a === 'on-logout') { storeSession(null); online = false; pendingOnline = false; state = load(); rankingRows = null; if (state) render(); else showWelcome(); notify('Você saiu da conta online.'); return; }
+    const email = $('#onEmail').value.trim(), pass = $('#onPass').value;
+    if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true);
+    if (!email || pass.length < 6) return notify('Digite o e-mail e uma senha com pelo menos 6 caracteres.', true);
+    btn.disabled = true;
+    try {
+      if (a === 'on-signup') {
+        const d = await authReq('signup', { email, password: pass });
+        if (!d.access_token) { onlineStatus('<p class="notice">Conta criada. Enviamos um link de confirmação para o seu e-mail: confirme e depois toque em <b>Entrar</b>.</p>'); return; }
+        keepSession(d);
+      } else keepSession(await authReq('token?grant_type=password', { email, password: pass }));
+      ageConfirm(); await afterLogin();
+    } catch (err) { notify(err.message, true); }
+    finally { btn.disabled = false; }
+  });
+  async function bootOnline() {
+    if (!ON) return;
+    $('#onlineBox').hidden = false;
+    session = readSession(); if (!session) return;
+    try { await afterLogin(); } catch (e) { onlineStatus(`<p class="notice">${esc(e.message)}</p>`); }
+  }
+
   state = load();
   if (state) { save(); render(); if (!ageConfirmed()) ageGate(); } else showWelcome();
+  bootOnline();
   window.__SB_UI = { get state() { return state; }, go: switchView }; // apoio a testes automatizados
 })();

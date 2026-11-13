@@ -512,3 +512,12 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
 .hudId small{font-size:10px;letter-spacing:.02em}
 .hudMoney strong{font-size:22px}
 .hudwrap{column-gap:8px}
+
+/* v1.5: modo online */
+.onlineBox{margin-top:14px;padding:12px;border:1px solid #3d4a4f;border-left:3px solid var(--ambar);border-radius:4px;background:#121a1e;text-align:left}
+.onlineBox h3{margin:0 0 4px;font:700 16px/1.2 Georgia,serif;color:#f3d6ae}
+.onlineBox .btnbar{gap:8px;margin-top:4px}
+body.busy #content{opacity:.6;pointer-events:none}
+.rankList{list-style:none;margin:0 0 10px;padding:0}.rankList li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:2px 8px;align-items:baseline;padding:6px 0;border-top:1px solid #2c3a3e}
+.rankList li:first-child{border-top:0}.rankList li span{color:#8f9c9f;font-size:12px}.rankList li b{overflow-wrap:anywhere;color:#f3e6c8}.rankList li small{grid-column:2;color:#8f9c9f;font-size:11px}.rankList li strong{grid-row:1;grid-column:3;color:#ffd98f}
+.rankList li.me b{color:var(--ambar)}
