@@ -78,6 +78,10 @@ Já no jogo (v1.5), reduzidas para 880 px. Aparecem atrás da placa do bairro na
 
 Feitas em três grades (armas 4 × 4, proteções 3 × 2, veículos 3 × 2), fundo cinza liso, sem texto. O corte é automático pelas bordas pretas de cada quadro e cada item vira `art/item-<id>.webp` (192 px). Ordem das armas: porrete, soco, vergalhao, peixeira, maquita, trezoitao, pistola, doze, uzi, submetra, fuzil, ar15, ponto50, mag, rojao, dourado. Proteções: lista, jaqueta, colete, kevlar, tatico, traje. Veículos: bike, cinquentinha, moto, opala, blindado.
 
+## Roubos (duas grades 3 × 3, a pedido)
+
+Cortar com `python3 tools/cortar-grade.py <imagem> 3 3 roubo <ids>`. Grade 1: correria, rolo, fiacao, pastel, mercadoria, cobranca, deposito, cartao, leilao. Grade 2: caixa, loterica, comboio, cofre, favor, baile, camelodromo, carga, galpao. As cenas mostram o lugar e o clima, nunca o método.
+
 ## Fotos de perfil do jogador (512 × 512, retrato de busto, fundo liso escuro)
 
 Já no jogo (v1.4): escolha de retrato no Perfil, reduzidas para 256 px. Novo retrato → entrada em `AVATARS` (`engine.js`) e arquivo `art/avatar-<id>`.

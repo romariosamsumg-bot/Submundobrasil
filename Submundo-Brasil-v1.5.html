@@ -615,6 +615,14 @@ body.busy #content{opacity:.6;pointer-events:none}
 .gearPic{width:100%;aspect-ratio:1;border-radius:3px;overflow:hidden;background:#3a3d40;display:block;margin-bottom:4px}
 @media(max-width:390px){.shopRow.withPic{grid-template-columns:52px minmax(0,1fr)}.shopRow.withPic .shopAct{grid-column:1/-1}.itemPic{width:52px;height:52px}}
 
+/* v1.5: figuras dos roubos */
+.job.withPic .jobIcon{justify-content:flex-start;padding:6px 5px 5px;gap:4px}
+.jobPic{display:block;width:100%;aspect-ratio:1;border-radius:3px;overflow:hidden;background:#3a3d40}
+.jobPic .art{display:block;width:100%;height:100%;object-fit:cover}
+.job.locked .jobPic{filter:grayscale(.85) brightness(.7)}
+.job.withPic{grid-template-columns:64px minmax(0,1fr) 84px}
+@media(max-width:370px){.job.withPic{grid-template-columns:56px minmax(0,1fr) 76px}}
+
   </style>
 </head>
 <body>
@@ -3176,6 +3184,7 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
     avatar: id => painted('avatar-' + id),
     bairro: id => painted('bairro-' + id),
     item: id => painted('item-' + id),
+    roubo: id => painted('roubo-' + id),
     heist: id => painted('heist-' + id) || (HEISTS[id] ? svg('0 0 160 70', HEISTS[id]()) : ''),
     keys: () => [...Object.keys(PLACES).map(k => 'place-' + k), ...Object.keys(RIVALS).map(k => 'rival-' + k), ...Object.keys(HEISTS).map(k => 'heist-' + k)],
     paintedCount: () => root.SB_ART ? Object.keys(root.SB_ART).length : 0
@@ -3686,7 +3695,8 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   function missionCard(m) {
     const s = state, lock = SB.missionLock(s, m), p = SB.missionChance(s, m), mult = SB.missionRewardMult(s, m), reps = s.today.missions[m.id] || 0;
     const hard = lock && !['Energia insuficiente.', 'Você está detido.', 'Você está internado.'].includes(lock);
-    return `<section class="job ${hard ? 'locked' : ''}"><div class="jobIcon" title="${statName(m.stat)}">${statIcon(m.stat)}<small>${statName(m.stat)}</small></div>
+    const pic = window.SBArt.roubo(m.id);
+    return `<section class="job ${pic ? 'withPic' : ''} ${hard ? 'locked' : ''}"><div class="jobIcon" title="${statName(m.stat)}">${pic ? `<span class="jobPic" aria-hidden="true">${pic}</span>` : statIcon(m.stat)}<small>${statName(m.stat)}</small></div>
       <div class="jobMain"><h3>${esc(m.name)}${m.district ? ` <span class="pill">só aqui</span>` : ''}</h3><p class="jobDesc">${esc(m.desc)}</p>
       <p class="jobMeta"><b>${fmt(m.low * mult)}–${fmt(m.high * mult)}</b> · ${SB.missionCost(s, m)} energia · +${m.heat} Procurado · +${SB.respectGain(s, m)} respeito</p>
       <p class="jobRisk">Se falhar: -${Math.round(SB.failLoss(s, m) * 100)}% do caixa em mãos, detenção ${SB.arrestChance(s, m)}%</p>
