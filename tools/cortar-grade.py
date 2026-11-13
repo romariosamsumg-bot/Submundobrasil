@@ -19,8 +19,12 @@ def faixas(fundo, eixo, n):
         if c and ini is None: ini = i
         if not c and ini is not None: trechos.append((ini, i - 1)); ini = None
     if ini is not None: trechos.append((ini, len(conteudo) - 1))
-    trechos = sorted(trechos, key=lambda t: t[1] - t[0], reverse=True)[:n]  # descarta riscos finos
-    return sorted(trechos)
+    maior = max((t[1] - t[0] for t in trechos), default=0)
+    trechos = sorted(t for t in trechos if t[1] - t[0] > maior * 0.6)  # descarta riscos finos
+    if 2 <= len(trechos) < n:  # grade regular: quadro vazio (da cor do fundo) é deduzido pelo passo
+        passo, largura = trechos[1][0] - trechos[0][0], trechos[0][1] - trechos[0][0]
+        trechos = [(trechos[0][0] + i * passo, trechos[0][0] + i * passo + largura) for i in range(n)]
+    return trechos[:n]
 
 def cortar(caminho, cols, rows):
     im = Image.open(caminho).convert('RGB'); a = np.asarray(im).astype(int); escuro = a.sum(axis=2) < 90

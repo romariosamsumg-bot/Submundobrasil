@@ -66,7 +66,7 @@ ausência de cortes).
 
 ## 3c. Imagens pintadas (v1.4)
 
-- 24 imagens de cena e adversário, 5 bairros (v1.5, 79 a 101 KB), 10 retratos do jogador, 27 itens da Feira e 18 roubos (v1.5, cortados de grades por `tools/cortar-grade.py`, pelas bordas ou pelas faixas de fundo, 192 px). O HTML está com cerca de 3,4 MB. (256 px, 9 a 17 KB) em `art/` (WebP, 880 px de largura nos lugares e assaltos, 288 px nos retratos; 10 a 91 KB cada). O HTML passou de ~0,7 MB para ~3 MB.
+- 24 imagens de cena e adversário, 5 bairros (v1.5, 79 a 101 KB), 10 retratos do jogador, 27 itens da Feira, 18 roubos, 5 casas da noite e 7 esquemas (v1.5, cortados de grades por `tools/cortar-grade.py`, pelas bordas ou pelas faixas de fundo, com quadro vazio deduzido pelo passo da grade, 192 px), mais a cadeia e a capa (880 px). São 98 imagens e o HTML está com cerca de 3,7 MB. (256 px, 9 a 17 KB) em `art/` (WebP, 880 px de largura nos lugares e assaltos, 288 px nos retratos; 10 a 91 KB cada). O HTML passou de ~0,7 MB para ~3 MB.
 - `npm test` repetido com as imagens embutidas: 136/136 no motor, fuzz sem erros, 96/96 na interface, sem rolagem horizontal a 360 px.
 - Capturas `tests/screens/v14-*.png` revisadas: Cidade, Duelos e Assaltos. As 4 últimas (Zé Marrento, Agência, Transportadora, Apostas) entraram depois e foram conferidas nas capturas de Apostas e Duelos.
 - Nenhuma regra mudou: as tabelas de simulação abaixo são as da v1.3.

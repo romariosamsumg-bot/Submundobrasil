@@ -82,7 +82,7 @@ Feitas em três grades (armas 4 × 4, proteções 3 × 2, veículos 3 × 2), fun
 
 Cortar com `python3 tools/cortar-grade.py <imagem> 3 3 roubo <ids>`. Grade 1: correria, rolo, fiacao, pastel, mercadoria, cobranca, deposito, cartao, leilao. Grade 2: caixa, loterica, comboio, cofre, favor, baile, camelodromo, carga, galpao. As cenas mostram o lugar e o clima, nunca o método.
 
-## Próximas artes (encaixe pronto na v1.5; ainda sem imagem)
+## Casas da noite, esquemas, cadeia e capa (já no jogo na v1.5)
 
 | Grupo | Arquivos | Como pedir |
 |---|---|---|
