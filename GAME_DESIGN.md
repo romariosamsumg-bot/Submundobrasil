@@ -607,6 +607,7 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 ### Rua e topo (v1.4)
 
 - **Nomes**: a vigilância pessoal (`heat`) aparece ao jogador como **Procurado**; a do bairro (`vigil`) como **Polícia no bairro** ("Polícia" na placa); a economia do bairro como **Grana**. As regras e os números não mudaram, só o nome.
+- **Topo (v1.5)**: dinheiro grande e, logo abaixo, o **respeito com estrela** (é o que conta no ranking) e o dia. Barras com ícone; Energia e Saúde grossas, Procurado e Vício finas e apagadas, que acendem com borda âmbar (Procurado ≥ 30, Vício ≥ 40) e vermelha piscando (Procurado ≥ 60, Vício ≥ 70).
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
 - **Tela Rua (v1.5)**, de cima para baixo: placa do bairro (Dono, Grana e Polícia do bairro; tocar na faixa explica os três) → resultado → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, meta, título) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
 

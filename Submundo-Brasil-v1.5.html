@@ -563,17 +563,35 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
 .paintedScene .art.painted{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 60%}
 .sceneFx{position:absolute;inset:0;width:100%;height:100%}
 
+/* v1.5: topo com respeito em destaque, ícones e alertas finos */
+.hudMoney{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.hudMoney strong{font-size:24px}
+.hudResp{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#e7d9b8;letter-spacing:.02em;white-space:nowrap}
+.hudResp b{font:400 17px/1 var(--stencil);color:#ffd98f;letter-spacing:.03em}
+.hudResp .hudIco{width:12px;height:12px;fill:#e4b266}
+.hudMoney small{margin-top:0;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#8f9c9f}
+.hudBar{display:flex;align-items:center}
+.hudBar .hudIco{position:relative;flex:none;width:11px;height:11px;margin-left:7px;fill:#fff;transform:skewX(8deg);filter:drop-shadow(0 1px 1px #000)}
+.hudBar b{padding-left:5px}
+.hudBar.en,.hudBar.hp{height:20px}.hudBar.en b,.hudBar.hp b{font-size:11px;line-height:18px}
+.hudBar.ht,.hudBar.vc{height:14px;opacity:.75;border-color:#2c373b}.hudBar.ht b,.hudBar.vc b{font-size:9px;line-height:12px;letter-spacing:.08em}
+.hudBar.ht .hudIco,.hudBar.vc .hudIco{width:9px;height:9px}
+.hudBar.ht.warm,.hudBar.vc.warm,.hudBar.ht.alert,.hudBar.vc.alert{opacity:1}
+.hudBar.ht.warm,.hudBar.vc.warm{border-color:#c98a45}
+.hudBar.ht.alert,.hudBar.vc.alert{border-color:#e05a48}
+@media(max-width:400px){.hudBar.en b,.hudBar.hp b{font-size:10px}}
+
   </style>
 </head>
 <body>
   <header class="topbar hud" id="hud"><div class="topwrap hudwrap">
     <button type="button" class="hudWho" data-view="perfil" aria-label="Abrir perfil"><span class="hudAvatar" id="hudAvatar" aria-hidden="true"></span><div class="hudId"><strong id="hudName">SUBMUNDO BRASIL</strong><small id="hudSub">v1.3</small></div></button>
-    <div class="hudMoney"><strong id="topCash" title="Dinheiro em mãos">R$ 0</strong><small><span id="hudRespect">0</span> respeito · <span id="topDay">Dia 1</span></small></div>
+    <div class="hudMoney"><strong id="topCash" title="Dinheiro em mãos">R$ 0</strong><span class="hudResp" title="Respeito: é o que conta no ranking"><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0l1.8 3.8 4.2.5-3.1 2.9.8 4.1L6 9.3 2.3 11.3l.8-4.1L0 4.3l4.2-.5z"/></svg><b id="hudRespect">0</b> respeito</span><small id="topDay">Dia 1</small></div>
     <div class="hudBars">
-      <div class="hudBar en" role="img" id="hudEnergyBox" aria-label="Energia"><i id="hudEnergy"></i><b id="hudEnergyTxt">Energia</b></div>
-      <div class="hudBar hp" role="img" id="hudHealthBox" aria-label="Saúde"><i id="hudHealth"></i><b id="hudHealthTxt">Saúde</b></div>
-      <div class="hudBar ht" role="img" id="hudHeatBox" aria-label="Procurado"><i id="hudHeat"></i><b id="hudHeatTxt">Procurado</b></div>
-      <div class="hudBar vc" role="img" id="hudVicioBox" aria-label="Vício"><i id="hudVicio"></i><b id="hudVicioTxt">Vício</b></div>
+      <div class="hudBar en" role="img" id="hudEnergyBox" aria-label="Energia"><i id="hudEnergy"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M7 0 1 7h4l-1 5 6-7H6z"/></svg><b id="hudEnergyTxt">Energia</b></div>
+      <div class="hudBar hp" role="img" id="hudHealthBox" aria-label="Saúde"><i id="hudHealth"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 11 1.2 6.3A3 3 0 0 1 6 2.4a3 3 0 0 1 4.8 3.9z"/></svg><b id="hudHealthTxt">Saúde</b></div>
+      <div class="hudBar ht" role="img" id="hudHeatBox" aria-label="Procurado"><i id="hudHeat"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9V6a3 3 0 0 1 6 0v3zM1 10h10v2H1zM5.4 0h1.2v2H5.4zM1 2.2l.9-.8 1.4 1.4-.8.9zm10 0-.9-.8-1.4 1.4.8.9z"/></svg><b id="hudHeatTxt">Procurado</b></div>
+      <div class="hudBar vc" role="img" id="hudVicioBox" aria-label="Vício"><i id="hudVicio"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.2 1.4a3 3 0 0 1 4.2 0l2.2 2.2a3 3 0 0 1 0 4.2L7.8 10.6a3 3 0 0 1-4.2 0L1.4 8.4a3 3 0 0 1 0-4.2zM3.5 4.9l3.6 3.6 1.4-1.4-3.6-3.6z"/></svg><b id="hudVicioTxt">Vício</b></div>
     </div>
     <button id="menuToggle" class="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">Menu</button>
   </div></header>
@@ -3283,7 +3301,7 @@ window.SB_ART = {"avatar-capoeirista":"data:image/webp;base64,UklGRtAkAABXRUJQVl
     $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Procurado ${s.heat}`;
     $('#hudEnergyBox').setAttribute('aria-label', `Energia ${s.energy} de 100`); $('#hudHeatBox').setAttribute('aria-label', `Procurado ${s.heat} de 100`);
     $('#hudVicio').style.width = s.vicio + '%'; $('#hudVicioTxt').textContent = `Vício ${s.vicio}`; $('#hudVicioBox').setAttribute('aria-label', `Vício ${s.vicio} de 100`); $('#hudVicioBox').classList.toggle('alert', s.vicio >= 70);
-    $('#hudHeatBox').classList.toggle('alert', s.heat >= 60);
+    $('#hudHeatBox').classList.toggle('alert', s.heat >= 60); $('#hudHeatBox').classList.toggle('warm', s.heat >= 30 && s.heat < 60); $('#hudVicioBox').classList.toggle('warm', s.vicio >= 40 && s.vicio < 70);
     $('#hudHealth').style.width = s.health + '%'; $('#hudHealthTxt').textContent = s.hospital ? 'Internado' : `Saúde ${s.health}`;
     $('#hudHealthBox').setAttribute('aria-label', `Saúde ${s.health} de 100`); $('#hudHealthBox').classList.toggle('alert', s.health < 25);
     const cash = $('#topCash'); cash.textContent = fmt(s.cash);

@@ -252,7 +252,7 @@
     $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Procurado ${s.heat}`;
     $('#hudEnergyBox').setAttribute('aria-label', `Energia ${s.energy} de 100`); $('#hudHeatBox').setAttribute('aria-label', `Procurado ${s.heat} de 100`);
     $('#hudVicio').style.width = s.vicio + '%'; $('#hudVicioTxt').textContent = `Vício ${s.vicio}`; $('#hudVicioBox').setAttribute('aria-label', `Vício ${s.vicio} de 100`); $('#hudVicioBox').classList.toggle('alert', s.vicio >= 70);
-    $('#hudHeatBox').classList.toggle('alert', s.heat >= 60);
+    $('#hudHeatBox').classList.toggle('alert', s.heat >= 60); $('#hudHeatBox').classList.toggle('warm', s.heat >= 30 && s.heat < 60); $('#hudVicioBox').classList.toggle('warm', s.vicio >= 40 && s.vicio < 70);
     $('#hudHealth').style.width = s.health + '%'; $('#hudHealthTxt').textContent = s.hospital ? 'Internado' : `Saúde ${s.health}`;
     $('#hudHealthBox').setAttribute('aria-label', `Saúde ${s.health} de 100`); $('#hudHealthBox').classList.toggle('alert', s.health < 25);
     const cash = $('#topCash'); cash.textContent = fmt(s.cash);

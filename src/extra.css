@@ -481,3 +481,21 @@ button.localeBottom{border:0;width:100%;text-align:left;cursor:pointer;font:inhe
 .paintedScene{position:absolute;inset:0;display:block;overflow:hidden}
 .paintedScene .art.painted{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 60%}
 .sceneFx{position:absolute;inset:0;width:100%;height:100%}
+
+/* v1.5: topo com respeito em destaque, ícones e alertas finos */
+.hudMoney{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.hudMoney strong{font-size:24px}
+.hudResp{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#e7d9b8;letter-spacing:.02em;white-space:nowrap}
+.hudResp b{font:400 17px/1 var(--stencil);color:#ffd98f;letter-spacing:.03em}
+.hudResp .hudIco{width:12px;height:12px;fill:#e4b266}
+.hudMoney small{margin-top:0;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#8f9c9f}
+.hudBar{display:flex;align-items:center}
+.hudBar .hudIco{position:relative;flex:none;width:11px;height:11px;margin-left:7px;fill:#fff;transform:skewX(8deg);filter:drop-shadow(0 1px 1px #000)}
+.hudBar b{padding-left:5px}
+.hudBar.en,.hudBar.hp{height:20px}.hudBar.en b,.hudBar.hp b{font-size:11px;line-height:18px}
+.hudBar.ht,.hudBar.vc{height:14px;opacity:.75;border-color:#2c373b}.hudBar.ht b,.hudBar.vc b{font-size:9px;line-height:12px;letter-spacing:.08em}
+.hudBar.ht .hudIco,.hudBar.vc .hudIco{width:9px;height:9px}
+.hudBar.ht.warm,.hudBar.vc.warm,.hudBar.ht.alert,.hudBar.vc.alert{opacity:1}
+.hudBar.ht.warm,.hudBar.vc.warm{border-color:#c98a45}
+.hudBar.ht.alert,.hudBar.vc.alert{border-color:#e05a48}
+@media(max-width:400px){.hudBar.en b,.hudBar.hp b{font-size:10px}}
