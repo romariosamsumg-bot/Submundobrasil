@@ -180,7 +180,7 @@ await page.click('[data-action=duel][data-id=marrento]');
   check(await page.isVisible('.localeInfo') && (await page.textContent('.localeInfo')).includes('Procurado'), 'tocar na faixa da placa explica dono, grana e polícia');
   await page.click('.localeInfo [data-action=locale-help]');
   check(await page.locator('.localeInfo').count() === 0, 'a explicação fecha');
-  check(await page.evaluate(() => { const keep = window.SB_ART; window.SB_ART = Object.assign({}, keep, { 'bairro-centro': 'data:image/png;base64,iVBORw0KGgo=' }); window.__SB_UI.go('painel'); const ok = !!document.querySelector('.locale .paintedScene img'); window.SB_ART = keep; window.__SB_UI.go('painel'); return ok && !document.querySelector('.locale .paintedScene'); }), 'imagem pintada do bairro substitui a cena desenhada');
+  check(await page.evaluate(() => { const keep = window.SB_ART; window.SB_ART = {}; window.__SB_UI.go('painel'); const drawn = !document.querySelector('.locale .paintedScene') && !!document.querySelector('.locale svg.scene'); window.SB_ART = keep; window.__SB_UI.go('painel'); return drawn && !!document.querySelector('.locale .paintedScene img'); }), 'imagem pintada do bairro substitui a cena desenhada (e sem ela volta o desenho)');
   check(await page.locator('.loop').count() === 0, 'Rua sem o bloco Seu ciclo (a barra de baixo já leva às telas)');
   check(await page.locator('.ficha .fichaRow').count() >= 2, 'ficha da temporada reúne patente, classe, meta e título');
 

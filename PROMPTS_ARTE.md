@@ -64,7 +64,7 @@ Mantenha sempre o mesmo modelo e, se a ferramenta permitir, a mesma "seed" ou im
 
 ## Bairros (1200 × 600, sem monumentos: servem para as 6 cidades)
 
-Aparecem atrás da placa do bairro na Rua e em Bairros. Os efeitos de evento (chuva, sirene, confete) continuam desenhados por cima. Sem a imagem, fica a cena desenhada atual.
+Já no jogo (v1.5), reduzidas para 880 px. Aparecem atrás da placa do bairro na Rua e em Bairros. Os efeitos de evento (chuva, sirene, confete) continuam desenhados por cima. Sem a imagem, fica a cena desenhada atual.
 
 | Arquivo | Prompt (depois do bloco de estilo) |
 |---|---|
