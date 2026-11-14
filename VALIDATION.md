@@ -108,6 +108,8 @@ Bots com estratégias fixas jogam temporadas completas. Resultado do **ciclo do 
 | Exploit: repetir a melhor e depositar tudo | 2.313 | **24** (40) | 8,8 (10,2) |
 | Aleatório | 182 | **25** (30) | 0,6 (0,6) |
 
+Influência ligada ao roubo (roubo do 4º degrau em diante soma influência; faixas com nome; dono do pedaço com propina −25% e polícia do bairro pela metade), mesma simulação: o respeito mudou de 0 a +6 pontos (ciclo 170 → 176, ciclo completo 251 → 257, território 152 → 153, bonde 117 → 124, Assaltante farmando 145 → 147). Os robôs que roubam passaram a dominar em média **0,7 a 0,9 bairro** no mês, sem desequilibrar. Nas classes, a maior mudança foi no Bonde do Assaltante (120 → 131).
+
 Leitura do ciclo do autor:
 - **Travas do iniciante** (testes `INICIANTE:`): o personagem novo tem 91% no Bater carteira (94% com o Pedaço de pau); a 1ª arma sai em uns 4 roubos; nos degraus 1 a 3 a falha nunca dá cadeia nem tira caixa; no dia 1, começando do zero e bebendo cerveja e pinga, ele faz 15 roubos ou mais.
 - **Os robôs antigos não jogavam o ciclo novo**: só compravam arma quando um roubo a exigia, não usavam a noite para recuperar energia e descontavam R$ 0,40 por ponto de Procurado, que com o saque pequeno do começo os fazia parar após 1 roubo. Corrigi os três comportamentos (não as regras) e criei o robô **ciclo**, que segue exatamente o ciclo do autor e serve de jogador típico.
