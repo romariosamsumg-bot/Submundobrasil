@@ -12,8 +12,8 @@ for (const strat of ['operador_grind', 'empreendedor_negocios', 'articulador_ter
     let score = 0, pat = 0;
     for (let i = 0; i < RUNS; i++) { const r = sim.playSeason(strat, SB.defaultState('Bot', 'Recife')); score += r.score; pat += r.patrimony; }
     sim.STRATEGIES[strat].career = orig;
-    line.push(`${c.name}: ${Math.round(score / RUNS)} pts / R$ ${Math.round(pat / RUNS)}`.padEnd(34));
+    line.push(`${c.name}: ${Math.round(score / RUNS)} resp. / R$ ${Math.round(pat / RUNS)}`.padEnd(34));
   }
   rows.push(line.join(''));
 }
-console.log(`Pontuação média por estratégia × especialização (${RUNS} temporadas cada)\n` + rows.join('\n'));
+console.log(`Respeito médio por estratégia × especialização (${RUNS} temporadas cada)\n` + rows.join('\n'));

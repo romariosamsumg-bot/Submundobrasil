@@ -126,7 +126,7 @@
   /* v1.4: quatro classes, uma por pilar (assaltos, noite, produção, esquemas de rua). Os ids antigos
    * continuam para não quebrar saves; a classe Articulador saiu (quem estava nela escolhe de novo). */
   const CAREERS = [
-    { id: 'operador', name: 'Assaltante', tag: 'Linha de Frente', desc: '+20% de dinheiro em qualquer roubo (sozinho ou com o bando), roubos gastam 10% menos energia e armas e coletes rendem 15% mais (menos dano quando dá errado). Negócios e esquemas rendem 10% menos.',
+    { id: 'operador', name: 'Assaltante', tag: 'Linha de Frente', desc: '+15% de dinheiro em qualquer roubo (sozinho ou com o bando), roubos gastam 10% menos energia e armas e coletes rendem 15% mais (menos dano quando dá errado). Negócios e esquemas rendem 10% menos.',
       xpDesc: 'Ganha experiência concluindo roubos (mais nos grandes).',
       perks: ['Rota de fuga: −15 pontos na chance de detenção.', 'Ritmo de rua: penalidade por repetir roubos cai pela metade.', 'Sangue frio: o Procurado pesa metade nas chances; o cofre exige Astúcia 18.'] },
     { id: 'barao', name: 'Dono da Noite', tag: 'Rei do Inferninho', desc: 'Casas da noite rendem +30% e custam 20% menos; entrada e doses 40% mais baratas; whisky, loló, bala e pó sobem metade do vício. Nos roubos, a arma dele conta 20% menos.',
@@ -483,6 +483,11 @@
     { id: 'comercio', name: 'Comércio', desc: 'Lucro com mercadorias: vendas e remessas menos compras.', unit: 'money', tiers: [3500, 8000, 14000] }
   ];
   const MEDALS = ['—', 'Bronze', 'Prata', 'Ouro'];
+  /* v1.5: um placar só. As medalhas viram "feitos do mês" que pagam respeito na hora (a Fama sai:
+   * ela já era o próprio respeito), e cumprir a meta também paga. */
+  const FEAT_CATS = ['fortuna', 'territorio', 'diplomacia', 'gangue', 'comercio'];
+  const FEAT_RESPECT = [0, 6, 10, 14];
+  const GOAL_RESPECT = 20;
 
   const ACHIEVEMENTS = [
     { id: 'primeira', name: 'Primeiro passo', desc: 'Concluir a primeira missão.' },
@@ -544,7 +549,7 @@
       district: 'centro', jail: 0, businesses: [], gangName: null, gangLevel: 0,
       successful: 0, failed: 0, seasonHistory: [],
       log: [{ day: 1, msg: 'Você chegou à cidade com algum dinheiro, poucos contatos e muita ambição.' }],
-      avatar: null, clock: null, career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
+      avatar: null, clock: null, feats: Object.fromEntries(FEAT_CATS.map(c => [c, 0])), career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
       influence: initialInfluence(), presence: initialPresence(null), dstate: initialDistrictState(),
       events: [{ id: 'rotina', start: 1, until: 1, district: null }],
       newsPending: { id: 'feira', day: 1, faction: null }, lastEvent: 'rotina', nextBonus: 0, tip: 0, contracts: [], extorted: {},
@@ -612,6 +617,10 @@
     if (!s.gangName) s.gangLevel = 0;
     else s.gangLevel = Math.max(1, s.gangLevel);
     s.career = CAREERS.some(c => c.id === saved.career) ? saved.career : null;
+    // Feitos do mês já pagos. Save antigo: conta como pagos os que já tinha (sem bônus retroativo).
+    s.feats = Object.fromEntries(FEAT_CATS.map(c => [c, 0]));
+    const hadFeats = saved.feats && typeof saved.feats === 'object';
+    if (hadFeats) for (const c of FEAT_CATS) s.feats[c] = toInt(saved.feats[c], 0, 0, 3);
     // Relógio do modo online (null no jogo local).
     s.clock = null;
     if (saved.clock && typeof saved.clock === 'object' && isNum(saved.clock.t) && saved.clock.t > 0) {
@@ -761,6 +770,7 @@
     else s.tutorial = { step: 0, done: s.season > 1 || s.day > 1, trained: false, contacted: false, banked: false, nighted: false };
     if (s.tutorial.step >= TUTORIAL.length) s.tutorial.done = true;
     s.schema = SCHEMA; s.version = VERSION;
+    if (!hadFeats) for (const c of CATEGORIES) if (FEAT_CATS.includes(c.id)) s.feats[c.id] = medalFor(c, Math.max(0, categoryValue(s, c.id)));
     return { state: s, notes };
   }
 
@@ -874,7 +884,7 @@
     mult *= Math.max(.5, 1 - .12 * (s.today.missions[m.id] || 0));
 
     if (eventMod(s, 'payday') && PAYDAY_MISSIONS.includes(m.id)) mult *= 1.3;
-    if (s.career === 'operador') mult *= 1.2; // linha de frente
+    if (s.career === 'operador') mult *= 1.15; // linha de frente
     if (d === 'vila' && cityIs(s, 'rio')) mult *= 1.1;
     if (m.req && m.req.power) mult *= 1.25; // roubo armado paga mais: a arma se paga
     return Math.max(.2, mult);
@@ -1781,7 +1791,7 @@
     s.dstate[d].vigil = clamp(s.dstate[d].vigil + 25, 0, 100);
     turfFriction(s, d, 8);
     if (roll(odds)) {
-      const total = Math.round(rand(h.low, h.high) * s.dstate[d].econ * (eventMod(s, 'payday') ? 1.3 : 1) * (s.career === 'operador' ? 1.2 : 1)), cut = Math.round(total * HEIST_CUT), take = total - cut;
+      const total = Math.round(rand(h.low, h.high) * s.dstate[d].econ * (eventMod(s, 'payday') ? 1.3 : 1) * (s.career === 'operador' ? 1.15 : 1)), cut = Math.round(total * HEIST_CUT), take = total - cut;
       s.cash += take; s.respect += h.respect; addHeat(s, heatGain(s, h.heat)); addMorale(s, 6);
       s.gangStats.heists++; memberXP(s, 2); markDone(s, 'heists', h.id);
       unlock(s, 'primeiroassalto'); if (h.id === 'cofrecentral') unlock(s, 'golpedoano');
@@ -2106,7 +2116,7 @@
       flow(s, s.clock.t, mid, lines); s.clock.t = mid;
       if (monthKey(mid) !== s.clock.month) {
         const r = closeSeason(s, true);
-        lines.push(r.msg, `Pontuação do mês: ${r.record.score}. Começa uma temporada nova.`);
+        lines.push(r.msg, `Respeito no fim do mês: ${r.record.score}. Começa uma temporada nova.`);
         s = startClock(r.state, mid);
       } else {
         const r = turnDay(s, clamp(calDay(mid), 1, MAXDAY));
@@ -2305,12 +2315,20 @@
     return { value: 0, max: 100, unit: 'pct', complete: false };
   }
   /** Executado após cada ação: trava metas cumpridas e verifica conquistas. */
+  /** Executado após cada ação: paga feitos do mês e a meta em respeito, verifica conquistas. Devolve as linhas para o resultado. */
   function afterAction(s) {
-    if (s.goal && !s.goalDone && goalProgress(s, s.goal).complete) { s.goalDone = true; log(s, `Meta da temporada cumprida: ${GOALS.find(g => g.id === s.goal).name}!`); }
+    const out = [];
+    if (s.goal && !s.goalDone && goalProgress(s, s.goal).complete) { s.goalDone = true; s.respect += GOAL_RESPECT; const m = `Meta da temporada cumprida: ${GOALS.find(g => g.id === s.goal).name}! +${GOAL_RESPECT} de respeito.`; log(s, m); out.push(m); }
+    for (const c of CATEGORIES) {
+      if (!FEAT_CATS.includes(c.id)) continue;
+      const lvl = medalFor(c, Math.max(0, categoryValue(s, c.id)));
+      while (s.feats[c.id] < lvl) { s.feats[c.id]++; const r = FEAT_RESPECT[s.feats[c.id]]; s.respect += r; const m = `Feito do mês: ${c.name} ${MEDALS[s.feats[c.id]]}. +${r} de respeito.`; log(s, m); out.push(m); }
+    }
     if (patrimony(s) >= 35000) unlock(s, 'cofrecheio');
     if (s.crew.some(m => m.level >= 5)) unlock(s, 'veterano');
     if (careerLevel(s) >= 3) unlock(s, 'mestre');
     s.seasonStats.bestCash = Math.max(s.seasonStats.bestCash, patrimony(s));
+    return out;
   }
 
   /** Avança os primeiros passos enquanto as condições estiverem cumpridas. Devolve linhas para o resumo. */
@@ -2344,9 +2362,9 @@
   const medalFor = (c, v) => c.tiers.filter(t => v >= t).length;
   function seasonScore(s) {
     const cats = CATEGORIES.map(c => { const v = Math.max(0, Math.round(categoryValue(s, c.id))); return { id: c.id, name: c.name, value: v, medal: medalFor(c, v), pct: Math.min(100, Math.round(v / c.tiers[2] * 100)) }; });
-    const score = sum(cats.map(c => Math.min(150, c.pct))) + sum(cats.map(c => c.medal * 15)) + (s.goalDone ? 40 : 0);
-    const rs = Math.round(score), ti = TITLES.filter(t => rs >= t[0]).length - 1;
-    return { cats, score: rs, title: TITLES[ti][1], next: TITLES[ti + 1] ? { title: TITLES[ti + 1][1], at: TITLES[ti + 1][0] } : null };
+    // Placar único: o respeito. O título é a patente.
+    const pi = phaseIndex(s), nx = PHASES[pi + 1];
+    return { cats, score: s.respect, title: PHASES[pi].name, next: nx ? { title: nx.name, at: nx.at } : null };
   }
   function seasonRanking(s) {
     const rows = [{ id: 'player', name: s.gangName || s.name, power: cityPower(s), player: true }]
@@ -2388,7 +2406,7 @@
     n.tutorial = { ...s.tutorial, done: true };
     if (nemesis) { n.factions[nemesis].relation -= 25; n.factions[nemesis].tension += 15; n.factions[nemesis].grudge = 2; }
     n.cash = START_CASH + Math.min(1200, Math.floor(money_ * .05)) + (s.goalDone ? 600 : 0) + medalBonus;
-    n.log = [{ day: 1, msg: `Temporada ${n.season} iniciada. Anterior: “${sc.title}” (${sc.score} pontos). Legado: ${money(n.cash - START_CASH)} para começar.${nemesis ? ` ${faction(nemesis).name} não esqueceu a rivalidade.` : ''}` }];
+    n.log = [{ day: 1, msg: `Temporada ${n.season} iniciada. Anterior: “${sc.title}” (${sc.score} de respeito). Legado: ${money(n.cash - START_CASH)} para começar.${nemesis ? ` ${faction(nemesis).name} não esqueceu a rivalidade.` : ''}` }];
     return done(true, `Temporada ${s.season} encerrada: ${sc.title}.`, { state: n, record });
   }
 
@@ -2411,7 +2429,8 @@
     if (r.ok && name !== 'endSeason') {
       const tut = advanceTutorial(s);
       if (tut.length) r.lines = (r.lines || []).concat(tut);
-      afterAction(s);
+      const feats = afterAction(s);
+      if (feats.length) r.lines = (r.lines || []).concat(feats);
     }
     return r;
   }
@@ -2426,7 +2445,7 @@
     missionScore, gearParts, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
-    currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
+    FEAT_CATS, FEAT_RESPECT, GOAL_RESPECT, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
     chainLock, chainList, CHAIN_KINDS, CLOCK, startClock, tick, clockInfo, atHome, dayKey, monthKey, act, perform
   };
   applyCity(CITIES[0].name); // as tabelas sempre refletem uma cidade real

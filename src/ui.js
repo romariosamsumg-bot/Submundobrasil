@@ -278,7 +278,7 @@
     if (name === 'endSeason') {
       const rec = r.record;
       if (r.state) state = r.state;
-      result = { good: true, msg: r.msg, lines: [`Pontuação: ${rec.score}.`, ...SB.CATEGORIES.map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`), `Meta: ${rec.goal ? (rec.goalComplete ? 'cumprida' : 'não cumprida') : 'não escolhida'}.`], deltas: [] };
+      result = { good: true, msg: r.msg, lines: [`Respeito final: ${rec.score} · ${rec.title}.`, ...SB.CATEGORIES.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`), `Meta: ${rec.goal ? (rec.goalComplete ? 'cumprida' : 'não cumprida') : 'não escolhida'}.`], deltas: [] };
     } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()), fresh: true, stamp: STAMPED.includes(name) };
     if (name === 'nextDay') dawn();
     save(); render();
@@ -379,14 +379,14 @@
     gangue: 'faça a operação coletiva todo dia e vença confrontos',
     comercio: 'no Galpão, compre onde está barato, venda onde está caro e guarde o que o comprador de fora quer'
   };
-  /** Rumo: onde você está, o próximo título e a medalha mais próxima, com o caminho. */
+  /** Rumo (antigo): substituído pelo cartão Sua temporada. */
   let helpPage = 0;
   function helpPages() {
     const c = state ? SB.cityOf(state.city) : SB.CITIES[0];
     return [
       ['O objetivo', `<p><b class="age18">18+</b> Ficção adulta: crime, violência, drogas e linguagem pesada.</p><p>Você chega a <strong>${esc(c.name)}</strong> com pouco dinheiro e nenhum nome. Tem <strong>30 dias</strong> (uma temporada) para virar alguém.</p>
-        <p>No fim, sua temporada recebe pontos e medalhas em <strong>seis caminhos</strong>: Fortuna, Fama, Território, Diplomacia, Gangue e Comércio. Não precisa ser bom em tudo: escolha um ou dois e vá fundo.</p>
-        <p>Os títulos vão de <em>Aprendiz da rua</em> a <em>Lenda do Submundo</em>. O cartão <strong>Seu rumo</strong>, no Início, mostra sempre o próximo título e a medalha mais próxima.</p>`],
+        <p>O placar é um só: o <strong>respeito</strong>. Ele sobe nos roubos, duelos, assaltos e negócios, e também nos <strong>feitos do mês</strong> (bronze, prata e ouro em Fortuna, Território, Diplomacia, Gangue e Comércio), que pagam respeito na hora. Não precisa ser bom em tudo: escolha um ou dois caminhos e vá fundo.</p>
+        <p>O respeito também dá a sua <strong>patente</strong>, de <em>Pé de chinelo</em> a <em>Dono do morro</em>, e é o que conta no ranking. O cartão <strong>Sua temporada</strong>, na Rua, mostra a próxima patente e o feito mais perto.</p>`],
       ['Seu dia', `<p>Tudo gasta <strong>energia</strong> (barra verde). Um dia típico:</p>
         <ol><li><strong>Serviços</strong> rendem dinheiro e respeito. Veja a chance antes.</li><li><strong>Treino</strong> melhora atributos e libera serviços maiores.</li><li><strong>Contatos</strong> nos bairros viram influência e tributo.</li><li>O ciclo fica nas abas: <strong>Roubar</strong>, <strong>Noite</strong> (recarrega energia) e <strong>Feira</strong> (arma abre roubo maior). Na <strong>Cidade</strong> ficam o bando, o banco e o resto, que vão se abrindo com o respeito: Galpão (comprar barato, vender caro, produzir e despachar), a noite (energia extra, com ressaca), os Duelos de rua e o Hospital.</li><li>Sem energia? <strong>Avance o dia</strong>: +70 de energia, a renda entra e os grupos se movem.</li></ol>
         <p>Respeito libera serviços, a gangue (30) e mais. Dinheiro compra treino, negócios e equipe.</p>`],
@@ -466,10 +466,11 @@
     else o += tile('Classe', 'A escolher', 'decida acima', null);
     if (s.goal) { const g = SB.GOALS.find(x => x.id === s.goal), p = SB.goalProgress(s, s.goal); o += tile('Meta', esc(g.name), s.goalDone ? 'cumprida ✓' : p.unit === 'money' ? fmt(p.value) + ' / ' + fmt(p.max) : Math.round(p.value) + '%', s.goalDone ? 100 : p.value / p.max * 100); }
     else o += tile('Meta', s.day <= 5 ? 'Escolha até o dia 5' : 'Sem meta', s.day <= 5 ? 'em Temporada' : 'nesta temporada', null, s.day <= 5 ? 'pick' : '');
-    const base = (SB.TITLES.find(t => t[1] === sc.title) || [0])[0];
-    o += tile('Título', esc(sc.title), sc.next ? `${esc(sc.next.title)} com ${num(sc.next.at)}` : 'título máximo', sc.next ? (sc.score - base) / (sc.next.at - base) * 100 : 100);
-    return `<section class="rumo ficha" aria-label="Sua temporada"><div class="rumoHead"><span>Sua temporada</span><b>${num(sc.score)} pts</b></div><div class="fichaGrid">${o}</div>
-      <div class="btnbar fichaGo">${button('Medalhas', 'switch', 'data-target="temporada"', false, 'small ghost')}${c ? button('Habilidades', 'switch', 'data-target="perfil"', false, 'small ghost') : ''}</div>
+    const fc = SB.CATEGORIES.filter(x => SB.FEAT_CATS.includes(x.id)), got = fc.reduce((a, x) => a + s.feats[x.id], 0);
+    let near = null; for (const x of sc.cats) { if (!SB.FEAT_CATS.includes(x.id)) continue; const cat = SB.CATEGORIES.find(k => k.id === x.id), nt = cat.tiers[x.medal]; if (!nt) continue; const pv = x.medal ? cat.tiers[x.medal - 1] : 0, gap = (nt - x.value) / (nt - pv); if (!near || gap < near.gap) near = { x, cat, nt, gap, pv }; }
+    o += tile('Feitos do mês', `${got}/${fc.length * 3}`, near ? `${esc(near.x.name)} ${SB.MEDALS[near.x.medal + 1]}: +${SB.FEAT_RESPECT[near.x.medal + 1]} ★` : 'todos feitos', near ? (near.x.value - near.pv) / (near.nt - near.pv) * 100 : 100);
+    return `<section class="rumo ficha" aria-label="Sua temporada"><div class="rumoHead"><span>Sua temporada</span><b>★ ${num(s.respect)} respeito</b></div><div class="fichaGrid">${o}</div>
+      <div class="btnbar fichaGo">${button('Feitos', 'switch', 'data-target="temporada"', false, 'small ghost')}${c ? button('Habilidades', 'switch', 'data-target="perfil"', false, 'small ghost') : ''}</div>
       ${s.day >= 25 && s.day < MAXDAY ? `<p class="warn">Reta final: faltam ${MAXDAY - s.day} dia(s).</p>` : ''}</section>`;
   }
   function journal(max) { return `<ul class="timeline">${state.log.slice(0, max).map(i => `<li><time>Dia ${num(i.day)}</time>${esc(i.msg)}</li>`).join('')}</ul>`; }
@@ -624,16 +625,16 @@
 
   function seasons() {
     const s = state, sc = SB.seasonScore(s);
-    return heading('Temporada', 'Trinta dias de decisões. Vença por fortuna, fama, território, diplomacia, gangue ou comércio.') + `<div class="screenArt">${window.SBArt.place('temporada')}</div>` + resultCard() + `<div class="seasonObjective">${goalCard()}</div>
+    return heading('Temporada', 'Trinta dias para subir no respeito: roubando, mandando nos bairros, negociando, com o bando ou no comércio.') + `<div class="screenArt">${window.SBArt.place('temporada')}</div>` + resultCard() + `<div class="seasonObjective">${goalCard()}</div>
       <div class="grid two"><section class="card"><div class="eyebrow">Temporada atual</div><div class="seasonnumber">${String(s.season).padStart(2, '0')}</div><div class="meter"><div style="width:${s.day / MAXDAY * 100}%"></div></div>
         <div class="statusbar"><span>Dia ${s.day} de ${MAXDAY}</span><strong>${MAXDAY - s.day} dia(s) restante(s)</strong></div><p class="mini">Cada temporada tem 30 dias jogáveis (29 viradas). A renda entra ao virar o dia; o dia 30 é o último para agir.</p><div class="divider"></div>
         ${s.day === MAXDAY ? button('Encerrar temporada', 'end-season', '', false, 'primary block') : nextDayButton('block')}</section>
-      <section class="card"><h2>Pontuação parcial: ${sc.score}</h2><p>Título atual: <strong>${esc(sc.title)}</strong>. Medalhas valem legado (até ${fmt(800)}) e prestígio.</p>
-        ${sc.cats.map(c => { const cat = SB.CATEGORIES.find(x => x.id === c.id); const next = cat.tiers[c.medal]; return `<div class="catRow"><div class="space"><span><strong>${c.name}</strong> <span class="mini" style="display:inline">${cat.unit === 'money' ? fmt(c.value) : num(c.value)}</span></span><span class="medal m${c.medal}">${SB.MEDALS[c.medal]}</span></div><div class="meter green"><div style="width:${pct(c.pct)}%"></div></div><span class="mini">${esc(cat.desc)}${next ? ` Próxima: ${cat.unit === 'money' ? fmt(next) : num(next)}.` : ''}</span></div>`; }).join('')}</section></div>
+      <section class="card"><h2>Feitos do mês</h2><p>Respeito: <strong>★ ${num(s.respect)}</strong> · patente <strong>${esc(sc.title)}</strong>. Cada feito paga respeito na hora (bronze +${SB.FEAT_RESPECT[1]}, prata +${SB.FEAT_RESPECT[2]}, ouro +${SB.FEAT_RESPECT[3]}) e vale legado para a próxima temporada (até ${fmt(800)}).</p>
+        ${sc.cats.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => { const cat = SB.CATEGORIES.find(x => x.id === c.id); const next = cat.tiers[c.medal]; return `<div class="catRow"><div class="space"><span><strong>${c.name}</strong> <span class="mini" style="display:inline">${cat.unit === 'money' ? fmt(c.value) : num(c.value)}</span></span><span class="medal m${c.medal}">${SB.MEDALS[c.medal]}</span></div><div class="meter green"><div style="width:${pct(c.pct)}%"></div></div><span class="mini">${esc(cat.desc)}${next ? ` Próximo: ${cat.unit === 'money' ? fmt(next) : num(next)} (+${SB.FEAT_RESPECT[c.medal + 1]} de respeito).` : ''}</span></div>`; }).join('')}</section></div>
       <div class="section"><h2>Conquistas</h2><small>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length} · permanentes</small></div>
       <section class="card"><div class="achGrid">${SB.ACHIEVEMENTS.map(a => `<div class="ach ${s.achievements[a.id] ? 'on' : ''}"><strong>${s.achievements[a.id] ? '✓ ' : ''}${esc(a.name)}</strong><span>${esc(a.desc)}${s.achievements[a.id] ? ` (T${s.achievements[a.id]})` : ''}</span></div>`).join('')}</div></section>
       <div class="section"><h2>Histórico</h2><small>${s.goalWins} meta(s) cumprida(s) · prestígio ${s.prestige}</small></div>
-      <section class="card">${s.seasonHistory.length ? `<table class="table"><thead><tr><th>Temp.</th><th>Resultado</th><th>Patrimônio</th></tr></thead><tbody>${s.seasonHistory.slice(-10).reverse().map(h => `<tr><td>${num(h.season)}</td><td>${h.title ? esc(h.title) + ' · ' + num(h.score) + ' pts' : num(h.respect) + ' respeito'}${h.medals ? `<div class="mini">${SB.CATEGORIES.filter(c => h.medals[c.id]).map(c => c.name + ' ' + SB.MEDALS[h.medals[c.id]]).join(' · ') || 'Sem medalhas'}</div>` : ''}</td><td>${fmt(h.money)}${h.goal ? `<div class="mini">${h.goalComplete ? 'Meta cumprida' : 'Meta não cumprida'}</div>` : ''}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhuma temporada encerrada ainda.</div>'}
+      <section class="card">${s.seasonHistory.length ? `<table class="table"><thead><tr><th>Temp.</th><th>Resultado</th><th>Patrimônio</th></tr></thead><tbody>${s.seasonHistory.slice(-10).reverse().map(h => `<tr><td>${num(h.season)}</td><td>${num(h.respect)} respeito${h.title ? ' · ' + esc(h.title) : ''}${h.medals ? `<div class="mini">${SB.CATEGORIES.filter(c => h.medals[c.id]).map(c => c.name + ' ' + SB.MEDALS[h.medals[c.id]]).join(' · ') || 'Sem medalhas'}</div>` : ''}</td><td>${fmt(h.money)}${h.goal ? `<div class="mini">${h.goalComplete ? 'Meta cumprida' : 'Meta não cumprida'}</div>` : ''}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhuma temporada encerrada ainda.</div>'}
         ${Object.keys(s.records).length ? `<div class="divider"></div><h3>Recordes</h3><div class="kv">${SB.CATEGORIES.filter(c => s.records[c.id] !== undefined).map(c => `<div><span>${c.name}</span><strong>${c.unit === 'money' ? fmt(s.records[c.id]) : num(s.records[c.id])}</strong></div>`).join('')}</div>` : ''}</section>
       <div class="section"><h2>Salvamento e segurança</h2></div>
       <section class="card"><h2>Seu progresso</h2><p>Salvo automaticamente neste navegador. Exporte uma cópia para trocar de aparelho ou se proteger de limpezas do navegador.</p>
@@ -648,7 +649,7 @@
     const s = state;
     if (!s.goal) {
       if (s.day > 5) return `<section class="card"><h2>Meta da temporada</h2><p>Você não escolheu uma meta nos primeiros cinco dias. Poderá escolher na próxima temporada.</p></section>`;
-      return `<section class="card choiceCard"><h2>Escolha a meta da temporada</h2><p>Até o dia 5. Cumprir a meta garante ${fmt(600)} na próxima temporada e +40 pontos.</p><div class="choiceGrid">${SB.GOALS.map(g => `<article><strong>${g.name}</strong><p>${esc(g.desc)}</p>${button('Escolher meta', 'goal', `data-id="${g.id}"`, false, 'small block')}</article>`).join('')}</div></section>`;
+      return `<section class="card choiceCard"><h2>Escolha a meta da temporada</h2><p>Até o dia 5. Cumprir a meta dá +${SB.GOAL_RESPECT} de respeito na hora e ${fmt(600)} na próxima temporada.</p><div class="choiceGrid">${SB.GOALS.map(g => `<article><strong>${g.name}</strong><p>${esc(g.desc)}</p>${button('Escolher meta', 'goal', `data-id="${g.id}"`, false, 'small block')}</article>`).join('')}</div></section>`;
     }
     const g = SB.GOALS.find(x => x.id === s.goal), p = SB.goalProgress(s, s.goal), value = p.unit === 'money' ? fmt(p.value) : `${Math.round(p.value)}%`;
     return `<section class="card"><div class="space"><div><div class="eyebrow">Sua meta</div><h2>${g.name}</h2></div><span class="pill">${s.goalDone ? 'Cumprida' : 'Em andamento'}</span></div><p>${esc(g.desc)}</p><div class="meter green"><div style="width:${s.goalDone ? 100 : pct(p.value / p.max * 100)}%"></div></div><div class="statusbar"><span>Progresso: ${s.goalDone ? 'concluído' : value}</span><strong>${s.goalDone ? 'Bônus garantido' : 'Bônus: ' + fmt(600)}</strong></div></section>`;
@@ -682,7 +683,7 @@
       ${gated('apostas', 'apostas', 'Apostas', `Bicho, sinuca e roleta · hoje ${s.today.bets}/${SB.BET_LIMIT}`)}
       ${gated('duelos', 'duelos', 'Duelos de rua', `Hoje ${s.today.duels}/${SB.DUEL_LIMIT} · ${s.duelStats.wins} vitória(s)`)}
       ${place('hospital', 'Hospital', s.hospital ? `Internado · ${s.hospital} dia(s)` : `Saúde ${s.health}/100`, s.health < 50 ? 'Ferido' : '')}
-      ${place('perfil', 'Perfil e temporada', `Dia ${s.day}/${MAXDAY} · ${num(SB.seasonScore(s).score)} pts`, '', 'temporada')}
+      ${place('perfil', 'Perfil e temporada', `Dia ${s.day}/${MAXDAY} · ★ ${num(s.respect)} respeito`, '', 'temporada')}
     </div>`;
   }
   function itemEffect(it) {
@@ -935,7 +936,7 @@
       case 'faction-alliance': if (confirm(`Firmar aliança? Contribuição diária de ${fmt(SB.allianceFee(state))}. O inimigo do aliado ficará mais hostil.`)) run('alliance', id); break;
       case 'faction-break': if (confirm('Romper o acordo? Todas as facções confiarão menos em você.')) run('breakDeal', id); break;
       case 'faction-clash': run('clash', id); break;
-      case 'end-season': { const sc = SB.seasonScore(state); if (confirm(`Encerrar a temporada ${state.season}?\n\nTítulo: ${sc.title} (${sc.score} pts)\n${sc.cats.map(c => c.name + ': ' + SB.MEDALS[c.medal]).join('\n')}\n\nVocê começará uma nova carreira; conquistas, recordes e histórico são mantidos.`)) { run('endSeason'); view = 'temporada'; render(); } break; }
+      case 'end-season': { const sc = SB.seasonScore(state); if (confirm(`Encerrar a temporada ${state.season}?\n\nRespeito: ${sc.score} · ${sc.title}\n${sc.cats.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => c.name + ': ' + SB.MEDALS[c.medal]).join('\n')}\n\nVocê começará uma nova carreira; conquistas, recordes e histórico são mantidos.`)) { run('endSeason'); view = 'temporada'; render(); } break; }
       case 'export': exportSave(); break;
       case 'import': $('#importFile') && $('#importFile').click(); break;
       case 'download-backup': try { const raw = localStorage.getItem(id); if (raw) download(id + '.json', raw); } catch (err) { notify('Não foi possível ler a cópia.', true); } break;

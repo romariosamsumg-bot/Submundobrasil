@@ -611,6 +611,12 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
 - **Tela Rua (v1.5)**, de cima para baixo: placa do bairro (Dono, Grana e Polícia do bairro; tocar na faixa explica os três) → resultado → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, meta, título) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
 
+### Um placar só: o respeito (v1.5)
+
+Os pontos da temporada saíram. O **respeito** é o placar do mês, o ranking online e a **patente** (o antigo título, de Aprendiz da rua a Lenda do Submundo, sumiu). As medalhas viraram **feitos do mês**: chegar a bronze, prata e ouro em Fortuna, Território, Diplomacia, Gangue e Comércio paga **+6, +10 e +14 de respeito** na hora, uma vez por nível (a Fama saiu, porque era o próprio respeito). Cumprir a **meta** paga **+20**. Os feitos continuam dando legado para a temporada seguinte (até R$ 800). Save antigo entra com os feitos que já tinha dados como pagos.
+
+Também na v1.5: o Assaltante passou de +20% para **+15%** de dinheiro nos roubos e nos assaltos do bando.
+
 ### Equipamento nos roubos (v1.5)
 
 Antes, cada ponto do atributo valia +4% e a arma só +0,5% por ponto, e só nos roubos de Força. Agora o equipamento soma chance em **todo** roubo:
