@@ -570,3 +570,7 @@ body.busy #content{opacity:.6;pointer-events:none}
 #playOffline{margin-top:12px}
 .suClass b,.suClass small,.suClass span{display:block;text-align:left;margin:0}
 .suClass small{margin:-1px 0 3px}
+
+/* v1.5: luta no Perfil */
+.lutaHead{display:flex;gap:12px;align-items:center}.lutaHead strong{flex:none;font:400 40px/1 var(--stencil);color:#ffd98f;min-width:56px;text-align:center}.lutaHead p{margin:0}
+.lutaParts{list-style:none;margin:8px 0;padding:0}.lutaParts li{display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid #2c3a3e;font-size:13px}.lutaParts li:first-child{border-top:0}.lutaParts b{color:#f3d6ae}

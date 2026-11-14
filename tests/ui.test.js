@@ -207,6 +207,7 @@ await page.click('[data-action=duel][data-id=marrento]');
 
   await go('perfil');
   check(await page.locator('#content .avatarPick, #content [data-action=avatar]').count() === 0, 'Perfil não troca mais o retrato');
+  check(await page.isVisible('.lutaCard') && (await page.textContent('.lutaCard')).includes('Força'), 'Perfil mostra a luta e a conta');
   check(await page.evaluate(() => !!document.querySelector('#hudAvatar img')), 'retrato da ficha aparece no topo');
   console.log('4. Save inválido e XSS');
   await page.evaluate(() => localStorage.setItem('submundo_brasil_v01', '{"schema":1,"name":"Quebrado"'));

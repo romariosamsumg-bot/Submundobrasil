@@ -611,6 +611,10 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
 - **Tela Rua (v1.5)**, de cima para baixo: placa do bairro (Dono, Grana e Polícia do bairro; tocar na faixa explica os três) → resultado → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, meta, título) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
 
+### Luta, força do bando e poder da arma (v1.5)
+
+Três nomes, três medidas: **poder** é só da arma (abre roubos e soma nas chances); **Luta** é a sua, mostrada no Perfil com a conta aberta: Força × 1,6 + Astúcia × 0,6 + poder da arma × 1,8 + defesa da proteção + nível da sede × 1,5 (Assaltante: arma e proteção +15%); vale nos duelos (+2,2% de chance por ponto acima do adversário) e é a base da **Força do bando** nos assaltos (mais nível e número de integrantes, Músculos e avulsos). Também pesam: saúde abaixo de 60, cansaço do dia, Procurado, ânimo e informação. O antigo "Poder na cidade" virou **Domínio da cidade** (influência nos bairros, não luta).
+
 ### Entrada e ficha da temporada (v1.5)
 
 Sequência: **tela inicial** (aviso 18+, entrar ou criar conta, ou jogar sem conta) → **ficha 1**: retrato (10), vulgo e cidade, botão **Próximo** → **ficha 2**: classe (4), e só depois de escolher aparecem o aviso "retrato, vulgo e classe só poderão ser alterados na próxima temporada" e o botão **Salvar** → o **guia de primeiros passos** começa direto no passo 2 (primeiro roubo). A ação é `setup(retrato, vulgo, classe)`, que só vale sem classe; ao virar a temporada a ficha reabre com o vulgo preenchido (a cidade não muda). O Perfil não troca mais o retrato. No online, o vulgo novo precisa ser único (o banco recusa repetido).

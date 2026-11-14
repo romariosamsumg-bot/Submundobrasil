@@ -397,7 +397,7 @@
     { id: 'mission', title: 'Faça seu primeiro roubo', text: 'Roubar gasta energia e rende dinheiro e respeito. Olhe a chance antes: falhar custa caixa e pode dar cadeia.', view: 'acoes', cta: 'Ir roubar', reward: 80, check: s => s.successful + s.failed >= 1 },
     { id: 'gear', title: 'Compre sua primeira arma', text: 'Arma é o que abre os roubos maiores. Comece com o que o bolso permite: um pedaço de pau já serve.', view: 'feira', cta: 'Ir à Feira do Rolo', reward: 60, check: s => !!s.gear.arma },
     { id: 'night', title: 'Recarregue na noitada', text: 'Acabou a energia? Entre no Boteco e peça uma dose: dinheiro vira energia para continuar hoje. Amanhã vem a ressaca, e cada dose sobe o vício.', view: 'noite', cta: 'Ir para a noite', reward: 40, check: s => s.tutorial.nighted },
-    { id: 'train', title: 'Treine um atributo', text: 'Cada roubo usa um atributo. Treinar aumenta a chance e o seu poder de luta.', view: 'acoes', cta: 'Ir treinar', reward: 60, check: s => s.tutorial.trained },
+    { id: 'train', title: 'Treine um atributo', text: 'Cada roubo usa um atributo. Treinar aumenta a chance e a sua luta.', view: 'acoes', cta: 'Ir treinar', reward: 60, check: s => s.tutorial.trained },
     { id: 'day', title: 'Durma: vire o dia', text: 'Sem energia e sem saída na noite, durma: +70 de energia, o Procurado cai, a renda entra e os grupos se movem. A temporada tem 30 dias.', view: 'painel', cta: 'Voltar para a rua', reward: 60, check: s => s.day >= 2 },
     { id: 'goal', title: 'Escolha a meta da temporada', text: 'A meta é o seu norte: cumprir rende bônus e pontos. Escolha até o dia 5.', view: 'temporada', cta: 'Escolher meta', reward: 0, check: s => !!s.goal || s.day > 5 },
     { id: 'bank', title: 'Guarde dinheiro no banco', text: 'Falhas tiram parte do dinheiro em mãos. O banco protege, cobrando uma taxa pequena.', view: 'gestao', cta: 'Abrir banco', reward: 40, check: s => s.tutorial.banked },
@@ -1001,6 +1001,8 @@
   /** Arma e colete como contam para você: Assaltante +15%; a arma do Dono da Noite conta 20% menos nos roubos. */
   const armPower = (s, robbery = false) => gearVal(s, 'power') * (s.career === 'operador' ? 1.15 : s.career === 'barao' && robbery ? .8 : 1);
   const armDef = s => gearVal(s, 'def') * (s.career === 'operador' ? 1.15 : 1);
+  /** Luta em partes, para a interface mostrar a conta (a soma arredondada é combatRating). */
+  const combatParts = s => [['Força', s.stats.forca * 1.6], ['Astúcia', s.stats.astucia * .6], ['Arma', armPower(s) * 1.8], ['Proteção', armDef(s)], ['Sede do bando', s.gangLevel * 1.5]];
   const combatRating = s => Math.round(s.stats.forca * 1.6 + s.stats.astucia * .6 + armPower(s) * 1.8 + armDef(s) + s.gangLevel * 1.5);
   function duelOdds(s, r) { return clamp(Math.round(50 + (combatRating(s) - r.rating) * 2.2 - healthPenalty(s) - (s.today.duels || 0) * 4), 8, 92); }
   const clinicCost = s => Math.max(0, (100 - s.health) * CLINIC_PRICE);
@@ -2412,7 +2414,7 @@
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
-    missionScore, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    missionScore, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
