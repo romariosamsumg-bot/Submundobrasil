@@ -613,3 +613,12 @@ body.busy #content{opacity:.6;pointer-events:none}
 .heatActs>div{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-top:1px dashed #2c3a3e}
 .heatActs>div .mini{margin:0;min-width:0}.heatActs>div .btn{flex:none}
 .heatActs>p{margin:7px 0 0}
+
+/* Influência: faixa do bairro e Perfil */
+.localeBottom .infTag{font-size:11px}
+.localeBottom .infTag.mine{border-left-color:#3f9a6d;color:#bff0d2}
+.statRow.infRow{grid-template-columns:minmax(0,1fr) 32% 34px;row-gap:3px;padding:7px 0;border-top:1px solid #2c3a3e}
+.statRow.infRow:first-child{border-top:0}
+.infRow>span{overflow-wrap:anywhere}
+.infRow>small{grid-column:1/-1;margin:0;overflow-wrap:anywhere}
+.infRow.here>span{color:#f3d6ae}

@@ -198,10 +198,12 @@ await page.click('[data-action=duel][data-id=marrento]');
   await go('painel');
   check((await page.textContent('.dayBar')).includes('Semana'), 'Rua mostra a semana do mês');
   check(await page.evaluate(() => document.querySelector('#hudHeatTxt').textContent.startsWith('Procurado') && document.querySelector('#hudVicioTxt').textContent.startsWith('Vício')), 'topo mostra Procurado e Vício');
+  { const strip = await page.textContent('.localeBottom'); check(strip.includes('Sua influência') && !strip.includes('Grana') && !strip.includes('Polícia'), 'a faixa do bairro mostra só a sua influência'); }
   await page.click('[data-action=locale-help]');
-  check(await page.isVisible('.localeInfo') && (await page.textContent('.localeInfo')).includes('Procurado'), 'tocar na faixa da placa explica dono, grana e polícia');
+  { const info = await page.textContent('.localeInfo'); check(info.includes('Sua influência') && info.includes('Grana') && info.includes('Polícia') && info.includes('Dono'), 'tocar na faixa explica a influência e mostra dono, grana e polícia'); }
   await page.click('.localeInfo [data-action=locale-help]');
   check(await page.locator('.localeInfo').count() === 0, 'a explicação fecha');
+  await go('perfil'); check(await page.locator('.infCard .infRow').count() === 5, 'Perfil mostra a influência nos 5 bairros'); await go('painel');
   check(await page.evaluate(() => { const keep = window.SB_ART; window.SB_ART = {}; window.__SB_UI.go('painel'); const drawn = !document.querySelector('.locale .paintedScene') && !!document.querySelector('.locale svg.scene'); window.SB_ART = keep; window.__SB_UI.go('painel'); return drawn && !!document.querySelector('.locale .paintedScene img'); }), 'imagem pintada do bairro substitui a cena desenhada (e sem ela volta o desenho)');
   check(await page.locator('.loop').count() === 0, 'Rua sem o bloco Seu ciclo (a barra de baixo já leva às telas)');
   check(await page.locator('.ficha .fichaRow').count() >= 2, 'ficha da temporada reúne patente, classe, meta e título');

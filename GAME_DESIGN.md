@@ -609,7 +609,7 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 - **Nomes**: a vigilância pessoal (`heat`) aparece ao jogador como **Procurado**; a do bairro (`vigil`) como **Polícia no bairro** ("Polícia" na placa); a economia do bairro como **Grana**. As regras e os números não mudaram, só o nome.
 - **Topo (v1.5)**: dinheiro grande e, logo abaixo, o **respeito com estrela** (é o que conta no ranking) e o dia. Barras com ícone; Energia e Saúde grossas, Procurado e Vício finas e apagadas, que acendem com borda âmbar (Procurado ≥ 30, Vício ≥ 40) e vermelha piscando (Procurado ≥ 60, Vício ≥ 70).
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
-- **Tela Rua (v1.5)**, de cima para baixo: placa do bairro (Dono, Grana e Polícia do bairro; tocar na faixa explica os três) → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, mês, feitos do mês) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
+- **Tela Rua (v1.5)**, de cima para baixo: placa do bairro com **só a sua influência** ali (tocar no "?" explica a influência, o que ela libera, quanto falta para mandar, e mostra Dono, Grana e Polícia) → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, mês, feitos do mês) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
 
 ### Um placar só: o respeito (v1.5)
 
@@ -640,6 +640,10 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 - Iniciante com Pedaço de pau, Lista telefônica e Bicicleta, Procurado 22: Bater carteira 83% de chance e 2% de cadeia por tentativa (antes 74% e 9%); Celular no ponto 61% e 7% (antes 53% e 20%).
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
+
+### Influência à vista (v1.5)
+
+A influência no bairro aparece na faixa da placa (Rua e Bairros) e no **Perfil**, com uma linha por bairro: sua influência, quem manda e quanto falta (60 e 10 acima do dono), ou a vantagem, se o bairro é seu. Dono, Grana e Polícia ficaram na explicação do "?".
 
 ### O ciclo do roubo (v1.5, desenhado com o autor)
 

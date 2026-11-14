@@ -695,6 +695,15 @@ body.busy #content{opacity:.6;pointer-events:none}
 .heatActs>div .mini{margin:0;min-width:0}.heatActs>div .btn{flex:none}
 .heatActs>p{margin:7px 0 0}
 
+/* Influência: faixa do bairro e Perfil */
+.localeBottom .infTag{font-size:11px}
+.localeBottom .infTag.mine{border-left-color:#3f9a6d;color:#bff0d2}
+.statRow.infRow{grid-template-columns:minmax(0,1fr) 32% 34px;row-gap:3px;padding:7px 0;border-top:1px solid #2c3a3e}
+.statRow.infRow:first-child{border-top:0}
+.infRow>span{overflow-wrap:anywhere}
+.infRow>small{grid-column:1/-1;margin:0;overflow-wrap:anywhere}
+.infRow.here>span{color:#f3d6ae}
+
   </style>
 </head>
 <body>
@@ -3768,9 +3777,12 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   function localeInfo() {
     if (!localeHelp || !state) return '';
     const s = state, d = D(), ds = s.dstate[d.id], l = SB.leader(s, d.id), f = F(l.id);
-    return `<section class="card localeInfo"><p><b>Dono</b>: ${SB.controlled(s, d.id) ? 'você manda aqui: recebe tributo todo dia e a vantagem do bairro.' : `quem manda aqui: ${esc(f.name)}. Roubar no território dele gera atrito e retaliação; dá para conversar, firmar trégua ou tomar o bairro.`}</p>
+    const inf = s.influence[d.id], mine = SB.controlled(s, d.id), need = Math.max(60, l.value + 10);
+    return `<section class="card localeInfo"><p><b>Sua influência: ${num(inf)}/100</b>. É o quanto o seu nome pesa em ${esc(d.name)}. Sobe com <b>Criar contatos</b> (tela Bairros), com o roubo <b>Favor de vizinhança</b>, com decisões nas notícias e às vezes no pagode; cai 1 por dia nos bairros onde você não está, e os grupos rivais tomam.</p>
+      <p>Com <b>20</b> você pode disputar o bairro e confrontar facções; com <b>25</b>, o Leilão clandestino. Com <b>60 e 10 acima do grupo que manda</b>, o bairro é seu: +12% nos roubos daqui, +15% nos negócios daqui e a vantagem do bairro (${esc(d.advantage.replace(/\.$/, ''))}).${mine ? ' <b>Você manda aqui.</b>' : ` Faltam ${num(Math.max(0, need - inf))} para mandar.`}</p>
+      <p><b>Dono</b>: ${mine ? 'você.' : `${esc(f.name)} (${num(l.value)} de presença). Roubar no território dele gera atrito e retaliação; dá para conversar, firmar trégua ou tomar o bairro.`}</p>
       <p><b>Grana ${Math.round(ds.econ * 100)}%</b>: quanto dinheiro circula aqui hoje (de 60% a 140%). Multiplica o que você ganha nos roubos e nos negócios deste bairro.</p>
-      <p><b>Polícia ${ds.vigil}</b>: a polícia de olho neste bairro (0 a 100), diferente do seu Procurado. Sobe a cada roubo aqui e derruba suas chances; cai um pouco por dia. Acima de 40, mude de bairro.</p>
+      <p><b>Polícia ${ds.vigil}</b>: a polícia de olho neste bairro (0 a 100), diferente do seu Procurado. Sobe a cada roubo aqui e tira poder dos seus roubos; cai um pouco por dia. Acima de 40, mude de bairro.</p>
       <div class="btnbar">${button('Ver bairros', 'switch', 'data-target="cidade"', false, 'small ghost')}${button('Entendi', 'locale-help', '', false, 'small')}</div></section>`;
   }
   function localeStrip(tall, flyers = true) {
@@ -3778,7 +3790,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
     return `<section class="locale ${tall ? 'tall' : ''}" aria-label="Onde você está">${scene(d.id)}
       <div class="localeTop">${plate(d.name, s.city)}${(flyers ? evs : []).map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
-      <button type="button" class="localeBottom" data-action="locale-help" aria-expanded="${localeHelp}" aria-label="O que significam dono, grana e polícia"><span>${SB.controlled(s, d.id) ? 'Você é o dono' : 'Dono: ' + esc(F(l.id).short)}</span><span class="fix">Grana ${Math.round(ds.econ * 100)}%</span><span class="fix ${ds.vigil >= 40 ? 'hot' : ''}">Polícia ${ds.vigil}</span><i class="localeQ" aria-hidden="true">?</i></button></section>`;
+      <button type="button" class="localeBottom" data-action="locale-help" aria-expanded="${localeHelp}" aria-label="Sua influência neste bairro; tocar explica"><span class="infTag ${SB.controlled(s, d.id) ? 'mine' : ''}">Sua influência ${num(s.influence[d.id])}/100${SB.controlled(s, d.id) ? ' · você manda aqui' : ''}</span><i class="localeQ" aria-hidden="true">?</i></button></section>`;
   }
   const statName = id => SB.STATS.find(x => x.id === id).name;
   const chanceClass = p => p < 55 ? 'danger' : p < 75 ? 'risky' : '';
@@ -3976,7 +3988,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const agreed = SB.agreement(s, l.id), cc = SB.contactCost(s), used = s.today.contacts[d.id] || 0;
     const disputeBlock = s.jail > 0 || s.cash < 320 || s.energy < 33 || s.influence[d.id] < 20 || agreed || lr.lastActionDay === s.day;
     const special = SB.MISSIONS.find(m => m.district === d.id);
-    return heading('Bairros', 'Cada bairro tem dono, grana e polícia próprios, que mudam a cada dia.') + jailNotice() + resultCard() + localeStrip(true) + `
+    return heading('Bairros', 'Cada bairro tem dono, grana e polícia próprios, que mudam a cada dia.') + jailNotice() + resultCard() + localeStrip(true) + localeInfo() + `
       <section class="card"><div class="space factionHeader"><div><h2>Influência em ${esc(d.name)}</h2><p>Quem lidera: <strong>${SB.controlled(s, d.id) ? 'você' : esc(lf.name)}</strong>. ${esc(SB.factionStatus(s, l.id))}. Liderar exige 60 de influência e 10 acima da maior facção.</p></div>${SB.controlled(s, d.id) ? '<span class="pill">Você lidera</span>' : ''}</div>
         <div class="dualMeters"><div><div class="meterlabel"><span>Sua influência</span><strong>${s.influence[d.id]}</strong></div><div class="meter green"><div style="width:${s.influence[d.id]}%"></div></div></div>
         <div><div class="meterlabel"><span>${esc(lf.short)} (maior facção)</span><strong>${l.value}</strong></div><div class="meter red"><div style="width:${l.value}%"></div></div></div></div>
@@ -4269,6 +4281,8 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
         <details class="fichaMore"><summary>Como a conta é feita</summary><ul class="lutaParts">${SB.combatParts(s).map(([k, v]) => `<li><span>${k}</span><b>${v ? '+' + (Math.round(v * 10) / 10).toString().replace('.', ',') : '0'}</b></li>`).join('')}</ul>
         <p class="mini">Força conta 1,6 por ponto, Astúcia 0,6, o poder da arma 1,8, a defesa da proteção 1 e cada nível da sede 1,5.${s.career === 'operador' ? ' Como Assaltante, arma e proteção valem 15% a mais.' : ''} Também pesam na chance: saúde abaixo de 60, cansaço (cada duelo no dia tira 4%) e, nos assaltos, Procurado, ânimo e informação.</p></details></section>
       ${stencil('Atributos')}<section class="card">${SB.STATS.map(st => `<div class="statRow">${statIcon(st.id)}<span>${st.name}</span><div class="meter"><div style="width:${pct(s.stats[st.id] / top * 100)}%"></div></div><strong>${num(s.stats[st.id])}</strong></div>`).join('')}</section>
+      ${stencil('Influência', 'nos bairros de ' + esc(s.city))}<section class="card infCard">${SB.DISTRICTS.map(x => { const v = s.influence[x.id], mine = SB.controlled(s, x.id), ld = SB.leader(s, x.id); return `<div class="statRow infRow ${x.id === s.district ? 'here' : ''}"><span>${esc(x.name)}${x.id === s.district ? ' · você está aqui' : ''}</span><div class="meter ${mine ? 'green' : ''}"><div style="width:${pct(v)}%"></div></div><strong>${num(v)}</strong><small class="mini">${mine ? 'Você manda aqui: ' + esc(x.advantage) : `Manda: ${esc(F(ld.id).short)} (${num(ld.value)}). Para mandar: ${num(Math.max(60, ld.value + 10))}.`}</small></div>`; }).join('')}
+        <p class="mini">Influência sobe com Criar contatos (tela Bairros), com o Favor de vizinhança e com as notícias. Com 20: disputar o bairro; com 25: Leilão; com 60 e 10 acima do dono: o bairro é seu (+12% nos roubos, +15% nos negócios e a vantagem do bairro).</p></section>
       ${stencil('Equipamento', 'troque na Feira do Rolo')}<div class="gearGrid">${SB.SLOTS.map(sl => { const it = SB.item(s.gear[sl.id]); const pic = it ? window.SBArt.item(it.id) : ''; return `<button type="button" class="gearSlot ${it ? 'on' : ''}" data-view="feira">${pic ? `<span class="gearPic" aria-hidden="true">${pic}</span>` : ''}<span>${sl.name}</span><b>${it ? esc(it.name) : '—'}</b><small>${it ? esc(it.slot === 'arma' ? 'poder ' + it.power : it.slot === 'protecao' ? 'defesa ' + it.def : 'carga +' + it.cargo) : 'vazio'}</small></button>`; }).join('')}</div>
       ${stencil('Nesta temporada')}<section class="card"><div class="kv"><div><span>Respeito</span><strong>${num(s.respect)}</strong></div><div><span>Patrimônio</span><strong>${fmt(SB.patrimony(s))}</strong></div><div><span>Serviços</span><strong>${num(s.successful)} certos · ${num(s.failed)} falhos</strong></div><div><span>Detenções</span><strong>${s.seasonStats.arrests}</strong></div><div><span>Saúde</span><strong>${s.health}/100${s.hospital ? ' · internado' : ''}</strong></div><div><span>Duelos</span><strong>${s.duelStats.wins} vitórias · ${s.duelStats.losses} derrotas</strong></div><div><span>Mercadoria vendida</span><strong>${fmt(s.trade.sold)}</strong></div><div><span>Remessas / blitze</span><strong>${num(s.trade.exported)} un. · ${s.trade.blitz}</strong></div><div><span>Bairros liderados</span><strong>${SB.controls(s).length}/5</strong></div><div><span>Conquistas</span><strong>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length}</strong></div></div></section>
       ${onlineCard()}
