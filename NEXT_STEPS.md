@@ -156,6 +156,13 @@ Também sugerido: rebelião na cadeia com a gangue.
 - Fase 2: mercado entre jogadores. Fase 3: gangues de jogadores e ranking de gangues.
 - Login com Google (exige configurar o Google Cloud).
 
+## Pendências da v1.5 (entrada e Feira)
+
+- [x] Sequência de entrada: conta (ou sem conta) → retrato, vulgo e cidade → classe → Salvar com aviso → guia. Retrato travado na temporada.
+- [x] Itens comprados são seus, com Usar; preços recalculados para manter o ritmo.
+- **Assaltante lidera 5 de 5 estratégias nas classes** e o Traficante cai para 120 no roubo: rever o +20% do Assaltante (sugestão: +15%).
+- Bando de assaltos (122) segue o caminho mais fraco.
+
 ## Depende de servidor (visão do autor para o jogo online)
 
 - Rodada no calendário real (dia 1º ao último dia do mês) e eventos em datas reais (quinto dia útil, sextas e sábados).

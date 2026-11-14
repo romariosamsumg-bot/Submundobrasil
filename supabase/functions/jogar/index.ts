@@ -25,6 +25,10 @@ Deno.serve(async (req) => {
       const { error } = await db.from('jogadores').upsert({ id: user.id, codinome: saida.novo.codinome, cidade: saida.novo.cidade }, { onConflict: 'id' });
       if (error) return json(409, { erro: error.code === '23505' ? 'Esse codinome já está em uso. Escolha outro.' : 'Não foi possível criar o personagem.' });
     }
+    if (saida.renomear) { // vulgo novo na temporada nova: precisa ser único
+      const { error } = await db.from('jogadores').update({ codinome: saida.renomear }).eq('id', user.id);
+      if (error) return json(409, { erro: error.code === '23505' ? 'Esse vulgo já está em uso. Escolha outro.' : 'Não foi possível trocar o vulgo.' });
+    }
     if (saida.salvar) {
       const e = saida.salvar;
       const { error } = await db.from('saves').upsert({ jogador: user.id, estado: e, temporada: e.season, dia: e.day, mes: e.clock ? e.clock.month : null, respeito: e.respect, patrimonio: SB.patrimony(e), atualizado_em: new Date().toISOString() }, { onConflict: 'jogador' });

@@ -23,20 +23,30 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   console.log('1. Novo jogo e navegação (360×780)');
   await page.goto(FILE); await page.evaluate(() => localStorage.clear()); await page.reload();
   check(await page.isVisible('#welcome'), 'tela de boas-vindas aparece sem save');
-  await page.selectOption('#homeCity', 'Salvador');
-  check((await page.textContent('#cityTrait')).includes('Terra da festa'), 'vantagem da cidade aparece na capa');
   await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-capa.png') });
-  await page.fill('#playerName', 'Malandro'); await page.click('#newGameForm button[type=submit]');
-  check(await page.isVisible('#welcome'), 'sem marcar 18+ o jogo não começa');
-  await page.check('#ageOk'); await page.click('#newGameForm button[type=submit]');
-  check(!(await page.isVisible('#welcome')), 'jogo iniciado');
-  check(await page.isVisible('#help'), 'introdução "Como jogar" abre no primeiro jogo');
-  await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-ajuda.png') });
-  for (let i = 0; i < 3; i++) await page.click('[data-action=help-next]');
+  await page.click('#playOffline');
+  check(await page.isVisible('#welcome') && !(await page.isVisible('#setup')), 'sem marcar 18+ o jogo não começa');
+  await page.check('#ageOk'); await page.click('#playOffline');
+  check(await page.isVisible('#setup') && await page.locator('[data-action=su-avatar]').count() === 10, 'tela 1 da ficha: 10 retratos, vulgo e cidade');
+  await page.fill('#suName', 'Malandro'); await page.click('[data-action=su-next]');
+  check(await page.isVisible('#suName'), 'sem retrato não avança');
+  await page.click('[data-action=su-avatar][data-id=capoeirista]');
+  await page.selectOption('#suCity', 'Salvador');
+  check((await page.textContent('.cityTrait')).includes('Terra da festa'), 'vantagem da cidade aparece na ficha');
+  check(await page.inputValue('#suName') === 'Malandro', 'trocar a cidade não apaga o vulgo');
+  await page.screenshot({ path: path.join(__dirname, 'screens', 'v15-ficha-1.png'), fullPage: true });
+  await page.click('[data-action=su-next]');
+  check(await page.locator('[data-action=su-class]').count() === 4 && await page.locator('[data-action=su-save]').count() === 0, 'tela 2: 4 classes e o Salvar só aparece depois de escolher');
+  await page.click('[data-action=su-class][data-id=operador]');
+  check((await page.textContent('.suWarn')).includes('próxima temporada'), 'aviso: só muda na próxima temporada');
+  await page.screenshot({ path: path.join(__dirname, 'screens', 'v15-ficha-2.png'), fullPage: true });
+  await page.click('[data-action=su-save]');
+  check(!(await page.isVisible('#welcome')) && !(await page.isVisible('#setup')), 'jogo iniciado');
+  { const s0 = await st(); check(s0.name === 'Malandro' && s0.avatar === 'capoeirista' && s0.career === 'operador' && s0.city === 'Salvador' && s0.cash === 0, 'ficha salva: vulgo, retrato, classe e cidade'); }
+  check((await page.textContent('.guide')).includes('2/9') && (await page.textContent('.guide')).toLowerCase().includes('roubo'), 'logo em seguida o guia começa, no primeiro roubo');
+  await page.click('.guide [data-action=help]'); for (let i = 0; i < 3; i++) await page.click('[data-action=help-next]');
   check((await page.textContent('#helpBox')).includes('Largo das Ladeiras'), 'ajuda mostra os bairros da cidade escolhida');
   await page.click('#helpBox .btn.primary');
-  check(!(await page.isVisible('#help')), 'introdução fecha');
-  check((await page.textContent('.guide')).includes('1/9'), 'guia de primeiros passos no passo 1');
   check((await page.locator('.mobileNav button').allTextContents()).join('>') === 'Rua>Roubar>Noite>Feira>Cidade', 'abas na ordem do ciclo');
   check((await page.textContent('#hudSub')).includes('Pé de chinelo'), 'fase aparece na barra do personagem');
   check((await page.textContent('.plate')).includes('Largo das Ladeiras'), 'placa do bairro com nome de Salvador');
@@ -54,9 +64,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   await page.screenshot({ path: path.join(__dirname, 'screens', 'v12-cidade-iniciante.png'), fullPage: true });
   console.log('2. Ações e feedback');
   await go('painel');
-  await page.click('[data-action=career][data-id=operador]');
-  check((await st()).career === 'operador', 'carreira escolhida (com confirmação)');
-  check((await st()).tutorial.step === 1, 'guia avançou para o passo 2');
+  check((await st()).tutorial.step === 1, 'guia no passo 2 (a classe veio da ficha)');
   check(await page.isVisible('.mobileNav [data-view=acoes].hint'), 'aba do próximo passo fica destacada');
   await go('acoes');
   const before = await st();
@@ -99,6 +107,9 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   await page.click('[data-action=buy-item][data-id=bike]');
   await page.click('[data-action=buy-item][data-id=cinquentinha]');
   check((await st()).gear.veiculo === 'cinquentinha', 'veículo comprado na Feira do Rolo');
+  check(await page.isVisible('[data-action=equip][data-id=bike]') && (await page.textContent('.shopRow:has([data-id=bike])')).includes('É seu'), 'a bicicleta continua sua, com o botão Usar');
+  { const c0 = (await st()).cash; await page.click('[data-action=equip][data-id=bike]'); const s1 = await st(); check(s1.gear.veiculo === 'bike' && s1.cash === c0 && s1.owned.includes('cinquentinha'), 'Usar troca de graça e não perde o outro'); }
+  await page.click('[data-action=equip][data-id=cinquentinha]');
   check(await page.isDisabled('[data-action=buy-item][data-id=fuzil]'), 'item acima do seu respeito fica bloqueado');
   await go('galpao');
   await page.click('[data-action=buy-good][data-id=cigarro][data-qty="5"]');
@@ -195,9 +206,8 @@ await page.click('[data-action=duel][data-id=marrento]');
   check(await page.evaluate(() => window.SBArt.keys().length) === 24, '24 chaves de arte (10 lugares, 8 adversários, 6 assaltos)');
 
   await go('perfil');
-  check(await page.locator('.avatarPick').count() === 11, 'Perfil oferece 10 retratos e a silhueta da classe');
-  await page.click('[data-action=avatar][data-id=capoeirista]');
-  check(await page.evaluate(() => !!document.querySelector('#hudAvatar img') && JSON.parse(localStorage.getItem('submundo_brasil_v01')).avatar === 'capoeirista'), 'retrato escolhido aparece no topo e fica salvo');
+  check(await page.locator('#content .avatarPick, #content [data-action=avatar]').count() === 0, 'Perfil não troca mais o retrato');
+  check(await page.evaluate(() => !!document.querySelector('#hudAvatar img')), 'retrato da ficha aparece no topo');
   console.log('4. Save inválido e XSS');
   await page.evaluate(() => localStorage.setItem('submundo_brasil_v01', '{"schema":1,"name":"Quebrado"'));
   await page.reload();
@@ -250,8 +260,13 @@ await page.click('[data-action=duel][data-id=marrento]');
   check(sv.season === 2 && sv.day === 1 && sv.seasonHistory.length >= 1, 'temporada encerrada e histórico registrado');
   check(typeof sv.seasonHistory.at(-1).score === 'number', 'pontuação registrada no histórico');
   await page.screenshot({ path: path.join(__dirname, 'screens', '360-nova-temporada.png'), fullPage: true });
+  check(await page.isVisible('#setup') && (await page.inputValue('#suName')).length >= 2 && await page.locator('#suCity').count() === 0, 'temporada nova: a ficha reabre com o vulgo preenchido, sem trocar a cidade');
+  await page.click('[data-action=su-avatar][data-id=coroa]'); await page.click('[data-action=su-next]'); await page.click('[data-action=su-class][data-id=empreendedor]'); await page.click('[data-action=su-save]');
+  sv = await st();
+  check(!(await page.isVisible('#setup')) && sv.avatar === 'coroa' && sv.career === 'empreendedor', 'ficha da temporada nova salva');
 
   console.log('7. Exportação e importação');
+  await go('temporada');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-action=export]')]);
   const fpath = await dl.path();
   const payload = JSON.parse(require('fs').readFileSync(fpath, 'utf8'));
@@ -266,9 +281,10 @@ await page.click('[data-action=duel][data-id=marrento]');
     const cutViews = ['painel', 'acoes', 'noite', 'feira', 'hub', 'cidade', 'gestao', 'galpao', 'duelos', 'apostas', 'hospital', 'gangue', 'assaltos', 'perfil', 'temporada'];
     const cutStates = await page.evaluate(() => { const out = []; for (const c of SB.CITIES) { const s = SB.defaultState('Wellington Aparecido S', c.name); s.tutorial.done = true; Object.assign(s, { respect: 180, cash: 123456, bank: 987654, day: 18, heat: 72, vicio: 48, career: 'barao', gangName: 'Bonde do Morro Alto', gangLevel: 3, crewMorale: 66, avatar: 'golpista' }); s.businesses = ['pensao', 'bar', 'inferninho']; s.labs.gelo = 1; s.labs.laboratorio = 2; out.push(JSON.stringify(s)); } out.push(JSON.stringify(SB.defaultState('Zé', SB.CITIES[0].name))); return out; });
     const cuts = new Set();
-    const scan = () => page.evaluate(() => { const bad = []; for (const el of document.querySelectorAll('#hud *, #content *, #helpBox *')) { if (!el.getClientRects().length) continue; const cs = getComputedStyle(el); if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue; const hid = cs.overflowX !== 'visible' || cs.textOverflow === 'ellipsis' || cs.webkitLineClamp !== 'none'; if (hid && (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 2)) bad.push(el.textContent.trim().slice(0, 50)); if (el.getBoundingClientRect().right > innerWidth + 1) bad.push('fora da tela: ' + el.textContent.trim().slice(0, 40)); } return bad; });
+    const scan = () => page.evaluate(() => { const bad = []; for (const el of document.querySelectorAll('#hud *, #content *, #helpBox *, #setupBox *')) { if (!el.getClientRects().length) continue; const cs = getComputedStyle(el); if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue; const hid = cs.overflowX !== 'visible' || cs.textOverflow === 'ellipsis' || cs.webkitLineClamp !== 'none'; if (hid && (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 2)) bad.push(el.textContent.trim().slice(0, 50)); if (el.getBoundingClientRect().right > innerWidth + 1) bad.push('fora da tela: ' + el.textContent.trim().slice(0, 40)); } return bad; });
     for (const st of cutStates) {
       await page.evaluate(x => { localStorage.setItem('submundo_brasil_v01', x); localStorage.setItem('submundo_brasil_18', '1'); }, st); await page.reload();
+      if (await page.isVisible('#setup')) { for (const x of await scan()) cuts.add('ficha 1: ' + x); await page.click('[data-action=su-avatar][data-id=golpista]'); await page.fill('#suName', 'Wellington Aparecido S'); await page.click('[data-action=su-next]'); await page.click('[data-action=su-class][data-id=traficante]'); for (const x of await scan()) cuts.add('ficha 2: ' + x); await page.click('[data-action=su-save]'); }
       if (!await page.isVisible('#hud .hudWho')) { cuts.add('save não carregou'); continue; }
       for (const v of cutViews) { await go(v); for (const x of await scan()) cuts.add(v + ': ' + x); }
     }
@@ -292,12 +308,12 @@ await page.click('[data-action=duel][data-id=marrento]');
     check(await op.isVisible('#onlineBox'), 'tela inicial oferece jogar online');
     await op.fill('#onEmail', 'teste@exemplo.com'); await op.fill('#onPass', 'segredo1'); await op.check('#ageOk');
     await op.click('[data-action=on-signup]');
-    await op.waitForSelector('#onlineStatus .notice');
-    check((await op.textContent('#onlineStatus')).includes('codinome'), 'conta criada: pede codinome e cidade');
-    await op.fill('#playerName', 'Zé Online'); await op.selectOption('#homeCity', 'Recife');
-    await op.click('#newGameForm button[type=submit]');
+    await op.waitForSelector('#setup:not(.hidden) [data-action=su-avatar]');
+    check(true, 'conta criada: abre a ficha (retrato, vulgo e cidade)');
+    await op.click('[data-action=su-avatar][data-id=gaucho]'); await op.fill('#suName', 'Zé Online'); await op.selectOption('#suCity', 'Recife');
+    await op.click('[data-action=su-next]'); await op.click('[data-action=su-class][data-id=traficante]'); await op.click('[data-action=su-save]');
     await op.waitForFunction(() => window.__SB_UI.state && window.__SB_UI.state.name === 'Zé Online');
-    check(saved && saved.name === 'Zé Online' && saved.cash === 0, 'personagem criado no servidor, começando com R$ 0');
+    check(saved && saved.name === 'Zé Online' && saved.cash === 0 && saved.avatar === 'gaucho' && saved.career === 'traficante', 'personagem criado no servidor com a ficha completa, começando com R$ 0');
     await op.evaluate(() => { const h = document.querySelector('#help'); if (h) h.classList.add('hidden'); });
     const before = calls;
     await op.evaluate(() => window.__SB_UI.go('acoes'));

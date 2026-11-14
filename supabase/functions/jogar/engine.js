@@ -222,34 +222,34 @@
   const ITEMS = [
     // Armas: do improviso ao arsenal pesado. `loud` = arma de fogo; `heavy` = chama atenção todo dia.
     { id: 'porrete', slot: 'arma', name: 'Pedaço de pau com prego', cost: 150, unlock: 0, power: 1 },
-    { id: 'soco', slot: 'arma', name: 'Chave de fenda amolada', cost: 900, unlock: 0, power: 2 },
-    { id: 'vergalhao', slot: 'arma', name: 'Vergalhão de obra', cost: 1500, unlock: 8, power: 3 },
-    { id: 'peixeira', slot: 'arma', name: 'Facão', cost: 2200, unlock: 15, power: 4 },
-    { id: 'maquita', slot: 'arma', name: 'Maquita', cost: 3000, unlock: 25, power: 5 },
-    { id: 'trezoitao', slot: 'arma', name: 'Três-oitão raspado', cost: 3500, unlock: 35, power: 7 },
-    { id: 'pistola', slot: 'arma', name: 'Pistola .40', cost: 4500, unlock: 60, power: 9 },
-    { id: 'doze', slot: 'arma', name: 'Doze de cano serrado', cost: 6000, unlock: 80, power: 11 },
-    { id: 'uzi', slot: 'arma', name: 'Uzi de pente estendido', cost: 7500, unlock: 100, power: 13 },
-    { id: 'submetra', slot: 'arma', name: 'Submetralhadora', cost: 9000, unlock: 115, power: 14 },
-    { id: 'fuzil', slot: 'arma', name: 'FAL 7.62, o Vovô', cost: 10500, unlock: 130, power: 16 },
-    { id: 'ar15', slot: 'arma', name: 'Fuzil AR-15', cost: 13000, unlock: 150, power: 18, heavy: true },
-    { id: 'ponto50', slot: 'arma', name: 'Ponto Cinquenta', cost: 18000, unlock: 175, power: 21, heavy: true },
-    { id: 'mag', slot: 'arma', name: 'Metralhadora MAG', cost: 24000, unlock: 200, power: 24, heavy: true },
-    { id: 'rojao', slot: 'arma', name: 'Lança-rojão', cost: 30000, unlock: 220, power: 26, heavy: true },
+    { id: 'soco', slot: 'arma', name: 'Chave de fenda amolada', cost: 820, unlock: 0, power: 2 },
+    { id: 'vergalhao', slot: 'arma', name: 'Vergalhão de obra', cost: 1050, unlock: 8, power: 3 },
+    { id: 'peixeira', slot: 'arma', name: 'Facão', cost: 1450, unlock: 15, power: 4 },
+    { id: 'maquita', slot: 'arma', name: 'Maquita', cost: 1900, unlock: 25, power: 5 },
+    { id: 'trezoitao', slot: 'arma', name: 'Três-oitão raspado', cost: 2000, unlock: 35, power: 7 },
+    { id: 'pistola', slot: 'arma', name: 'Pistola .40', cost: 2750, unlock: 60, power: 9 },
+    { id: 'doze', slot: 'arma', name: 'Doze de cano serrado', cost: 3750, unlock: 80, power: 11 },
+    { id: 'uzi', slot: 'arma', name: 'Uzi de pente estendido', cost: 4500, unlock: 100, power: 13 },
+    { id: 'submetra', slot: 'arma', name: 'Submetralhadora', cost: 5250, unlock: 115, power: 14 },
+    { id: 'fuzil', slot: 'arma', name: 'FAL 7.62, o Vovô', cost: 6000, unlock: 130, power: 16 },
+    { id: 'ar15', slot: 'arma', name: 'Fuzil AR-15', cost: 7750, unlock: 150, power: 18, heavy: true },
+    { id: 'ponto50', slot: 'arma', name: 'Ponto Cinquenta', cost: 11500, unlock: 175, power: 21, heavy: true },
+    { id: 'mag', slot: 'arma', name: 'Metralhadora MAG', cost: 15000, unlock: 200, power: 24, heavy: true },
+    { id: 'rojao', slot: 'arma', name: 'Lança-rojão', cost: 18000, unlock: 220, power: 26, heavy: true },
     { id: 'dourado', slot: 'arma', name: 'Fuzil dourado de tambor duplo', cost: 30000, unlock: 150, power: 26, heavy: true, trophy: 'reidopedaco' },
     // Proteção
     { id: 'lista', slot: 'protecao', name: 'Lista telefônica com silver tape', cost: 200, unlock: 0, def: 1 },
-    { id: 'jaqueta', slot: 'protecao', name: 'Camisa de time na cara e jaqueta de couro', cost: 1000, unlock: 0, def: 2 },
-    { id: 'colete', slot: 'protecao', name: 'Colete de vigilante vencido', cost: 2800, unlock: 30, def: 5 },
-    { id: 'kevlar', slot: 'protecao', name: 'Colete de kevlar da polícia', cost: 4500, unlock: 60, def: 7 },
-    { id: 'tatico', slot: 'protecao', name: 'Colete tático com placa de cerâmica', cost: 7000, unlock: 90, def: 9 },
-    { id: 'traje', slot: 'protecao', name: 'Traje tático com escudo balístico', cost: 12000, unlock: 140, def: 12 },
+    { id: 'jaqueta', slot: 'protecao', name: 'Camisa de time na cara e jaqueta de couro', cost: 900, unlock: 0, def: 2 },
+    { id: 'colete', slot: 'protecao', name: 'Colete de vigilante vencido', cost: 2300, unlock: 30, def: 5 },
+    { id: 'kevlar', slot: 'protecao', name: 'Colete de kevlar da polícia', cost: 3100, unlock: 60, def: 7 },
+    { id: 'tatico', slot: 'protecao', name: 'Colete tático com placa de cerâmica', cost: 4750, unlock: 90, def: 9 },
+    { id: 'traje', slot: 'protecao', name: 'Traje tático com escudo balístico', cost: 8500, unlock: 140, def: 12 },
     // Veículos
     { id: 'bike', slot: 'veiculo', name: 'Bicicleta cargueira', cost: 300, unlock: 0, cargo: 10, escape: 1 },
-    { id: 'cinquentinha', slot: 'veiculo', name: 'Cinquentinha', cost: 1800, unlock: 10, cargo: 15, escape: 3 },
-    { id: 'moto', slot: 'veiculo', name: 'Moto 150', cost: 4000, unlock: 40, cargo: 25, escape: 6, freeRide: true },
-    { id: 'opala', slot: 'veiculo', name: 'Opala preto', cost: 7500, unlock: 80, cargo: 60, escape: 8, freeRide: true },
-    { id: 'blindado', slot: 'veiculo', name: 'Carro blindado', cost: 15000, unlock: 150, cargo: 90, escape: 12, freeRide: true }
+    { id: 'cinquentinha', slot: 'veiculo', name: 'Cinquentinha', cost: 1650, unlock: 10, cargo: 15, escape: 3 },
+    { id: 'moto', slot: 'veiculo', name: 'Moto 150', cost: 3100, unlock: 40, cargo: 25, escape: 6, freeRide: true },
+    { id: 'opala', slot: 'veiculo', name: 'Opala preto', cost: 5500, unlock: 80, cargo: 60, escape: 8, freeRide: true },
+    { id: 'blindado', slot: 'veiculo', name: 'Carro blindado', cost: 11250, unlock: 150, cargo: 90, escape: 12, freeRide: true }
   ];
   const SLOTS = [{ id: 'arma', name: 'Arma' }, { id: 'protecao', name: 'Proteção' }, { id: 'veiculo', name: 'Veículo' }];
   /** v1.5: começa sem dinheiro nenhum (só o legado, a partir da 2ª temporada). */
@@ -553,7 +553,7 @@
       today: emptyToday(), seasonStats: emptySeasonStats(),
       achievements: {}, prestige: 0, nemesis: null, records: {},
       tutorial: { step: 0, done: false, trained: false, contacted: false, banked: false, nighted: false },
-      gear: { arma: null, protecao: null, veiculo: null }, goods: Object.fromEntries(GOODS.map(g => [g.id, 0])), market: startMarket(),
+      gear: { arma: null, protecao: null, veiculo: null }, owned: [], goods: Object.fromEntries(GOODS.map(g => [g.id, 0])), market: startMarket(),
       labs: Object.fromEntries(LABS.map(l => [l.id, 0])), labDown: {}, exportDeal: { day: 5, good: 'cigarro' }, exportDone: 0, ressaca: 0,
       trade: { sold: 0, spent: 0, exported: 0, blitz: 0 },
       health: 100, hospital: 0, beaten: {}, done: emptyDone(), duelStats: { wins: 0, losses: 0 },
@@ -728,6 +728,8 @@
     if (saved.records && typeof saved.records === 'object') for (const c of CATEGORIES) if (isNum(saved.records[c.id])) s.records[c.id] = toInt(saved.records[c.id], 0, 0, BIG);
     // v0.7: equipamentos, mercadorias, produção e noite (ausentes em saves antigos → padrão).
     for (const sl of SLOTS) { const it = ITEMS.find(x => x.id === (saved.gear && saved.gear[sl.id]) && x.slot === sl.id); s.gear[sl.id] = it ? it.id : null; }
+    // v1.5: o que foi comprado é seu (save antigo: só o que estava em uso).
+    s.owned = [...new Set((Array.isArray(saved.owned) ? saved.owned : []).concat(SLOTS.map(sl => s.gear[sl.id])).filter(id => ITEMS.some(x => x.id === id)))];
     for (const g of GOODS) s.goods[g.id] = toInt(saved.goods && saved.goods[g.id], 0, 0, 9999);
     for (const d of DISTRICTS) for (const g of GOODS) s.market[d.id][g.id] = toInt(saved.market && saved.market[d.id] && saved.market[d.id][g.id], s.market[d.id][g.id], 60, 150);
     for (const l of LABS) { s.labs[l.id] = toInt(saved.labs && saved.labs[l.id], 0, 0, 3); if (isNum(saved.labDown && saved.labDown[l.id])) s.labDown[l.id] = toInt(saved.labDown[l.id], 0, 0, MAXDAY + 3); }
@@ -920,6 +922,7 @@
   const resaleValue = s => sum(s.businesses.map(id => Math.round(business(id).cost * RESALE)));
   const stockValue = s => Math.round(sum(GOODS.map(g => s.goods[g.id] * g.base * .7)));
   /** Equipamentos e pontos de produção contam pela metade do que custaram. */
+  /** Patrimônio em bens: o que está em uso, pela metade do preço (itens guardados não viram dinheiro), e os esquemas. */
   const assetValue = s => Math.round(sum(SLOTS.map(sl => { const it = ITEMS.find(x => x.id === s.gear[sl.id]); return it ? it.cost * ITEM_RESALE : 0; })) + sum(LABS.map(l => [0, 1, 1.8, 3][s.labs[l.id]] * l.cost * .5)));
   const patrimony = s => s.cash + s.bank + resaleValue(s) + stockValue(s) + assetValue(s);
   const depositRate = s => hasPerk(s, 'empreendedor', 1) ? .0075 : s.career === 'empreendedor' ? .015 : .03;
@@ -942,6 +945,8 @@
   /** Soma um atributo dos itens equipados (power, def, escape, cargo) ou indica se algum tem a marca (freeRide). */
   function gearVal(s, key) { let t = 0; for (const sl of SLOTS) { const it = item(s.gear[sl.id]); if (it && it[key]) t += it[key] === true ? 1 : it[key]; } return t; }
   const cargoUsed = s => sum(GOODS.map(g => s.goods[g.id]));
+  /** Espaço de carga se este veículo estivesse em uso. */
+  const cargoWith = (s, v) => 30 + (v.cargo || 0) + 40 * LABS.filter(l => s.labs[l.id] > 0).length + (hasPerk(s, 'traficante', 2) ? 15 : 0);
   const cargoCap = s => 30 + gearVal(s, 'cargo') + 40 * LABS.filter(l => s.labs[l.id] > 0).length + (hasPerk(s, 'traficante', 2) ? 15 : 0);
   const goodPrice = (s, g, did) => Math.max(1, Math.round(g.base * s.market[did || s.district][g.id] / 100));
   const goodSellPrice = (s, g, did) => Math.max(1, Math.floor(goodPrice(s, g, did) * SELL_SPREAD * (allyTurf(s, did || s.district) ? 1.05 : 1)));
@@ -1506,21 +1511,34 @@
 
 
   /* ---------- v0.7: Feira do Rolo, Galpão e Vida noturna ---------- */
+  const owns = (s, id) => s.owned.includes(id);
+  /** Comprar: paga o preço cheio, o item fica seu para sempre nesta temporada e já entra em uso. */
   function doBuyItem(s, id) {
     const it = item(id); if (!it) return refuse('Item desconhecido.');
     if (s.jail > 0) return refuse('Você está detido.');
-    if (s.gear[it.slot] === id) return refuse('Você já usa este item.');
+    if (owns(s, id)) return refuse(s.gear[it.slot] === id ? 'Você já usa este item.' : 'Já é seu: toque em Usar.');
     { const c = chainLock(s, 'items', it.id); if (c) return refuse(c); }
     if (s.respect < it.unlock) return refuse(`Requer ${it.unlock} de respeito.`);
     if (it.trophy && !s.achievements[it.trophy]) return refuse('Só para quem venceu o Rei do Pedaço (conquista).');
-    const old = item(s.gear[it.slot]), back = old ? Math.round(old.cost * ITEM_RESALE) : 0;
-    if (s.cash + back < it.cost) return refuse(`Você precisa de ${money(it.cost - back)} em mãos.`);
-    if (it.slot === 'veiculo' && cargoUsed(s) > 30 + (it.cargo || 0) + 40 * LABS.filter(l => s.labs[l.id] > 0).length) return refuse('Sua carga não cabe neste veículo. Venda parte antes.');
-    s.cash += back - it.cost; s.gear[it.slot] = id; markDone(s, 'items', id);
+    if (s.cash < it.cost) return refuse(`Você precisa de ${money(it.cost)} em mãos.`);
+    if (it.slot === 'veiculo' && cargoUsed(s) > cargoWith(s, it)) return refuse('Sua carga não cabe neste veículo. Venda parte antes.');
+    s.cash -= it.cost; s.owned.push(id); s.gear[it.slot] = id; markDone(s, 'items', id);
     if (it.id === 'fuzil' || it.id === 'blindado') unlock(s, 'arsenal');
-    log(s, `Feira do Rolo: ${it.name} por ${money(it.cost)}${old ? ` (o ${old.name} voltou por ${money(back)})` : ''}.`);
-    return done(true, `${it.name} agora é seu.`);
+    log(s, `Feira do Rolo: ${it.name} por ${money(it.cost)}. É seu.`);
+    return done(true, `${it.name} agora é seu e está em uso.`);
   }
+  /** Usar um item que já é seu (de graça). */
+  function doEquip(s, id) {
+    const it = item(id); if (!it) return refuse('Item desconhecido.');
+    if (!owns(s, id)) return refuse('Esse item ainda não é seu.');
+    if (s.gear[it.slot] === id) return refuse('Você já usa este item.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (it.slot === 'veiculo' && cargoUsed(s) > cargoWith(s, it)) return refuse('Sua carga não cabe neste veículo. Venda parte antes.');
+    s.gear[it.slot] = id;
+    log(s, `Você passou a usar: ${it.name}.`);
+    return done(true, `Agora você usa: ${it.name}.`);
+  }
+
   function doBuyGood(s, id, qty) {
     const g = good(id); if (!g) return refuse('Mercadoria desconhecida.');
     if (!Number.isSafeInteger(qty) || qty <= 0) return refuse('Quantidade inválida.');
@@ -1840,12 +1858,26 @@
     { id: 'marombeiro', name: 'Marombeiro' }
   ];
   function doAvatar(s, id) {
+    if (s.career) return refuse('O retrato só muda na próxima temporada.');
     const pick = id === 'none' ? null : AVATARS.find(a => a.id === id);
     if (pick === undefined) return refuse('Retrato desconhecido.');
     if ((pick ? pick.id : null) === s.avatar) return refuse('Esse já é o seu retrato.');
     s.avatar = pick ? pick.id : null;
     return done(true, pick ? `Retrato trocado: ${pick.name}.` : 'Retrato da classe de volta.');
   }
+  const nameOk = n => typeof n === 'string' && /^[\p{L}\p{N} .'_-]{2,22}$/u.test(n);
+  /** Ficha da temporada: retrato, vulgo e classe juntos. Só no começo (sem classe); depois, só na próxima temporada. */
+  function doSetup(s, avatarId, name, careerId) {
+    if (s.career) return refuse('Retrato, vulgo e classe só mudam na próxima temporada.');
+    const a = AVATARS.find(x => x.id === avatarId); if (!a) return refuse('Escolha um retrato.');
+    const nm = typeof name === 'string' ? name.trim().replace(/\s+/g, ' ') : '';
+    if (!nameOk(nm)) return refuse('Escolha um vulgo entre 2 e 22 caracteres (letras, números e espaço).');
+    const c = CAREERS.find(x => x.id === careerId); if (!c) return refuse('Escolha uma classe.');
+    s.avatar = a.id; s.name = nm; s.career = c.id; s.careerXP = 0;
+    log(s, `Ficha fechada: ${nm}, ${c.name}.`);
+    return done(true, `Ficha salva: ${nm}, ${c.name}. Só muda na próxima temporada.`);
+  }
+
   function pickCareer(s, id) {
     if (s.career) return refuse('A carreira já foi escolhida nesta temporada.');
     const c = CAREERS.find(x => x.id === id); if (!c) return refuse('Carreira desconhecida.');
@@ -2358,7 +2390,7 @@
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
     duel: doDuel, clinic: doClinic, bribe: doBribe, detox: doDetox, cleanRecord: doCleanRecord, bet: doBet, heistPlan: doHeistPlan, heistScout: doHeistScout, heistRun: doHeistRun, heistCancel: doHeistCancel, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, dose: doDose, night: doNight,
-    avatar: doAvatar, career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay: s => turnDay(s), endSeason: s => closeSeason(s), goHome: doGoHome, leaveHome: doLeaveHome // sem repassar argumentos do pedido
+    avatar: doAvatar, setup: doSetup, equip: doEquip, career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay: s => turnDay(s), endSeason: s => closeSeason(s), goHome: doGoHome, leaveHome: doLeaveHome // sem repassar argumentos do pedido
   };
   /** Executa uma ação e roda verificações pós-ação. */
   function perform(s, name, ...args) {
@@ -2380,7 +2412,7 @@
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
-    missionScore, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    missionScore, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,

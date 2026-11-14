@@ -22,6 +22,11 @@ export function aplicar(SB, salvo, pedido, agora) {
     const cidade = SB.CITIES.find(c => c.name === pedido.cidade);
     if (!cidade) return { status: 400, corpo: { erro: 'Cidade desconhecida.' } };
     const estado = SB.startClock(SB.defaultState(codinome, cidade.name), agora);
+    if (pedido.avatar !== undefined || pedido.classe !== undefined) { // ficha completa: retrato e classe já na criação
+      if (!limpo(pedido.avatar) || !limpo(pedido.classe)) return { status: 400, corpo: { erro: 'Pedido inválido.' } };
+      const r = SB.perform(estado, 'setup', pedido.avatar, codinome, pedido.classe);
+      if (!r.ok) return { status: 400, corpo: { erro: r.msg } };
+    }
     return ok({ estado }, estado, { novo: { codinome, cidade: cidade.name } });
   }
   if (acao === 'agir') {
@@ -29,10 +34,10 @@ export function aplicar(SB, salvo, pedido, agora) {
     const nome = pedido.nome, args = Array.isArray(pedido.args) ? pedido.args : [];
     if (typeof nome !== 'string' || !Object.prototype.hasOwnProperty.call(SB.act, nome)) return { status: 400, corpo: { erro: 'Ação desconhecida.' }, salvar: atual };
     if (args.length > ARG_MAX || !args.every(limpo)) return { status: 400, corpo: { erro: 'Pedido inválido.' }, salvar: atual };
-    let r;
+    let r; const vulgoAntes = atual.name;
     try { r = SB.perform(atual, nome, ...args); } catch (e) { return { status: 500, corpo: { erro: 'Erro ao aplicar a ação.' } }; }
     const { state: _fora, ...resultado } = r;
-    return ok({ resultado, estado: atual }, atual);
+    return ok({ resultado, estado: atual }, atual, r.ok && atual.name !== vulgoAntes ? { renomear: atual.name } : {});
   }
   return { status: 400, corpo: { erro: 'Pedido desconhecido.' }, salvar: atual };
 }

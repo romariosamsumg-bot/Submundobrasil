@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**172 de 172 passaram** (v1.5: + 14 sobre o relógio do online; + 2 sobre o começo do zero e os preços da Feira; + 4 sobre a trilha de compra; v1.4: + retrato do jogador; + 4 sobre as quatro classes; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
+**175 de 175 passaram** (v1.5: + 3 sobre itens que são seus e a ficha da temporada; + 14 sobre o relógio do online; + 2 sobre o começo do zero e os preços da Feira; + 4 sobre a trilha de compra; v1.4: + retrato do jogador; + 4 sobre as quatro classes; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**118 de 118 verificações passaram** (v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
+**126 de 126 verificações passaram** (v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
 
 - **Nenhum texto cortado** (v1.5): 15 telas nas 6 cidades, com nome de 22 letras, R$ 123.456 e a patente mais longa, mais as páginas de "Como jogar". O detector foi conferido contra a versão anterior, onde acusou o corte do topo.
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
@@ -73,7 +73,7 @@ ausência de cortes).
 
 ## 3d. Online (v1.5)
 
-- `tests/online.test.js` (6 testes): o servidor usa o mesmo motor; codinome e cidade validados; ação recusada não grava; ação ou argumento estranho (`__proto__`, objeto, infinito, texto longo) é barrado; save adulterado no banco é normalizado; fim de temporada troca o estado.
+- `tests/online.test.js` (10 testes; v1.5: criação com a ficha completa e troca de vulgo): o servidor usa o mesmo motor; codinome e cidade validados; ação recusada não grava; ação ou argumento estranho (`__proto__`, objeto, infinito, texto longo) é barrado; save adulterado no banco é normalizado; fim de temporada troca o estado.
 - Interface com servidor simulado (8 verificações): cadastro, criação do personagem com R$ 0, roubo calculado pelo servidor, nada salvo no aparelho, ranking no Perfil, sair e entrar de novo.
 - No projeto real: a função recusa quem não entrou (401), o ranking responde e ninguém lê a tabela de saves sem login (regras de acesso do banco).
 - **Relógio (fase 1b)**: 14 testes no motor (energia a cada 3 min, tempo que não anda para trás, Procurado e vício pelo tempo, cadeia em horas, virada à meia-noite de Brasília, ausência de dias e de meses, fim do mês, ir pra casa, argumentos forjados em Dormir e Encerrar temporada, relógio adulterado no save); `tests/online.test.js` com 8 testes (a hora é sempre a do servidor); interface com servidor simulado, incluindo ir pra casa e voltar 3 horas depois.
@@ -87,21 +87,26 @@ Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.5** (c
 
 | Estratégia | Patrimônio | Respeito | Pontos | Meta | Detenções |
 |---|---|---|---|---|---|
-| Assaltante farmando roubos | 9.959 | 124 | 195 | 40% | 3,6 |
-| Bicheiro com negócios | 13.010 | 119 | 226 | 70% | 3,2 |
-| Território (Bicheiro) | 598 | 122 | 203 | 100% | 1,9 |
-| Diplomacia (Bicheiro) | 923 | 93 | 160 | 80% | 2,4 |
-| Bonde (gangue) | 1.245 | 93 | 171 | 20% | 1,7 |
-| Comerciante sem a classe | 10.310 | 105 | 238 | 50% | 3,1 |
-| Ciclo completo: roubo, noite e arsenal | 12.825 | 120 | 202 | 40% | 3,9 |
-| Brigão (duelos) | 9.589 | 129 | 189 | 20% | 2,8 |
-| **Bando de assaltos** | 2.189 | 73 | **130** | 10% | 1,6 |
-| **Traficante (Galpão e remessas)** | 9.950 | 87 | **239** | 50% | 2,7 |
-| Dono da Noite (casas e noitadas) | 9.297 | 103 | 173 | 50% | 3,6 |
-| Império da noite (Dono da Noite + produção e casas abastecidas) | 9.844 | 102 | 215 | 50% | 3,4 |
-| Apostador (metade do caixa na roleta, 3× ao dia) | 5.631 | 96 | 106 | 30% | 3,4 |
-| Exploit: repetir a melhor e depositar tudo | 1.919 | 36 | 30 | 0% | 11,3 |
-| Aleatório | 235 | 33 | 23 | 0% | 0,7 |
+| Assaltante farmando roubos | 8.972 | 121 | 183 | 30% | 3,5 |
+| Bicheiro com negócios | 12.259 | 120 | 221 | 70% | 3,0 |
+| Território (Bicheiro) | 587 | 122 | 202 | 100% | 1,9 |
+| Diplomacia (Bicheiro) | 884 | 96 | 164 | 70% | 2,1 |
+| Bonde (gangue) | 946 | 92 | 168 | 20% | 1,8 |
+| Comerciante sem a classe | 9.593 | 105 | 232 | 50% | 3,0 |
+| Ciclo completo: roubo, noite e arsenal | 11.435 | 119 | 189 | 40% | 3,8 |
+| Brigão (duelos) | 9.048 | 133 | 183 | 10% | 2,7 |
+| **Bando de assaltos** | 1.785 | 72 | **122** | 10% | 1,9 |
+| **Traficante (Galpão e remessas)** | 9.457 | 89 | **237** | 50% | 2,7 |
+| Dono da Noite (casas e noitadas) | 9.859 | 111 | 186 | 50% | 3,3 |
+| Império da noite (Dono da Noite + produção e casas abastecidas) | 9.499 | 101 | 219 | 50% | 3,5 |
+| Apostador (metade do caixa na roleta, 3× ao dia) | 5.627 | 99 | 107 | 40% | 3,2 |
+| Exploit: repetir a melhor e depositar tudo | 1.953 | 36 | 30 | 0% | 11,2 |
+| Aleatório | 214 | 34 | 24 | 0% | 0,7 |
+
+Leitura da v1.5 (itens são seus, sem devolução na troca):
+- Preços recalculados para o custo de subir a trilha ficar igual; o ritmo da Feira (`npm run ritmo`) ficou o mesmo, arma a arma.
+- O robô de compra passou a somar o caminho inteiro da prateleira (antes olhava só o preço da arma desejada e, sem devolução, gastava o caixa). Comparando com o motor anterior e o robô anterior: a maioria ficou igual (±5); quem rouba perdeu cerca de 12 (Assaltante 195 → 183, ciclo completo 202 → 189), porque o patrimônio conta só o que está em uso e a arma em uso agora custa menos. Contar todos os itens guardados foi testado e exagerou (+16 a +46, cruzando a meta de R\$ 10.000), por isso ficou de fora.
+- Dono da Noite subiu (173 → 186); Bando de assaltos continua o mais fraco (122).
 
 Leitura e calibração da v1.5 (economia do começo):
 - **Ritmo da Feira** (`npm run ritmo`, jogador que só rouba e compra a próxima arma assim que pode, começando com R$ 0): antes, a 2ª e a 3ª arma saíam no 1º e no 2º roubo, e a 4ª no 5º (presa só pelo respeito). Agora: 1ª no roubo 1, 2ª no 3, 3ª no 8, 4ª no 14 (dia 11), Maquita no dia 18, Três-oitão no 23. Esse jogador não treina e é o caso lento; os robôs completos chegam antes.
@@ -125,11 +130,11 @@ Leitura e calibração da v1.4:
 
 | Estratégia | Assaltante | Dono da Noite | Traficante | Bicheiro |
 |---|---|---|---|---|
-| Roubos | **186** | 132 | 143 | 154 |
-| Negócios | **235** | 221 | 183 | 212 |
-| Território | **206** | 200 | 194 | 203 |
-| Diplomacia | **192** | 165 | 163 | 167 |
-| Gangue | **172** | 157 | 171 | 149 |
+| Roubos | **192** | 134 | 120 | 141 |
+| Negócios | **245** | 233 | 183 | 224 |
+| Território | **202** | 197 | 200 | **202** |
+| Diplomacia | **187** | 158 | 162 | 162 |
+| Gangue | **171** | 158 | 164 | 163 |
 
 (O Traficante só brilha na estratégia de mercadoria, medida na tabela acima.)
 

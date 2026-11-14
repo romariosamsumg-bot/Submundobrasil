@@ -50,5 +50,16 @@ const ok = (c, m) => { if (!c) throw new Error(m || 'condição falsa'); };
     const e = novo(); e.cash = 1e15; e.respect = -5; e.clock.t = 1e30;
     const st = aplicar(SB, e, { acao: 'estado' }, T0).corpo.estado; ok(st.cash <= 1e12, String(st.cash)); ok(st.respect >= 0); ok(st.clock.t <= 1e14);
   });
+  await t('criar com a ficha completa: retrato e classe já saem salvos; ficha inválida é recusada', () => {
+    const r = aplicar(SB, null, { acao: 'novo', codinome: 'Zé', cidade: 'Recife', avatar: 'coroa', classe: 'barao' }, T0);
+    eq(r.status, 200); eq(r.salvar.avatar, 'coroa'); eq(r.salvar.career, 'barao');
+    eq(aplicar(SB, null, { acao: 'novo', codinome: 'Zé', cidade: 'Recife', avatar: 'x', classe: 'barao' }, T0).status, 400);
+    eq(aplicar(SB, null, { acao: 'novo', codinome: 'Zé', cidade: 'Recife', avatar: { a: 1 }, classe: 'barao' }, T0).status, 400);
+  });
+  await t('trocar o vulgo na temporada nova pede renomear no banco', () => {
+    const e = novo(); const r = aplicar(SB, e, { acao: 'agir', nome: 'setup', args: ['malandro', 'Novo Vulgo', 'operador'] }, T0);
+    eq(r.corpo.resultado.ok, true); eq(r.renomear, 'Novo Vulgo');
+    const r2 = aplicar(SB, r.salvar, { acao: 'agir', nome: 'mission', args: ['correria'] }, T0 + 1000); eq(r2.renomear, undefined);
+  });
   console.log(`\n${pass} passaram, ${fail} falharam.`); process.exit(fail ? 1 : 0);
 })();

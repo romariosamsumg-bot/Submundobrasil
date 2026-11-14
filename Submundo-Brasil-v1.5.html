@@ -633,6 +633,25 @@ body.busy #content{opacity:.6;pointer-events:none}
 .grupoPic{width:72px;height:72px;border:2px solid #1b1712;border-radius:3px;overflow:hidden;display:block;transform:rotate(-2deg);box-shadow:2px 2px 0 #0006}
 .grupoPic .art{display:block;width:100%;height:100%;object-fit:cover}
 
+/* v1.5: telas da ficha (retrato e vulgo → classe) e itens que são seus */
+.setupBox{padding-top:22px}
+.setupBox h2{margin:10px 0 4px;font:400 26px/1.1 var(--stencil);letter-spacing:.03em;color:#f3d6ae;text-transform:uppercase}
+.suSteps{display:flex;gap:8px}.suSteps i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7c8a8e;padding:4px 8px;border:1px solid #33403f;border-radius:3px}
+.suSteps i.now{color:#1b1712;background:var(--ambar);border-color:var(--ambar)}.suSteps i.ok{color:#a7e0c3;border-color:#3e6f5a}
+.setupBox .avatarGrid{grid-template-columns:repeat(4,minmax(0,1fr));margin:12px 0 14px}
+.setupBox .avatarPick small{position:static;display:block;background:#05080a;padding:3px 2px}
+.setupBox .avatarPick{aspect-ratio:auto}
+.setupBox .avatarPick .art,.setupBox .avatarPick svg{aspect-ratio:1;height:auto}
+.suClasses{display:grid;gap:8px;margin:12px 0}
+.suClass{display:grid;gap:3px;text-align:left;padding:11px 12px;border:2px solid #3d4a4f;border-radius:4px;background:#151c20;color:#f5f2e9;font:inherit;cursor:pointer}
+.suClass b{font:700 17px/1.1 Georgia,serif;color:#f3d6ae}.suClass small{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ambar)}.suClass span{font-size:12px;line-height:1.45;color:#c3cfcf}
+.suClass.on{border-color:var(--ambar);background:#2a2419;box-shadow:0 0 0 2px #05080a,0 0 0 4px var(--ambar)}
+.suWarn{margin:4px 0 10px;border-left:4px solid var(--ambar)}
+.pill.own{background:#1e3a2e;color:#a7e0c3;border-color:#3e6f5a}
+#playOffline{margin-top:12px}
+.suClass b,.suClass small,.suClass span{display:block;text-align:left;margin:0}
+.suClass small{margin:-1px 0 3px}
+
   </style>
 </head>
 <body>
@@ -664,11 +683,11 @@ body.busy #content{opacity:.6;pointer-events:none}
   </nav>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <div class="welcome hidden" id="welcome"><form id="newGameForm" class="intro"><div id="welcomeNotice"></div><div class="cover" id="coverArt" aria-hidden="true"></div><div class="logo"><span class="logoTop">SUBMUNDO</span><span class="logoBottom">BRASIL</span><i class="logoStripe"></i></div><p class="tagline">Faça seu nome. Encare as consequências.</p>
-    <div class="formfield"><label for="playerName">Seu codinome</label><input id="playerName" class="input" name="playerName" required minlength="2" maxlength="22" autocomplete="off" placeholder="Como vão te conhecer?"></div>
-    <div class="formfield"><label for="homeCity">Sua cidade</label><select id="homeCity" class="input" name="homeCity"><option>Rio de Janeiro</option><option>São Paulo</option><option>Belo Horizonte</option><option>Salvador</option><option>Recife</option><option>Porto Alegre</option></select><p class="cityTrait" id="cityTrait" aria-live="polite"></p></div>
     <label class="ageGate"><input type="checkbox" id="ageOk" required> <span><strong>Conteúdo para maiores de 18 anos.</strong> Crime, violência, drogas, armas e linguagem pesada, tudo ficcional. Confirmo que tenho 18 anos ou mais.</span></label>
-    <button class="btn primary block" type="submit">Entrar na cidade</button><button class="btn ghost block" type="button" id="welcomeImport" style="margin-top:8px">Importar salvamento (.json)</button><div class="onlineBox" id="onlineBox" hidden><h3>Jogar online</h3><p class="mini">Save na nuvem e ranking de respeito. As regras rodam no servidor do jogo.</p><div id="onlineStatus" aria-live="polite"></div><div id="onlineFields"><div class="formfield"><label for="onEmail">E-mail</label><input id="onEmail" type="email" class="input" autocomplete="email"></div><div class="formfield"><label for="onPass">Senha (6 ou mais caracteres)</label><input id="onPass" type="password" class="input" autocomplete="current-password"></div><div class="btnbar"><button type="button" class="btn small" data-action="on-login">Entrar</button><button type="button" class="btn small ghost" data-action="on-signup">Criar conta</button></div></div></div><input type="file" id="welcomeImportFile" accept=".json,application/json" class="hidden" aria-label="Selecionar salvamento JSON"><small><b class="age18">18+</b> As cidades são reais; bairros, grupos, personagens e situações são fictícios. Esta versão é offline e salva os dados apenas neste aparelho.</small>
+    <div class="onlineBox" id="onlineBox" hidden><h3>Entrar ou criar conta</h3><p class="mini">Save na nuvem e ranking de respeito. As regras rodam no servidor do jogo.</p><div id="onlineStatus" aria-live="polite"></div><div id="onlineFields"><div class="formfield"><label for="onEmail">E-mail</label><input id="onEmail" type="email" class="input" autocomplete="email"></div><div class="formfield"><label for="onPass">Senha (6 ou mais caracteres)</label><input id="onPass" type="password" class="input" autocomplete="current-password"></div><div class="btnbar"><button type="button" class="btn primary" data-action="on-login">Entrar</button><button type="button" class="btn ghost" data-action="on-signup">Criar conta</button></div></div></div>
+    <button class="btn block" type="submit" id="playOffline">Jogar sem conta (neste aparelho)</button><button class="btn ghost block" type="button" id="welcomeImport" style="margin-top:8px">Importar salvamento (.json)</button><input type="file" id="welcomeImportFile" accept=".json,application/json" class="hidden" aria-label="Selecionar salvamento JSON"><small><b class="age18">18+</b> As cidades são reais; bairros, grupos, personagens e situações são fictícios.</small>
   </form></div>
+  <div class="welcome hidden" id="setup" role="dialog" aria-modal="true" aria-label="Sua ficha"><div class="intro setupBox" id="setupBox"></div></div>
   <div class="helpOverlay hidden" id="help" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="helpBox" id="helpBox"></div></div>
 
   <script id="sb-engine">
@@ -896,34 +915,34 @@ body.busy #content{opacity:.6;pointer-events:none}
   const ITEMS = [
     // Armas: do improviso ao arsenal pesado. `loud` = arma de fogo; `heavy` = chama atenção todo dia.
     { id: 'porrete', slot: 'arma', name: 'Pedaço de pau com prego', cost: 150, unlock: 0, power: 1 },
-    { id: 'soco', slot: 'arma', name: 'Chave de fenda amolada', cost: 900, unlock: 0, power: 2 },
-    { id: 'vergalhao', slot: 'arma', name: 'Vergalhão de obra', cost: 1500, unlock: 8, power: 3 },
-    { id: 'peixeira', slot: 'arma', name: 'Facão', cost: 2200, unlock: 15, power: 4 },
-    { id: 'maquita', slot: 'arma', name: 'Maquita', cost: 3000, unlock: 25, power: 5 },
-    { id: 'trezoitao', slot: 'arma', name: 'Três-oitão raspado', cost: 3500, unlock: 35, power: 7 },
-    { id: 'pistola', slot: 'arma', name: 'Pistola .40', cost: 4500, unlock: 60, power: 9 },
-    { id: 'doze', slot: 'arma', name: 'Doze de cano serrado', cost: 6000, unlock: 80, power: 11 },
-    { id: 'uzi', slot: 'arma', name: 'Uzi de pente estendido', cost: 7500, unlock: 100, power: 13 },
-    { id: 'submetra', slot: 'arma', name: 'Submetralhadora', cost: 9000, unlock: 115, power: 14 },
-    { id: 'fuzil', slot: 'arma', name: 'FAL 7.62, o Vovô', cost: 10500, unlock: 130, power: 16 },
-    { id: 'ar15', slot: 'arma', name: 'Fuzil AR-15', cost: 13000, unlock: 150, power: 18, heavy: true },
-    { id: 'ponto50', slot: 'arma', name: 'Ponto Cinquenta', cost: 18000, unlock: 175, power: 21, heavy: true },
-    { id: 'mag', slot: 'arma', name: 'Metralhadora MAG', cost: 24000, unlock: 200, power: 24, heavy: true },
-    { id: 'rojao', slot: 'arma', name: 'Lança-rojão', cost: 30000, unlock: 220, power: 26, heavy: true },
+    { id: 'soco', slot: 'arma', name: 'Chave de fenda amolada', cost: 820, unlock: 0, power: 2 },
+    { id: 'vergalhao', slot: 'arma', name: 'Vergalhão de obra', cost: 1050, unlock: 8, power: 3 },
+    { id: 'peixeira', slot: 'arma', name: 'Facão', cost: 1450, unlock: 15, power: 4 },
+    { id: 'maquita', slot: 'arma', name: 'Maquita', cost: 1900, unlock: 25, power: 5 },
+    { id: 'trezoitao', slot: 'arma', name: 'Três-oitão raspado', cost: 2000, unlock: 35, power: 7 },
+    { id: 'pistola', slot: 'arma', name: 'Pistola .40', cost: 2750, unlock: 60, power: 9 },
+    { id: 'doze', slot: 'arma', name: 'Doze de cano serrado', cost: 3750, unlock: 80, power: 11 },
+    { id: 'uzi', slot: 'arma', name: 'Uzi de pente estendido', cost: 4500, unlock: 100, power: 13 },
+    { id: 'submetra', slot: 'arma', name: 'Submetralhadora', cost: 5250, unlock: 115, power: 14 },
+    { id: 'fuzil', slot: 'arma', name: 'FAL 7.62, o Vovô', cost: 6000, unlock: 130, power: 16 },
+    { id: 'ar15', slot: 'arma', name: 'Fuzil AR-15', cost: 7750, unlock: 150, power: 18, heavy: true },
+    { id: 'ponto50', slot: 'arma', name: 'Ponto Cinquenta', cost: 11500, unlock: 175, power: 21, heavy: true },
+    { id: 'mag', slot: 'arma', name: 'Metralhadora MAG', cost: 15000, unlock: 200, power: 24, heavy: true },
+    { id: 'rojao', slot: 'arma', name: 'Lança-rojão', cost: 18000, unlock: 220, power: 26, heavy: true },
     { id: 'dourado', slot: 'arma', name: 'Fuzil dourado de tambor duplo', cost: 30000, unlock: 150, power: 26, heavy: true, trophy: 'reidopedaco' },
     // Proteção
     { id: 'lista', slot: 'protecao', name: 'Lista telefônica com silver tape', cost: 200, unlock: 0, def: 1 },
-    { id: 'jaqueta', slot: 'protecao', name: 'Camisa de time na cara e jaqueta de couro', cost: 1000, unlock: 0, def: 2 },
-    { id: 'colete', slot: 'protecao', name: 'Colete de vigilante vencido', cost: 2800, unlock: 30, def: 5 },
-    { id: 'kevlar', slot: 'protecao', name: 'Colete de kevlar da polícia', cost: 4500, unlock: 60, def: 7 },
-    { id: 'tatico', slot: 'protecao', name: 'Colete tático com placa de cerâmica', cost: 7000, unlock: 90, def: 9 },
-    { id: 'traje', slot: 'protecao', name: 'Traje tático com escudo balístico', cost: 12000, unlock: 140, def: 12 },
+    { id: 'jaqueta', slot: 'protecao', name: 'Camisa de time na cara e jaqueta de couro', cost: 900, unlock: 0, def: 2 },
+    { id: 'colete', slot: 'protecao', name: 'Colete de vigilante vencido', cost: 2300, unlock: 30, def: 5 },
+    { id: 'kevlar', slot: 'protecao', name: 'Colete de kevlar da polícia', cost: 3100, unlock: 60, def: 7 },
+    { id: 'tatico', slot: 'protecao', name: 'Colete tático com placa de cerâmica', cost: 4750, unlock: 90, def: 9 },
+    { id: 'traje', slot: 'protecao', name: 'Traje tático com escudo balístico', cost: 8500, unlock: 140, def: 12 },
     // Veículos
     { id: 'bike', slot: 'veiculo', name: 'Bicicleta cargueira', cost: 300, unlock: 0, cargo: 10, escape: 1 },
-    { id: 'cinquentinha', slot: 'veiculo', name: 'Cinquentinha', cost: 1800, unlock: 10, cargo: 15, escape: 3 },
-    { id: 'moto', slot: 'veiculo', name: 'Moto 150', cost: 4000, unlock: 40, cargo: 25, escape: 6, freeRide: true },
-    { id: 'opala', slot: 'veiculo', name: 'Opala preto', cost: 7500, unlock: 80, cargo: 60, escape: 8, freeRide: true },
-    { id: 'blindado', slot: 'veiculo', name: 'Carro blindado', cost: 15000, unlock: 150, cargo: 90, escape: 12, freeRide: true }
+    { id: 'cinquentinha', slot: 'veiculo', name: 'Cinquentinha', cost: 1650, unlock: 10, cargo: 15, escape: 3 },
+    { id: 'moto', slot: 'veiculo', name: 'Moto 150', cost: 3100, unlock: 40, cargo: 25, escape: 6, freeRide: true },
+    { id: 'opala', slot: 'veiculo', name: 'Opala preto', cost: 5500, unlock: 80, cargo: 60, escape: 8, freeRide: true },
+    { id: 'blindado', slot: 'veiculo', name: 'Carro blindado', cost: 11250, unlock: 150, cargo: 90, escape: 12, freeRide: true }
   ];
   const SLOTS = [{ id: 'arma', name: 'Arma' }, { id: 'protecao', name: 'Proteção' }, { id: 'veiculo', name: 'Veículo' }];
   /** v1.5: começa sem dinheiro nenhum (só o legado, a partir da 2ª temporada). */
@@ -1227,7 +1246,7 @@ body.busy #content{opacity:.6;pointer-events:none}
       today: emptyToday(), seasonStats: emptySeasonStats(),
       achievements: {}, prestige: 0, nemesis: null, records: {},
       tutorial: { step: 0, done: false, trained: false, contacted: false, banked: false, nighted: false },
-      gear: { arma: null, protecao: null, veiculo: null }, goods: Object.fromEntries(GOODS.map(g => [g.id, 0])), market: startMarket(),
+      gear: { arma: null, protecao: null, veiculo: null }, owned: [], goods: Object.fromEntries(GOODS.map(g => [g.id, 0])), market: startMarket(),
       labs: Object.fromEntries(LABS.map(l => [l.id, 0])), labDown: {}, exportDeal: { day: 5, good: 'cigarro' }, exportDone: 0, ressaca: 0,
       trade: { sold: 0, spent: 0, exported: 0, blitz: 0 },
       health: 100, hospital: 0, beaten: {}, done: emptyDone(), duelStats: { wins: 0, losses: 0 },
@@ -1402,6 +1421,8 @@ body.busy #content{opacity:.6;pointer-events:none}
     if (saved.records && typeof saved.records === 'object') for (const c of CATEGORIES) if (isNum(saved.records[c.id])) s.records[c.id] = toInt(saved.records[c.id], 0, 0, BIG);
     // v0.7: equipamentos, mercadorias, produção e noite (ausentes em saves antigos → padrão).
     for (const sl of SLOTS) { const it = ITEMS.find(x => x.id === (saved.gear && saved.gear[sl.id]) && x.slot === sl.id); s.gear[sl.id] = it ? it.id : null; }
+    // v1.5: o que foi comprado é seu (save antigo: só o que estava em uso).
+    s.owned = [...new Set((Array.isArray(saved.owned) ? saved.owned : []).concat(SLOTS.map(sl => s.gear[sl.id])).filter(id => ITEMS.some(x => x.id === id)))];
     for (const g of GOODS) s.goods[g.id] = toInt(saved.goods && saved.goods[g.id], 0, 0, 9999);
     for (const d of DISTRICTS) for (const g of GOODS) s.market[d.id][g.id] = toInt(saved.market && saved.market[d.id] && saved.market[d.id][g.id], s.market[d.id][g.id], 60, 150);
     for (const l of LABS) { s.labs[l.id] = toInt(saved.labs && saved.labs[l.id], 0, 0, 3); if (isNum(saved.labDown && saved.labDown[l.id])) s.labDown[l.id] = toInt(saved.labDown[l.id], 0, 0, MAXDAY + 3); }
@@ -1594,6 +1615,7 @@ body.busy #content{opacity:.6;pointer-events:none}
   const resaleValue = s => sum(s.businesses.map(id => Math.round(business(id).cost * RESALE)));
   const stockValue = s => Math.round(sum(GOODS.map(g => s.goods[g.id] * g.base * .7)));
   /** Equipamentos e pontos de produção contam pela metade do que custaram. */
+  /** Patrimônio em bens: o que está em uso, pela metade do preço (itens guardados não viram dinheiro), e os esquemas. */
   const assetValue = s => Math.round(sum(SLOTS.map(sl => { const it = ITEMS.find(x => x.id === s.gear[sl.id]); return it ? it.cost * ITEM_RESALE : 0; })) + sum(LABS.map(l => [0, 1, 1.8, 3][s.labs[l.id]] * l.cost * .5)));
   const patrimony = s => s.cash + s.bank + resaleValue(s) + stockValue(s) + assetValue(s);
   const depositRate = s => hasPerk(s, 'empreendedor', 1) ? .0075 : s.career === 'empreendedor' ? .015 : .03;
@@ -1616,6 +1638,8 @@ body.busy #content{opacity:.6;pointer-events:none}
   /** Soma um atributo dos itens equipados (power, def, escape, cargo) ou indica se algum tem a marca (freeRide). */
   function gearVal(s, key) { let t = 0; for (const sl of SLOTS) { const it = item(s.gear[sl.id]); if (it && it[key]) t += it[key] === true ? 1 : it[key]; } return t; }
   const cargoUsed = s => sum(GOODS.map(g => s.goods[g.id]));
+  /** Espaço de carga se este veículo estivesse em uso. */
+  const cargoWith = (s, v) => 30 + (v.cargo || 0) + 40 * LABS.filter(l => s.labs[l.id] > 0).length + (hasPerk(s, 'traficante', 2) ? 15 : 0);
   const cargoCap = s => 30 + gearVal(s, 'cargo') + 40 * LABS.filter(l => s.labs[l.id] > 0).length + (hasPerk(s, 'traficante', 2) ? 15 : 0);
   const goodPrice = (s, g, did) => Math.max(1, Math.round(g.base * s.market[did || s.district][g.id] / 100));
   const goodSellPrice = (s, g, did) => Math.max(1, Math.floor(goodPrice(s, g, did) * SELL_SPREAD * (allyTurf(s, did || s.district) ? 1.05 : 1)));
@@ -2180,21 +2204,34 @@ body.busy #content{opacity:.6;pointer-events:none}
 
 
   /* ---------- v0.7: Feira do Rolo, Galpão e Vida noturna ---------- */
+  const owns = (s, id) => s.owned.includes(id);
+  /** Comprar: paga o preço cheio, o item fica seu para sempre nesta temporada e já entra em uso. */
   function doBuyItem(s, id) {
     const it = item(id); if (!it) return refuse('Item desconhecido.');
     if (s.jail > 0) return refuse('Você está detido.');
-    if (s.gear[it.slot] === id) return refuse('Você já usa este item.');
+    if (owns(s, id)) return refuse(s.gear[it.slot] === id ? 'Você já usa este item.' : 'Já é seu: toque em Usar.');
     { const c = chainLock(s, 'items', it.id); if (c) return refuse(c); }
     if (s.respect < it.unlock) return refuse(`Requer ${it.unlock} de respeito.`);
     if (it.trophy && !s.achievements[it.trophy]) return refuse('Só para quem venceu o Rei do Pedaço (conquista).');
-    const old = item(s.gear[it.slot]), back = old ? Math.round(old.cost * ITEM_RESALE) : 0;
-    if (s.cash + back < it.cost) return refuse(`Você precisa de ${money(it.cost - back)} em mãos.`);
-    if (it.slot === 'veiculo' && cargoUsed(s) > 30 + (it.cargo || 0) + 40 * LABS.filter(l => s.labs[l.id] > 0).length) return refuse('Sua carga não cabe neste veículo. Venda parte antes.');
-    s.cash += back - it.cost; s.gear[it.slot] = id; markDone(s, 'items', id);
+    if (s.cash < it.cost) return refuse(`Você precisa de ${money(it.cost)} em mãos.`);
+    if (it.slot === 'veiculo' && cargoUsed(s) > cargoWith(s, it)) return refuse('Sua carga não cabe neste veículo. Venda parte antes.');
+    s.cash -= it.cost; s.owned.push(id); s.gear[it.slot] = id; markDone(s, 'items', id);
     if (it.id === 'fuzil' || it.id === 'blindado') unlock(s, 'arsenal');
-    log(s, `Feira do Rolo: ${it.name} por ${money(it.cost)}${old ? ` (o ${old.name} voltou por ${money(back)})` : ''}.`);
-    return done(true, `${it.name} agora é seu.`);
+    log(s, `Feira do Rolo: ${it.name} por ${money(it.cost)}. É seu.`);
+    return done(true, `${it.name} agora é seu e está em uso.`);
   }
+  /** Usar um item que já é seu (de graça). */
+  function doEquip(s, id) {
+    const it = item(id); if (!it) return refuse('Item desconhecido.');
+    if (!owns(s, id)) return refuse('Esse item ainda não é seu.');
+    if (s.gear[it.slot] === id) return refuse('Você já usa este item.');
+    if (s.jail > 0) return refuse('Você está detido.');
+    if (it.slot === 'veiculo' && cargoUsed(s) > cargoWith(s, it)) return refuse('Sua carga não cabe neste veículo. Venda parte antes.');
+    s.gear[it.slot] = id;
+    log(s, `Você passou a usar: ${it.name}.`);
+    return done(true, `Agora você usa: ${it.name}.`);
+  }
+
   function doBuyGood(s, id, qty) {
     const g = good(id); if (!g) return refuse('Mercadoria desconhecida.');
     if (!Number.isSafeInteger(qty) || qty <= 0) return refuse('Quantidade inválida.');
@@ -2514,12 +2551,26 @@ body.busy #content{opacity:.6;pointer-events:none}
     { id: 'marombeiro', name: 'Marombeiro' }
   ];
   function doAvatar(s, id) {
+    if (s.career) return refuse('O retrato só muda na próxima temporada.');
     const pick = id === 'none' ? null : AVATARS.find(a => a.id === id);
     if (pick === undefined) return refuse('Retrato desconhecido.');
     if ((pick ? pick.id : null) === s.avatar) return refuse('Esse já é o seu retrato.');
     s.avatar = pick ? pick.id : null;
     return done(true, pick ? `Retrato trocado: ${pick.name}.` : 'Retrato da classe de volta.');
   }
+  const nameOk = n => typeof n === 'string' && /^[\p{L}\p{N} .'_-]{2,22}$/u.test(n);
+  /** Ficha da temporada: retrato, vulgo e classe juntos. Só no começo (sem classe); depois, só na próxima temporada. */
+  function doSetup(s, avatarId, name, careerId) {
+    if (s.career) return refuse('Retrato, vulgo e classe só mudam na próxima temporada.');
+    const a = AVATARS.find(x => x.id === avatarId); if (!a) return refuse('Escolha um retrato.');
+    const nm = typeof name === 'string' ? name.trim().replace(/\s+/g, ' ') : '';
+    if (!nameOk(nm)) return refuse('Escolha um vulgo entre 2 e 22 caracteres (letras, números e espaço).');
+    const c = CAREERS.find(x => x.id === careerId); if (!c) return refuse('Escolha uma classe.');
+    s.avatar = a.id; s.name = nm; s.career = c.id; s.careerXP = 0;
+    log(s, `Ficha fechada: ${nm}, ${c.name}.`);
+    return done(true, `Ficha salva: ${nm}, ${c.name}. Só muda na próxima temporada.`);
+  }
+
   function pickCareer(s, id) {
     if (s.career) return refuse('A carreira já foi escolhida nesta temporada.');
     const c = CAREERS.find(x => x.id === id); if (!c) return refuse('Carreira desconhecida.');
@@ -3032,7 +3083,7 @@ body.busy #content{opacity:.6;pointer-events:none}
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
     duel: doDuel, clinic: doClinic, bribe: doBribe, detox: doDetox, cleanRecord: doCleanRecord, bet: doBet, heistPlan: doHeistPlan, heistScout: doHeistScout, heistRun: doHeistRun, heistCancel: doHeistCancel, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, dose: doDose, night: doNight,
-    avatar: doAvatar, career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay: s => turnDay(s), endSeason: s => closeSeason(s), goHome: doGoHome, leaveHome: doLeaveHome // sem repassar argumentos do pedido
+    avatar: doAvatar, setup: doSetup, equip: doEquip, career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay: s => turnDay(s), endSeason: s => closeSeason(s), goHome: doGoHome, leaveHome: doLeaveHome // sem repassar argumentos do pedido
   };
   /** Executa uma ação e roda verificações pós-ação. */
   function perform(s, name, ...args) {
@@ -3054,7 +3105,7 @@ body.busy #content{opacity:.6;pointer-events:none}
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
-    missionScore, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    missionScore, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
@@ -3611,6 +3662,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
         <p><strong>Colete</strong>: roubo armado que dá errado vira trocação com a segurança. O colete decide se você sai ferido ou vai para a UPA. Ser preso custa respeito.</p>
         <p><strong>Saúde</strong> (barra azul) cai em confrontos, duelos e serviços de força que dão errado. Abaixo de 60 suas chances caem; a zero, você é internado. Cure no Hospital ou esperando.</p>
         <p>Toque no seu retrato, no topo, para abrir o <strong>Perfil</strong> e escolher outra foto.</p>
+        <p><strong>Feira</strong>: o que você compra é seu. Para trocar de arma, proteção ou veículo, toque em <strong>Usar</strong>, de graça.</p>
         <p><strong>Trilha de compra</strong>: na Feira (armas, proteções e veículos) e nos negócios, o próximo só abre depois que você compra o anterior nesta temporada.</p>
         ${state && state.clock ? '<p><strong>Online</strong>: o dia vira sozinho à meia-noite de Brasília e a temporada é o mês do calendário. A energia volta +1 a cada 3 minutos. <strong>Ir pra casa</strong> (3 horas, até 2 vezes por dia) enche a energia e zera o corpo. Na cadeia e no hospital, 1 dia vale 2 horas.</p>' : ''}
         <p><strong>Repetir</strong> o mesmo serviço no dia ou insistir no mesmo bairro piora chance e pagamento. Varie.</p>
@@ -3635,8 +3687,8 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const s = state;
     if (SB.blocked(s)) return null;
     const best = suggestion(), lowEnergy = s.energy < 16, canNight = (s.today.night < SB.NIGHT_LIMIT || !!s.today.venue) && s.energy < 100 && s.today.doses < SB.DOSE_LIMIT && SB.chemLeft(s) > 0;
-    const curCost = (SB.item(s.gear.arma) || { cost: 0 }).cost, back = Math.round(curCost * SB.ITEM_RESALE);
-    const upgrade = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && i.cost > curCost && s.respect >= i.unlock && !SB.chainLock(s, 'items', i.id) && s.cash + back >= i.cost * 1.5).pop();
+    const curPow = (SB.item(s.gear.arma) || { power: 0 }).power;
+    const upgrade = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && !SB.owns(s, i.id) && i.power > curPow && s.respect >= i.unlock && !SB.chainLock(s, 'items', i.id) && s.cash >= i.cost * 1.5).pop();
     const lockedByGun = SB.MISSIONS.find(m => (SB.missionLock(s, m) || '').startsWith('Requer arma'));
     if (s.health < 40) return { tag: 'Saúde baixa', title: 'Passe no Hospital', text: `Com ${s.health} de saúde suas chances caem em tudo.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
     if (s.vicio >= 70) return { tag: 'Vício alto', title: 'Hora de desintoxicar', text: `Vício ${s.vicio}/100: a noite recarrega menos e há ${SB.overdoseChance(s)}% de chance de overdose a cada saída.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
@@ -3899,12 +3951,13 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   }
   function feira() {
     const s = state;
-    return heading('Feira do Rolo', 'Arma abre roubo maior. Um item por espaço; o antigo volta por metade do preço.') + `<div class="screenArt">${window.SBArt.place('feira')}</div>` + jailNotice() + resultCard() +
-      SB.SLOTS.map(sl => { const cur = SB.item(s.gear[sl.id]), back = cur ? Math.round(cur.cost * SB.ITEM_RESALE) : 0;
-        return stencil(sl.name, cur ? 'em uso: ' + esc(cur.name) : 'nada equipado') + `<div class="grid">` + SB.ITEMS.filter(i => i.slot === sl.id).map(it => { const mine = s.gear[sl.id] === it.id, net = it.cost - back, cl = it.trophy || mine ? '' : SB.chainLock(s, 'items', it.id), locked = !!cl || s.respect < it.unlock || (it.trophy && !s.achievements[it.trophy]);
-          const pic = window.SBArt.item(it.id);
-          return `<section class="card shopRow ${pic ? 'withPic' : ''} ${mine ? 'mine' : ''} ${locked ? 'locked' : ''}">${pic ? `<span class="itemPic" aria-hidden="true">${pic}</span>` : ''}<div><h3>${esc(it.name)}${mine ? ' <span class="pill">Em uso</span>' : ''}</h3><p class="mini">${esc(itemEffect(it))}</p>${locked ? `<div class="lockline">${cl ? esc(cl) : it.trophy && !s.achievements[it.trophy] ? 'Troféu: só para quem venceu o Rei do Pedaço.' : `Requer ${it.unlock} de respeito.`}</div>` : ''}</div>
-            <div class="shopAct"><strong>${fmt(it.cost)}</strong>${cur && !mine ? `<span class="mini">na troca: ${fmt(Math.max(0, net))}</span>` : ''}${mine ? '' : button('Comprar', 'buy-item', `data-id="${it.id}"`, locked || s.cash < net || s.jail > 0, 'small primary')}</div></section>`; }).join('') + `</div>`; }).join('');
+    return heading('Feira do Rolo', 'Arma abre roubo maior. O que você compra é seu: troque o que está usando quando quiser, de graça.') + `<div class="screenArt">${window.SBArt.place('feira')}</div>` + jailNotice() + resultCard() +
+      SB.SLOTS.map(sl => { const cur = SB.item(s.gear[sl.id]);
+        return stencil(sl.name, cur ? 'em uso: ' + esc(cur.name) : 'nada equipado') + `<div class="grid">` + SB.ITEMS.filter(i => i.slot === sl.id).map(it => { const mine = s.gear[sl.id] === it.id, have = SB.owns(s, it.id), cl = it.trophy || have ? '' : SB.chainLock(s, 'items', it.id), locked = !have && (!!cl || s.respect < it.unlock || (it.trophy && !s.achievements[it.trophy]));
+          const pic = window.SBArt.item(it.id), small = it.slot === 'veiculo' && have && !mine && SB.cargoUsed(s) > SB.cargoWith(s, it);
+          const act = mine ? '' : have ? button('Usar', 'equip', `data-id="${it.id}"`, s.jail > 0 || small, 'small') : button('Comprar', 'buy-item', `data-id="${it.id}"`, locked || s.cash < it.cost || s.jail > 0, 'small primary');
+          return `<section class="card shopRow ${pic ? 'withPic' : ''} ${mine ? 'mine' : ''} ${locked ? 'locked' : ''}">${pic ? `<span class="itemPic" aria-hidden="true">${pic}</span>` : ''}<div><h3>${esc(it.name)}${mine ? ' <span class="pill">Em uso</span>' : have ? ' <span class="pill own">É seu</span>' : ''}</h3><p class="mini">${esc(itemEffect(it))}</p>${locked ? `<div class="lockline">${cl ? esc(cl) : it.trophy && !s.achievements[it.trophy] ? 'Troféu: só para quem venceu o Rei do Pedaço.' : `Requer ${it.unlock} de respeito.`}</div>` : ''}${small ? '<div class="lockline">Sua carga não cabe neste veículo.</div>' : ''}</div>
+            <div class="shopAct">${have ? '' : `<strong>${fmt(it.cost)}</strong>`}${act}</div></section>`; }).join('') + `</div>`; }).join('');
   }
   function maxBuy(g) { const s = state; let q = Math.max(0, SB.cargoCap(s) - SB.cargoUsed(s)); while (q > 0 && SB.buyTotal(s, g, q) > s.cash) q = Math.floor(q * .9) - (q < 10 ? 1 : 0); return Math.max(0, q); }
   function galpao() {
@@ -4027,7 +4080,6 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const top = Math.max(20, ...SB.STATS.map(st => s.stats[st.id]));
     return heading('Perfil', 'Sua ficha no submundo.') + resultCard() + `
       <section class="sheet"><span class="sheetAvatar">${portrait(s)}</span><div><h2>${esc(s.name)}</h2><p>${esc(sc.title)} · nível ${lvl}</p><p class="mini">${esc(s.city)}${c ? ' · ' + c.name + ' ' + SB.careerLevel(s) + '/3' : ''}${s.gangName ? ' · ' + esc(s.gangName) : ''}${s.prestige ? ' · prestígio ' + s.prestige : ''}</p></div></section>
-      ${stencil('Retrato', 'só aparência, troque quando quiser')}<div class="avatarGrid" role="group" aria-label="Escolher retrato">${SB.AVATARS.filter(a => window.SBArt.avatar(a.id)).map(a => `<button type="button" class="avatarPick ${s.avatar === a.id ? 'on' : ''}" data-action="avatar" data-id="${a.id}" aria-pressed="${s.avatar === a.id}" title="${a.name}">${window.SBArt.avatar(a.id)}<small>${a.name}</small></button>`).join('')}<button type="button" class="avatarPick ${s.avatar ? '' : 'on'}" data-action="avatar" data-id="none" aria-pressed="${!s.avatar}" title="Silhueta da classe">${avatar(s.career)}<small>Classe</small></button></div>
       ${c ? `${stencil('Classe', esc(c.name) + ' · ' + esc(c.tag))}<section class="card"><p class="mini" style="margin:0">${esc(c.desc)} ${esc(c.xpDesc)}</p><ul class="perkList">${c.perks.map((p, i) => `<li class="${i < SB.careerLevel(s) ? 'on' : ''}">${i < SB.careerLevel(s) ? '✓' : '○'} Nível ${i + 1} (${SB.CAREER_XP[i]} XP): ${esc(p)}</li>`).join('')}</ul></section>` : ''}
       ${stencil('Atributos')}<section class="card">${SB.STATS.map(st => `<div class="statRow">${statIcon(st.id)}<span>${st.name}</span><div class="meter"><div style="width:${pct(s.stats[st.id] / top * 100)}%"></div></div><strong>${num(s.stats[st.id])}</strong></div>`).join('')}</section>
       ${stencil('Equipamento', 'troque na Feira do Rolo')}<div class="gearGrid">${SB.SLOTS.map(sl => { const it = SB.item(s.gear[sl.id]); const pic = it ? window.SBArt.item(it.id) : ''; return `<button type="button" class="gearSlot ${it ? 'on' : ''}" data-view="feira">${pic ? `<span class="gearPic" aria-hidden="true">${pic}</span>` : ''}<span>${sl.name}</span><b>${it ? esc(it.name) : '—'}</b><small>${it ? esc(it.slot === 'arma' ? 'poder ' + it.power : it.slot === 'protecao' ? 'defesa ' + it.def : 'carga +' + it.cargo) : 'vazio'}</small></button>`; }).join('')}</div>
@@ -4048,6 +4100,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
     }
     renderHud();
+    if (state && !state.career && !setup) openSetup('season');
     $all('.nav button, .mobileNav button').forEach(b => { const on = b.dataset.view === tabOf(view); b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     const st = SB.tutorialStep(state);
     $all('.nav button, .mobileNav button').forEach(b => b.classList.toggle('hint', !!st && tabOf(st.view) === b.dataset.view && st.view !== view && tabOf(view) !== b.dataset.view));
@@ -4083,6 +4136,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       case 'locale-help': localeHelp = !localeHelp; render(); break;
       case 'dismiss-result': result = null; render(); break;
       case 'buy-item': run('buyItem', id); break;
+      case 'equip': run('equip', id); break;
       case 'buy-good': run('buyGood', id, Number(btn.dataset.qty)); break;
       case 'sell-good': run('sellGood', id, Number(btn.dataset.qty)); break;
       case 'export-goods': run('exportGoods'); break;
@@ -4150,14 +4204,53 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   $('#welcomeImport').addEventListener('click', () => { if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true); ageConfirm(); $('#welcomeImportFile').click(); });
   $('#newGameForm').addEventListener('submit', e => {
     e.preventDefault();
-    const name = $('#playerName').value.trim().replace(/\s+/g, ' ');
-    if (name.length < 2 || name.length > 22) return notify('Escolha um codinome entre 2 e 22 caracteres.', true);
     if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true);
-    ageConfirm();
-    if (pendingOnline) { createOnline(name, $('#homeCity').value); return; }
-    state = SB.defaultState(name, $('#homeCity').value); view = 'painel'; result = null;
-    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); save(); render(); openHelp(0);
+    ageConfirm(); pendingOnline = false; openSetup('new');
   });
+  /* ---------- ficha da temporada: retrato e vulgo → classe → salvar ---------- */
+  let setup = null; // { mode: 'new' | 'season', online, step, avatar, name, city, career }
+  function openSetup(mode) {
+    const s = mode === 'season' ? state : null;
+    setup = { mode, online: mode === 'new' ? pendingOnline : online, step: 1, avatar: s && s.avatar || null, name: s ? s.name : '', city: s ? s.city : SB.CITIES[0].name, career: null };
+    $('#welcome').classList.add('hidden'); document.body.classList.add('atCover'); $('#setup').classList.remove('hidden'); renderSetup();
+  }
+  function closeSetup() { setup = null; $('#setup').classList.add('hidden'); document.body.classList.remove('atCover'); }
+  function renderSetup() {
+    const su = setup, c = SB.cityOf(su.city);
+    const steps = `<div class="suSteps" aria-hidden="true"><i class="${su.step === 1 ? 'now' : 'ok'}">1 · Ficha</i><i class="${su.step === 2 ? 'now' : ''}">2 · Classe</i></div>`;
+    $('#setupBox').innerHTML = su.step === 1 ? `${steps}<h2>Quem é você na rua?</h2><p class="mini">Escolha seu retrato e seu vulgo${su.mode === 'season' ? ' para a nova temporada' : ''}.</p>
+      <div class="avatarGrid" role="group" aria-label="Retrato">${SB.AVATARS.map(a => `<button type="button" class="avatarPick ${su.avatar === a.id ? 'on' : ''}" data-action="su-avatar" data-id="${a.id}" aria-pressed="${su.avatar === a.id}">${window.SBArt.avatar(a.id) || avatar(null)}<small>${a.name}</small></button>`).join('')}</div>
+      <div class="formfield"><label for="suName">Seu vulgo</label><input id="suName" class="input" maxlength="22" autocomplete="off" placeholder="Como vão te conhecer?" value="${esc(su.name)}"></div>
+      ${su.mode === 'new' ? `<div class="formfield"><label for="suCity">Sua cidade</label><select id="suCity" class="input">${SB.CITIES.map(x => `<option ${x.name === su.city ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select><p class="cityTrait"><strong>${esc(c.trait)}:</strong> ${esc(c.traitDesc)}</p></div>` : `<p class="mini">Cidade: <b>${esc(su.city)}</b></p>`}
+      <button type="button" class="btn primary block" data-action="su-next">Próximo</button>`
+    : `${steps}<h2>Escolha sua classe</h2><p class="mini">Quatro caminhos para o topo do respeito. Toque em uma para escolher.</p>
+      <div class="suClasses" role="group" aria-label="Classe">${SB.CAREERS.map(k => `<button type="button" class="suClass ${su.career === k.id ? 'on' : ''}" data-action="su-class" data-id="${k.id}" aria-pressed="${su.career === k.id}"><b>${k.name}</b><small>${esc(k.tag)}</small><span>${esc(k.desc)}</span></button>`).join('')}</div>
+      ${su.career ? `<div class="notice suWarn"><strong>Atenção:</strong> retrato, vulgo e classe só poderão ser alterados na próxima temporada.</div><button type="button" class="btn primary block" data-action="su-save">Salvar</button>` : ''}
+      <button type="button" class="btn ghost block" data-action="su-back" style="margin-top:8px">Voltar</button>`;
+  }
+  async function saveSetup() {
+    const su = setup;
+    if (su.mode === 'season') { const r = await run('setup', su.avatar, su.name, su.career); if (r && r.ok) { closeSetup(); view = 'painel'; render(); } return; }
+    if (su.online) return createOnline(su);
+    const s = SB.defaultState(su.name, su.city), r = SB.perform(s, 'setup', su.avatar, su.name, su.career);
+    if (!r.ok) return notify(r.msg, true);
+    state = s; view = 'painel'; result = null; closeSetup(); save(); render();
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-action^="su-"]'); if (!b || !setup) return;
+    const a = b.dataset.action, su = setup;
+    if (a === 'su-avatar') { su.avatar = b.dataset.id; renderSetup(); }
+    else if (a === 'su-next') {
+      su.name = ($('#suName').value || '').trim().replace(/\s+/g, ' ');
+      if (!su.avatar) return notify('Escolha um retrato.', true);
+      if (!SB.nameOk(su.name)) return notify('Escolha um vulgo entre 2 e 22 caracteres (letras, números e espaço).', true);
+      su.step = 2; renderSetup(); $('#setup').scrollTop = 0;
+    } else if (a === 'su-back') { su.step = 1; renderSetup(); }
+    else if (a === 'su-class') { su.career = b.dataset.id; renderSetup(); const s2 = $('[data-action=su-save]'); if (s2 && s2.scrollIntoView) s2.scrollIntoView({ block: 'center' }); }
+    else if (a === 'su-save') saveSetup();
+  });
+  document.addEventListener('input', e => { if (setup && e.target.id === 'suName') setup.name = e.target.value; });
+  document.addEventListener('change', e => { if (setup && e.target.id === 'suCity') { setup.city = e.target.value; renderSetup(); } });
   // Outra aba alterou o save: recarrega para não sobrescrever progresso.
   window.addEventListener('storage', e => {
     if (e.key !== KEY || !e.newValue || !state) return;
@@ -4172,20 +4265,15 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     try { localStorage.removeItem(KEY); } catch (e) { /* ignorado */ }
     state = null; result = null; showWelcome(); notify('Novo início disponível.');
   }
-  function paintCover() {
-    const c = SB.cityOf($('#homeCity').value);
-    $('#coverArt').innerHTML = window.SBArt.capa() || scene('centro', false, c.name);
-    $('#cityTrait').innerHTML = `<strong>${esc(c.trait)}:</strong> ${esc(c.traitDesc)}`;
-  }
-  $('#homeCity').addEventListener('change', paintCover);
+  function paintCover() { $('#coverArt').innerHTML = window.SBArt.capa() || scene('centro', false, SB.CITIES[0].name); }
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#help').classList.contains('hidden')) closeHelp(); });
   function showWelcome() {
     const box = $('#welcomeNotice');
     box.innerHTML = corrupt ? `<div class="notice error"><strong>Não foi possível ler o salvamento encontrado.</strong> ${esc(corrupt.reason)} Uma cópia foi guardada e não será apagada. <button type="button" class="btn small ghost" id="dlCorrupt" style="margin-top:6px">Baixar cópia</button></div>` : '';
     const dl = $('#dlCorrupt'); if (dl) dl.addEventListener('click', () => download('submundo-salvamento-ilegivel.json', corrupt.raw));
-    paintCover();
+    paintCover(); $('#playOffline').classList.toggle('primary', !ON);
     document.body.classList.add('atCover');
-    $('#welcome').classList.remove('hidden'); $('#playerName').focus();
+    $('#welcome').classList.remove('hidden');
   }
 
   /* Aviso 18+: confirmado uma vez por navegador. */
@@ -4244,17 +4332,16 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   const awayCard = avisos => { if (Array.isArray(avisos) && avisos.length) result = { good: true, msg: 'Enquanto você esteve fora', lines: avisos.map(String), deltas: [] }; };
   function enterOnline(estado, avisos) {
     state = fromServer(estado); online = true; pendingOnline = false; view = 'painel'; result = null; awayCard(avisos);
-    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); render();
+    $('#welcome').classList.add('hidden'); if (!setup) document.body.classList.remove('atCover'); render();
     if (!ageConfirmed()) ageGate();
   }
   async function afterLogin() {
     const d = await server({ acao: 'estado' });
     if (d.estado) return enterOnline(d.estado, d.avisos);
-    pendingOnline = true; $('#onlineFields').hidden = true;
-    onlineStatus(`<p class="notice">Conectado como <b>${esc(session.email)}</b>. Agora escolha seu codinome e sua cidade acima e toque em <b>Entrar na cidade</b>.</p>`);
+    pendingOnline = true; openSetup('new');
   }
-  async function createOnline(name, city) {
-    try { const d = await server({ acao: 'novo', codinome: name, cidade: city }); enterOnline(d.estado); openHelp(0); }
+  async function createOnline(su) {
+    try { const d = await server({ acao: 'novo', codinome: su.name, cidade: su.city, avatar: su.avatar, classe: su.career }); closeSetup(); enterOnline(d.estado); }
     catch (e) { notify(e.message, true); }
   }
   async function runOnline(name, args) {
@@ -4290,7 +4377,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const btn = e.target.closest('[data-action^="on-"]'); if (!btn || !ON) return;
     const a = btn.dataset.action;
     if (a === 'on-ranking') return loadRanking();
-    if (a === 'on-logout') { storeSession(null); online = false; pendingOnline = false; state = load(); rankingRows = null; if (state) render(); else showWelcome(); notify('Você saiu da conta online.'); return; }
+    if (a === 'on-logout') { storeSession(null); online = false; pendingOnline = false; if (setup) closeSetup(); state = load(); rankingRows = null; if (state) render(); else showWelcome(); notify('Você saiu da conta online.'); return; }
     const email = $('#onEmail').value.trim(), pass = $('#onPass').value;
     if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true);
     if (!email || pass.length < 6) return notify('Digite o e-mail e uma senha com pelo menos 6 caracteres.', true);

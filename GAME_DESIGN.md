@@ -611,6 +611,51 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
 - **Tela Rua (v1.5)**, de cima para baixo: placa do bairro (Dono, Grana e Polícia do bairro; tocar na faixa explica os três) → resultado → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, meta, título) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
 
+### Entrada e ficha da temporada (v1.5)
+
+Sequência: **tela inicial** (aviso 18+, entrar ou criar conta, ou jogar sem conta) → **ficha 1**: retrato (10), vulgo e cidade, botão **Próximo** → **ficha 2**: classe (4), e só depois de escolher aparecem o aviso "retrato, vulgo e classe só poderão ser alterados na próxima temporada" e o botão **Salvar** → o **guia de primeiros passos** começa direto no passo 2 (primeiro roubo). A ação é , que só vale sem classe; ao virar a temporada a ficha reabre com o vulgo preenchido (a cidade não muda). O Perfil não troca mais o retrato. No online, o vulgo novo precisa ser único (o banco recusa repetido).
+
+### Itens são seus (v1.5)
+
+Na Feira, comprar paga o **preço cheio** e o item fica **seu** na temporada; os que você já tem mostram **Usar** (troca de graça, recusada preso ou com veículo menor que a carga). Não há mais devolução de metade na troca, então os preços caíram pela regra *novo = antigo − metade do anterior da mesma prateleira*: o custo para subir a trilha ficou igual (o ritmo medido em 
+> submundo-brasil@1.5.0 ritmo
+> node tests/ritmo.js
+
+Ritmo da Feira (200 jogos, começo com R$ 0): mediana do roubo e do dia em que compra cada arma
+ 1. Pedaço de pau com prego      R$    150  respeito   0  →  roubo    1 · dia   1 · 100% chegam
+ 2. Chave de fenda amolada       R$    820  respeito   0  →  roubo    3 · dia   2 · 100% chegam
+ 3. Vergalhão de obra            R$   1050  respeito   8  →  roubo    8 · dia   6 · 100% chegam
+ 4. Facão                        R$   1450  respeito  15  →  roubo   14 · dia  11 · 100% chegam
+ 5. Maquita                      R$   1900  respeito  25  →  roubo   22 · dia  18 · 93% chegam
+ 6. Três-oitão raspado           R$   2000  respeito  35  →  roubo   28 · dia  23 · 73% chegam
+ 7. Pistola .40                  R$   2750  respeito  60  →  roubo   34 · dia  26 · 35% chegam
+ 8. Doze de cano serrado         R$   3750  respeito  80  →  roubo   47 · dia  26 · 12% chegam
+ 9. Uzi de pente estendido       R$   4500  respeito 100  →  roubo   52 · dia  28 · 6% chegam
+10. Submetralhadora              R$   5250  respeito 115  →  roubo   61 · dia  28 · 2% chegam
+11. FAL 7.62, o Vovô             R$   6000  respeito 130  →  roubo   66 · dia  29 · 1% chegam
+12. Fuzil AR-15                  R$   7750  respeito 150  →  roubo    — · dia   — · 0% chegam
+13. Ponto Cinquenta              R$  11500  respeito 175  →  roubo    — · dia   — · 0% chegam
+14. Metralhadora MAG             R$  15000  respeito 200  →  roubo    — · dia   — · 0% chegam
+15. Lança-rojão                  R$  18000  respeito 220  →  roubo    — · dia   — · 0% chegam não mudou). Patrimônio conta só o que está em uso (itens guardados não viram dinheiro).
+
+| Arma | Preço | | Proteção | Preço | | Veículo | Preço |
+|---|---|---|---|---|---|---|---|
+| Pedaço de pau | 150 | | Lista telefônica | 200 | | Bicicleta | 300 |
+| Chave de fenda | 820 | | Jaqueta | 900 | | Cinquentinha | 1.650 |
+| Vergalhão | 1.050 | | Colete vencido | 2.300 | | Moto | 3.100 |
+| Facão | 1.450 | | Kevlar | 3.100 | | Opala | 5.500 |
+| Maquita | 1.900 | | Tático | 4.750 | | Blindado | 11.250 |
+| Três-oitão | 2.000 | | Traje | 8.500 | | | |
+| Pistola .40 | 2.750 | | | | | | |
+| Doze | 3.750 | | | | | | |
+| Uzi | 4.500 | | | | | | |
+| Submetralhadora | 5.250 | | | | | | |
+| FAL | 6.000 | | | | | | |
+| AR-15 | 7.750 | | | | | | |
+| Ponto Cinquenta | 11.500 | | | | | | |
+| MAG | 15.000 | | | | | | |
+| Lança-rojão | 18.000 | | | | | | |
+
 ### Relógio do modo online (v1.5, fase 1b)
 
 Só no online. O jogo local continua com o botão Dormir e 30 dias por temporada.

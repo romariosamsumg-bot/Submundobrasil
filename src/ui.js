@@ -398,6 +398,7 @@
         <p><strong>Colete</strong>: roubo armado que dá errado vira trocação com a segurança. O colete decide se você sai ferido ou vai para a UPA. Ser preso custa respeito.</p>
         <p><strong>Saúde</strong> (barra azul) cai em confrontos, duelos e serviços de força que dão errado. Abaixo de 60 suas chances caem; a zero, você é internado. Cure no Hospital ou esperando.</p>
         <p>Toque no seu retrato, no topo, para abrir o <strong>Perfil</strong> e escolher outra foto.</p>
+        <p><strong>Feira</strong>: o que você compra é seu. Para trocar de arma, proteção ou veículo, toque em <strong>Usar</strong>, de graça.</p>
         <p><strong>Trilha de compra</strong>: na Feira (armas, proteções e veículos) e nos negócios, o próximo só abre depois que você compra o anterior nesta temporada.</p>
         ${state && state.clock ? '<p><strong>Online</strong>: o dia vira sozinho à meia-noite de Brasília e a temporada é o mês do calendário. A energia volta +1 a cada 3 minutos. <strong>Ir pra casa</strong> (3 horas, até 2 vezes por dia) enche a energia e zera o corpo. Na cadeia e no hospital, 1 dia vale 2 horas.</p>' : ''}
         <p><strong>Repetir</strong> o mesmo serviço no dia ou insistir no mesmo bairro piora chance e pagamento. Varie.</p>
@@ -422,8 +423,8 @@
     const s = state;
     if (SB.blocked(s)) return null;
     const best = suggestion(), lowEnergy = s.energy < 16, canNight = (s.today.night < SB.NIGHT_LIMIT || !!s.today.venue) && s.energy < 100 && s.today.doses < SB.DOSE_LIMIT && SB.chemLeft(s) > 0;
-    const curCost = (SB.item(s.gear.arma) || { cost: 0 }).cost, back = Math.round(curCost * SB.ITEM_RESALE);
-    const upgrade = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && i.cost > curCost && s.respect >= i.unlock && !SB.chainLock(s, 'items', i.id) && s.cash + back >= i.cost * 1.5).pop();
+    const curPow = (SB.item(s.gear.arma) || { power: 0 }).power;
+    const upgrade = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && !SB.owns(s, i.id) && i.power > curPow && s.respect >= i.unlock && !SB.chainLock(s, 'items', i.id) && s.cash >= i.cost * 1.5).pop();
     const lockedByGun = SB.MISSIONS.find(m => (SB.missionLock(s, m) || '').startsWith('Requer arma'));
     if (s.health < 40) return { tag: 'Saúde baixa', title: 'Passe no Hospital', text: `Com ${s.health} de saúde suas chances caem em tudo.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
     if (s.vicio >= 70) return { tag: 'Vício alto', title: 'Hora de desintoxicar', text: `Vício ${s.vicio}/100: a noite recarrega menos e há ${SB.overdoseChance(s)}% de chance de overdose a cada saída.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
@@ -686,12 +687,13 @@
   }
   function feira() {
     const s = state;
-    return heading('Feira do Rolo', 'Arma abre roubo maior. Um item por espaço; o antigo volta por metade do preço.') + `<div class="screenArt">${window.SBArt.place('feira')}</div>` + jailNotice() + resultCard() +
-      SB.SLOTS.map(sl => { const cur = SB.item(s.gear[sl.id]), back = cur ? Math.round(cur.cost * SB.ITEM_RESALE) : 0;
-        return stencil(sl.name, cur ? 'em uso: ' + esc(cur.name) : 'nada equipado') + `<div class="grid">` + SB.ITEMS.filter(i => i.slot === sl.id).map(it => { const mine = s.gear[sl.id] === it.id, net = it.cost - back, cl = it.trophy || mine ? '' : SB.chainLock(s, 'items', it.id), locked = !!cl || s.respect < it.unlock || (it.trophy && !s.achievements[it.trophy]);
-          const pic = window.SBArt.item(it.id);
-          return `<section class="card shopRow ${pic ? 'withPic' : ''} ${mine ? 'mine' : ''} ${locked ? 'locked' : ''}">${pic ? `<span class="itemPic" aria-hidden="true">${pic}</span>` : ''}<div><h3>${esc(it.name)}${mine ? ' <span class="pill">Em uso</span>' : ''}</h3><p class="mini">${esc(itemEffect(it))}</p>${locked ? `<div class="lockline">${cl ? esc(cl) : it.trophy && !s.achievements[it.trophy] ? 'Troféu: só para quem venceu o Rei do Pedaço.' : `Requer ${it.unlock} de respeito.`}</div>` : ''}</div>
-            <div class="shopAct"><strong>${fmt(it.cost)}</strong>${cur && !mine ? `<span class="mini">na troca: ${fmt(Math.max(0, net))}</span>` : ''}${mine ? '' : button('Comprar', 'buy-item', `data-id="${it.id}"`, locked || s.cash < net || s.jail > 0, 'small primary')}</div></section>`; }).join('') + `</div>`; }).join('');
+    return heading('Feira do Rolo', 'Arma abre roubo maior. O que você compra é seu: troque o que está usando quando quiser, de graça.') + `<div class="screenArt">${window.SBArt.place('feira')}</div>` + jailNotice() + resultCard() +
+      SB.SLOTS.map(sl => { const cur = SB.item(s.gear[sl.id]);
+        return stencil(sl.name, cur ? 'em uso: ' + esc(cur.name) : 'nada equipado') + `<div class="grid">` + SB.ITEMS.filter(i => i.slot === sl.id).map(it => { const mine = s.gear[sl.id] === it.id, have = SB.owns(s, it.id), cl = it.trophy || have ? '' : SB.chainLock(s, 'items', it.id), locked = !have && (!!cl || s.respect < it.unlock || (it.trophy && !s.achievements[it.trophy]));
+          const pic = window.SBArt.item(it.id), small = it.slot === 'veiculo' && have && !mine && SB.cargoUsed(s) > SB.cargoWith(s, it);
+          const act = mine ? '' : have ? button('Usar', 'equip', `data-id="${it.id}"`, s.jail > 0 || small, 'small') : button('Comprar', 'buy-item', `data-id="${it.id}"`, locked || s.cash < it.cost || s.jail > 0, 'small primary');
+          return `<section class="card shopRow ${pic ? 'withPic' : ''} ${mine ? 'mine' : ''} ${locked ? 'locked' : ''}">${pic ? `<span class="itemPic" aria-hidden="true">${pic}</span>` : ''}<div><h3>${esc(it.name)}${mine ? ' <span class="pill">Em uso</span>' : have ? ' <span class="pill own">É seu</span>' : ''}</h3><p class="mini">${esc(itemEffect(it))}</p>${locked ? `<div class="lockline">${cl ? esc(cl) : it.trophy && !s.achievements[it.trophy] ? 'Troféu: só para quem venceu o Rei do Pedaço.' : `Requer ${it.unlock} de respeito.`}</div>` : ''}${small ? '<div class="lockline">Sua carga não cabe neste veículo.</div>' : ''}</div>
+            <div class="shopAct">${have ? '' : `<strong>${fmt(it.cost)}</strong>`}${act}</div></section>`; }).join('') + `</div>`; }).join('');
   }
   function maxBuy(g) { const s = state; let q = Math.max(0, SB.cargoCap(s) - SB.cargoUsed(s)); while (q > 0 && SB.buyTotal(s, g, q) > s.cash) q = Math.floor(q * .9) - (q < 10 ? 1 : 0); return Math.max(0, q); }
   function galpao() {
@@ -814,7 +816,6 @@
     const top = Math.max(20, ...SB.STATS.map(st => s.stats[st.id]));
     return heading('Perfil', 'Sua ficha no submundo.') + resultCard() + `
       <section class="sheet"><span class="sheetAvatar">${portrait(s)}</span><div><h2>${esc(s.name)}</h2><p>${esc(sc.title)} · nível ${lvl}</p><p class="mini">${esc(s.city)}${c ? ' · ' + c.name + ' ' + SB.careerLevel(s) + '/3' : ''}${s.gangName ? ' · ' + esc(s.gangName) : ''}${s.prestige ? ' · prestígio ' + s.prestige : ''}</p></div></section>
-      ${stencil('Retrato', 'só aparência, troque quando quiser')}<div class="avatarGrid" role="group" aria-label="Escolher retrato">${SB.AVATARS.filter(a => window.SBArt.avatar(a.id)).map(a => `<button type="button" class="avatarPick ${s.avatar === a.id ? 'on' : ''}" data-action="avatar" data-id="${a.id}" aria-pressed="${s.avatar === a.id}" title="${a.name}">${window.SBArt.avatar(a.id)}<small>${a.name}</small></button>`).join('')}<button type="button" class="avatarPick ${s.avatar ? '' : 'on'}" data-action="avatar" data-id="none" aria-pressed="${!s.avatar}" title="Silhueta da classe">${avatar(s.career)}<small>Classe</small></button></div>
       ${c ? `${stencil('Classe', esc(c.name) + ' · ' + esc(c.tag))}<section class="card"><p class="mini" style="margin:0">${esc(c.desc)} ${esc(c.xpDesc)}</p><ul class="perkList">${c.perks.map((p, i) => `<li class="${i < SB.careerLevel(s) ? 'on' : ''}">${i < SB.careerLevel(s) ? '✓' : '○'} Nível ${i + 1} (${SB.CAREER_XP[i]} XP): ${esc(p)}</li>`).join('')}</ul></section>` : ''}
       ${stencil('Atributos')}<section class="card">${SB.STATS.map(st => `<div class="statRow">${statIcon(st.id)}<span>${st.name}</span><div class="meter"><div style="width:${pct(s.stats[st.id] / top * 100)}%"></div></div><strong>${num(s.stats[st.id])}</strong></div>`).join('')}</section>
       ${stencil('Equipamento', 'troque na Feira do Rolo')}<div class="gearGrid">${SB.SLOTS.map(sl => { const it = SB.item(s.gear[sl.id]); const pic = it ? window.SBArt.item(it.id) : ''; return `<button type="button" class="gearSlot ${it ? 'on' : ''}" data-view="feira">${pic ? `<span class="gearPic" aria-hidden="true">${pic}</span>` : ''}<span>${sl.name}</span><b>${it ? esc(it.name) : '—'}</b><small>${it ? esc(it.slot === 'arma' ? 'poder ' + it.power : it.slot === 'protecao' ? 'defesa ' + it.def : 'carga +' + it.cargo) : 'vazio'}</small></button>`; }).join('')}</div>
@@ -835,6 +836,7 @@
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
     }
     renderHud();
+    if (state && !state.career && !setup) openSetup('season');
     $all('.nav button, .mobileNav button').forEach(b => { const on = b.dataset.view === tabOf(view); b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     const st = SB.tutorialStep(state);
     $all('.nav button, .mobileNav button').forEach(b => b.classList.toggle('hint', !!st && tabOf(st.view) === b.dataset.view && st.view !== view && tabOf(view) !== b.dataset.view));
@@ -870,6 +872,7 @@
       case 'locale-help': localeHelp = !localeHelp; render(); break;
       case 'dismiss-result': result = null; render(); break;
       case 'buy-item': run('buyItem', id); break;
+      case 'equip': run('equip', id); break;
       case 'buy-good': run('buyGood', id, Number(btn.dataset.qty)); break;
       case 'sell-good': run('sellGood', id, Number(btn.dataset.qty)); break;
       case 'export-goods': run('exportGoods'); break;
@@ -937,14 +940,53 @@
   $('#welcomeImport').addEventListener('click', () => { if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true); ageConfirm(); $('#welcomeImportFile').click(); });
   $('#newGameForm').addEventListener('submit', e => {
     e.preventDefault();
-    const name = $('#playerName').value.trim().replace(/\s+/g, ' ');
-    if (name.length < 2 || name.length > 22) return notify('Escolha um codinome entre 2 e 22 caracteres.', true);
     if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true);
-    ageConfirm();
-    if (pendingOnline) { createOnline(name, $('#homeCity').value); return; }
-    state = SB.defaultState(name, $('#homeCity').value); view = 'painel'; result = null;
-    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); save(); render(); openHelp(0);
+    ageConfirm(); pendingOnline = false; openSetup('new');
   });
+  /* ---------- ficha da temporada: retrato e vulgo → classe → salvar ---------- */
+  let setup = null; // { mode: 'new' | 'season', online, step, avatar, name, city, career }
+  function openSetup(mode) {
+    const s = mode === 'season' ? state : null;
+    setup = { mode, online: mode === 'new' ? pendingOnline : online, step: 1, avatar: s && s.avatar || null, name: s ? s.name : '', city: s ? s.city : SB.CITIES[0].name, career: null };
+    $('#welcome').classList.add('hidden'); document.body.classList.add('atCover'); $('#setup').classList.remove('hidden'); renderSetup();
+  }
+  function closeSetup() { setup = null; $('#setup').classList.add('hidden'); document.body.classList.remove('atCover'); }
+  function renderSetup() {
+    const su = setup, c = SB.cityOf(su.city);
+    const steps = `<div class="suSteps" aria-hidden="true"><i class="${su.step === 1 ? 'now' : 'ok'}">1 · Ficha</i><i class="${su.step === 2 ? 'now' : ''}">2 · Classe</i></div>`;
+    $('#setupBox').innerHTML = su.step === 1 ? `${steps}<h2>Quem é você na rua?</h2><p class="mini">Escolha seu retrato e seu vulgo${su.mode === 'season' ? ' para a nova temporada' : ''}.</p>
+      <div class="avatarGrid" role="group" aria-label="Retrato">${SB.AVATARS.map(a => `<button type="button" class="avatarPick ${su.avatar === a.id ? 'on' : ''}" data-action="su-avatar" data-id="${a.id}" aria-pressed="${su.avatar === a.id}">${window.SBArt.avatar(a.id) || avatar(null)}<small>${a.name}</small></button>`).join('')}</div>
+      <div class="formfield"><label for="suName">Seu vulgo</label><input id="suName" class="input" maxlength="22" autocomplete="off" placeholder="Como vão te conhecer?" value="${esc(su.name)}"></div>
+      ${su.mode === 'new' ? `<div class="formfield"><label for="suCity">Sua cidade</label><select id="suCity" class="input">${SB.CITIES.map(x => `<option ${x.name === su.city ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select><p class="cityTrait"><strong>${esc(c.trait)}:</strong> ${esc(c.traitDesc)}</p></div>` : `<p class="mini">Cidade: <b>${esc(su.city)}</b></p>`}
+      <button type="button" class="btn primary block" data-action="su-next">Próximo</button>`
+    : `${steps}<h2>Escolha sua classe</h2><p class="mini">Quatro caminhos para o topo do respeito. Toque em uma para escolher.</p>
+      <div class="suClasses" role="group" aria-label="Classe">${SB.CAREERS.map(k => `<button type="button" class="suClass ${su.career === k.id ? 'on' : ''}" data-action="su-class" data-id="${k.id}" aria-pressed="${su.career === k.id}"><b>${k.name}</b><small>${esc(k.tag)}</small><span>${esc(k.desc)}</span></button>`).join('')}</div>
+      ${su.career ? `<div class="notice suWarn"><strong>Atenção:</strong> retrato, vulgo e classe só poderão ser alterados na próxima temporada.</div><button type="button" class="btn primary block" data-action="su-save">Salvar</button>` : ''}
+      <button type="button" class="btn ghost block" data-action="su-back" style="margin-top:8px">Voltar</button>`;
+  }
+  async function saveSetup() {
+    const su = setup;
+    if (su.mode === 'season') { const r = await run('setup', su.avatar, su.name, su.career); if (r && r.ok) { closeSetup(); view = 'painel'; render(); } return; }
+    if (su.online) return createOnline(su);
+    const s = SB.defaultState(su.name, su.city), r = SB.perform(s, 'setup', su.avatar, su.name, su.career);
+    if (!r.ok) return notify(r.msg, true);
+    state = s; view = 'painel'; result = null; closeSetup(); save(); render();
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-action^="su-"]'); if (!b || !setup) return;
+    const a = b.dataset.action, su = setup;
+    if (a === 'su-avatar') { su.avatar = b.dataset.id; renderSetup(); }
+    else if (a === 'su-next') {
+      su.name = ($('#suName').value || '').trim().replace(/\s+/g, ' ');
+      if (!su.avatar) return notify('Escolha um retrato.', true);
+      if (!SB.nameOk(su.name)) return notify('Escolha um vulgo entre 2 e 22 caracteres (letras, números e espaço).', true);
+      su.step = 2; renderSetup(); $('#setup').scrollTop = 0;
+    } else if (a === 'su-back') { su.step = 1; renderSetup(); }
+    else if (a === 'su-class') { su.career = b.dataset.id; renderSetup(); const s2 = $('[data-action=su-save]'); if (s2 && s2.scrollIntoView) s2.scrollIntoView({ block: 'center' }); }
+    else if (a === 'su-save') saveSetup();
+  });
+  document.addEventListener('input', e => { if (setup && e.target.id === 'suName') setup.name = e.target.value; });
+  document.addEventListener('change', e => { if (setup && e.target.id === 'suCity') { setup.city = e.target.value; renderSetup(); } });
   // Outra aba alterou o save: recarrega para não sobrescrever progresso.
   window.addEventListener('storage', e => {
     if (e.key !== KEY || !e.newValue || !state) return;
@@ -959,20 +1001,15 @@
     try { localStorage.removeItem(KEY); } catch (e) { /* ignorado */ }
     state = null; result = null; showWelcome(); notify('Novo início disponível.');
   }
-  function paintCover() {
-    const c = SB.cityOf($('#homeCity').value);
-    $('#coverArt').innerHTML = window.SBArt.capa() || scene('centro', false, c.name);
-    $('#cityTrait').innerHTML = `<strong>${esc(c.trait)}:</strong> ${esc(c.traitDesc)}`;
-  }
-  $('#homeCity').addEventListener('change', paintCover);
+  function paintCover() { $('#coverArt').innerHTML = window.SBArt.capa() || scene('centro', false, SB.CITIES[0].name); }
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#help').classList.contains('hidden')) closeHelp(); });
   function showWelcome() {
     const box = $('#welcomeNotice');
     box.innerHTML = corrupt ? `<div class="notice error"><strong>Não foi possível ler o salvamento encontrado.</strong> ${esc(corrupt.reason)} Uma cópia foi guardada e não será apagada. <button type="button" class="btn small ghost" id="dlCorrupt" style="margin-top:6px">Baixar cópia</button></div>` : '';
     const dl = $('#dlCorrupt'); if (dl) dl.addEventListener('click', () => download('submundo-salvamento-ilegivel.json', corrupt.raw));
-    paintCover();
+    paintCover(); $('#playOffline').classList.toggle('primary', !ON);
     document.body.classList.add('atCover');
-    $('#welcome').classList.remove('hidden'); $('#playerName').focus();
+    $('#welcome').classList.remove('hidden');
   }
 
   /* Aviso 18+: confirmado uma vez por navegador. */
@@ -1031,17 +1068,16 @@
   const awayCard = avisos => { if (Array.isArray(avisos) && avisos.length) result = { good: true, msg: 'Enquanto você esteve fora', lines: avisos.map(String), deltas: [] }; };
   function enterOnline(estado, avisos) {
     state = fromServer(estado); online = true; pendingOnline = false; view = 'painel'; result = null; awayCard(avisos);
-    $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover'); render();
+    $('#welcome').classList.add('hidden'); if (!setup) document.body.classList.remove('atCover'); render();
     if (!ageConfirmed()) ageGate();
   }
   async function afterLogin() {
     const d = await server({ acao: 'estado' });
     if (d.estado) return enterOnline(d.estado, d.avisos);
-    pendingOnline = true; $('#onlineFields').hidden = true;
-    onlineStatus(`<p class="notice">Conectado como <b>${esc(session.email)}</b>. Agora escolha seu codinome e sua cidade acima e toque em <b>Entrar na cidade</b>.</p>`);
+    pendingOnline = true; openSetup('new');
   }
-  async function createOnline(name, city) {
-    try { const d = await server({ acao: 'novo', codinome: name, cidade: city }); enterOnline(d.estado); openHelp(0); }
+  async function createOnline(su) {
+    try { const d = await server({ acao: 'novo', codinome: su.name, cidade: su.city, avatar: su.avatar, classe: su.career }); closeSetup(); enterOnline(d.estado); }
     catch (e) { notify(e.message, true); }
   }
   async function runOnline(name, args) {
@@ -1077,7 +1113,7 @@
     const btn = e.target.closest('[data-action^="on-"]'); if (!btn || !ON) return;
     const a = btn.dataset.action;
     if (a === 'on-ranking') return loadRanking();
-    if (a === 'on-logout') { storeSession(null); online = false; pendingOnline = false; state = load(); rankingRows = null; if (state) render(); else showWelcome(); notify('Você saiu da conta online.'); return; }
+    if (a === 'on-logout') { storeSession(null); online = false; pendingOnline = false; if (setup) closeSetup(); state = load(); rankingRows = null; if (state) render(); else showWelcome(); notify('Você saiu da conta online.'); return; }
     const email = $('#onEmail').value.trim(), pass = $('#onPass').value;
     if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true);
     if (!email || pass.length < 6) return notify('Digite o e-mail e uma senha com pelo menos 6 caracteres.', true);

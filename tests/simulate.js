@@ -40,10 +40,11 @@ function armUp(s, factor = 1.25) {
   const locked = SB.MISSIONS.filter(m => (SB.missionLock(s, m) || '').startsWith('Requer arma')).map(m => m.req.power);
   const want = locked.length ? Math.min(...locked) : (s.gear.arma ? 0 : 1);
   if (!want) return;
-  const funds = s.cash + s.bank + cur.cost / 2;
-  const pick = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && i.power >= want && i.power > cur.power && s.respect >= i.unlock && funds >= i.cost * factor)[0];
+  const funds = s.cash + s.bank; // v1.5: sem devolução na troca, e a trilha cobra as anteriores da prateleira
+  const path = it => { const list = SB.chainList('items', it), i = list.findIndex(x => x.id === it.id); return list.slice(0, i + 1).filter(x => !SB.owns(s, x.id)).reduce((a, x) => a + x.cost, 0); };
+  const pick = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && i.power >= want && i.power > cur.power && s.respect >= i.unlock && funds >= path(i) * factor)[0];
   if (!pick) return;
-  const missing = pick.cost - cur.cost / 2 - s.cash;
+  const missing = path(pick) - s.cash;
   if (missing > 0) SB.perform(s, 'bank', 'withdraw', Math.min(s.bank, Math.ceil(missing)));
   SB.perform(s, 'buyItem', pick.id);
 }

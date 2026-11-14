@@ -23,6 +23,8 @@ for(let season=0;season<Number(process.argv[3]||20);season++){
   if(a==='duel')args=[SB.RIVALS[SB.rand(0,SB.RIVALS.length-1)].id];
   if(a==='clinic')args=[['posto','clinica','x'][SB.rand(0,2)]];
   if(a==='buyItem')args=[SB.ITEMS[SB.rand(0,SB.ITEMS.length-1)].id];
+  if(a==='equip')args=[SB.ITEMS[SB.rand(0,SB.ITEMS.length-1)].id];
+  if(a==='setup')args=[['malandro','coroa','x'][SB.rand(0,2)],['Zé do Morro','x','<b>'][SB.rand(0,2)],SB.CAREERS[SB.rand(0,3)].id];
   if(['buyGood','sellGood'].includes(a))args=[SB.GOODS[SB.rand(0,SB.GOODS.length-1)].id,SB.rand(1,30)];
   if(a==='buildLab')args=[SB.LABS[SB.rand(0,SB.LABS.length-1)].id];
   if(a==='dose')args=[SB.DOSES[SB.rand(0,SB.DOSES.length-1)].id,SB.rand(0,1)===1];
