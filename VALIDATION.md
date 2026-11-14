@@ -80,6 +80,11 @@ ausência de cortes).
 - **Teste real com o relógio** (função versão 2): personagem criado no dia 13 do mês 2026-11, três roubos pelo servidor em 1,0 a 1,4 s cada (medido de fora do Brasil), faixa do dia com "O dia vira em 16 h 7 min", ir pra casa e sair, ranking do mês. Conta de teste apagada. **Não testado de verdade**: a virada da meia-noite e a do mês no servidor (só nos testes, com a hora simulada).
 - **Teste real de ponta a ponta** (confirmação de e-mail desligada pelo autor): conta criada, personagem com R$ 0, roubo calculado pelo servidor (1,2 s na primeira chamada), ranking com o jogador em 1º e continuação após recarregar a página. A conta de teste foi apagada em seguida.
 
+## 3e. Site no ar (GitHub Pages)
+
+- `https://romariosamsumg-bot.github.io/Submundobrasil/` responde 200 e entrega exatamente o último build.
+- Teste real pelo site: conta criada, ficha (retrato, vulgo, classe), roubo calculado pelo servidor em 1,5 s (medido de fora do Brasil), ranking com o jogador. Conta de teste apagada; o banco ficou com 0 jogadores.
+
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 
 Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.5** (começo do zero, preços novos da Feira, trilha de compra, quatro classes, noite com cardápio, sete esquemas, tolerância e teto do corpo) em
