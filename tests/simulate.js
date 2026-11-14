@@ -241,7 +241,7 @@ function playSeason(strategy, s) {
   const st = STRATEGIES[strategy];
   if (st.career) SB.perform(s, 'career', st.career);
   else SB.perform(s, 'career', SB.CAREERS[SB.rand(0, SB.CAREERS.length - 1)].id);
-  if (st.goal) SB.perform(s, 'goal', st.goal);
+  // v1.5: sem meta da temporada
   while (s.day < SB.MAXDAY) { st.day(s); SB.perform(s, 'nextDay'); }
   st.day(s);
   const sc = SB.seasonScore(s);

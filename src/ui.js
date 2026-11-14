@@ -190,7 +190,7 @@
       const schema = JSON.parse(raw).schema;
       if (schema === 1 && !localStorage.getItem(V04_BACKUP_KEY)) localStorage.setItem(V04_BACKUP_KEY, raw);
     } catch (e) { /* backup é opcional */ }
-    if (r.notes.length) result = { good: true, msg: 'Salvamento carregado e verificado.', lines: r.notes, deltas: [] };
+    if (r.notes.length) result = { good: true, msg: 'Salvamento carregado e verificado.', lines: r.notes, deltas: [], fresh: true };
     return r.state;
   }
   function download(name, text) {
@@ -215,7 +215,7 @@
     const summary = `${r.state.name} · temporada ${r.state.season}, dia ${r.state.day} · ${fmt(r.state.cash + r.state.bank)}`;
     if (!confirm((fromWelcome ? 'Carregar' : 'Substituir sua carreira atual por') + ` este salvamento?\n\n${summary}${r.notes.length ? '\n\n' + r.notes.join('\n') : ''}${warn}`)) return;
     state = r.state; view = 'painel';
-    result = { good: true, msg: 'Carreira importada.', lines: r.notes.concat(warn ? ['Arquivo alterado após a exportação: valores verificados.'] : []), deltas: [] };
+    result = { good: true, msg: 'Carreira importada.', lines: r.notes.concat(warn ? ['Arquivo alterado após a exportação: valores verificados.'] : []), deltas: [], fresh: true };
     $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover');
     save(); render(); notify('Carreira importada com sucesso.');
   }
@@ -278,13 +278,11 @@
     if (name === 'endSeason') {
       const rec = r.record;
       if (r.state) state = r.state;
-      result = { good: true, msg: r.msg, lines: [`Respeito final: ${rec.score} · ${rec.title}.`, ...SB.CATEGORIES.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`), `Meta: ${rec.goal ? (rec.goalComplete ? 'cumprida' : 'não cumprida') : 'não escolhida'}.`], deltas: [] };
+      result = { good: true, msg: r.msg, lines: [`Respeito final: ${rec.score} · ${rec.title}.`, ...SB.CATEGORIES.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`)], deltas: [], fresh: true };
     } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()), fresh: true, stamp: STAMPED.includes(name) };
     if (name === 'nextDay') dawn();
     save(); render();
-    // O cupom de resultado já informa; o aviso flutuante só aparece se ele estiver fora da tela.
-    const card = $('.resultCard'), box = card && card.getBoundingClientRect();
-    if (!box || box.bottom < 70 || box.top > window.innerHeight - 70) notify(r.msg, !r.good); else $('#toast').hidden = true;
+    $('#toast').hidden = true; // o popup já informa
     return r;
   }
 
@@ -293,13 +291,24 @@
     const up = PARENT[view];
     return `${up ? `<button type="button" class="backLink" data-view="${up}">← ${({ hub: 'Cidade', perfil: 'Perfil', gangue: 'Bando' })[up]}</button>` : ''}<div class="pagehead"><div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>` + guideCard();
   }
-  function resultCard() {
-    if (!result) return '';
-    const fresh = result.fresh; result.fresh = false;
-    return `<section class="resultCard ${result.good ? '' : 'bad'} ${fresh ? 'fresh' : ''}" aria-live="polite"><div class="rhead"><strong>${esc(result.msg)}</strong><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar resultado">×</button></div>
+  /** v1.5: o resultado saiu do topo da tela e pula num popup (renderPop); nas telas não sobra nada. */
+  function resultCard() { return ''; }
+  function renderPop() {
+    const box = $('#resultPop');
+    if (!result) { if (!box.hidden) { box.hidden = true; box.innerHTML = ''; } return; }
+    if (!result.fresh) return; // já aberto: não refaz nem repete a animação
+    result.fresh = false;
+    box.className = 'resultPop' + (window.SB_POP_PASSTHROUGH ? ' pass' : '');
+    box.innerHTML = `<div class="popBack" data-action="dismiss-result" aria-hidden="true"></div>${resultHtml(true)}`;
+    box.hidden = false;
+    const ok = box.querySelector('.popOk'); if (ok && !window.SB_POP_PASSTHROUGH) ok.focus({ preventScroll: true });
+  }
+  function resultHtml(fresh) {
+    return `<section class="resultCard ${result.good ? '' : 'bad'} ${fresh ? 'fresh' : ''}" role="dialog" aria-modal="true" aria-label="Resultado" aria-live="polite"><div class="rhead"><strong>${esc(result.msg)}</strong><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar resultado">×</button></div>
       ${result.stamp ? `<span class="stamp" aria-hidden="true">${result.good ? 'DEU BOM' : 'DEU RUIM'}</span>` : ''}
       ${result.deltas.length ? `<div class="chips">${result.deltas.map(d => `<span class="chip ${d.good ? 'up' : 'down'}">${d.label} ${d.text}</span>`).join('')}</div>` : ''}
-      ${result.lines.length ? `<ul>${result.lines.slice(0, 10).map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}</section>`;
+      ${result.lines.length ? `<ul>${result.lines.slice(0, 10).map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}
+      <button type="button" class="btn primary block popOk" data-action="dismiss-result">OK</button></section>`;
   }
   function jailNotice() {
     if (SB.atHome(state)) return `<div class="notice tape homeNote"><strong>EM CASA · volta em ${dur(SB.clockInfo(state).home)}</strong> Descansando: sem roubos, noite ou viagens. Banco, compras e decisões do bando continuam. No fim: energia cheia e o corpo zerado.<div class="inlineBtns">${button('Sair de casa antes da hora', 'leave-home', '', false, 'small ghost')}</div></div>`;
@@ -398,7 +407,8 @@
         <p><strong>Colete</strong>: roubo armado que dá errado vira trocação com a segurança. O colete decide se você sai ferido ou vai para a UPA. Ser preso custa respeito.</p>
         <p><strong>Saúde</strong> (barra azul) cai em confrontos, duelos e serviços de força que dão errado. Abaixo de 60 suas chances caem; a zero, você é internado. Cure no Hospital ou esperando.</p>
         <p>Toque no seu retrato, no topo, para abrir o <strong>Perfil</strong> e escolher outra foto.</p>
-        <p><strong>Equipamento</strong>: arma, proteção e veículo somam chance em todo roubo (a arma pesa mais nos de Força e menos nos de Lábia), e os roubos grandes pedem arma e veículo de fuga.</p>
+        <p><strong>Equipamento</strong>: arma, proteção e veículo somam chance em todo roubo (a arma pesa mais nos de Força e menos nos de Lábia), e os roubos grandes pedem arma e veículo de fuga. Proteção e veículo equipados também diminuem a chance de ser preso.</p>
+        <p><strong>Resultado</strong>: depois de cada ação, o resultado pula na tela com o que mudou. Toque em OK (ou fora) para fechar.</p>
         <p><strong>Feira</strong>: o que você compra é seu. Para trocar de arma, proteção ou veículo, toque em <strong>Usar</strong>, de graça.</p>
         <p><strong>Trilha de compra</strong>: na Feira (armas, proteções e veículos) e nos negócios, o próximo só abre depois que você compra o anterior nesta temporada.</p>
         ${state && state.clock ? '<p><strong>Online</strong>: o dia vira sozinho à meia-noite de Brasília e a temporada é o mês do calendário. A energia volta +1 a cada 3 minutos. <strong>Ir pra casa</strong> (3 horas, até 2 vezes por dia) enche a energia e zera o corpo. Na cadeia e no hospital, 1 dia vale 2 horas.</p>' : ''}
@@ -456,7 +466,7 @@
       ${fichaCard()}
       ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(2)}</section>`;
   }
-  /** Temporada em 4 blocos: patente, classe, meta e título, cada um com a sua barra. */
+  /** Temporada em 4 blocos: patente, classe, mês e feitos, cada um com a sua barra. */
   function fichaCard() {
     const s = state, sc = SB.seasonScore(s), pi = SB.phaseIndex(s), ph = SB.PHASES[pi], nx = SB.PHASES[pi + 1];
     const tile = (label, main, side, fill, cls = '') => `<div class="fichaRow ${cls}"><span class="fichaLabel">${label}</span><b>${main}</b><em>${side}</em>${fill === null ? '' : `<div class="meter"><div style="width:${pct(fill)}%"></div></div>`}</div>`;
@@ -464,8 +474,7 @@
     const c = s.career ? SB.CAREERS.find(x => x.id === s.career) : null;
     if (c) { const lvl = SB.careerLevel(s), next = SB.CAREER_XP[lvl]; o += tile('Classe', `${c.name} ${lvl}/3`, next ? `${s.careerXP}/${next} XP` : 'completa', next ? s.careerXP / next * 100 : 100); }
     else o += tile('Classe', 'A escolher', 'decida acima', null);
-    if (s.goal) { const g = SB.GOALS.find(x => x.id === s.goal), p = SB.goalProgress(s, s.goal); o += tile('Meta', esc(g.name), s.goalDone ? 'cumprida ✓' : p.unit === 'money' ? fmt(p.value) + ' / ' + fmt(p.max) : Math.round(p.value) + '%', s.goalDone ? 100 : p.value / p.max * 100); }
-    else o += tile('Meta', s.day <= 5 ? 'Escolha até o dia 5' : 'Sem meta', s.day <= 5 ? 'em Temporada' : 'nesta temporada', null, s.day <= 5 ? 'pick' : '');
+    o += tile('Mês', `Dia ${s.day}/${MAXDAY}`, s.day < MAXDAY ? `faltam ${MAXDAY - s.day} dia(s)` : 'último dia', s.day / MAXDAY * 100);
     const fc = SB.CATEGORIES.filter(x => SB.FEAT_CATS.includes(x.id)), got = fc.reduce((a, x) => a + s.feats[x.id], 0);
     let near = null; for (const x of sc.cats) { if (!SB.FEAT_CATS.includes(x.id)) continue; const cat = SB.CATEGORIES.find(k => k.id === x.id), nt = cat.tiers[x.medal]; if (!nt) continue; const pv = x.medal ? cat.tiers[x.medal - 1] : 0, gap = (nt - x.value) / (nt - pv); if (!near || gap < near.gap) near = { x, cat, nt, gap, pv }; }
     o += tile('Feitos do mês', `${got}/${fc.length * 3}`, near ? `${esc(near.x.name)} ${SB.MEDALS[near.x.medal + 1]}: +${SB.FEAT_RESPECT[near.x.medal + 1]} ★` : 'todos feitos', near ? (near.x.value - near.pv) / (near.nt - near.pv) * 100 : 100);
@@ -625,7 +634,7 @@
 
   function seasons() {
     const s = state, sc = SB.seasonScore(s);
-    return heading('Temporada', 'Trinta dias para subir no respeito: roubando, mandando nos bairros, negociando, com o bando ou no comércio.') + `<div class="screenArt">${window.SBArt.place('temporada')}</div>` + resultCard() + `<div class="seasonObjective">${goalCard()}</div>
+    return heading('Temporada', 'Trinta dias para subir no respeito: roubando, mandando nos bairros, negociando, com o bando ou no comércio.') + `<div class="screenArt">${window.SBArt.place('temporada')}</div>` + resultCard() + `
       <div class="grid two"><section class="card"><div class="eyebrow">Temporada atual</div><div class="seasonnumber">${String(s.season).padStart(2, '0')}</div><div class="meter"><div style="width:${s.day / MAXDAY * 100}%"></div></div>
         <div class="statusbar"><span>Dia ${s.day} de ${MAXDAY}</span><strong>${MAXDAY - s.day} dia(s) restante(s)</strong></div><p class="mini">Cada temporada tem 30 dias jogáveis (29 viradas). A renda entra ao virar o dia; o dia 30 é o último para agir.</p><div class="divider"></div>
         ${s.day === MAXDAY ? button('Encerrar temporada', 'end-season', '', false, 'primary block') : nextDayButton('block')}</section>
@@ -633,8 +642,8 @@
         ${sc.cats.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => { const cat = SB.CATEGORIES.find(x => x.id === c.id); const next = cat.tiers[c.medal]; return `<div class="catRow"><div class="space"><span><strong>${c.name}</strong> <span class="mini" style="display:inline">${cat.unit === 'money' ? fmt(c.value) : num(c.value)}</span></span><span class="medal m${c.medal}">${SB.MEDALS[c.medal]}</span></div><div class="meter green"><div style="width:${pct(c.pct)}%"></div></div><span class="mini">${esc(cat.desc)}${next ? ` Próximo: ${cat.unit === 'money' ? fmt(next) : num(next)} (+${SB.FEAT_RESPECT[c.medal + 1]} de respeito).` : ''}</span></div>`; }).join('')}</section></div>
       <div class="section"><h2>Conquistas</h2><small>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length} · permanentes</small></div>
       <section class="card"><div class="achGrid">${SB.ACHIEVEMENTS.map(a => `<div class="ach ${s.achievements[a.id] ? 'on' : ''}"><strong>${s.achievements[a.id] ? '✓ ' : ''}${esc(a.name)}</strong><span>${esc(a.desc)}${s.achievements[a.id] ? ` (T${s.achievements[a.id]})` : ''}</span></div>`).join('')}</div></section>
-      <div class="section"><h2>Histórico</h2><small>${s.goalWins} meta(s) cumprida(s) · prestígio ${s.prestige}</small></div>
-      <section class="card">${s.seasonHistory.length ? `<table class="table"><thead><tr><th>Temp.</th><th>Resultado</th><th>Patrimônio</th></tr></thead><tbody>${s.seasonHistory.slice(-10).reverse().map(h => `<tr><td>${num(h.season)}</td><td>${num(h.respect)} respeito${h.title ? ' · ' + esc(h.title) : ''}${h.medals ? `<div class="mini">${SB.CATEGORIES.filter(c => h.medals[c.id]).map(c => c.name + ' ' + SB.MEDALS[h.medals[c.id]]).join(' · ') || 'Sem medalhas'}</div>` : ''}</td><td>${fmt(h.money)}${h.goal ? `<div class="mini">${h.goalComplete ? 'Meta cumprida' : 'Meta não cumprida'}</div>` : ''}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhuma temporada encerrada ainda.</div>'}
+      <div class="section"><h2>Histórico</h2><small>prestígio ${s.prestige}</small></div>
+      <section class="card">${s.seasonHistory.length ? `<table class="table"><thead><tr><th>Temp.</th><th>Resultado</th><th>Patrimônio</th></tr></thead><tbody>${s.seasonHistory.slice(-10).reverse().map(h => `<tr><td>${num(h.season)}</td><td>${num(h.respect)} respeito${h.title ? ' · ' + esc(h.title) : ''}${h.medals ? `<div class="mini">${SB.CATEGORIES.filter(c => h.medals[c.id]).map(c => c.name + ' ' + SB.MEDALS[h.medals[c.id]]).join(' · ') || 'Sem medalhas'}</div>` : ''}</td><td>${fmt(h.money)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhuma temporada encerrada ainda.</div>'}
         ${Object.keys(s.records).length ? `<div class="divider"></div><h3>Recordes</h3><div class="kv">${SB.CATEGORIES.filter(c => s.records[c.id] !== undefined).map(c => `<div><span>${c.name}</span><strong>${c.unit === 'money' ? fmt(s.records[c.id]) : num(s.records[c.id])}</strong></div>`).join('')}</div>` : ''}</section>
       <div class="section"><h2>Salvamento e segurança</h2></div>
       <section class="card"><h2>Seu progresso</h2><p>Salvo automaticamente neste navegador. Exporte uma cópia para trocar de aparelho ou se proteger de limpezas do navegador.</p>
@@ -645,15 +654,6 @@
         <div class="divider"></div><div class="quiet">Salvar no navegador não sincroniza entre dispositivos. Não há servidor nem multiplayer nesta versão.</div></section>`;
   }
   function hasKey(k) { try { return !!localStorage.getItem(k); } catch (e) { return false; } }
-  function goalCard() {
-    const s = state;
-    if (!s.goal) {
-      if (s.day > 5) return `<section class="card"><h2>Meta da temporada</h2><p>Você não escolheu uma meta nos primeiros cinco dias. Poderá escolher na próxima temporada.</p></section>`;
-      return `<section class="card choiceCard"><h2>Escolha a meta da temporada</h2><p>Até o dia 5. Cumprir a meta dá +${SB.GOAL_RESPECT} de respeito na hora e ${fmt(600)} na próxima temporada.</p><div class="choiceGrid">${SB.GOALS.map(g => `<article><strong>${g.name}</strong><p>${esc(g.desc)}</p>${button('Escolher meta', 'goal', `data-id="${g.id}"`, false, 'small block')}</article>`).join('')}</div></section>`;
-    }
-    const g = SB.GOALS.find(x => x.id === s.goal), p = SB.goalProgress(s, s.goal), value = p.unit === 'money' ? fmt(p.value) : `${Math.round(p.value)}%`;
-    return `<section class="card"><div class="space"><div><div class="eyebrow">Sua meta</div><h2>${g.name}</h2></div><span class="pill">${s.goalDone ? 'Cumprida' : 'Em andamento'}</span></div><p>${esc(g.desc)}</p><div class="meter green"><div style="width:${s.goalDone ? 100 : pct(p.value / p.max * 100)}%"></div></div><div class="statusbar"><span>Progresso: ${s.goalDone ? 'concluído' : value}</span><strong>${s.goalDone ? 'Bônus garantido' : 'Bônus: ' + fmt(600)}</strong></div></section>`;
-  }
 
   /* ---------- v0.7: Cidade, Feira do Rolo, Galpão, Vida noturna e Perfil ---------- */
   const PLACE_ICON = {
@@ -844,7 +844,7 @@
       console.error(e);
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
     }
-    renderHud();
+    renderHud(); renderPop();
     if (state && !state.career && !setup) openSetup('season');
     $all('.nav button, .mobileNav button').forEach(b => { const on = b.dataset.view === tabOf(view); b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     const st = SB.tutorialStep(state);
@@ -915,7 +915,6 @@
       case 'bail': run('bail'); break;
       case 'bribe': run('bribe'); break;
       case 'career': if (confirm('A especialização vale para toda a temporada. Confirmar?')) run('career', id); break;
-      case 'goal': run('goal', id); break;
       case 'news': run('news', id, Number(btn.dataset.choice)); break;
       case 'skip-news': run('skipNews'); break;
       case 'contact': run('contact'); break;
@@ -1010,8 +1009,9 @@
     state = null; result = null; showWelcome(); notify('Novo início disponível.');
   }
   function paintCover() { $('#coverArt').innerHTML = window.SBArt.capa() || scene('centro', false, SB.CITIES[0].name); }
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#help').classList.contains('hidden')) closeHelp(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#help').classList.contains('hidden')) closeHelp(); else if (e.key === 'Escape' && result) { result = null; render(); } });
   function showWelcome() {
+    { const p = $('#resultPop'); p.hidden = true; p.innerHTML = ''; }
     const box = $('#welcomeNotice');
     box.innerHTML = corrupt ? `<div class="notice error"><strong>Não foi possível ler o salvamento encontrado.</strong> ${esc(corrupt.reason)} Uma cópia foi guardada e não será apagada. <button type="button" class="btn small ghost" id="dlCorrupt" style="margin-top:6px">Baixar cópia</button></div>` : '';
     const dl = $('#dlCorrupt'); if (dl) dl.addEventListener('click', () => download('submundo-salvamento-ilegivel.json', corrupt.raw));
@@ -1073,7 +1073,7 @@
   function fromServer(estado) { const p = SB.parseSave(JSON.stringify(estado)); if (!p.ok) throw new Error('O servidor mandou um save ilegível.'); return p.state; }
   function onlineStatus(html) { const el = $('#onlineStatus'); if (el) el.innerHTML = html; }
   /** O que aconteceu enquanto o jogador estava fora (viradas, alta, fim do mês). */
-  const awayCard = avisos => { if (Array.isArray(avisos) && avisos.length) result = { good: true, msg: 'Enquanto você esteve fora', lines: avisos.map(String), deltas: [] }; };
+  const awayCard = avisos => { if (Array.isArray(avisos) && avisos.length) result = { good: true, msg: 'Enquanto você esteve fora', lines: avisos.map(String), deltas: [], fresh: true }; };
   function enterOnline(estado, avisos) {
     state = fromServer(estado); online = true; pendingOnline = false; view = 'painel'; result = null; awayCard(avisos);
     $('#welcome').classList.add('hidden'); if (!setup) document.body.classList.remove('atCover'); render();

@@ -11,6 +11,8 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
 (async () => {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 360, height: 780 }, deviceScaleFactor: 1 });
+  // O popup de resultado é modal; nos testes ele deixa os toques passarem (o teste próprio dele liga de volta).
+  await ctx.addInitScript(() => { window.SB_POP_PASSTHROUGH = true; });
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
@@ -43,7 +45,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   await page.click('[data-action=su-save]');
   check(!(await page.isVisible('#welcome')) && !(await page.isVisible('#setup')), 'jogo iniciado');
   { const s0 = await st(); check(s0.name === 'Malandro' && s0.avatar === 'capoeirista' && s0.career === 'operador' && s0.city === 'Salvador' && s0.cash === 0, 'ficha salva: vulgo, retrato, classe e cidade'); }
-  check((await page.textContent('.guide')).includes('2/9') && (await page.textContent('.guide')).toLowerCase().includes('roubo'), 'logo em seguida o guia começa, no primeiro roubo');
+  check((await page.textContent('.guide')).includes('2/8') && (await page.textContent('.guide')).toLowerCase().includes('roubo'), 'logo em seguida o guia começa, no primeiro roubo');
   await page.click('.guide [data-action=help]'); for (let i = 0; i < 3; i++) await page.click('[data-action=help-next]');
   check((await page.textContent('#helpBox')).includes('Largo das Ladeiras'), 'ajuda mostra os bairros da cidade escolhida');
   await page.click('#helpBox .btn.primary');
@@ -68,13 +70,19 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check(await page.isVisible('.mobileNav [data-view=acoes].hint'), 'aba do próximo passo fica destacada');
   await go('acoes');
   const before = await st();
+  await page.evaluate(() => { window.SB_POP_PASSTHROUGH = false; });
   await page.click('[data-action=mission][data-id=correria]');
   const after = await st();
   check(after.energy === before.energy - 14, 'missão consome 14 de energia (Assaltante gasta 10% menos que 16)');
   check(after.tutorial.step === 2, 'primeiro serviço conclui o passo 2');
   await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-servicos-guia.png') });
-  check(await page.isVisible('.resultCard'), 'cartão de resultado exibido');
+  check(await page.isVisible('#resultPop .resultCard'), 'resultado pula num popup');
+  { const b = await page.locator('#resultPop .resultCard').boundingBox(); check(b && b.y >= 0 && b.y + b.height <= 780 && b.x >= 0 && b.x + b.width <= 360, 'popup inteiro dentro da tela'); }
+  check(!(await page.$('#content .resultCard')), 'o resultado não aparece mais no topo da tela');
   await page.screenshot({ path: path.join(__dirname, 'screens', '360-resultado.png') });
+  await page.click('#resultPop .popOk');
+  check(await page.isHidden('#resultPop'), 'OK fecha o popup');
+  await page.evaluate(() => { window.SB_POP_PASSTHROUGH = true; });
   // a missão acima pode falhar e prender o personagem (sem confirmação nesse caso): normaliza antes de testar
   await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.jail = 0; s.energy = 80; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
   await page.reload();
@@ -301,6 +309,7 @@ await page.click('[data-action=duel][data-id=marrento]');
     const { aplicar } = await import(path.join(__dirname, '..', 'supabase', 'functions', 'jogar', 'logica.js'));
     let saved = null, calls = 0, codinome = null, fakeLater = 0;
     const octx = await browser.newContext({ viewport: { width: 360, height: 780 } });
+    await octx.addInitScript(() => { window.SB_POP_PASSTHROUGH = true; });
     const op = await octx.newPage();
     op.on('pageerror', e => errors.push('online: ' + e.message)); op.on('dialog', d => d.accept());
     const reply = (route, status, body) => route.fulfill({ status, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(body) });

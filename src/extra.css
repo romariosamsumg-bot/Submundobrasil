@@ -577,3 +577,21 @@ body.busy #content{opacity:.6;pointer-events:none}
 
 /* v1.5: chance que vem do equipamento */
 .jobGear{margin:2px 0 0;font-size:11px;color:#a7e0c3}.jobGear.none{color:#8f9c9f}
+
+/* v1.5: resultado de cada ação pula num popup (cupom com carimbo no centro da tela) */
+.resultPop{position:fixed;inset:0;z-index:75;display:grid;place-items:center;padding:16px}
+.resultPop[hidden]{display:none}
+.resultPop .popBack{position:absolute;inset:0;background:#05080acc}
+.resultPop.pass,.resultPop.pass *{pointer-events:none}
+.resultPop .resultCard{position:relative;z-index:1;width:min(440px,100%);max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto;margin:0;font-size:13px;box-shadow:5px 6px 0 #05080a,0 0 0 1px #1b1712}
+.resultPop .resultCard strong{font-size:15px}
+.resultPop .resultCard li{line-height:1.4;overflow-wrap:anywhere}
+.resultPop .popOk{margin-top:12px;min-height:46px}
+.resultPop .resultCard.fresh{animation:popIn .34s cubic-bezier(.2,1.5,.45,1) both}
+.resultPop .resultCard.bad.fresh{animation:popIn .34s cubic-bezier(.2,1.5,.45,1) both,shake .32s .32s}
+.resultPop .popBack{animation:fadeBack .2s ease-out both}
+@keyframes popIn{from{transform:scale(.55) rotate(-3deg);opacity:0}}
+@keyframes fadeBack{from{opacity:0}}
+@media(prefers-reduced-motion:reduce){.resultPop .resultCard.fresh,.resultPop .resultCard.bad.fresh,.resultPop .popBack{animation:none!important}}
+.resultPop .resultCard:has(.stamp) .chips{padding-right:0;min-height:0}
+.resultPop .stamp{position:static;display:table;margin:10px auto 2px;transform:rotate(-6deg)}

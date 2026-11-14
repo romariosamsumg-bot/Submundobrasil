@@ -125,7 +125,7 @@ detenção, perda de caixa na falha e atrito com a facção local.
 **Recompensa** = sorteio × (1 + bônus do bairro + eventos + 12% se você lidera + 10% em território aliado) × economia local × (1 − 12% por repetição no dia, mínimo 50%).
 
 **Falha**: perde uma % do caixa **em mãos**, ganha vigilância extra e pode ser detido.
-A chance de detenção é `base + vigilância × 0,3 + vigilância_local × 0,15 − olheiros − perk`.
+A chance de detenção é `base + Procurado × 0,2 + vigilância_local × 0,15 − olheiros − defesa − fuga − 3 por proteção e por veículo equipados − perk` (v1.5).
 A detenção dura 1 a 3 dias (+1 com vigilância ≥ 70) e pode ser encerrada com
 **fiança** (`250 + 250 × dias + 1,5 × respeito`).
 
@@ -183,7 +183,7 @@ em 15% se a facção dominante do bairro for hostil e muito mais forte que você
 cortada pela metade no dia de uma extorsão.
 
 **Fluxo entre temporadas**: o novo personagem começa com R$ 1.900 + 5% do
-patrimônio (máximo R$ 1.200) + R$ 600 se cumpriu a meta + bônus de medalhas
+patrimônio (máximo R$ 1.200) + bônus de medalhas
 (30/80/200 por bronze/prata/ouro, máximo R$ 800). O teto total é R$ 4.500, o que
 evita bola de neve entre temporadas.
 
@@ -256,7 +256,7 @@ aliado pede apoio" só com aliança).
 ## 9. Temporada e competição
 
 - 30 dias jogáveis = **29 viradas**. A renda entra ao virar o dia; o dia 30 é o último para agir e permite encerrar. Verificado no teste "29 viradas levam ao dia 30".
-- **Meta** (escolha até o dia 5; fica travada como cumprida no momento em que é atingida): Patrimônio R$ 18.000, Renome (130 de respeito e 25 missões), Territórios (12 dias liderando), Diplomacia (3 acordos e 2 relações +50) e Bonde forte (5 integrantes e 8 operações).
+- ~~**Meta**~~ (saiu na v1.5; histórico) (escolha até o dia 5; fica travada como cumprida no momento em que é atingida): Patrimônio R$ 18.000, Renome (130 de respeito e 25 missões), Territórios (12 dias liderando), Diplomacia (3 acordos e 2 relações +50) e Bonde forte (5 integrantes e 8 operações).
 - **Pontuação** em 5 categorias com medalhas (bronze / prata / ouro):
 
 | Categoria | Medida | Bronze | Prata | Ouro |
@@ -267,7 +267,7 @@ aliado pede apoio" só com aliança).
 | Diplomacia | acordos, aliança, dias de aliança, relações +50, menos traições | 35 | 70 | 110 |
 | Gangue | operações, confrontos vencidos, níveis da equipe, sede | 40 | 90 | 140 |
 
-  Pontos = Σ progresso por categoria (0–100) + 15 por medalha + 40 pela meta. Títulos: Aprendiz da rua, Figura conhecida, Nome respeitado, Chefão da cidade e Lenda do Submundo.
+  Pontos = Σ progresso por categoria (0–100) + 15 por medalha + 40 pela meta (histórico; na v1.5 o placar é só o respeito). Títulos: Aprendiz da rua, Figura conhecida, Nome respeitado, Chefão da cidade e Lenda do Submundo.
 - **Ranking de poder** (simulado e identificado como tal): você contra as 3 facções.
 - **18 conquistas permanentes**, **recordes** por categoria, **prestígio** (soma das medalhas) e histórico com título e medalhas.
 
@@ -295,7 +295,7 @@ serviços. Nenhum layout, nome, texto ou arte de outros jogos foi copiado.
 | Local | Cena SVG do bairro (sobrados e camelôs, guindastes e contêineres, casas com fios e pipa, galpões e chaminés, bar com palmeiras) + **placa de rua azul esmaltada** | Início, Serviços, Bairros |
 | Eventos na cena | Confete e bandeirinhas (Carnaval, festas), chuva (Temporal), giroflex (operação/fiscalização), fumaça (guerra), faixas (greve) | Cenas |
 | Notícias e eventos | **Lambe-lambe**: papel rasgado colado, tipografia de cartaz | Início |
-| Resultado de ação | **Cupom** serrilhado com carimbo "DEU BOM" / "DEU RUIM" e variações | Todas |
+| Resultado de ação | **Cupom** serrilhado em popup, com carimbo "DEU BOM" / "DEU RUIM" e variações | Todas |
 | Detenção | **Fita zebrada** | Aviso de detido |
 | Missões | **Quadro de serviços**: ícone do atributo, chance em destaque, botão grande à direita (polegar) | Serviços |
 | Facções | **Dossiê** em pasta parda com emblema próprio | Gangue |
@@ -308,8 +308,8 @@ Regras: fundo de asfalto/concreto com âmbar; papel creme para o que é "do
 mundo" (cartaz, cupom, dossiê, diário); botões com relevo e sombra dura; títulos
 em caixa alta condensada (`Impact` → `Roboto Condensed` → sans); tudo em CSS e SVG
 inline, sem arquivos externos. Animações curtas e desligadas com
-`prefers-reduced-motion`. O aviso flutuante só aparece quando o cupom de
-resultado está fora da tela.
+`prefers-reduced-motion`. Na v1.5 o cupom de resultado pula num popup no
+centro da tela, então o aviso flutuante não é mais usado para resultados.
 
 ---
 
@@ -349,7 +349,7 @@ Três camadas respondem "qual é o objetivo, aonde chegar e como":
 | 1 | Escolher a especialização | — |
 | 2 | Fazer o primeiro serviço | R$ 80 |
 | 3 | Treinar um atributo | R$ 60 |
-| 4 | Escolher a meta da temporada | — |
+| 4 | ~~Escolher a meta da temporada~~ (saiu na v1.5) | — |
 | 5 | Virar o dia | R$ 60 |
 | 6 | Criar contatos no bairro | R$ 80 |
 | 7 | Guardar dinheiro no banco | R$ 40 |
@@ -357,7 +357,7 @@ Três camadas respondem "qual é o objetivo, aonde chegar e como":
 
 3. **Seu rumo**: cartão permanente no Início com a pontuação, o título atual, o próximo título e a **medalha mais próxima**, com a dica de como chegar nela. Avisa na reta final (dia 25 em diante).
 
-Para não sobrecarregar, a meta e a primeira notícia só aparecem depois da escolha da especialização.
+Para não sobrecarregar, a primeira notícia só aparecem depois da escolha da especialização.
 
 ---
 
@@ -596,7 +596,7 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 - **Arma libera roubo**: Cobrança (poder 2), Mercadinho e Carga sem dono (4), Galpão desativado e Caixa eletrônico (5), Lotérica e Caminhão na rodovia (7), Cofre da joalheria (9).
 - **Arma melhor vale a pena**: roubo armado paga +15%, e cada ponto de poder acima do mínimo dá +1,5 de chance (até +10).
 - **Noite**: 3 saídas por dia (antes 2); cada saída a mais custa +50%. Dono do **Bar** bebe de graça no Boteco; dono da **Casa de Shows** não corre risco de briga no Baile.
-- **Primeiros passos** na ordem do ciclo (9 passos): especialização, primeiro roubo, primeira arma, noitada, treino, dormir, meta, banco, bando.
+- **Primeiros passos** na ordem do ciclo (8 passos): especialização, primeiro roubo, primeira arma, noitada, treino, dormir, banco, bando.
 
 ### O que do fluxo do autor depende de servidor (não existe nesta versão)
 - Outros jogadores no bando, caçada a jogadores na noite e ranking nacional. Hoje: integrantes e grupos rivais simulados; a "emboscada" na noite é a briga do Baile.
@@ -609,11 +609,11 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 - **Nomes**: a vigilância pessoal (`heat`) aparece ao jogador como **Procurado**; a do bairro (`vigil`) como **Polícia no bairro** ("Polícia" na placa); a economia do bairro como **Grana**. As regras e os números não mudaram, só o nome.
 - **Topo (v1.5)**: dinheiro grande e, logo abaixo, o **respeito com estrela** (é o que conta no ranking) e o dia. Barras com ícone; Energia e Saúde grossas, Procurado e Vício finas e apagadas, que acendem com borda âmbar (Procurado ≥ 30, Vício ≥ 40) e vermelha piscando (Procurado ≥ 60, Vício ≥ 70).
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
-- **Tela Rua (v1.5)**, de cima para baixo: placa do bairro (Dono, Grana e Polícia do bairro; tocar na faixa explica os três) → resultado → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, meta, título) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
+- **Tela Rua (v1.5)**, de cima para baixo: placa do bairro (Dono, Grana e Polícia do bairro; tocar na faixa explica os três) → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, mês, feitos do mês) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
 
 ### Um placar só: o respeito (v1.5)
 
-Os pontos da temporada saíram. O **respeito** é o placar do mês, o ranking online e a **patente** (o antigo título, de Aprendiz da rua a Lenda do Submundo, sumiu). As medalhas viraram **feitos do mês**: chegar a bronze, prata e ouro em Fortuna, Território, Diplomacia, Gangue e Comércio paga **+6, +10 e +14 de respeito** na hora, uma vez por nível (a Fama saiu, porque era o próprio respeito). Cumprir a **meta** paga **+20**. Os feitos continuam dando legado para a temporada seguinte (até R$ 800). Save antigo entra com os feitos que já tinha dados como pagos.
+Os pontos da temporada saíram. O **respeito** é o placar do mês, o ranking online e a **patente** (o antigo título, de Aprendiz da rua a Lenda do Submundo, sumiu). As medalhas viraram **feitos do mês**: chegar a bronze, prata e ouro em Fortuna, Território, Diplomacia, Gangue e Comércio paga **+6, +10 e +14 de respeito** na hora, uma vez por nível (a Fama saiu, porque era o próprio respeito). A **meta da temporada saiu** (v1.5): o placar é só o respeito. Os feitos continuam dando legado para a temporada seguinte (até R$ 800). Save antigo entra com os feitos que já tinha dados como pagos.
 
 Também na v1.5: o Assaltante passou de +20% para **+15%** de dinheiro nos roubos e nos assaltos do bando.
 
@@ -628,6 +628,23 @@ Antes, cada ponto do atributo valia +4% e a arma só +0,5% por ponto, e só nos 
 | Veículo | fuga × 0,8 |
 
 Assaltante: arma e proteção +15%; Dono da Noite: arma −20% nos roubos. Os roubos grandes pedem **veículo de fuga**: Caixa eletrônico (Bicicleta), Lotérica e Galpão desativado (Cinquentinha), Caminhão de carga e Cofre (Moto 150). As dificuldades subiram pela metade do equipamento esperado em cada degrau (Bater carteira 14 → 15, Mercadinho 33 → 37, Lotérica 42 → 48, Caminhão 46 → 52, Cofre 58 → 64), então o equipamento dá vantagem líquida. Para compensar o dinheiro que vira equipamento, a medalha de Fortuna foi a 6.000 / 9.000 / 13.000 e a meta Patrimônio a R$ 9.000. Cada roubo mostra "Seu equipamento: +X% de chance".
+
+### Roubar em sequência sem virar hóspede da cadeia (v1.5)
+
+Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de cadeia por tentativa. Agora:
+
+- **Só de estar equipado** já soma chance: arma +3, proteção +2, veículo +2 (além da conta pela qualidade acima).
+- Proteção e veículo equipados tiram **3 cada** da chance de ser preso, além da defesa e da fuga.
+- Roubos pequenos (sem exigência de arma) têm a detenção-base 40% menor: Bater carteira 28 → 17, Rolo 18 → 11, Celular 38 → 23, Fiação 24 → 14, Pastel 30 → 18, Camelódromo 30 → 18, Baile 26 → 16, Clonar cartão 26 → 16, Leilão 28 → 17, Favor 10 → 6.
+- Repetir o mesmo roubo no dia tira **4** de chance por vez (antes 6). O Procurado pesa 0,2 por ponto na detenção (antes 0,3).
+- Iniciante com Pedaço de pau, Lista telefônica e Bicicleta, Procurado 22: Bater carteira 83% de chance e 2% de cadeia por tentativa (antes 74% e 9%); Celular no ponto 61% e 7% (antes 53% e 20%).
+
+A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
+
+### Resultado em popup e sem meta (v1.5)
+
+- O resultado de **toda ação** (roubo, compra, negócio, noite, dormir…) não fica mais no topo da tela: ele **pula num popup** no centro, no estilo cupom com carimbo, com o que mudou (caixa, energia, Procurado, respeito) e as linhas do resultado. Fecha no **OK**, no × ou tocando fora (Esc no computador). A animação respeita `prefers-reduced-motion`.
+- A **meta da temporada saiu**: não há mais escolha até o dia 5, nem +20 de respeito, nem R$ 600 de legado, nem a conquista Determinação. O guia tem 8 passos (quem estava no meio dele, depois da meta, volta uma posição). Na ficha, o bloco "Meta" virou **Mês** (dia e quanto falta).
 
 ### Luta, força do bando e poder da arma (v1.5)
 
@@ -668,7 +685,7 @@ Só no online. O jogo local continua com o botão Dormir e 30 dias por temporada
 | Dia | Vira sozinho à **meia-noite de Brasília**; o dia do jogo é o dia do mês (o dia 31 conta como 30). Na virada entram renda, produção, eventos e facções, e os limites do dia zeram. Quem ficou fora recebe as viradas atrasadas (até 33). |
 | Energia | **+1 a cada 3 minutos** (cheia em 5 horas), até 100. A virada não dá mais +70. |
 | Ir pra casa | 3 horas sem roubar, noite ou viagem (banco, compras e decisões do bando continuam). No fim: energia cheia, tolerância e teto do corpo zerados. **Até 2 vezes por dia.** Sair antes não dá o descanso. |
-| Procurado | Cai aos poucos, no ritmo de 15 por dia (com os mesmos bônus de antes). |
+| Procurado | Cai aos poucos, no ritmo de 15 por dia × 4 = **60 por dia** (v1.5: a energia volta o dia todo, então o Procurado esfria 4× mais rápido que no jogo local). |
 | Vício | −1 a cada 8 horas. |
 | Cadeia e hospital | 1 dia do jogo = **2 horas** reais. Fiança, suborno e clínica continuam valendo na hora. |
 | Temporada | É o **mês do calendário**: fecha sozinha na virada do mês, com legado, e o ranking recomeça. |

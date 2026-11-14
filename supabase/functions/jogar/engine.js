@@ -80,25 +80,25 @@
   /* Missões: `stat` define o atributo principal; `district` limita a um bairro.
      difficulty está na escala do "preparo" (ver missionScore). */
   const MISSIONS = [
-    { id: 'correria', name: 'Bater carteira', desc: 'Horário de pico, ônibus lotado e mão leve. O primeiro trocado de todo mundo.', stat: 'astucia', difficulty: 15, cost: 16, low: 150, high: 290, heat: 6, vigil: 5, respect: 2, unlock: 0, arrest: 28, loss: .10, tension: 1 },
-    { id: 'rolo', name: 'Rolo na feira', desc: 'Convencer um atravessador fictício a fechar negócio fora da tabela.', stat: 'labia', difficulty: 16, cost: 18, low: 190, high: 340, heat: 3, vigil: 3, respect: 2, unlock: 6, arrest: 18, loss: .06, tension: 1 },
-    { id: 'mercadoria', name: 'Celular no ponto de ônibus', desc: 'Lucro rápido na revenda de peças. Às vezes a vítima reage.', stat: 'forca', difficulty: 20, cost: 23, low: 300, high: 560, heat: 10, vigil: 7, respect: 3, unlock: 0, arrest: 38, loss: .12, tension: 2 },
+    { id: 'correria', name: 'Bater carteira', desc: 'Horário de pico, ônibus lotado e mão leve. O primeiro trocado de todo mundo.', stat: 'astucia', difficulty: 15, cost: 16, low: 150, high: 290, heat: 6, vigil: 5, respect: 2, unlock: 0, arrest: 17, loss: .10, tension: 1 },
+    { id: 'rolo', name: 'Rolo na feira', desc: 'Convencer um atravessador fictício a fechar negócio fora da tabela.', stat: 'labia', difficulty: 16, cost: 18, low: 190, high: 340, heat: 3, vigil: 3, respect: 2, unlock: 6, arrest: 11, loss: .06, tension: 1 },
+    { id: 'mercadoria', name: 'Celular no ponto de ônibus', desc: 'Lucro rápido na revenda de peças. Às vezes a vítima reage.', stat: 'forca', difficulty: 20, cost: 23, low: 300, high: 560, heat: 10, vigil: 7, respect: 3, unlock: 0, arrest: 23, loss: .12, tension: 2 },
     { id: 'cobranca', name: 'Cobrança atrasada', desc: 'Um comerciante quer receber uma dívida antiga. Exige presença.', stat: 'forca', difficulty: 29, cost: 26, low: 420, high: 740, heat: 12, vigil: 6, respect: 4, unlock: 20, req: { power: 2 }, arrest: 38, loss: .10, tension: 3 },
     { id: 'deposito', name: 'Mercadinho Dois Irmãos', desc: 'Limpar o caixa antes que o dono puxe o que guarda debaixo do balcão.', stat: 'astucia', difficulty: 37, cost: 32, low: 580, high: 980, heat: 15, vigil: 10, respect: 5, unlock: 32, req: { power: 4 }, arrest: 44, loss: .12, tension: 3 },
-    { id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', stat: 'labia', difficulty: 39, cost: 30, low: 680, high: 1120, heat: 8, vigil: 6, respect: 6, unlock: 50, req: { influence: 25 }, arrest: 28, loss: .08, tension: 2 },
+    { id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', stat: 'labia', difficulty: 39, cost: 30, low: 680, high: 1120, heat: 8, vigil: 6, respect: 6, unlock: 50, req: { influence: 25 }, arrest: 17, loss: .08, tension: 2 },
     { id: 'comboio', name: 'Caminhão de carga na rodovia', desc: 'Fechar a pista e levar a carga fechada. Só com o bonde junto.', stat: 'forca', difficulty: 52, cost: 40, low: 1050, high: 1750, heat: 19, vigil: 12, respect: 8, unlock: 75, req: { escape: 6, power: 7, gang: true }, arrest: 50, loss: .14, tension: 5 },
     { id: 'cofre', name: 'Cofre da joalheria', desc: 'O serviço solo mais pesado da temporada. Uma vez por dia.', stat: 'astucia', difficulty: 64, cost: 52, low: 1900, high: 3100, heat: 26, vigil: 18, respect: 13, unlock: 120, req: { escape: 6, power: 9, stat: ['astucia', 22], oncePerDay: true }, arrest: 55, loss: .15, tension: 6 },
-    { id: 'fiacao', name: 'Fiação de cobre', desc: 'Pouco confronto, mas a guarda municipal ronda e o cobre vale pouco.', stat: 'astucia', difficulty: 18, cost: 18, low: 110, high: 190, heat: 4, vigil: 4, respect: 1, unlock: 3, arrest: 24, loss: .06, tension: 1 },
-    { id: 'pastel', name: 'Barraquinha de pastel', desc: 'O dinheiro do caldo de cana e o primeiro respeito de verdade na rua.', stat: 'forca', difficulty: 18, cost: 19, low: 130, high: 230, heat: 7, vigil: 6, respect: 3, unlock: 2, arrest: 30, loss: .08, tension: 2 },
+    { id: 'fiacao', name: 'Fiação de cobre', desc: 'Pouco confronto, mas a guarda municipal ronda e o cobre vale pouco.', stat: 'astucia', difficulty: 18, cost: 18, low: 110, high: 190, heat: 4, vigil: 4, respect: 1, unlock: 3, arrest: 14, loss: .06, tension: 1 },
+    { id: 'pastel', name: 'Barraquinha de pastel', desc: 'O dinheiro do caldo de cana e o primeiro respeito de verdade na rua.', stat: 'forca', difficulty: 18, cost: 19, low: 130, high: 230, heat: 7, vigil: 6, respect: 3, unlock: 2, arrest: 18, loss: .08, tension: 2 },
     { id: 'caixa', name: 'Caixa eletrônico na maquita', desc: 'Posto de gasolina afastado, barulho alto e notas que podem queimar.', stat: 'astucia', difficulty: 42, cost: 36, low: 560, high: 940, heat: 17, vigil: 14, respect: 5, unlock: 45, req: { escape: 1, power: 5 }, arrest: 46, loss: .12, tension: 3 },
     { id: 'loterica', name: 'Casa lotérica', desc: 'Fila cheia, malote de dinheiro vivo e risco de policial à paisana.', stat: 'forca', difficulty: 48, cost: 36, low: 660, high: 1080, heat: 18, vigil: 12, respect: 6, unlock: 60, req: { escape: 3, power: 7 }, arrest: 48, loss: .12, tension: 4 },
-    { id: 'cartao', name: 'Clonar cartão de velho rico', desc: 'Lábia e paciência. Golpe limpo, mas a vítima um dia percebe.', stat: 'labia', difficulty: 37, cost: 30, low: 500, high: 820, heat: 6, vigil: 4, respect: 4, unlock: 40, arrest: 26, loss: .06, tension: 1 },
+    { id: 'cartao', name: 'Clonar cartão de velho rico', desc: 'Lábia e paciência. Golpe limpo, mas a vítima um dia percebe.', stat: 'labia', difficulty: 37, cost: 30, low: 500, high: 820, heat: 6, vigil: 4, respect: 4, unlock: 40, arrest: 16, loss: .06, tension: 1 },
     // Oportunidades exclusivas de bairro
-    { id: 'camelodromo', district: 'centro', name: 'Esquema do camelódromo', desc: 'Organizar a revenda de um lote sem nota no comércio popular.', stat: 'labia', difficulty: 25, cost: 22, low: 330, high: 560, heat: 7, vigil: 8, respect: 3, unlock: 10, arrest: 30, loss: .08, tension: 2 },
+    { id: 'camelodromo', district: 'centro', name: 'Esquema do camelódromo', desc: 'Organizar a revenda de um lote sem nota no comércio popular.', stat: 'labia', difficulty: 25, cost: 22, low: 330, high: 560, heat: 7, vigil: 8, respect: 3, unlock: 10, arrest: 18, loss: .08, tension: 2 },
     { id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Uma carga esquecida nos galpões. O grupo que manda ali não vai gostar.', stat: 'forca', difficulty: 31, cost: 28, low: 560, high: 900, heat: 12, vigil: 10, respect: 4, unlock: 15, req: { power: 4 }, arrest: 40, loss: .12, tension: 5 },
-    { id: 'favor', district: 'jardim', name: 'Favor de vizinhança', desc: 'Resolver um problema de moradores e ganhar contatos. Pouco dinheiro.', stat: 'influencia', difficulty: 12, cost: 18, low: 90, high: 170, heat: 1, vigil: 2, respect: 3, unlock: 0, arrest: 10, loss: .04, tension: 0, influence: 4 },
+    { id: 'favor', district: 'jardim', name: 'Favor de vizinhança', desc: 'Resolver um problema de moradores e ganhar contatos. Pouco dinheiro.', stat: 'influencia', difficulty: 12, cost: 18, low: 90, high: 170, heat: 1, vigil: 2, respect: 3, unlock: 0, arrest: 6, loss: .04, tension: 0, influence: 4 },
     { id: 'galpao', district: 'industrial', name: 'Galpão desativado', desc: 'Material valioso parado num galpão sob patrulha reforçada.', stat: 'astucia', difficulty: 47, cost: 36, low: 900, high: 1500, heat: 18, vigil: 16, respect: 6, unlock: 40, req: { escape: 3, power: 5 }, arrest: 50, loss: .14, tension: 3 },
-    { id: 'baile', district: 'vila', name: 'Bastidores do baile', desc: 'Cuidar da “organização paralela” de um baile de rua.', stat: 'labia', difficulty: 24, cost: 22, low: 300, high: 520, heat: 6, vigil: 6, respect: 4, unlock: 12, arrest: 26, loss: .08, tension: 2, festive: true }
+    { id: 'baile', district: 'vila', name: 'Bastidores do baile', desc: 'Cuidar da “organização paralela” de um baile de rua.', stat: 'labia', difficulty: 24, cost: 22, low: 300, high: 520, heat: 6, vigil: 6, respect: 4, unlock: 12, arrest: 16, loss: .08, tension: 2, festive: true }
   ];
 
   const DISTRICTS = [
@@ -399,7 +399,6 @@
     { id: 'night', title: 'Recarregue na noitada', text: 'Acabou a energia? Entre no Boteco e peça uma dose: dinheiro vira energia para continuar hoje. Amanhã vem a ressaca, e cada dose sobe o vício.', view: 'noite', cta: 'Ir para a noite', reward: 40, check: s => s.tutorial.nighted },
     { id: 'train', title: 'Treine um atributo', text: 'Cada roubo usa um atributo. Treinar aumenta a chance e a sua luta.', view: 'acoes', cta: 'Ir treinar', reward: 60, check: s => s.tutorial.trained },
     { id: 'day', title: 'Durma: vire o dia', text: 'Sem energia e sem saída na noite, durma: +70 de energia, o Procurado cai, a renda entra e os grupos se movem. A temporada tem 30 dias.', view: 'painel', cta: 'Voltar para a rua', reward: 60, check: s => s.day >= 2 },
-    { id: 'goal', title: 'Escolha a meta da temporada', text: 'A meta é o seu norte: cumprir rende bônus e pontos. Escolha até o dia 5.', view: 'temporada', cta: 'Escolher meta', reward: 0, check: s => !!s.goal || s.day > 5 },
     { id: 'bank', title: 'Guarde dinheiro no banco', text: 'Falhas tiram parte do dinheiro em mãos. O banco protege, cobrando uma taxa pequena.', view: 'gestao', cta: 'Abrir banco', reward: 40, check: s => s.tutorial.banked },
     { id: 'gang', title: 'Chegue a 30 de respeito e funde seu bando', text: 'Sozinho você não chega ao dinheiro de verdade. Com o bando vêm os assaltos planejados, os confrontos e os acordos.', view: 'gangue', cta: 'Abrir bando', reward: 200, check: s => !!s.gangName }
   ];
@@ -484,11 +483,10 @@
   ];
   const MEDALS = ['—', 'Bronze', 'Prata', 'Ouro'];
   /* v1.5: um placar só. As medalhas viram "feitos do mês" que pagam respeito na hora (a Fama sai:
-   * ela já era o próprio respeito), e cumprir a meta também paga. */
+   * ela já era o próprio respeito). */
   const FEAT_CATS = ['fortuna', 'territorio', 'diplomacia', 'gangue', 'comercio'];
   const FEAT_RESPECT = [0, 6, 10, 14];
-  const GOAL_RESPECT = 20;
-
+  
   const ACHIEVEMENTS = [
     { id: 'primeira', name: 'Primeiro passo', desc: 'Concluir a primeira missão.' },
     { id: 'cofre', name: 'O grande golpe', desc: 'Concluir “Cofre da joalheria”.' },
@@ -504,7 +502,6 @@
     { id: 'fichalimpa', name: 'Ficha limpa', desc: 'Encerrar uma temporada sem ser detido.' },
     { id: 'ouro', name: 'Medalha de ouro', desc: 'Ganhar ouro em qualquer categoria.' },
     { id: 'versatil', name: 'Versátil', desc: 'Medalhas em 3 categorias na mesma temporada.' },
-    { id: 'determinado', name: 'Determinação', desc: 'Cumprir 3 metas de temporada.' },
     { id: 'fianca', name: 'Porta da frente', desc: 'Sair da cadeia com o advogado de porta de cadeia.' },
     { id: 'virada', name: 'Virada', desc: 'Vencer um confronto com chance de 40% ou menos.' },
     { id: 'mestre', name: 'Mestre da carreira', desc: 'Alcançar o nível 3 da especialização.' },
@@ -557,7 +554,7 @@
       factions: startFactions(), gangStats: startGangStats(), treachery: 0,
       today: emptyToday(), seasonStats: emptySeasonStats(),
       achievements: {}, prestige: 0, nemesis: null, records: {},
-      tutorial: { step: 0, done: false, trained: false, contacted: false, banked: false, nighted: false },
+      tutorial: { v: 2, step: 0, done: false, trained: false, contacted: false, banked: false, nighted: false },
       gear: { arma: null, protecao: null, veiculo: null }, owned: [], goods: Object.fromEntries(GOODS.map(g => [g.id, 0])), market: startMarket(),
       labs: Object.fromEntries(LABS.map(l => [l.id, 0])), labDown: {}, exportDeal: { day: 5, good: 'cigarro' }, exportDone: 0, ressaca: 0,
       trade: { sold: 0, spent: 0, exported: 0, blitz: 0 },
@@ -766,8 +763,9 @@
     s.heistReady = toInt(saved.heistReady, 0, 0, MAXDAY + HEIST_COOLDOWN);
     // Primeiros passos: saves anteriores à 0.6 não tinham tutorial; quem já jogou não é obrigado a refazê-lo.
     const tu = saved.tutorial;
-    if (tu && typeof tu === 'object') s.tutorial = { step: toInt(tu.step, 0, 0, TUTORIAL.length), done: tu.done === true, trained: tu.trained === true, contacted: tu.contacted === true, banked: tu.banked === true, nighted: tu.nighted === true };
-    else s.tutorial = { step: 0, done: s.season > 1 || s.day > 1, trained: false, contacted: false, banked: false, nighted: false };
+    // v1.5: o passo da meta (o 7º) saiu; quem estava depois dele volta uma posição.
+    if (tu && typeof tu === 'object') s.tutorial = { v: 2, step: toInt(tu.v === 2 ? tu.step : (toInt(tu.step, 0, 0, 99) > 6 ? tu.step - 1 : tu.step), 0, 0, TUTORIAL.length), done: tu.done === true, trained: tu.trained === true, contacted: tu.contacted === true, banked: tu.banked === true, nighted: tu.nighted === true };
+    else s.tutorial = { v: 2, step: 0, done: s.season > 1 || s.day > 1, trained: false, contacted: false, banked: false, nighted: false };
     if (s.tutorial.step >= TUTORIAL.length) s.tutorial.done = true;
     s.schema = SCHEMA; s.version = VERSION;
     if (!hadFeats) for (const c of CATEGORIES) if (FEAT_CATS.includes(c.id)) s.feats[c.id] = medalFor(c, Math.max(0, categoryValue(s, c.id)));
@@ -852,9 +850,12 @@
   /* v1.5: o equipamento pesa em todo roubo. A arma vale mais nos de Força e menos nos de Lábia;
    * a proteção ajuda a encarar a segurança; o veículo dá fuga rápida. */
   const GEAR_WEIGHT = { forca: 2, astucia: 1.2, influencia: .8, labia: .5 };
+  const GEAR_BASE = { arma: 3, protecao: 2, veiculo: 2 };
   function gearParts(s, m) {
     const tough = m.stat === 'forca' || !!(m.req && m.req.power);
-    return [['Arma', armPower(s, true) * GEAR_WEIGHT[m.stat]], ['Proteção', armDef(s) * (tough ? 1 : .5)], ['Veículo', gearVal(s, 'escape') * .8]];
+    // Só de estar equipado já ajuda (+3 arma, +2 proteção, +2 veículo); o resto cresce com a qualidade.
+    const on = slot => s.gear[slot] ? GEAR_BASE[slot] : 0;
+    return [['Arma', on('arma') + armPower(s, true) * GEAR_WEIGHT[m.stat]], ['Proteção', on('protecao') + armDef(s) * (tough ? 1 : .5)], ['Veículo', on('veiculo') + gearVal(s, 'escape') * .8]];
   }
   const gearBonus = (s, m) => sum(gearParts(s, m).map(p => p[1]));
   function missionScore(s, m) {
@@ -864,9 +865,9 @@
   }
   function missionChance(s, m) {
     const d = s.district, ds = s.dstate[d];
-    let heatPen = s.heat * .35 + ds.vigil * .3;
+    let heatPen = s.heat * .3 + ds.vigil * .3;
     if (hasPerk(s, 'operador', 3)) heatPen /= 2;
-    let fatigue = (s.today.missions[m.id] || 0) * 6;
+    let fatigue = (s.today.missions[m.id] || 0) * 4;
     if (hasPerk(s, 'operador', 2)) fatigue /= 2;
     let c = 72 + (missionScore(s, m) - m.difficulty) * 2 - heatPen - district(s).risk - eventMod(s, 'risk', { district: d }) - fatigue;
     if (s.career === 'empreendedor' && m.stat === 'forca') c -= 5;
@@ -891,7 +892,8 @@
   }
   function arrestChance(s, m) {
     if (!s.tutorial.done && s.successful === 0) return 0; // primeiros passos: o primeiro roubo que falha não dá cadeia
-    let a = m.arrest + s.heat * .3 + s.dstate[s.district].vigil * .15 - Math.min(20, roleLevels(s, 'olheiro') * 2) - gearVal(s, 'def') - gearVal(s, 'escape');
+    // Proteção e veículo equipados tiram 3 cada da chance de ser pego, mais o valor de cada um.
+    let a = m.arrest + s.heat * .2 + s.dstate[s.district].vigil * .15 - Math.min(20, roleLevels(s, 'olheiro') * 2) - gearVal(s, 'def') - gearVal(s, 'escape') - (s.gear.protecao ? 3 : 0) - (s.gear.veiculo ? 3 : 0);
     if (hasPerk(s, 'operador', 1)) a -= 15;
     return clamp(Math.round(a), 5, 90);
   }
@@ -1906,11 +1908,8 @@
     log(s, `Você escolheu a especialização ${c.name}.`);
     return done(true, `Carreira definida: ${c.name}.`);
   }
-  function chooseGoal(s, id) {
-    if (s.goal || s.day > 5 || !GOALS.some(g => g.id === id)) return refuse('A meta não pode mais ser escolhida.');
-    s.goal = id; log(s, `Meta escolhida: ${GOALS.find(g => g.id === id).name}.`);
-    return done(true, 'Meta da temporada definida.');
-  }
+  // v1.5: a meta da temporada saiu do jogo; o respeito é o único placar.
+  function chooseGoal() { return refuse('A meta da temporada saiu do jogo: o placar agora é só o respeito.'); }
 
   /* Notícias */
   const currentNews = s => s.newsPending ? NEWS.find(n => n.id === s.newsPending.id) : null;
@@ -2071,7 +2070,7 @@
   /* v1.5 — Relógio do modo online. O tempo é sempre recebido de fora     */
   /* (`now`, em ms): o motor não lê o relógio da máquina.                 */
   /* ------------------------------------------------------------------ */
-  const CLOCK = { energyMs: 3 * 60000, lockMs: 2 * 3600000, homeMs: 3 * 3600000, vicioMs: 8 * 3600000, homesPerDay: 2, maxDays: 33 };
+  const CLOCK = { energyMs: 3 * 60000, lockMs: 2 * 3600000, homeMs: 3 * 3600000, vicioMs: 8 * 3600000, homesPerDay: 2, maxDays: 33, heatPace: 4 }; // online o Procurado esfria 4x mais rápido: a energia volta o dia todo
   const BR = 3 * 3600000; // Brasília = UTC−3, sem horário de verão
   const brIso = ms => new Date(ms - BR).toISOString();
   const dayKey = ms => brIso(ms).slice(0, 10), monthKey = ms => brIso(ms).slice(0, 7), calDay = ms => Number(brIso(ms).slice(8, 10));
@@ -2091,7 +2090,7 @@
     if (s.energy < 100) { c.e += dt; const n = Math.floor(c.e / CLOCK.energyMs); c.e -= n * CLOCK.energyMs; s.energy = clamp(s.energy + n, 0, 100); }
     if (s.energy >= 100) c.e = 0;
     const d = heatDecayPerDay(s);
-    if (s.heat > 0 && d > 0) { c.h += dt; const step = 864e5 / d, n = Math.floor(c.h / step); c.h -= n * step; addHeat(s, -n); } else c.h = 0;
+    if (s.heat > 0 && d > 0) { c.h += dt; const step = 864e5 / (d * CLOCK.heatPace), n = Math.floor(c.h / step); c.h -= n * step; addHeat(s, -n); } else c.h = 0;
     if (s.vicio > 0) { c.v += dt; const n = Math.floor(c.v / CLOCK.vicioMs); c.v -= n * CLOCK.vicioMs; s.vicio = clamp(s.vicio - n, 0, 100); } else c.v = 0;
     if (s.jail > 0 || s.hospital > 0) {
       c.j += dt;
@@ -2301,7 +2300,7 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* 7. Metas, conquistas e temporada                                    */
+  /* 7. Feitos, conquistas e temporada                                    */
   /* ------------------------------------------------------------------ */
   function unlock(s, id) { if (!s.achievements[id] && ACHIEVEMENTS.some(a => a.id === id)) { s.achievements[id] = s.season; log(s, `Conquista desbloqueada: ${ACHIEVEMENTS.find(a => a.id === id).name}.`); } }
 
@@ -2314,11 +2313,9 @@
     if (id === 'bonde') return { value: Math.min(5, crewSize(s)) * 10 + Math.min(8, s.gangStats.groupWins) / 8 * 50, max: 100, unit: 'pct', complete: crewSize(s) >= 5 && s.gangStats.groupWins >= 8 };
     return { value: 0, max: 100, unit: 'pct', complete: false };
   }
-  /** Executado após cada ação: trava metas cumpridas e verifica conquistas. */
-  /** Executado após cada ação: paga feitos do mês e a meta em respeito, verifica conquistas. Devolve as linhas para o resultado. */
+  /** Executado após cada ação: paga feitos do mês em respeito, verifica conquistas. Devolve as linhas para o resultado. */
   function afterAction(s) {
     const out = [];
-    if (s.goal && !s.goalDone && goalProgress(s, s.goal).complete) { s.goalDone = true; s.respect += GOAL_RESPECT; const m = `Meta da temporada cumprida: ${GOALS.find(g => g.id === s.goal).name}! +${GOAL_RESPECT} de respeito.`; log(s, m); out.push(m); }
     for (const c of CATEGORIES) {
       if (!FEAT_CATS.includes(c.id)) continue;
       const lvl = medalFor(c, Math.max(0, categoryValue(s, c.id)));
@@ -2382,7 +2379,6 @@
     if (medalCount >= 3) unlock(s, 'versatil');
     if (s.seasonStats.arrests === 0) unlock(s, 'fichalimpa');
     const goalWins = s.goalWins + (s.goalDone ? 1 : 0);
-    if (goalWins >= 3) unlock(s, 'determinado');
     const money_ = patrimony(s);
     const record = {
       season: s.season, respect: s.respect, money: money_, success: s.successful, failed: s.failed, goal: s.goal, goalComplete: s.goalDone,
@@ -2405,7 +2401,7 @@
     n.nemesis = nemesis;
     n.tutorial = { ...s.tutorial, done: true };
     if (nemesis) { n.factions[nemesis].relation -= 25; n.factions[nemesis].tension += 15; n.factions[nemesis].grudge = 2; }
-    n.cash = START_CASH + Math.min(1200, Math.floor(money_ * .05)) + (s.goalDone ? 600 : 0) + medalBonus;
+    n.cash = START_CASH + Math.min(1200, Math.floor(money_ * .05)) + medalBonus;
     n.log = [{ day: 1, msg: `Temporada ${n.season} iniciada. Anterior: “${sc.title}” (${sc.score} de respeito). Legado: ${money(n.cash - START_CASH)} para começar.${nemesis ? ` ${faction(nemesis).name} não esqueceu a rivalidade.` : ''}` }];
     return done(true, `Temporada ${s.season} encerrada: ${sc.title}.`, { state: n, record });
   }
@@ -2445,7 +2441,7 @@
     missionScore, gearParts, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
-    FEAT_CATS, FEAT_RESPECT, GOAL_RESPECT, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
+    FEAT_CATS, FEAT_RESPECT, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
     chainLock, chainList, CHAIN_KINDS, CLOCK, startClock, tick, clockInfo, atHome, dayKey, monthKey, act, perform
   };
   applyCity(CITIES[0].name); // as tabelas sempre refletem uma cidade real

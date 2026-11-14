@@ -30,7 +30,7 @@ for(let season=0;season<Number(process.argv[3]||20);season++){
   if(a==='dose')args=[SB.DOSES[SB.rand(0,SB.DOSES.length-1)].id,SB.rand(0,1)===1];
   if(a==='night')args=[SB.NIGHT[SB.rand(0,SB.NIGHT.length-1)].id];
   if(a==='career')args=[SB.CAREERS[SB.rand(0,SB.CAREERS.length-1)].id];
-  if(a==='goal')args=[SB.GOALS[SB.rand(0,4)].id];
+  if(a==='goal')args=['renome'];
   if(a==='news')args=[s.newsPending?.id,SB.rand(0,1)];
   if(a==='nextDay'&&SB.rand(1,10)>2)continue;
   try{const r=SB.perform(s,a,...args);if(r.ok)okc[a]=(okc[a]||0)+1;}catch(e){errs++;if(errs<5)console.log('ERR',a,e.stack)}

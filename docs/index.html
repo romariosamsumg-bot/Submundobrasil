@@ -659,6 +659,24 @@ body.busy #content{opacity:.6;pointer-events:none}
 /* v1.5: chance que vem do equipamento */
 .jobGear{margin:2px 0 0;font-size:11px;color:#a7e0c3}.jobGear.none{color:#8f9c9f}
 
+/* v1.5: resultado de cada ação pula num popup (cupom com carimbo no centro da tela) */
+.resultPop{position:fixed;inset:0;z-index:75;display:grid;place-items:center;padding:16px}
+.resultPop[hidden]{display:none}
+.resultPop .popBack{position:absolute;inset:0;background:#05080acc}
+.resultPop.pass,.resultPop.pass *{pointer-events:none}
+.resultPop .resultCard{position:relative;z-index:1;width:min(440px,100%);max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto;margin:0;font-size:13px;box-shadow:5px 6px 0 #05080a,0 0 0 1px #1b1712}
+.resultPop .resultCard strong{font-size:15px}
+.resultPop .resultCard li{line-height:1.4;overflow-wrap:anywhere}
+.resultPop .popOk{margin-top:12px;min-height:46px}
+.resultPop .resultCard.fresh{animation:popIn .34s cubic-bezier(.2,1.5,.45,1) both}
+.resultPop .resultCard.bad.fresh{animation:popIn .34s cubic-bezier(.2,1.5,.45,1) both,shake .32s .32s}
+.resultPop .popBack{animation:fadeBack .2s ease-out both}
+@keyframes popIn{from{transform:scale(.55) rotate(-3deg);opacity:0}}
+@keyframes fadeBack{from{opacity:0}}
+@media(prefers-reduced-motion:reduce){.resultPop .resultCard.fresh,.resultPop .resultCard.bad.fresh,.resultPop .popBack{animation:none!important}}
+.resultPop .resultCard:has(.stamp) .chips{padding-right:0;min-height:0}
+.resultPop .stamp{position:static;display:table;margin:10px auto 2px;transform:rotate(-6deg)}
+
   </style>
 </head>
 <body>
@@ -689,6 +707,7 @@ body.busy #content{opacity:.6;pointer-events:none}
     <button type="button" data-view="hub"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V10l5-3v14M8 21V4l7 3v14M15 21v-9l6 2v7M2 21h20"/></svg>Cidade</button>
   </nav>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <div id="resultPop" class="resultPop" hidden></div>
   <div class="welcome hidden" id="welcome"><form id="newGameForm" class="intro"><div id="welcomeNotice"></div><div class="cover" id="coverArt" aria-hidden="true"></div><div class="logo"><span class="logoTop">SUBMUNDO</span><span class="logoBottom">BRASIL</span><i class="logoStripe"></i></div><p class="tagline">Faça seu nome. Encare as consequências.</p>
     <label class="ageGate"><input type="checkbox" id="ageOk" required> <span><strong>Conteúdo para maiores de 18 anos.</strong> Crime, violência, drogas, armas e linguagem pesada, tudo ficcional. Confirmo que tenho 18 anos ou mais.</span></label>
     <div class="onlineBox" id="onlineBox" hidden><h3>Entrar ou criar conta</h3><p class="mini">Save na nuvem e ranking de respeito. As regras rodam no servidor do jogo.</p><div id="onlineStatus" aria-live="polite"></div><div id="onlineFields"><div class="formfield"><label for="onEmail">E-mail</label><input id="onEmail" type="email" class="input" autocomplete="email"></div><div class="formfield"><label for="onPass">Senha (6 ou mais caracteres)</label><input id="onPass" type="password" class="input" autocomplete="current-password"></div><div class="btnbar"><button type="button" class="btn primary" data-action="on-login">Entrar</button><button type="button" class="btn ghost" data-action="on-signup">Criar conta</button></div></div></div>
@@ -780,25 +799,25 @@ body.busy #content{opacity:.6;pointer-events:none}
   /* Missões: `stat` define o atributo principal; `district` limita a um bairro.
      difficulty está na escala do "preparo" (ver missionScore). */
   const MISSIONS = [
-    { id: 'correria', name: 'Bater carteira', desc: 'Horário de pico, ônibus lotado e mão leve. O primeiro trocado de todo mundo.', stat: 'astucia', difficulty: 15, cost: 16, low: 150, high: 290, heat: 6, vigil: 5, respect: 2, unlock: 0, arrest: 28, loss: .10, tension: 1 },
-    { id: 'rolo', name: 'Rolo na feira', desc: 'Convencer um atravessador fictício a fechar negócio fora da tabela.', stat: 'labia', difficulty: 16, cost: 18, low: 190, high: 340, heat: 3, vigil: 3, respect: 2, unlock: 6, arrest: 18, loss: .06, tension: 1 },
-    { id: 'mercadoria', name: 'Celular no ponto de ônibus', desc: 'Lucro rápido na revenda de peças. Às vezes a vítima reage.', stat: 'forca', difficulty: 20, cost: 23, low: 300, high: 560, heat: 10, vigil: 7, respect: 3, unlock: 0, arrest: 38, loss: .12, tension: 2 },
+    { id: 'correria', name: 'Bater carteira', desc: 'Horário de pico, ônibus lotado e mão leve. O primeiro trocado de todo mundo.', stat: 'astucia', difficulty: 15, cost: 16, low: 150, high: 290, heat: 6, vigil: 5, respect: 2, unlock: 0, arrest: 17, loss: .10, tension: 1 },
+    { id: 'rolo', name: 'Rolo na feira', desc: 'Convencer um atravessador fictício a fechar negócio fora da tabela.', stat: 'labia', difficulty: 16, cost: 18, low: 190, high: 340, heat: 3, vigil: 3, respect: 2, unlock: 6, arrest: 11, loss: .06, tension: 1 },
+    { id: 'mercadoria', name: 'Celular no ponto de ônibus', desc: 'Lucro rápido na revenda de peças. Às vezes a vítima reage.', stat: 'forca', difficulty: 20, cost: 23, low: 300, high: 560, heat: 10, vigil: 7, respect: 3, unlock: 0, arrest: 23, loss: .12, tension: 2 },
     { id: 'cobranca', name: 'Cobrança atrasada', desc: 'Um comerciante quer receber uma dívida antiga. Exige presença.', stat: 'forca', difficulty: 29, cost: 26, low: 420, high: 740, heat: 12, vigil: 6, respect: 4, unlock: 20, req: { power: 2 }, arrest: 38, loss: .10, tension: 3 },
     { id: 'deposito', name: 'Mercadinho Dois Irmãos', desc: 'Limpar o caixa antes que o dono puxe o que guarda debaixo do balcão.', stat: 'astucia', difficulty: 37, cost: 32, low: 580, high: 980, heat: 15, vigil: 10, respect: 5, unlock: 32, req: { power: 4 }, arrest: 44, loss: .12, tension: 3 },
-    { id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', stat: 'labia', difficulty: 39, cost: 30, low: 680, high: 1120, heat: 8, vigil: 6, respect: 6, unlock: 50, req: { influence: 25 }, arrest: 28, loss: .08, tension: 2 },
+    { id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', stat: 'labia', difficulty: 39, cost: 30, low: 680, high: 1120, heat: 8, vigil: 6, respect: 6, unlock: 50, req: { influence: 25 }, arrest: 17, loss: .08, tension: 2 },
     { id: 'comboio', name: 'Caminhão de carga na rodovia', desc: 'Fechar a pista e levar a carga fechada. Só com o bonde junto.', stat: 'forca', difficulty: 52, cost: 40, low: 1050, high: 1750, heat: 19, vigil: 12, respect: 8, unlock: 75, req: { escape: 6, power: 7, gang: true }, arrest: 50, loss: .14, tension: 5 },
     { id: 'cofre', name: 'Cofre da joalheria', desc: 'O serviço solo mais pesado da temporada. Uma vez por dia.', stat: 'astucia', difficulty: 64, cost: 52, low: 1900, high: 3100, heat: 26, vigil: 18, respect: 13, unlock: 120, req: { escape: 6, power: 9, stat: ['astucia', 22], oncePerDay: true }, arrest: 55, loss: .15, tension: 6 },
-    { id: 'fiacao', name: 'Fiação de cobre', desc: 'Pouco confronto, mas a guarda municipal ronda e o cobre vale pouco.', stat: 'astucia', difficulty: 18, cost: 18, low: 110, high: 190, heat: 4, vigil: 4, respect: 1, unlock: 3, arrest: 24, loss: .06, tension: 1 },
-    { id: 'pastel', name: 'Barraquinha de pastel', desc: 'O dinheiro do caldo de cana e o primeiro respeito de verdade na rua.', stat: 'forca', difficulty: 18, cost: 19, low: 130, high: 230, heat: 7, vigil: 6, respect: 3, unlock: 2, arrest: 30, loss: .08, tension: 2 },
+    { id: 'fiacao', name: 'Fiação de cobre', desc: 'Pouco confronto, mas a guarda municipal ronda e o cobre vale pouco.', stat: 'astucia', difficulty: 18, cost: 18, low: 110, high: 190, heat: 4, vigil: 4, respect: 1, unlock: 3, arrest: 14, loss: .06, tension: 1 },
+    { id: 'pastel', name: 'Barraquinha de pastel', desc: 'O dinheiro do caldo de cana e o primeiro respeito de verdade na rua.', stat: 'forca', difficulty: 18, cost: 19, low: 130, high: 230, heat: 7, vigil: 6, respect: 3, unlock: 2, arrest: 18, loss: .08, tension: 2 },
     { id: 'caixa', name: 'Caixa eletrônico na maquita', desc: 'Posto de gasolina afastado, barulho alto e notas que podem queimar.', stat: 'astucia', difficulty: 42, cost: 36, low: 560, high: 940, heat: 17, vigil: 14, respect: 5, unlock: 45, req: { escape: 1, power: 5 }, arrest: 46, loss: .12, tension: 3 },
     { id: 'loterica', name: 'Casa lotérica', desc: 'Fila cheia, malote de dinheiro vivo e risco de policial à paisana.', stat: 'forca', difficulty: 48, cost: 36, low: 660, high: 1080, heat: 18, vigil: 12, respect: 6, unlock: 60, req: { escape: 3, power: 7 }, arrest: 48, loss: .12, tension: 4 },
-    { id: 'cartao', name: 'Clonar cartão de velho rico', desc: 'Lábia e paciência. Golpe limpo, mas a vítima um dia percebe.', stat: 'labia', difficulty: 37, cost: 30, low: 500, high: 820, heat: 6, vigil: 4, respect: 4, unlock: 40, arrest: 26, loss: .06, tension: 1 },
+    { id: 'cartao', name: 'Clonar cartão de velho rico', desc: 'Lábia e paciência. Golpe limpo, mas a vítima um dia percebe.', stat: 'labia', difficulty: 37, cost: 30, low: 500, high: 820, heat: 6, vigil: 4, respect: 4, unlock: 40, arrest: 16, loss: .06, tension: 1 },
     // Oportunidades exclusivas de bairro
-    { id: 'camelodromo', district: 'centro', name: 'Esquema do camelódromo', desc: 'Organizar a revenda de um lote sem nota no comércio popular.', stat: 'labia', difficulty: 25, cost: 22, low: 330, high: 560, heat: 7, vigil: 8, respect: 3, unlock: 10, arrest: 30, loss: .08, tension: 2 },
+    { id: 'camelodromo', district: 'centro', name: 'Esquema do camelódromo', desc: 'Organizar a revenda de um lote sem nota no comércio popular.', stat: 'labia', difficulty: 25, cost: 22, low: 330, high: 560, heat: 7, vigil: 8, respect: 3, unlock: 10, arrest: 18, loss: .08, tension: 2 },
     { id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Uma carga esquecida nos galpões. O grupo que manda ali não vai gostar.', stat: 'forca', difficulty: 31, cost: 28, low: 560, high: 900, heat: 12, vigil: 10, respect: 4, unlock: 15, req: { power: 4 }, arrest: 40, loss: .12, tension: 5 },
-    { id: 'favor', district: 'jardim', name: 'Favor de vizinhança', desc: 'Resolver um problema de moradores e ganhar contatos. Pouco dinheiro.', stat: 'influencia', difficulty: 12, cost: 18, low: 90, high: 170, heat: 1, vigil: 2, respect: 3, unlock: 0, arrest: 10, loss: .04, tension: 0, influence: 4 },
+    { id: 'favor', district: 'jardim', name: 'Favor de vizinhança', desc: 'Resolver um problema de moradores e ganhar contatos. Pouco dinheiro.', stat: 'influencia', difficulty: 12, cost: 18, low: 90, high: 170, heat: 1, vigil: 2, respect: 3, unlock: 0, arrest: 6, loss: .04, tension: 0, influence: 4 },
     { id: 'galpao', district: 'industrial', name: 'Galpão desativado', desc: 'Material valioso parado num galpão sob patrulha reforçada.', stat: 'astucia', difficulty: 47, cost: 36, low: 900, high: 1500, heat: 18, vigil: 16, respect: 6, unlock: 40, req: { escape: 3, power: 5 }, arrest: 50, loss: .14, tension: 3 },
-    { id: 'baile', district: 'vila', name: 'Bastidores do baile', desc: 'Cuidar da “organização paralela” de um baile de rua.', stat: 'labia', difficulty: 24, cost: 22, low: 300, high: 520, heat: 6, vigil: 6, respect: 4, unlock: 12, arrest: 26, loss: .08, tension: 2, festive: true }
+    { id: 'baile', district: 'vila', name: 'Bastidores do baile', desc: 'Cuidar da “organização paralela” de um baile de rua.', stat: 'labia', difficulty: 24, cost: 22, low: 300, high: 520, heat: 6, vigil: 6, respect: 4, unlock: 12, arrest: 16, loss: .08, tension: 2, festive: true }
   ];
 
   const DISTRICTS = [
@@ -1099,7 +1118,6 @@ body.busy #content{opacity:.6;pointer-events:none}
     { id: 'night', title: 'Recarregue na noitada', text: 'Acabou a energia? Entre no Boteco e peça uma dose: dinheiro vira energia para continuar hoje. Amanhã vem a ressaca, e cada dose sobe o vício.', view: 'noite', cta: 'Ir para a noite', reward: 40, check: s => s.tutorial.nighted },
     { id: 'train', title: 'Treine um atributo', text: 'Cada roubo usa um atributo. Treinar aumenta a chance e a sua luta.', view: 'acoes', cta: 'Ir treinar', reward: 60, check: s => s.tutorial.trained },
     { id: 'day', title: 'Durma: vire o dia', text: 'Sem energia e sem saída na noite, durma: +70 de energia, o Procurado cai, a renda entra e os grupos se movem. A temporada tem 30 dias.', view: 'painel', cta: 'Voltar para a rua', reward: 60, check: s => s.day >= 2 },
-    { id: 'goal', title: 'Escolha a meta da temporada', text: 'A meta é o seu norte: cumprir rende bônus e pontos. Escolha até o dia 5.', view: 'temporada', cta: 'Escolher meta', reward: 0, check: s => !!s.goal || s.day > 5 },
     { id: 'bank', title: 'Guarde dinheiro no banco', text: 'Falhas tiram parte do dinheiro em mãos. O banco protege, cobrando uma taxa pequena.', view: 'gestao', cta: 'Abrir banco', reward: 40, check: s => s.tutorial.banked },
     { id: 'gang', title: 'Chegue a 30 de respeito e funde seu bando', text: 'Sozinho você não chega ao dinheiro de verdade. Com o bando vêm os assaltos planejados, os confrontos e os acordos.', view: 'gangue', cta: 'Abrir bando', reward: 200, check: s => !!s.gangName }
   ];
@@ -1184,11 +1202,10 @@ body.busy #content{opacity:.6;pointer-events:none}
   ];
   const MEDALS = ['—', 'Bronze', 'Prata', 'Ouro'];
   /* v1.5: um placar só. As medalhas viram "feitos do mês" que pagam respeito na hora (a Fama sai:
-   * ela já era o próprio respeito), e cumprir a meta também paga. */
+   * ela já era o próprio respeito). */
   const FEAT_CATS = ['fortuna', 'territorio', 'diplomacia', 'gangue', 'comercio'];
   const FEAT_RESPECT = [0, 6, 10, 14];
-  const GOAL_RESPECT = 20;
-
+  
   const ACHIEVEMENTS = [
     { id: 'primeira', name: 'Primeiro passo', desc: 'Concluir a primeira missão.' },
     { id: 'cofre', name: 'O grande golpe', desc: 'Concluir “Cofre da joalheria”.' },
@@ -1204,7 +1221,6 @@ body.busy #content{opacity:.6;pointer-events:none}
     { id: 'fichalimpa', name: 'Ficha limpa', desc: 'Encerrar uma temporada sem ser detido.' },
     { id: 'ouro', name: 'Medalha de ouro', desc: 'Ganhar ouro em qualquer categoria.' },
     { id: 'versatil', name: 'Versátil', desc: 'Medalhas em 3 categorias na mesma temporada.' },
-    { id: 'determinado', name: 'Determinação', desc: 'Cumprir 3 metas de temporada.' },
     { id: 'fianca', name: 'Porta da frente', desc: 'Sair da cadeia com o advogado de porta de cadeia.' },
     { id: 'virada', name: 'Virada', desc: 'Vencer um confronto com chance de 40% ou menos.' },
     { id: 'mestre', name: 'Mestre da carreira', desc: 'Alcançar o nível 3 da especialização.' },
@@ -1257,7 +1273,7 @@ body.busy #content{opacity:.6;pointer-events:none}
       factions: startFactions(), gangStats: startGangStats(), treachery: 0,
       today: emptyToday(), seasonStats: emptySeasonStats(),
       achievements: {}, prestige: 0, nemesis: null, records: {},
-      tutorial: { step: 0, done: false, trained: false, contacted: false, banked: false, nighted: false },
+      tutorial: { v: 2, step: 0, done: false, trained: false, contacted: false, banked: false, nighted: false },
       gear: { arma: null, protecao: null, veiculo: null }, owned: [], goods: Object.fromEntries(GOODS.map(g => [g.id, 0])), market: startMarket(),
       labs: Object.fromEntries(LABS.map(l => [l.id, 0])), labDown: {}, exportDeal: { day: 5, good: 'cigarro' }, exportDone: 0, ressaca: 0,
       trade: { sold: 0, spent: 0, exported: 0, blitz: 0 },
@@ -1466,8 +1482,9 @@ body.busy #content{opacity:.6;pointer-events:none}
     s.heistReady = toInt(saved.heistReady, 0, 0, MAXDAY + HEIST_COOLDOWN);
     // Primeiros passos: saves anteriores à 0.6 não tinham tutorial; quem já jogou não é obrigado a refazê-lo.
     const tu = saved.tutorial;
-    if (tu && typeof tu === 'object') s.tutorial = { step: toInt(tu.step, 0, 0, TUTORIAL.length), done: tu.done === true, trained: tu.trained === true, contacted: tu.contacted === true, banked: tu.banked === true, nighted: tu.nighted === true };
-    else s.tutorial = { step: 0, done: s.season > 1 || s.day > 1, trained: false, contacted: false, banked: false, nighted: false };
+    // v1.5: o passo da meta (o 7º) saiu; quem estava depois dele volta uma posição.
+    if (tu && typeof tu === 'object') s.tutorial = { v: 2, step: toInt(tu.v === 2 ? tu.step : (toInt(tu.step, 0, 0, 99) > 6 ? tu.step - 1 : tu.step), 0, 0, TUTORIAL.length), done: tu.done === true, trained: tu.trained === true, contacted: tu.contacted === true, banked: tu.banked === true, nighted: tu.nighted === true };
+    else s.tutorial = { v: 2, step: 0, done: s.season > 1 || s.day > 1, trained: false, contacted: false, banked: false, nighted: false };
     if (s.tutorial.step >= TUTORIAL.length) s.tutorial.done = true;
     s.schema = SCHEMA; s.version = VERSION;
     if (!hadFeats) for (const c of CATEGORIES) if (FEAT_CATS.includes(c.id)) s.feats[c.id] = medalFor(c, Math.max(0, categoryValue(s, c.id)));
@@ -1552,9 +1569,12 @@ body.busy #content{opacity:.6;pointer-events:none}
   /* v1.5: o equipamento pesa em todo roubo. A arma vale mais nos de Força e menos nos de Lábia;
    * a proteção ajuda a encarar a segurança; o veículo dá fuga rápida. */
   const GEAR_WEIGHT = { forca: 2, astucia: 1.2, influencia: .8, labia: .5 };
+  const GEAR_BASE = { arma: 3, protecao: 2, veiculo: 2 };
   function gearParts(s, m) {
     const tough = m.stat === 'forca' || !!(m.req && m.req.power);
-    return [['Arma', armPower(s, true) * GEAR_WEIGHT[m.stat]], ['Proteção', armDef(s) * (tough ? 1 : .5)], ['Veículo', gearVal(s, 'escape') * .8]];
+    // Só de estar equipado já ajuda (+3 arma, +2 proteção, +2 veículo); o resto cresce com a qualidade.
+    const on = slot => s.gear[slot] ? GEAR_BASE[slot] : 0;
+    return [['Arma', on('arma') + armPower(s, true) * GEAR_WEIGHT[m.stat]], ['Proteção', on('protecao') + armDef(s) * (tough ? 1 : .5)], ['Veículo', on('veiculo') + gearVal(s, 'escape') * .8]];
   }
   const gearBonus = (s, m) => sum(gearParts(s, m).map(p => p[1]));
   function missionScore(s, m) {
@@ -1564,9 +1584,9 @@ body.busy #content{opacity:.6;pointer-events:none}
   }
   function missionChance(s, m) {
     const d = s.district, ds = s.dstate[d];
-    let heatPen = s.heat * .35 + ds.vigil * .3;
+    let heatPen = s.heat * .3 + ds.vigil * .3;
     if (hasPerk(s, 'operador', 3)) heatPen /= 2;
-    let fatigue = (s.today.missions[m.id] || 0) * 6;
+    let fatigue = (s.today.missions[m.id] || 0) * 4;
     if (hasPerk(s, 'operador', 2)) fatigue /= 2;
     let c = 72 + (missionScore(s, m) - m.difficulty) * 2 - heatPen - district(s).risk - eventMod(s, 'risk', { district: d }) - fatigue;
     if (s.career === 'empreendedor' && m.stat === 'forca') c -= 5;
@@ -1591,7 +1611,8 @@ body.busy #content{opacity:.6;pointer-events:none}
   }
   function arrestChance(s, m) {
     if (!s.tutorial.done && s.successful === 0) return 0; // primeiros passos: o primeiro roubo que falha não dá cadeia
-    let a = m.arrest + s.heat * .3 + s.dstate[s.district].vigil * .15 - Math.min(20, roleLevels(s, 'olheiro') * 2) - gearVal(s, 'def') - gearVal(s, 'escape');
+    // Proteção e veículo equipados tiram 3 cada da chance de ser pego, mais o valor de cada um.
+    let a = m.arrest + s.heat * .2 + s.dstate[s.district].vigil * .15 - Math.min(20, roleLevels(s, 'olheiro') * 2) - gearVal(s, 'def') - gearVal(s, 'escape') - (s.gear.protecao ? 3 : 0) - (s.gear.veiculo ? 3 : 0);
     if (hasPerk(s, 'operador', 1)) a -= 15;
     return clamp(Math.round(a), 5, 90);
   }
@@ -2606,11 +2627,8 @@ body.busy #content{opacity:.6;pointer-events:none}
     log(s, `Você escolheu a especialização ${c.name}.`);
     return done(true, `Carreira definida: ${c.name}.`);
   }
-  function chooseGoal(s, id) {
-    if (s.goal || s.day > 5 || !GOALS.some(g => g.id === id)) return refuse('A meta não pode mais ser escolhida.');
-    s.goal = id; log(s, `Meta escolhida: ${GOALS.find(g => g.id === id).name}.`);
-    return done(true, 'Meta da temporada definida.');
-  }
+  // v1.5: a meta da temporada saiu do jogo; o respeito é o único placar.
+  function chooseGoal() { return refuse('A meta da temporada saiu do jogo: o placar agora é só o respeito.'); }
 
   /* Notícias */
   const currentNews = s => s.newsPending ? NEWS.find(n => n.id === s.newsPending.id) : null;
@@ -2771,7 +2789,7 @@ body.busy #content{opacity:.6;pointer-events:none}
   /* v1.5 — Relógio do modo online. O tempo é sempre recebido de fora     */
   /* (`now`, em ms): o motor não lê o relógio da máquina.                 */
   /* ------------------------------------------------------------------ */
-  const CLOCK = { energyMs: 3 * 60000, lockMs: 2 * 3600000, homeMs: 3 * 3600000, vicioMs: 8 * 3600000, homesPerDay: 2, maxDays: 33 };
+  const CLOCK = { energyMs: 3 * 60000, lockMs: 2 * 3600000, homeMs: 3 * 3600000, vicioMs: 8 * 3600000, homesPerDay: 2, maxDays: 33, heatPace: 4 }; // online o Procurado esfria 4x mais rápido: a energia volta o dia todo
   const BR = 3 * 3600000; // Brasília = UTC−3, sem horário de verão
   const brIso = ms => new Date(ms - BR).toISOString();
   const dayKey = ms => brIso(ms).slice(0, 10), monthKey = ms => brIso(ms).slice(0, 7), calDay = ms => Number(brIso(ms).slice(8, 10));
@@ -2791,7 +2809,7 @@ body.busy #content{opacity:.6;pointer-events:none}
     if (s.energy < 100) { c.e += dt; const n = Math.floor(c.e / CLOCK.energyMs); c.e -= n * CLOCK.energyMs; s.energy = clamp(s.energy + n, 0, 100); }
     if (s.energy >= 100) c.e = 0;
     const d = heatDecayPerDay(s);
-    if (s.heat > 0 && d > 0) { c.h += dt; const step = 864e5 / d, n = Math.floor(c.h / step); c.h -= n * step; addHeat(s, -n); } else c.h = 0;
+    if (s.heat > 0 && d > 0) { c.h += dt; const step = 864e5 / (d * CLOCK.heatPace), n = Math.floor(c.h / step); c.h -= n * step; addHeat(s, -n); } else c.h = 0;
     if (s.vicio > 0) { c.v += dt; const n = Math.floor(c.v / CLOCK.vicioMs); c.v -= n * CLOCK.vicioMs; s.vicio = clamp(s.vicio - n, 0, 100); } else c.v = 0;
     if (s.jail > 0 || s.hospital > 0) {
       c.j += dt;
@@ -3001,7 +3019,7 @@ body.busy #content{opacity:.6;pointer-events:none}
   }
 
   /* ------------------------------------------------------------------ */
-  /* 7. Metas, conquistas e temporada                                    */
+  /* 7. Feitos, conquistas e temporada                                    */
   /* ------------------------------------------------------------------ */
   function unlock(s, id) { if (!s.achievements[id] && ACHIEVEMENTS.some(a => a.id === id)) { s.achievements[id] = s.season; log(s, `Conquista desbloqueada: ${ACHIEVEMENTS.find(a => a.id === id).name}.`); } }
 
@@ -3014,11 +3032,9 @@ body.busy #content{opacity:.6;pointer-events:none}
     if (id === 'bonde') return { value: Math.min(5, crewSize(s)) * 10 + Math.min(8, s.gangStats.groupWins) / 8 * 50, max: 100, unit: 'pct', complete: crewSize(s) >= 5 && s.gangStats.groupWins >= 8 };
     return { value: 0, max: 100, unit: 'pct', complete: false };
   }
-  /** Executado após cada ação: trava metas cumpridas e verifica conquistas. */
-  /** Executado após cada ação: paga feitos do mês e a meta em respeito, verifica conquistas. Devolve as linhas para o resultado. */
+  /** Executado após cada ação: paga feitos do mês em respeito, verifica conquistas. Devolve as linhas para o resultado. */
   function afterAction(s) {
     const out = [];
-    if (s.goal && !s.goalDone && goalProgress(s, s.goal).complete) { s.goalDone = true; s.respect += GOAL_RESPECT; const m = `Meta da temporada cumprida: ${GOALS.find(g => g.id === s.goal).name}! +${GOAL_RESPECT} de respeito.`; log(s, m); out.push(m); }
     for (const c of CATEGORIES) {
       if (!FEAT_CATS.includes(c.id)) continue;
       const lvl = medalFor(c, Math.max(0, categoryValue(s, c.id)));
@@ -3082,7 +3098,6 @@ body.busy #content{opacity:.6;pointer-events:none}
     if (medalCount >= 3) unlock(s, 'versatil');
     if (s.seasonStats.arrests === 0) unlock(s, 'fichalimpa');
     const goalWins = s.goalWins + (s.goalDone ? 1 : 0);
-    if (goalWins >= 3) unlock(s, 'determinado');
     const money_ = patrimony(s);
     const record = {
       season: s.season, respect: s.respect, money: money_, success: s.successful, failed: s.failed, goal: s.goal, goalComplete: s.goalDone,
@@ -3105,7 +3120,7 @@ body.busy #content{opacity:.6;pointer-events:none}
     n.nemesis = nemesis;
     n.tutorial = { ...s.tutorial, done: true };
     if (nemesis) { n.factions[nemesis].relation -= 25; n.factions[nemesis].tension += 15; n.factions[nemesis].grudge = 2; }
-    n.cash = START_CASH + Math.min(1200, Math.floor(money_ * .05)) + (s.goalDone ? 600 : 0) + medalBonus;
+    n.cash = START_CASH + Math.min(1200, Math.floor(money_ * .05)) + medalBonus;
     n.log = [{ day: 1, msg: `Temporada ${n.season} iniciada. Anterior: “${sc.title}” (${sc.score} de respeito). Legado: ${money(n.cash - START_CASH)} para começar.${nemesis ? ` ${faction(nemesis).name} não esqueceu a rivalidade.` : ''}` }];
     return done(true, `Temporada ${s.season} encerrada: ${sc.title}.`, { state: n, record });
   }
@@ -3145,7 +3160,7 @@ body.busy #content{opacity:.6;pointer-events:none}
     missionScore, gearParts, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
-    FEAT_CATS, FEAT_RESPECT, GOAL_RESPECT, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
+    FEAT_CATS, FEAT_RESPECT, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
     chainLock, chainList, CHAIN_KINDS, CLOCK, startClock, tick, clockInfo, atHome, dayKey, monthKey, act, perform
   };
   applyCity(CITIES[0].name); // as tabelas sempre refletem uma cidade real
@@ -3491,7 +3506,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       const schema = JSON.parse(raw).schema;
       if (schema === 1 && !localStorage.getItem(V04_BACKUP_KEY)) localStorage.setItem(V04_BACKUP_KEY, raw);
     } catch (e) { /* backup é opcional */ }
-    if (r.notes.length) result = { good: true, msg: 'Salvamento carregado e verificado.', lines: r.notes, deltas: [] };
+    if (r.notes.length) result = { good: true, msg: 'Salvamento carregado e verificado.', lines: r.notes, deltas: [], fresh: true };
     return r.state;
   }
   function download(name, text) {
@@ -3516,7 +3531,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const summary = `${r.state.name} · temporada ${r.state.season}, dia ${r.state.day} · ${fmt(r.state.cash + r.state.bank)}`;
     if (!confirm((fromWelcome ? 'Carregar' : 'Substituir sua carreira atual por') + ` este salvamento?\n\n${summary}${r.notes.length ? '\n\n' + r.notes.join('\n') : ''}${warn}`)) return;
     state = r.state; view = 'painel';
-    result = { good: true, msg: 'Carreira importada.', lines: r.notes.concat(warn ? ['Arquivo alterado após a exportação: valores verificados.'] : []), deltas: [] };
+    result = { good: true, msg: 'Carreira importada.', lines: r.notes.concat(warn ? ['Arquivo alterado após a exportação: valores verificados.'] : []), deltas: [], fresh: true };
     $('#welcome').classList.add('hidden'); document.body.classList.remove('atCover');
     save(); render(); notify('Carreira importada com sucesso.');
   }
@@ -3579,13 +3594,11 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     if (name === 'endSeason') {
       const rec = r.record;
       if (r.state) state = r.state;
-      result = { good: true, msg: r.msg, lines: [`Respeito final: ${rec.score} · ${rec.title}.`, ...SB.CATEGORIES.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`), `Meta: ${rec.goal ? (rec.goalComplete ? 'cumprida' : 'não cumprida') : 'não escolhida'}.`], deltas: [] };
+      result = { good: true, msg: r.msg, lines: [`Respeito final: ${rec.score} · ${rec.title}.`, ...SB.CATEGORIES.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`)], deltas: [], fresh: true };
     } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()), fresh: true, stamp: STAMPED.includes(name) };
     if (name === 'nextDay') dawn();
     save(); render();
-    // O cupom de resultado já informa; o aviso flutuante só aparece se ele estiver fora da tela.
-    const card = $('.resultCard'), box = card && card.getBoundingClientRect();
-    if (!box || box.bottom < 70 || box.top > window.innerHeight - 70) notify(r.msg, !r.good); else $('#toast').hidden = true;
+    $('#toast').hidden = true; // o popup já informa
     return r;
   }
 
@@ -3594,13 +3607,24 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const up = PARENT[view];
     return `${up ? `<button type="button" class="backLink" data-view="${up}">← ${({ hub: 'Cidade', perfil: 'Perfil', gangue: 'Bando' })[up]}</button>` : ''}<div class="pagehead"><div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>` + guideCard();
   }
-  function resultCard() {
-    if (!result) return '';
-    const fresh = result.fresh; result.fresh = false;
-    return `<section class="resultCard ${result.good ? '' : 'bad'} ${fresh ? 'fresh' : ''}" aria-live="polite"><div class="rhead"><strong>${esc(result.msg)}</strong><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar resultado">×</button></div>
+  /** v1.5: o resultado saiu do topo da tela e pula num popup (renderPop); nas telas não sobra nada. */
+  function resultCard() { return ''; }
+  function renderPop() {
+    const box = $('#resultPop');
+    if (!result) { if (!box.hidden) { box.hidden = true; box.innerHTML = ''; } return; }
+    if (!result.fresh) return; // já aberto: não refaz nem repete a animação
+    result.fresh = false;
+    box.className = 'resultPop' + (window.SB_POP_PASSTHROUGH ? ' pass' : '');
+    box.innerHTML = `<div class="popBack" data-action="dismiss-result" aria-hidden="true"></div>${resultHtml(true)}`;
+    box.hidden = false;
+    const ok = box.querySelector('.popOk'); if (ok && !window.SB_POP_PASSTHROUGH) ok.focus({ preventScroll: true });
+  }
+  function resultHtml(fresh) {
+    return `<section class="resultCard ${result.good ? '' : 'bad'} ${fresh ? 'fresh' : ''}" role="dialog" aria-modal="true" aria-label="Resultado" aria-live="polite"><div class="rhead"><strong>${esc(result.msg)}</strong><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar resultado">×</button></div>
       ${result.stamp ? `<span class="stamp" aria-hidden="true">${result.good ? 'DEU BOM' : 'DEU RUIM'}</span>` : ''}
       ${result.deltas.length ? `<div class="chips">${result.deltas.map(d => `<span class="chip ${d.good ? 'up' : 'down'}">${d.label} ${d.text}</span>`).join('')}</div>` : ''}
-      ${result.lines.length ? `<ul>${result.lines.slice(0, 10).map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}</section>`;
+      ${result.lines.length ? `<ul>${result.lines.slice(0, 10).map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}
+      <button type="button" class="btn primary block popOk" data-action="dismiss-result">OK</button></section>`;
   }
   function jailNotice() {
     if (SB.atHome(state)) return `<div class="notice tape homeNote"><strong>EM CASA · volta em ${dur(SB.clockInfo(state).home)}</strong> Descansando: sem roubos, noite ou viagens. Banco, compras e decisões do bando continuam. No fim: energia cheia e o corpo zerado.<div class="inlineBtns">${button('Sair de casa antes da hora', 'leave-home', '', false, 'small ghost')}</div></div>`;
@@ -3699,7 +3723,8 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
         <p><strong>Colete</strong>: roubo armado que dá errado vira trocação com a segurança. O colete decide se você sai ferido ou vai para a UPA. Ser preso custa respeito.</p>
         <p><strong>Saúde</strong> (barra azul) cai em confrontos, duelos e serviços de força que dão errado. Abaixo de 60 suas chances caem; a zero, você é internado. Cure no Hospital ou esperando.</p>
         <p>Toque no seu retrato, no topo, para abrir o <strong>Perfil</strong> e escolher outra foto.</p>
-        <p><strong>Equipamento</strong>: arma, proteção e veículo somam chance em todo roubo (a arma pesa mais nos de Força e menos nos de Lábia), e os roubos grandes pedem arma e veículo de fuga.</p>
+        <p><strong>Equipamento</strong>: arma, proteção e veículo somam chance em todo roubo (a arma pesa mais nos de Força e menos nos de Lábia), e os roubos grandes pedem arma e veículo de fuga. Proteção e veículo equipados também diminuem a chance de ser preso.</p>
+        <p><strong>Resultado</strong>: depois de cada ação, o resultado pula na tela com o que mudou. Toque em OK (ou fora) para fechar.</p>
         <p><strong>Feira</strong>: o que você compra é seu. Para trocar de arma, proteção ou veículo, toque em <strong>Usar</strong>, de graça.</p>
         <p><strong>Trilha de compra</strong>: na Feira (armas, proteções e veículos) e nos negócios, o próximo só abre depois que você compra o anterior nesta temporada.</p>
         ${state && state.clock ? '<p><strong>Online</strong>: o dia vira sozinho à meia-noite de Brasília e a temporada é o mês do calendário. A energia volta +1 a cada 3 minutos. <strong>Ir pra casa</strong> (3 horas, até 2 vezes por dia) enche a energia e zera o corpo. Na cadeia e no hospital, 1 dia vale 2 horas.</p>' : ''}
@@ -3757,7 +3782,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       ${fichaCard()}
       ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(2)}</section>`;
   }
-  /** Temporada em 4 blocos: patente, classe, meta e título, cada um com a sua barra. */
+  /** Temporada em 4 blocos: patente, classe, mês e feitos, cada um com a sua barra. */
   function fichaCard() {
     const s = state, sc = SB.seasonScore(s), pi = SB.phaseIndex(s), ph = SB.PHASES[pi], nx = SB.PHASES[pi + 1];
     const tile = (label, main, side, fill, cls = '') => `<div class="fichaRow ${cls}"><span class="fichaLabel">${label}</span><b>${main}</b><em>${side}</em>${fill === null ? '' : `<div class="meter"><div style="width:${pct(fill)}%"></div></div>`}</div>`;
@@ -3765,8 +3790,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const c = s.career ? SB.CAREERS.find(x => x.id === s.career) : null;
     if (c) { const lvl = SB.careerLevel(s), next = SB.CAREER_XP[lvl]; o += tile('Classe', `${c.name} ${lvl}/3`, next ? `${s.careerXP}/${next} XP` : 'completa', next ? s.careerXP / next * 100 : 100); }
     else o += tile('Classe', 'A escolher', 'decida acima', null);
-    if (s.goal) { const g = SB.GOALS.find(x => x.id === s.goal), p = SB.goalProgress(s, s.goal); o += tile('Meta', esc(g.name), s.goalDone ? 'cumprida ✓' : p.unit === 'money' ? fmt(p.value) + ' / ' + fmt(p.max) : Math.round(p.value) + '%', s.goalDone ? 100 : p.value / p.max * 100); }
-    else o += tile('Meta', s.day <= 5 ? 'Escolha até o dia 5' : 'Sem meta', s.day <= 5 ? 'em Temporada' : 'nesta temporada', null, s.day <= 5 ? 'pick' : '');
+    o += tile('Mês', `Dia ${s.day}/${MAXDAY}`, s.day < MAXDAY ? `faltam ${MAXDAY - s.day} dia(s)` : 'último dia', s.day / MAXDAY * 100);
     const fc = SB.CATEGORIES.filter(x => SB.FEAT_CATS.includes(x.id)), got = fc.reduce((a, x) => a + s.feats[x.id], 0);
     let near = null; for (const x of sc.cats) { if (!SB.FEAT_CATS.includes(x.id)) continue; const cat = SB.CATEGORIES.find(k => k.id === x.id), nt = cat.tiers[x.medal]; if (!nt) continue; const pv = x.medal ? cat.tiers[x.medal - 1] : 0, gap = (nt - x.value) / (nt - pv); if (!near || gap < near.gap) near = { x, cat, nt, gap, pv }; }
     o += tile('Feitos do mês', `${got}/${fc.length * 3}`, near ? `${esc(near.x.name)} ${SB.MEDALS[near.x.medal + 1]}: +${SB.FEAT_RESPECT[near.x.medal + 1]} ★` : 'todos feitos', near ? (near.x.value - near.pv) / (near.nt - near.pv) * 100 : 100);
@@ -3926,7 +3950,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
 
   function seasons() {
     const s = state, sc = SB.seasonScore(s);
-    return heading('Temporada', 'Trinta dias para subir no respeito: roubando, mandando nos bairros, negociando, com o bando ou no comércio.') + `<div class="screenArt">${window.SBArt.place('temporada')}</div>` + resultCard() + `<div class="seasonObjective">${goalCard()}</div>
+    return heading('Temporada', 'Trinta dias para subir no respeito: roubando, mandando nos bairros, negociando, com o bando ou no comércio.') + `<div class="screenArt">${window.SBArt.place('temporada')}</div>` + resultCard() + `
       <div class="grid two"><section class="card"><div class="eyebrow">Temporada atual</div><div class="seasonnumber">${String(s.season).padStart(2, '0')}</div><div class="meter"><div style="width:${s.day / MAXDAY * 100}%"></div></div>
         <div class="statusbar"><span>Dia ${s.day} de ${MAXDAY}</span><strong>${MAXDAY - s.day} dia(s) restante(s)</strong></div><p class="mini">Cada temporada tem 30 dias jogáveis (29 viradas). A renda entra ao virar o dia; o dia 30 é o último para agir.</p><div class="divider"></div>
         ${s.day === MAXDAY ? button('Encerrar temporada', 'end-season', '', false, 'primary block') : nextDayButton('block')}</section>
@@ -3934,8 +3958,8 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
         ${sc.cats.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => { const cat = SB.CATEGORIES.find(x => x.id === c.id); const next = cat.tiers[c.medal]; return `<div class="catRow"><div class="space"><span><strong>${c.name}</strong> <span class="mini" style="display:inline">${cat.unit === 'money' ? fmt(c.value) : num(c.value)}</span></span><span class="medal m${c.medal}">${SB.MEDALS[c.medal]}</span></div><div class="meter green"><div style="width:${pct(c.pct)}%"></div></div><span class="mini">${esc(cat.desc)}${next ? ` Próximo: ${cat.unit === 'money' ? fmt(next) : num(next)} (+${SB.FEAT_RESPECT[c.medal + 1]} de respeito).` : ''}</span></div>`; }).join('')}</section></div>
       <div class="section"><h2>Conquistas</h2><small>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length} · permanentes</small></div>
       <section class="card"><div class="achGrid">${SB.ACHIEVEMENTS.map(a => `<div class="ach ${s.achievements[a.id] ? 'on' : ''}"><strong>${s.achievements[a.id] ? '✓ ' : ''}${esc(a.name)}</strong><span>${esc(a.desc)}${s.achievements[a.id] ? ` (T${s.achievements[a.id]})` : ''}</span></div>`).join('')}</div></section>
-      <div class="section"><h2>Histórico</h2><small>${s.goalWins} meta(s) cumprida(s) · prestígio ${s.prestige}</small></div>
-      <section class="card">${s.seasonHistory.length ? `<table class="table"><thead><tr><th>Temp.</th><th>Resultado</th><th>Patrimônio</th></tr></thead><tbody>${s.seasonHistory.slice(-10).reverse().map(h => `<tr><td>${num(h.season)}</td><td>${num(h.respect)} respeito${h.title ? ' · ' + esc(h.title) : ''}${h.medals ? `<div class="mini">${SB.CATEGORIES.filter(c => h.medals[c.id]).map(c => c.name + ' ' + SB.MEDALS[h.medals[c.id]]).join(' · ') || 'Sem medalhas'}</div>` : ''}</td><td>${fmt(h.money)}${h.goal ? `<div class="mini">${h.goalComplete ? 'Meta cumprida' : 'Meta não cumprida'}</div>` : ''}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhuma temporada encerrada ainda.</div>'}
+      <div class="section"><h2>Histórico</h2><small>prestígio ${s.prestige}</small></div>
+      <section class="card">${s.seasonHistory.length ? `<table class="table"><thead><tr><th>Temp.</th><th>Resultado</th><th>Patrimônio</th></tr></thead><tbody>${s.seasonHistory.slice(-10).reverse().map(h => `<tr><td>${num(h.season)}</td><td>${num(h.respect)} respeito${h.title ? ' · ' + esc(h.title) : ''}${h.medals ? `<div class="mini">${SB.CATEGORIES.filter(c => h.medals[c.id]).map(c => c.name + ' ' + SB.MEDALS[h.medals[c.id]]).join(' · ') || 'Sem medalhas'}</div>` : ''}</td><td>${fmt(h.money)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhuma temporada encerrada ainda.</div>'}
         ${Object.keys(s.records).length ? `<div class="divider"></div><h3>Recordes</h3><div class="kv">${SB.CATEGORIES.filter(c => s.records[c.id] !== undefined).map(c => `<div><span>${c.name}</span><strong>${c.unit === 'money' ? fmt(s.records[c.id]) : num(s.records[c.id])}</strong></div>`).join('')}</div>` : ''}</section>
       <div class="section"><h2>Salvamento e segurança</h2></div>
       <section class="card"><h2>Seu progresso</h2><p>Salvo automaticamente neste navegador. Exporte uma cópia para trocar de aparelho ou se proteger de limpezas do navegador.</p>
@@ -3946,15 +3970,6 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
         <div class="divider"></div><div class="quiet">Salvar no navegador não sincroniza entre dispositivos. Não há servidor nem multiplayer nesta versão.</div></section>`;
   }
   function hasKey(k) { try { return !!localStorage.getItem(k); } catch (e) { return false; } }
-  function goalCard() {
-    const s = state;
-    if (!s.goal) {
-      if (s.day > 5) return `<section class="card"><h2>Meta da temporada</h2><p>Você não escolheu uma meta nos primeiros cinco dias. Poderá escolher na próxima temporada.</p></section>`;
-      return `<section class="card choiceCard"><h2>Escolha a meta da temporada</h2><p>Até o dia 5. Cumprir a meta dá +${SB.GOAL_RESPECT} de respeito na hora e ${fmt(600)} na próxima temporada.</p><div class="choiceGrid">${SB.GOALS.map(g => `<article><strong>${g.name}</strong><p>${esc(g.desc)}</p>${button('Escolher meta', 'goal', `data-id="${g.id}"`, false, 'small block')}</article>`).join('')}</div></section>`;
-    }
-    const g = SB.GOALS.find(x => x.id === s.goal), p = SB.goalProgress(s, s.goal), value = p.unit === 'money' ? fmt(p.value) : `${Math.round(p.value)}%`;
-    return `<section class="card"><div class="space"><div><div class="eyebrow">Sua meta</div><h2>${g.name}</h2></div><span class="pill">${s.goalDone ? 'Cumprida' : 'Em andamento'}</span></div><p>${esc(g.desc)}</p><div class="meter green"><div style="width:${s.goalDone ? 100 : pct(p.value / p.max * 100)}%"></div></div><div class="statusbar"><span>Progresso: ${s.goalDone ? 'concluído' : value}</span><strong>${s.goalDone ? 'Bônus garantido' : 'Bônus: ' + fmt(600)}</strong></div></section>`;
-  }
 
   /* ---------- v0.7: Cidade, Feira do Rolo, Galpão, Vida noturna e Perfil ---------- */
   const PLACE_ICON = {
@@ -4145,7 +4160,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       console.error(e);
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
     }
-    renderHud();
+    renderHud(); renderPop();
     if (state && !state.career && !setup) openSetup('season');
     $all('.nav button, .mobileNav button').forEach(b => { const on = b.dataset.view === tabOf(view); b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     const st = SB.tutorialStep(state);
@@ -4216,7 +4231,6 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       case 'bail': run('bail'); break;
       case 'bribe': run('bribe'); break;
       case 'career': if (confirm('A especialização vale para toda a temporada. Confirmar?')) run('career', id); break;
-      case 'goal': run('goal', id); break;
       case 'news': run('news', id, Number(btn.dataset.choice)); break;
       case 'skip-news': run('skipNews'); break;
       case 'contact': run('contact'); break;
@@ -4311,8 +4325,9 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     state = null; result = null; showWelcome(); notify('Novo início disponível.');
   }
   function paintCover() { $('#coverArt').innerHTML = window.SBArt.capa() || scene('centro', false, SB.CITIES[0].name); }
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#help').classList.contains('hidden')) closeHelp(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#help').classList.contains('hidden')) closeHelp(); else if (e.key === 'Escape' && result) { result = null; render(); } });
   function showWelcome() {
+    { const p = $('#resultPop'); p.hidden = true; p.innerHTML = ''; }
     const box = $('#welcomeNotice');
     box.innerHTML = corrupt ? `<div class="notice error"><strong>Não foi possível ler o salvamento encontrado.</strong> ${esc(corrupt.reason)} Uma cópia foi guardada e não será apagada. <button type="button" class="btn small ghost" id="dlCorrupt" style="margin-top:6px">Baixar cópia</button></div>` : '';
     const dl = $('#dlCorrupt'); if (dl) dl.addEventListener('click', () => download('submundo-salvamento-ilegivel.json', corrupt.raw));
@@ -4374,7 +4389,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   function fromServer(estado) { const p = SB.parseSave(JSON.stringify(estado)); if (!p.ok) throw new Error('O servidor mandou um save ilegível.'); return p.state; }
   function onlineStatus(html) { const el = $('#onlineStatus'); if (el) el.innerHTML = html; }
   /** O que aconteceu enquanto o jogador estava fora (viradas, alta, fim do mês). */
-  const awayCard = avisos => { if (Array.isArray(avisos) && avisos.length) result = { good: true, msg: 'Enquanto você esteve fora', lines: avisos.map(String), deltas: [] }; };
+  const awayCard = avisos => { if (Array.isArray(avisos) && avisos.length) result = { good: true, msg: 'Enquanto você esteve fora', lines: avisos.map(String), deltas: [], fresh: true }; };
   function enterOnline(estado, avisos) {
     state = fromServer(estado); online = true; pendingOnline = false; view = 'painel'; result = null; awayCard(avisos);
     $('#welcome').classList.add('hidden'); if (!setup) document.body.classList.remove('atCover'); render();

@@ -145,12 +145,17 @@ Também sugerido: rebelião na cadeia com a gangue.
 - **Assaltante forte demais nas classes** (lidera 5 de 5 estratégias): o +20% em roubo somado ao roubo armado +25% pesa; considerar +15% na classe.
 - Traficante (239) e Comerciante (238) lideram as estratégias.
 
+## Pendências da v1.5 (roubo em sequência, popup e sem meta)
+
+- [x] Resultado de toda ação num popup; meta da temporada removida; roubo pequeno em sequência com equipamento básico a 2–7% de cadeia por tentativa; Procurado online esfria 60 por dia.
+- **Distância entre estratégias subiu** (1,49 → 1,66 vez): com menos cadeia, quem rouba muito (ciclo completo 163, Brigão 178) abriu sobre Diplomacia (107), Bonde (110) e Bando (81). Próximo passo: respeito por acordos, alianças e operações do bando.
+
 ## Online (Supabase)
 
 - [x] **Fase 1**: conta com e-mail e senha, servidor de regras (`jogar`), save na nuvem e ranking de respeito no Perfil.
 - **Confirmação de e-mail**: desligada pelo autor (cadastro na hora). Antes de abrir ao público, avaliar religar com um serviço de e-mail próprio (SMTP), para ninguém criar conta com o e-mail de outra pessoa e para existir recuperação de senha.
 - [x] **Fase 1b**: dia pelo relógio real (sem Dormir), energia +1 a cada 3 min, ir pra casa, cadeia em horas, temporada = mês do calendário e ranking do mês.
-- **Recalibrar o online**: com 480 de energia por dia (contra uns 150 a 250 no jogo local), medalhas, metas e preços ficam fáceis demais no online. Medir com um robô de tempo real antes de abrir ao público.
+- **Recalibrar o online**: com 480 de energia por dia (contra uns 150 a 250 no jogo local), medalhas e preços ficam fáceis demais no online. Medir com um robô de tempo real antes de abrir ao público.
 - Conferir a primeira virada de meia-noite e a primeira virada de mês com contas reais.
 - Cada ação leva cerca de 1 s (login conferido, leitura e gravação a cada pedido): avaliar resposta otimista no aparelho.
 - Fase 2: mercado entre jogadores. Fase 3: gangues de jogadores e ranking de gangues.
