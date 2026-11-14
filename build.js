@@ -12,7 +12,7 @@ const MIME = { '.webp': 'image/webp', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg
 const art = {};
 if (fs.existsSync(artDir)) for (const f of fs.readdirSync(artDir).sort()) {
   const ext = path.extname(f).toLowerCase(), key = path.basename(f, ext);
-  if (!MIME[ext] || !/^(place|rival|heist|avatar|bairro|item|roubo|casa|esquema|capa|grupo)-[a-z0-9]+$/.test(key)) continue;
+  if (!MIME[ext] || !/^(place|rival|heist|avatar|bairro|item|roubo|casa|esquema|capa|grupo)-[a-z0-9]+(-[a-z0-9]+)?$/.test(key)) continue;
   const buf = fs.readFileSync(path.join(artDir, f));
   if (buf.length > 400 * 1024) { console.warn(`Aviso: ${f} tem ${Math.round(buf.length / 1024)} KB; comprima para menos de 400 KB.`); continue; }
   art[key] = `data:${MIME[ext]};base64,${buf.toString('base64')}`;
