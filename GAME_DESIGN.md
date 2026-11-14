@@ -125,7 +125,7 @@ detenção, perda de caixa na falha e atrito com a facção local.
 **Recompensa** = sorteio × (1 + bônus do bairro + eventos + 12% se você lidera + 10% em território aliado) × economia local × (1 − 12% por repetição no dia, mínimo 50%).
 
 **Falha**: perde uma % do caixa **em mãos**, ganha vigilância extra e pode ser detido.
-A chance de detenção é `base + Procurado × 0,2 + vigilância_local × 0,15 − olheiros − defesa − fuga − 3 por proteção e por veículo equipados − perk` (v1.5).
+A chance de detenção é `base + Procurado × 0,2 + vigilância_local × 0,15 − olheiros − defesa − fuga − 3 por proteção e por veículo equipados + 10 com Procurado 60+ − perk` (v1.5; a base sai do degrau e do tipo, ver "Roubos procedurais").
 A detenção dura 1 a 3 dias (+1 com vigilância ≥ 70) e pode ser encerrada com
 **fiança** (`250 + 250 × dias + 1,5 × respeito`).
 
@@ -640,6 +640,48 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 - Iniciante com Pedaço de pau, Lista telefônica e Bicicleta, Procurado 22: Bater carteira 83% de chance e 2% de cadeia por tentativa (antes 74% e 9%); Celular no ponto 61% e 7% (antes 53% e 20%).
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
+
+### Roubos procedurais: escada, tipos e Procurado como freio (v1.5)
+
+Inspiração: no The Crims cada roubo tem um "poder de roubo" exigido, recompensa e custo de energia; a energia volta com o tempo ou com droga, e a droga perde efeito quanto mais se usa. Aqui a ideia é a mesma, com números saindo de fórmulas.
+
+**A escada.** Os 18 roubos têm um degrau `n` (1 = mais fácil) e aparecem nessa ordem. Tudo sai de `n` e do tipo:
+
+| Medida | Fórmula | Degrau 1 → 18 |
+|---|---|---|
+| Respeito exigido | 0,4 × (n − 1)² | 0 → 116 |
+| Energia | 15 + 2 × (n − 1) | 15 → 49 |
+| Saque médio por energia | 10 × 1,08^(n − 1) × peso do tipo | 10 → 37 |
+| Saque | médio × 0,7 a 1,3 | Bater carteira R$ 120–220 · Cofre R$ 1.270–2.360 |
+| Respeito ganho | 0,3 + 0,45 × n | 1 → 8 (um terço quando você passa 90 do exigido) |
+| Dificuldade | d0 + d1 × respeito exigido (por tipo) | ver abaixo |
+
+**Os três tipos.** O poder no roubo é a soma de três partes:
+
+| Tipo | Atributo | Arsenal (arma + proteção + veículo) | Saque | Procurado | Detenção-base |
+|---|---|---|---|---|---|
+| **Golpe** (Bater carteira, Rolo, Baile, Camelódromo, Clonar cartão, Leilão, Favor) | 3 por ponto | 0,6 por ponto | × 0,9 | 2 + 0,6n | 8 + 1,2n |
+| **Misto** (Fiação, Celular, Cobrança, Caixa eletrônico, Cofre) | 2 por ponto | 1,5 por ponto | × 1 | 4 + 0,8n | 12 + 1,6n |
+| **Assalto** (Pastel, Carga, Mercadinho, Galpão, Lotérica, Caminhão) | não usa | 3 por ponto | × 1,2 | 5 + 1,1n | 16 + 2n |
+
+Mais **experiência** em todos: 0,4 × soma dos atributos + 1,5 × nível da gangue. Dificuldade: golpe 22 + 0,4 × exigido, misto 21 + 0,45 × exigido, assalto 14 + 0,42 × exigido. Calibrado na curva medida dos robôs (o poder típico de golpe é cerca de 26 + 0,4 × respeito): ao liberar, o roubo fica perto de 70% para quem chegou ali num ritmo normal. Quem treina ou compra equipamento passa da curva.
+
+**Chance** = 70 + 2 × (poder − dificuldade) − 0,3 × Procurado − 0,3 × polícia do bairro − risco do bairro e de eventos, entre 5% e 95%. Cada roubo mostra "Seu poder X × dificuldade Y" com as três partes.
+
+**Repetir é livre.** Não existe mais castigo por repetir o mesmo roubo no dia (nem na chance, nem no saque). O freio é o Procurado e a polícia do bairro, que sobem a cada roubo.
+
+**Gatilhos do Procurado:**
+
+| Faixa | Nome | Efeito |
+|---|---|---|
+| 0–29 | Na moita | nada |
+| 30–59 | De olho | a chance já cai (0,3 por ponto, contínuo) |
+| 60–84 | Na mira | detenção +10 em todo roubo que falhar |
+| 85–100 | Caçado | mesmo dando certo, o roubo pode virar **enquadro**: (Procurado − 80) × 2% (até 40%), perde o saque e fica 1 dia detido |
+
+**Para esfriar** (no painel do Procurado, em Roubar): ficar na sua (18 energia, −20 e −10 da polícia do bairro), **despachante** (R$ 150 + 14 × Procurado, −35; agora atende várias vezes no dia, mas o preço **dobra** a cada vez), trocar de bairro (a polícia é de cada bairro), bico (−4), dormir ou ir pra casa, e o tempo (15 por dia; 60 no online).
+
+**Classes:** o Assaltante ganha **+50% de respeito nos assaltos**, e a habilidade "Ritmo de rua" (nível 2) passou a ser **25% menos Procurado por roubo** (antes cortava a penalidade de repetir, que não existe mais). O antigo bônus de +25% no saque do roubo armado virou o peso 1,2 do assalto.
 
 ### Resultado em popup e sem meta (v1.5)
 

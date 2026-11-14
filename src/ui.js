@@ -163,6 +163,7 @@
     astucia: `<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>`,
     forca: `<path d="M3 9v6M6 6v12M18 6v12M21 9v6M6 12h12"/>`,
     labia: `<path d="M4 5h16v11H11l-5 4v-4H4z"/><path d="M8 9h8M8 12h5"/>`,
+    arsenal: `<circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/><circle cx="12" cy="12" r="1.5"/>`,
     influencia: `<circle cx="12" cy="5" r="2.500"/><circle cx="5" cy="18" r="2.500"/><circle cx="19" cy="18" r="2.500"/><path d="M11 7 6 16M13 7l5 9M7.500 18h9"/>`.replace(/\.500/g, '.5')
   };
   const statIcon = id => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${STAT_ICON[id] || ''}</svg>`;
@@ -412,7 +413,8 @@
         <p><strong>Feira</strong>: o que você compra é seu. Para trocar de arma, proteção ou veículo, toque em <strong>Usar</strong>, de graça.</p>
         <p><strong>Trilha de compra</strong>: na Feira (armas, proteções e veículos) e nos negócios, o próximo só abre depois que você compra o anterior nesta temporada.</p>
         ${state && state.clock ? '<p><strong>Online</strong>: o dia vira sozinho à meia-noite de Brasília e a temporada é o mês do calendário. A energia volta +1 a cada 3 minutos. <strong>Ir pra casa</strong> (3 horas, até 2 vezes por dia) enche a energia e zera o corpo. Na cadeia e no hospital, 1 dia vale 2 horas.</p>' : ''}
-        <p><strong>Repetir</strong> o mesmo serviço no dia ou insistir no mesmo bairro piora chance e pagamento. Varie.</p>
+        <p><strong>Roubos</strong> vêm em escada, do mais fácil ao mais difícil. <strong>Golpe</strong> pesa o atributo, <strong>assalto</strong> pesa o arsenal (arma + proteção + veículo) e <strong>misto</strong> pesa os dois. Cada roubo mostra seu poder contra a dificuldade.</p>
+        <p><strong>Procurado</strong>: repetir o mesmo roubo é permitido, mas cada um sobe o Procurado e a polícia do bairro. Com 30 a chance cai, com 60 a detenção sobe +10, e com 85 até o roubo que deu certo pode virar enquadro. Para esfriar: ficar na sua, o despachante (o preço dobra a cada vez no dia), trocar de bairro ou esperar.</p>
         <p>Os <strong>grupos rivais</strong> reagem: agir no território deles gera atrito, retaliação e extorsão. Dá para conversar, firmar trégua ou aliança.</p>`],
       ['Sua cidade', `<p><strong>${esc(c.name)} — ${esc(c.trait)}.</strong> ${esc(c.traitDesc)}</p>
         <ul>${SB.DISTRICTS.map(d => `<li><strong>${esc(d.name)}</strong>: ${esc(d.advantage)}</li>`).join('')}</ul>
@@ -496,36 +498,49 @@
       <div class="btnbar" style="margin-top:8px">${button('Ignorar', 'skip-news', '', false, 'ghost small')}</div></section>`;
   }
   /** Posição do roubo na trilha (os exclusivos de bairro vão para o fim, pela dificuldade). */
-  const trailPos = m => { const i = SB.chainList('missions').findIndex(x => x.id === m.id); return i < 0 ? 100 + m.difficulty : i; };
   function actions() {
     const s = state, ds = s.dstate[s.district];
-    const list = SB.MISSIONS.filter(m => missionFilter === 'todas' ? true : missionFilter === 'bairro' ? m.district === s.district : ['', 'Energia insuficiente.', 'Você está detido.', 'Você está internado.'].includes(SB.missionLock(s, m))).sort((a, b) => trailPos(a) - trailPos(b));
-    return heading('Roubar', 'Cada roubo usa um atributo, e os maiores pedem arma. Repetir o mesmo no dia ou insistir no bairro aumenta o risco.') + jailNotice() + resultCard() + `
+    const list = SB.MISSIONS.filter(m => missionFilter === 'todas' ? true : missionFilter === 'bairro' ? m.district === s.district : ['', 'Energia insuficiente.', 'Você está detido.', 'Você está internado.'].includes(SB.missionLock(s, m))).sort((a, b) => a.n - b.n); // v1.5: escada do mais fácil ao mais difícil
+    return heading('Roubar', 'Do mais fácil ao mais difícil. Golpe pesa o atributo, assalto pesa o arsenal (arma + proteção + veículo) e misto pesa os dois. Repita quanto quiser: o freio é o Procurado.') + jailNotice() + resultCard() + heatCard() + `
       ${stencil('Roubos', 'você está em ' + esc(D().name))}
       <div class="filterbar" role="group" aria-label="Filtrar missões">${[['disponiveis', 'Disponíveis'], ['bairro', 'Deste bairro'], ['todas', 'Todas']].map(([id, l]) => `<button type="button" class="btn ghost ${missionFilter === id ? 'on' : ''}" data-action="filter" data-id="${id}" aria-pressed="${missionFilter === id}">${l}</button>`).join('')}</div>
       <div class="jobs">${list.length ? list.map(missionCard).join('') : '<div class="empty">Nenhum roubo neste filtro. Ganhe respeito, compre arma na Feira ou veja “Todas”.</div>'}</div>
       ${safeJobs()}
-      <section class="card shopRow" style="margin-top:8px"><div><h3>Despachante</h3><p class="mini">Limpa a ficha na delegacia: -35 de Procurado na hora, uma vez por dia.</p></div><div class="shopAct"><strong>${fmt(SB.cleanCost(s))}</strong>${button('Limpar a ficha', 'clean-record', '', s.heat < 20 || s.today.despachante || s.cash < SB.cleanCost(s) || s.jail > 0, 'small primary')}</div></section>
       ${stencil('Treino', `hoje: ${s.today.training}/3`)}
       <div class="jobs">${SB.STATS.map(st => { const lvl = s.stats[st.id], cost = SB.trainCost(s, st.id); return `<section class="job train"><div class="jobIcon">${statIcon(st.id)}<small>${num(lvl)}</small></div><div class="jobMain"><h3>${st.name}</h3><p class="jobDesc">${esc(st.desc)}</p><p class="jobMeta"><b>+${lvl < 25 ? 2 : 1}</b> · 22 energia · ${fmt(cost)}</p></div><div class="jobAct">${button('Treinar', 'train', `data-id="${st.id}"`, s.jail > 0 || s.energy < 22 || s.cash < cost || s.today.training >= 3, '')}</div></section>`; }).join('')}</div>`;
   }
   function missionCard(m) {
-    const s = state, lock = SB.missionLock(s, m), p = SB.missionChance(s, m), mult = SB.missionRewardMult(s, m), reps = s.today.missions[m.id] || 0;
+    const s = state, lock = SB.missionLock(s, m), p = SB.missionChance(s, m), mult = SB.missionRewardMult(s, m), k = SB.KINDS[m.kind];
+    const parts = SB.scoreParts(s, m), power = Math.round(SB.missionScore(s, m)), tag = m.stat ? `${k.name} · ${statName(m.stat)}` : `${k.name} · arsenal`;
     const hard = lock && !['Energia insuficiente.', 'Você está detido.', 'Você está internado.'].includes(lock);
     const pic = window.SBArt.roubo(m.id);
-    return `<section class="job ${pic ? 'withPic' : ''} ${hard ? 'locked' : ''}"><div class="jobIcon" title="${statName(m.stat)}">${pic ? `<span class="jobPic" aria-hidden="true">${pic}</span>` : statIcon(m.stat)}<small>${statName(m.stat)}</small></div>
-      <div class="jobMain"><h3>${esc(m.name)}${m.district ? ` <span class="pill">só aqui</span>` : ''}</h3><p class="jobDesc">${esc(m.desc)}</p>
+    return `<section class="job ${pic ? 'withPic' : ''} ${hard ? 'locked' : ''}"><div class="jobIcon" title="${esc(tag)}">${pic ? `<span class="jobPic" aria-hidden="true">${pic}</span>` : statIcon(m.stat || 'arsenal')}<small>${m.stat ? statName(m.stat) : 'Arsenal'}</small></div>
+      <div class="jobMain"><h3><span class="jobN">${m.n}.</span> ${esc(m.name)}${m.district ? ` <span class="pill">só aqui</span>` : ''}</h3><p class="jobKind k-${m.kind}">${esc(tag)}</p><p class="jobDesc">${esc(m.desc)}</p>
       <p class="jobMeta"><b>${fmt(m.low * mult)}–${fmt(m.high * mult)}</b> · ${SB.missionCost(s, m)} energia · +${m.heat} Procurado · +${SB.respectGain(s, m)} respeito</p>
-      ${(() => { const g = Math.round(SB.gearBonus(s, m)); return g ? `<p class="jobGear">Seu equipamento: +${g}% de chance</p>` : `<p class="jobGear none">Sem equipamento: arma, proteção e veículo somam chance</p>`; })()}
+      <p class="jobGear ${power >= m.difficulty ? '' : 'none'}">Seu poder <b>${power}</b> × dificuldade <b>${m.difficulty}</b> · ${parts.filter(x => x[1] > 0).map(x => `${x[0].toLowerCase()} ${Math.round(x[1])}`).join(' + ')}</p>
       <p class="jobRisk">Se falhar: -${Math.round(SB.failLoss(s, m) * 100)}% do caixa em mãos, detenção ${SB.arrestChance(s, m)}%</p>
-      ${reps ? `<div class="lockline">Repetida ${reps}× hoje: chance e recompensa menores.</div>` : ''}${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div>
+      ${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div>
       <div class="jobAct"><span class="seal ${chanceClass(p)}">${p}%</span>${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary')}</div></section>`;
+  }
+  /** v1.5: termômetro do Procurado com as faixas (gatilhos) e as formas de esfriar. */
+  function heatCard() {
+    const s = state, ti = SB.heatTier(s), tier = SB.HEAT_TIERS[ti], cc = SB.cleanCost(s), uses = s.today.despachante || 0;
+    const marks = SB.HEAT_TIERS.map((x, i) => `<span class="heatTier ${i === ti ? 'on' : ''} ${i < ti ? 'past' : ''}"><b>${x.at}+</b> ${esc(x.name)}</span>`).join('');
+    return `<section class="card heatCard t${ti}" aria-label="Procurado">
+      <div class="space"><h3>Procurado ${num(s.heat)} · ${esc(tier.name)}</h3><span class="mini">cai ${num(SB.heatDecayPerDay(s) * (s.clock ? SB.CLOCK.heatPace : 1))} por dia</span></div>
+      <div class="heatMeter" aria-hidden="true"><i style="width:${pct(s.heat)}%"></i></div><div class="heatTiers">${marks}</div>
+      <p class="mini">${esc(tier.desc)}${ti < SB.HEAT_TIERS.length - 1 ? ` Próxima faixa: ${esc(SB.HEAT_TIERS[ti + 1].name)} com ${SB.HEAT_TIERS[ti + 1].at}.` : ''}</p>
+      <div class="heatActs">
+        <div><span class="mini"><b>Ficar na sua</b> · 18 energia · −20 (e −10 da polícia do bairro)</span>${button('Esfriar', 'lay-low', '', s.energy < 18 || s.jail > 0 || s.heat === 0, 'small')}</div>
+        <div><span class="mini"><b>Despachante</b> · ${fmt(cc)} · −35${uses ? ` · ${uses}ª vez hoje, dobra a cada vez` : ' · o preço dobra a cada vez no dia'}</span>${button('Limpar a ficha', 'clean-record', '', s.heat < 10 || s.cash < cc || s.jail > 0, 'small primary')}</div>
+        <p class="mini">Também esfria: trocar de bairro (a polícia é de cada bairro), fazer bico (−4)${s.clock ? ' e ir pra casa' : ' e dormir'}.</p>
+      </div></section>`;
   }
   function safeJobs() {
     const s = state;
     return `<div class="section"><h2>Outras escolhas</h2><small>Menos risco, menor retorno</small></div><div class="grid two">
       <section class="card"><h3>Bico de ocasião</h3><p>Trabalho simples e garantido, sem reputação.</p><div class="space"><span class="mini">28 energia · ${fmt(110 * SB.eventMod(s, 'gigMult'))}–${fmt(170 * SB.eventMod(s, 'gigMult'))} · -4 de Procurado</span>${button('Fazer bico', 'gig', '', s.energy < 28 || s.jail > 0, 'small')}</div></section>
-      <section class="card"><h3>Ficar na sua</h3><p>Evitar movimento para baixar a atenção sobre você e sobre o bairro.</p><div class="space"><span class="mini">18 energia · -20 de Procurado · -10 local</span>${button('Reduzir exposição', 'lay-low', '', s.energy < 18 || s.jail > 0 || s.heat === 0, 'small')}</div></section></div>
+      <section class="card"><h3>Arsenal</h3><p>Arma ${num(SB.armPower(s, true))} + proteção ${num(SB.armDef(s))} + veículo ${num(SB.gearVal(s, 'escape'))} = <strong>${num(SB.arsenal(s))}</strong>. Pesa 3 por ponto nos assaltos, 1,5 nos mistos e 0,6 nos golpes. Melhore na Feira.</p></section></div>
       <div class="notice" style="margin-top:9px">Falhas tiram parte do dinheiro <strong>em mãos</strong>. Depositar protege, mas custa ${SB.hasPerk(s, 'empreendedor', 1) ? '1%' : '3%'} de taxa.</div>`;
   }
 

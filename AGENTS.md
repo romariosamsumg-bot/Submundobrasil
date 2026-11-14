@@ -36,6 +36,11 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 - Funções derivadas puras (`missionChance(s, m)`); efeitos colaterais apenas em `do*`.
 - Aleatoriedade somente por `rand`/`roll`/`pick`/`weighted` do motor (para testes determinísticos).
 
+## Roubos (escada procedural)
+
+- Roubo novo → `mkMission({ id, name, desc, n, kind, stat, req })` em `MISSIONS`: só nome, texto, degrau, tipo (`golpe`, `misto`, `assalto`) e exigências. Os números saem das fórmulas (`KINDS`, `ladderUnlock`, `ladderDiff`, `ladderCost`, `ladderPay`); não escreva dificuldade, saque ou risco à mão.
+- Mudou uma fórmula → rode `npm run simulate`, `npm run careers` e `npm run ritmo` e atualize as tabelas. Repetir o mesmo roubo é livre de propósito: o freio é o Procurado (`HEAT_TIERS`).
+
 ## Conteúdo adulto e temas sensíveis
 
 - Mercadorias, produção, remessas e serviços: **nome e clima sim, método não**. Nada de receitas, ingredientes, ferramentas e passos, rotas reais ou como burlar segurança.

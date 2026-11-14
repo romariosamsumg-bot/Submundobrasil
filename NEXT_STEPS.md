@@ -150,6 +150,13 @@ Também sugerido: rebelião na cadeia com a gangue.
 - [x] Resultado de toda ação num popup; meta da temporada removida; roubo pequeno em sequência com equipamento básico a 2–7% de cadeia por tentativa; Procurado online esfria 60 por dia.
 - **Distância entre estratégias subiu** (1,49 → 1,66 vez): com menos cadeia, quem rouba muito (ciclo completo 163, Brigão 178) abriu sobre Diplomacia (107), Bonde (110) e Bando (81). Próximo passo: respeito por acordos, alianças e operações do bando.
 
+## Pendências dos roubos procedurais
+
+- [x] Escada de 18 roubos por fórmula, três tipos (golpe, misto, assalto), arsenal, repetição livre, gatilhos do Procurado, despachante repetível.
+- **Bola de neve dos negócios**: Bicheiro com negócios (192) e Dono da Noite (183) passaram o ladrão puro (177). Testar renda de negócio que cai com o Procurado alto, ou feitos de Fortuna mais caros.
+- **Mais degraus no topo**: quem treina e compra equipamento chega aos 95% no cofre antes do fim do mês. Um 19º e 20º degrau (assalto e golpe de elite, respeito 130–160) dariam objetivo ao fim de jogo.
+- Robôs não usam o despachante: medir se jogadores reais o usam e se o preço dobrando é freio suficiente.
+
 ## Online (Supabase)
 
 - [x] **Fase 1**: conta com e-mail e senha, servidor de regras (`jogar`), save na nuvem e ranking de respeito no Perfil.
