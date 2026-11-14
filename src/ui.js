@@ -398,6 +398,7 @@
         <p><strong>Colete</strong>: roubo armado que dá errado vira trocação com a segurança. O colete decide se você sai ferido ou vai para a UPA. Ser preso custa respeito.</p>
         <p><strong>Saúde</strong> (barra azul) cai em confrontos, duelos e serviços de força que dão errado. Abaixo de 60 suas chances caem; a zero, você é internado. Cure no Hospital ou esperando.</p>
         <p>Toque no seu retrato, no topo, para abrir o <strong>Perfil</strong> e escolher outra foto.</p>
+        <p><strong>Equipamento</strong>: arma, proteção e veículo somam chance em todo roubo (a arma pesa mais nos de Força e menos nos de Lábia), e os roubos grandes pedem arma e veículo de fuga.</p>
         <p><strong>Feira</strong>: o que você compra é seu. Para trocar de arma, proteção ou veículo, toque em <strong>Usar</strong>, de graça.</p>
         <p><strong>Trilha de compra</strong>: na Feira (armas, proteções e veículos) e nos negócios, o próximo só abre depois que você compra o anterior nesta temporada.</p>
         ${state && state.clock ? '<p><strong>Online</strong>: o dia vira sozinho à meia-noite de Brasília e a temporada é o mês do calendário. A energia volta +1 a cada 3 minutos. <strong>Ir pra casa</strong> (3 horas, até 2 vezes por dia) enche a energia e zera o corpo. Na cadeia e no hospital, 1 dia vale 2 horas.</p>' : ''}
@@ -426,9 +427,12 @@
     const curPow = (SB.item(s.gear.arma) || { power: 0 }).power;
     const upgrade = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && !SB.owns(s, i.id) && i.power > curPow && s.respect >= i.unlock && !SB.chainLock(s, 'items', i.id) && s.cash >= i.cost * 1.5).pop();
     const lockedByGun = SB.MISSIONS.find(m => (SB.missionLock(s, m) || '').startsWith('Requer arma'));
+    const lockedByCar = SB.MISSIONS.find(m => (SB.missionLock(s, m) || '').startsWith('Requer veículo'));
+    const car = lockedByCar && SB.ITEMS.find(i => i.slot === 'veiculo' && i.escape >= lockedByCar.req.escape && !SB.owns(s, i.id) && s.respect >= i.unlock && !SB.chainLock(s, 'items', i.id) && s.cash >= i.cost * 1.3);
     if (s.health < 40) return { tag: 'Saúde baixa', title: 'Passe no Hospital', text: `Com ${s.health} de saúde suas chances caem em tudo.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
     if (s.vicio >= 70) return { tag: 'Vício alto', title: 'Hora de desintoxicar', text: `Vício ${s.vicio}/100: a noite recarrega menos e há ${SB.overdoseChance(s)}% de chance de overdose a cada saída.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
     if (s.heat >= 65 && s.energy >= 18) return { tag: 'Procurado alto', title: 'Fique na sua', text: 'A polícia está de olho: cada roubo agora tem mais chance de dar cadeia.', btn: button('Reduzir exposição · 18 energia', 'lay-low', '', false, 'primary') };
+    if (car) return { tag: 'Dinheiro no bolso', title: `Dá para comprar: ${car.name}`, text: `Veículo de fuga abre roubo maior, como “${lockedByCar.name}”.`, btn: button('Ir à Feira do Rolo', 'switch', 'data-target="feira"', false, 'primary') };
     if (upgrade && (lockedByGun || !s.gear.arma)) return { tag: 'Dinheiro no bolso', title: `Dá para comprar: ${upgrade.name}`, text: lockedByGun ? `Arma melhor abre roubo maior, como “${lockedByGun.name}”.` : 'Arma é o que abre os roubos maiores.', btn: button('Ir à Feira do Rolo', 'switch', 'data-target="feira"', false, 'primary') };
     if (lowEnergy && canNight) { const n = SB.NIGHT.filter(x => (!x.unlock || s.respect >= x.unlock) && SB.nightCost(s, x) <= s.cash).pop(); if (n) return { tag: 'Sem energia', title: 'Hora da noitada', text: s.today.venue ? `Você ainda está na casa: peça uma dose e volte a roubar. Doses: ${s.today.doses}/${SB.DOSE_LIMIT}.` : `Entre numa casa e peça uma dose. Saídas: ${s.today.night}/${SB.NIGHT_LIMIT}.`, btn: button(s.today.venue ? 'Ir ao balcão' : 'Ir para a noite', 'switch', 'data-target="noite"', false, 'primary') }; }
     if (lowEnergy && s.clock) return SB.atHome(s) ? { tag: 'Em casa', title: `Descansando: volta em ${dur(SB.clockInfo(s).home)}`, text: 'No fim, energia cheia e o corpo zerado. Banco e compras continuam.', btn: nextDayButton('') } : { tag: 'Sem energia', title: SB.clockInfo(s).homesLeft ? 'Vá pra casa ou espere' : 'Espere a energia voltar', text: `A energia volta +1 a cada 3 minutos (próximo ponto em ${dur(SB.clockInfo(s).nextEnergy)}). Em casa, 3 horas enchem tudo.`, btn: nextDayButton('') };
@@ -502,6 +506,7 @@
     return `<section class="job ${pic ? 'withPic' : ''} ${hard ? 'locked' : ''}"><div class="jobIcon" title="${statName(m.stat)}">${pic ? `<span class="jobPic" aria-hidden="true">${pic}</span>` : statIcon(m.stat)}<small>${statName(m.stat)}</small></div>
       <div class="jobMain"><h3>${esc(m.name)}${m.district ? ` <span class="pill">só aqui</span>` : ''}</h3><p class="jobDesc">${esc(m.desc)}</p>
       <p class="jobMeta"><b>${fmt(m.low * mult)}–${fmt(m.high * mult)}</b> · ${SB.missionCost(s, m)} energia · +${m.heat} Procurado · +${SB.respectGain(s, m)} respeito</p>
+      ${(() => { const g = Math.round(SB.gearBonus(s, m)); return g ? `<p class="jobGear">Seu equipamento: +${g}% de chance</p>` : `<p class="jobGear none">Sem equipamento: arma, proteção e veículo somam chance</p>`; })()}
       <p class="jobRisk">Se falhar: -${Math.round(SB.failLoss(s, m) * 100)}% do caixa em mãos, detenção ${SB.arrestChance(s, m)}%</p>
       ${reps ? `<div class="lockline">Repetida ${reps}× hoje: chance e recompensa menores.</div>` : ''}${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div>
       <div class="jobAct"><span class="seal ${chanceClass(p)}">${p}%</span>${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary')}</div></section>`;
@@ -937,10 +942,9 @@
       case 'reset': reset(); break;
     }
   });
-  document.addEventListener('change', e => { if (e.target.id === 'importFile') importFile(e.target.files && e.target.files[0], false); if (e.target.id === 'welcomeImportFile') importFile(e.target.files && e.target.files[0], true); });
+  document.addEventListener('change', e => { if (e.target.id === 'importFile') importFile(e.target.files && e.target.files[0], false); });
   document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'bankAmount') { e.preventDefault(); run('bank', 'deposit', Number(e.target.value)); } });
   $('#menuToggle').addEventListener('click', () => { const open = $('#sidebar').classList.toggle('open'); $('#menuToggle').setAttribute('aria-expanded', String(open)); });
-  $('#welcomeImport').addEventListener('click', () => { if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true); ageConfirm(); $('#welcomeImportFile').click(); });
   $('#newGameForm').addEventListener('submit', e => {
     e.preventDefault();
     if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true);

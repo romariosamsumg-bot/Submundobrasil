@@ -611,6 +611,18 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 - **Topo com 4 barras**, em duas linhas no celular: Energia e Saúde (o que você tem) em cima, Procurado e Vício (o que te ameaça) embaixo. O Vício pisca a partir de 70, quando começa o risco de overdose.
 - **Tela Rua (v1.5)**, de cima para baixo: placa do bairro (Dono, Grana e Polícia do bairro; tocar na faixa explica os três) → resultado → primeiros passos ou "E agora?" (a ação vem primeiro) → faixa do dia com **Dormir discreto**, que só fica em destaque com menos de 16 de energia → lambe-lambe "Hoje na cidade" → notícia com decisão → **Sua temporada** em 4 blocos (patente, classe, meta, título) com atalhos para Medalhas e Habilidades (no Perfil) → diário com 2 registros.
 
+### Equipamento nos roubos (v1.5)
+
+Antes, cada ponto do atributo valia +4% e a arma só +0,5% por ponto, e só nos roubos de Força. Agora o equipamento soma chance em **todo** roubo:
+
+| Peça | Soma na chance |
+|---|---|
+| Arma | poder × 2 (Força), × 1,2 (Astúcia), × 0,8 (Influência), × 0,5 (Lábia) |
+| Proteção | defesa × 1 nos roubos de Força e nos armados; × 0,5 nos outros |
+| Veículo | fuga × 0,8 |
+
+Assaltante: arma e proteção +15%; Dono da Noite: arma −20% nos roubos. Os roubos grandes pedem **veículo de fuga**: Caixa eletrônico (Bicicleta), Lotérica e Galpão desativado (Cinquentinha), Caminhão de carga e Cofre (Moto 150). As dificuldades subiram pela metade do equipamento esperado em cada degrau (Bater carteira 14 → 15, Mercadinho 33 → 37, Lotérica 42 → 48, Caminhão 46 → 52, Cofre 58 → 64), então o equipamento dá vantagem líquida. Para compensar o dinheiro que vira equipamento, a medalha de Fortuna foi a 6.000 / 9.000 / 13.000 e a meta Patrimônio a R$ 9.000. Cada roubo mostra "Seu equipamento: +X% de chance".
+
 ### Luta, força do bando e poder da arma (v1.5)
 
 Três nomes, três medidas: **poder** é só da arma (abre roubos e soma nas chances); **Luta** é a sua, mostrada no Perfil com a conta aberta: Força × 1,6 + Astúcia × 0,6 + poder da arma × 1,8 + defesa da proteção + nível da sede × 1,5 (Assaltante: arma e proteção +15%); vale nos duelos (+2,2% de chance por ponto acima do adversário) e é a base da **Força do bando** nos assaltos (mais nível e número de integrantes, Músculos e avulsos). Também pesam: saúde abaixo de 60, cansaço do dia, Procurado, ânimo e informação. O antigo "Poder na cidade" virou **Domínio da cidade** (influência nos bairros, não luta).

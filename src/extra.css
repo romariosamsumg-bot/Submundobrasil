@@ -574,3 +574,6 @@ body.busy #content{opacity:.6;pointer-events:none}
 /* v1.5: luta no Perfil */
 .lutaHead{display:flex;gap:12px;align-items:center}.lutaHead strong{flex:none;font:400 40px/1 var(--stencil);color:#ffd98f;min-width:56px;text-align:center}.lutaHead p{margin:0}
 .lutaParts{list-style:none;margin:8px 0;padding:0}.lutaParts li{display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid #2c3a3e;font-size:13px}.lutaParts li:first-child{border-top:0}.lutaParts b{color:#f3d6ae}
+
+/* v1.5: chance que vem do equipamento */
+.jobGear{margin:2px 0 0;font-size:11px;color:#a7e0c3}.jobGear.none{color:#8f9c9f}

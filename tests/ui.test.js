@@ -234,7 +234,7 @@ await page.click('[data-action=duel][data-id=marrento]');
   // força um save "avançado" da 0.4 com gangue e trégua
   const s04 = await p4.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.respect = 60; s.cash = 6000; s.gangName = 'Velha Guarda'; s.gangLevel = 2; s.crewSize = 4; s.crewMorale = 55; s.businesses = ['bar']; s.factions.esquina.truceUntil = s.day + 2; s.factions.esquina.relation = 40; s.rivals.cais = 47; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); return s; });
   await p4.close();
-  await page.reload();
+  await page.waitForTimeout(300); await page.reload(); await page.waitForTimeout(300);
   check(!(await page.isVisible('#welcome')), 'save da 0.4 abre direto na versão atual');
   check(await page.isVisible('[data-action=age-ok]'), 'quem vem da 0.4 confirma o aviso 18+');
   await page.click('[data-action=age-ok]');
@@ -272,10 +272,12 @@ await page.click('[data-action=duel][data-id=marrento]');
   const fpath = await dl.path();
   const payload = JSON.parse(require('fs').readFileSync(fpath, 'utf8'));
   check(payload.game === 'Submundo Brasil' && payload.version === '1.5' && payload.checksum, 'arquivo exportado com versão e checksum');
-  await page.evaluate(() => localStorage.clear()); await page.reload();
-  await page.setInputFiles('#welcomeImportFile', fpath);
+  check(await page.evaluate(() => !document.querySelector('#welcomeImport')), 'a tela inicial não tem mais importar salvamento');
+  const cashBefore = (await st()).cash;
+  await page.evaluate(() => { const k = 'submundo_brasil_v01', s = JSON.parse(localStorage.getItem(k)); s.cash = 1; localStorage.setItem(k, JSON.stringify(s)); }); await page.reload(); await go('temporada');
+  await page.setInputFiles('#importFile', fpath);
   await page.waitForTimeout(300);
-  check((await st())?.season === 2, 'importação pela tela inicial restaura a carreira');
+  check((await st())?.season === 2 && (await st()).cash === cashBefore, 'importação dentro do jogo (Temporada) restaura a carreira');
 
   console.log('7b. Nenhum texto cortado no celular (360 px)');
   {

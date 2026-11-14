@@ -48,8 +48,24 @@ function armUp(s, factor = 1.25) {
   if (missing > 0) SB.perform(s, 'bank', 'withdraw', Math.min(s.bank, Math.ceil(missing)));
   SB.perform(s, 'buyItem', pick.id);
 }
+/** v1.5: equipamento pesa em todo roubo. Compra o veículo que destrava um roubo e, com folga no caixa, a próxima proteção e o próximo veículo. */
+function kitUp(s) {
+  if (s.jail || s.hospital) return;
+  const path = it => { const list = SB.chainList('items', it), i = list.findIndex(x => x.id === it.id); return list.slice(0, i + 1).filter(x => !SB.owns(s, x.id)).reduce((a, x) => a + x.cost, 0); };
+  const needEsc = SB.MISSIONS.filter(m => (SB.missionLock(s, m) || '').startsWith('Requer veículo')).map(m => m.req.escape);
+  for (const slot of ['veiculo', 'protecao']) {
+    const cur = SB.item(s.gear[slot]) || { cost: 0, escape: 0 };
+    const want = slot === 'veiculo' && needEsc.length ? Math.min(...needEsc) : 0;
+    const next = SB.ITEMS.filter(i => i.slot === slot && !SB.owns(s, i.id) && i.cost > cur.cost && s.respect >= i.unlock && (want ? i.escape >= want : true))[0];
+    if (!next) continue;
+    const cost = path(next), funds = s.cash + s.bank;
+    if (funds < cost * (want ? 1.25 : 3)) continue;
+    if (cost > s.cash) SB.perform(s, 'bank', 'withdraw', Math.min(s.bank, Math.ceil(cost - s.cash)));
+    SB.perform(s, 'buyItem', next.id);
+  }
+}
 function grind(s, minChance, reserve = 0) {
-  armUp(s);
+  armUp(s); kitUp(s);
   for (let i = 0; i < 12; i++) {
     if (s.energy - reserve < 16) break;
     if (s.heat >= 65 && s.energy >= 18) { SB.perform(s, 'layLow'); continue; }
