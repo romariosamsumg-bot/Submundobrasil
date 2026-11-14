@@ -318,6 +318,12 @@ await page.click('[data-action=duel][data-id=marrento]');
     await op.click('[data-action=leave-home]').catch(() => {});
     await op.waitForFunction(() => window.__SB_UI.state.energy === 100);
     check(await op.locator('.homeNote').count() === 0 && saved.energy === 100, 'três horas depois: fora de casa com a energia cheia');
+    fakeLater = 30 * 3600000; // mais de um dia depois: a ação recusada ainda traz o estado do servidor
+    await op.evaluate(() => window.__SB_UI.go('painel'));
+    const dayBefore = await op.evaluate(() => window.__SB_UI.state.day);
+    await op.evaluate(() => { const b = document.querySelector('[data-action=go-home]'); if (b) { b.disabled = false; b.click(); } });
+    await op.waitForFunction(d => window.__SB_UI.state.day !== d, dayBefore);
+    check(true, 'ação recusada no online também atualiza o dia e a energia vindos do servidor');
     await op.evaluate(() => window.__SB_UI.go('perfil'));
     await op.click('[data-action=on-logout]');
     check(await op.isVisible('#welcome') && await op.evaluate(() => localStorage.getItem('submundo_brasil_sessao') === null), 'sair da conta volta para a tela inicial e apaga a sessão');

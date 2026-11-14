@@ -1051,8 +1051,8 @@
     try {
       const d = await server({ acao: 'agir', nome: name, args });
       const r = d.resultado || { ok: false, msg: 'Resposta inválida do servidor.' };
-      if (!r.ok) { notify(r.msg, true); return r; }
-      state = fromServer(d.estado);
+      if (d.estado) state = fromServer(d.estado); // o tempo andou no servidor mesmo quando a ação é recusada
+      if (!r.ok) { if (Array.isArray(d.avisos) && d.avisos.length) awayCard(d.avisos); notify(r.msg, true); render(); return r; }
       if (Array.isArray(d.avisos) && d.avisos.length) r.lines = d.avisos.map(String).concat(r.lines || []);
       return finish(name, r, before);
     } catch (e) { notify(e.message, true); return null; }
