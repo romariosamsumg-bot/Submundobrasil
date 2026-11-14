@@ -1,0 +1,35 @@
+  <header class="topbar hud" id="hud"><div class="topwrap hudwrap">
+    <button type="button" class="hudWho" data-view="perfil" aria-label="Abrir perfil"><span class="hudAvatar" id="hudAvatar" aria-hidden="true"></span><div class="hudId"><strong id="hudName">SUBMUNDO BRASIL</strong><small id="hudSub">v1.3</small></div></button>
+    <div class="hudMoney"><strong id="topCash" title="Dinheiro em mãos">R$ 0</strong><span class="hudResp" title="Respeito: é o que conta no ranking"><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0l1.8 3.8 4.2.5-3.1 2.9.8 4.1L6 9.3 2.3 11.3l.8-4.1L0 4.3l4.2-.5z"/></svg><b id="hudRespect">0</b> respeito</span><small id="topDay">Dia 1</small></div>
+    <div class="hudBars">
+      <div class="hudBar en" role="img" id="hudEnergyBox" aria-label="Energia"><i id="hudEnergy"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M7 0 1 7h4l-1 5 6-7H6z"/></svg><b id="hudEnergyTxt">Energia</b></div>
+      <div class="hudBar hp" role="img" id="hudHealthBox" aria-label="Saúde"><i id="hudHealth"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 11 1.2 6.3A3 3 0 0 1 6 2.4a3 3 0 0 1 4.8 3.9z"/></svg><b id="hudHealthTxt">Saúde</b></div>
+      <div class="hudBar ht" role="img" id="hudHeatBox" aria-label="Procurado"><i id="hudHeat"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9V6a3 3 0 0 1 6 0v3zM1 10h10v2H1zM5.4 0h1.2v2H5.4zM1 2.2l.9-.8 1.4 1.4-.8.9zm10 0-.9-.8-1.4 1.4.8.9z"/></svg><b id="hudHeatTxt">Procurado</b></div>
+      <div class="hudBar vc" role="img" id="hudVicioBox" aria-label="Vício"><i id="hudVicio"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.2 1.4a3 3 0 0 1 4.2 0l2.2 2.2a3 3 0 0 1 0 4.2L7.8 10.6a3 3 0 0 1-4.2 0L1.4 8.4a3 3 0 0 1 0-4.2zM3.5 4.9l3.6 3.6 1.4-1.4-3.6-3.6z"/></svg><b id="hudVicioTxt">Vício</b></div>
+    </div>
+    <button id="menuToggle" class="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">Menu</button>
+  </div></header>
+  <div class="layout"><aside class="sidebar" id="sidebar"><div class="sidehead">Submundo Brasil</div><nav class="nav" aria-label="Navegação principal">
+    <button type="button" data-view="painel" class="active"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v9h5v-5h4v5h5v-9"/></svg>Rua</button>
+    <button type="button" data-view="acoes"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Roubar</button>
+    <button type="button" data-view="noite"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l-1 7a3 3 0 0 1-6 0zM12 13v7M8 20h8M17 4l3-1M18 7h3"/></svg>Noite</button>
+    <button type="button" data-view="feira"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l2-5h14l2 5M4 9v11h16V9M9 20v-6h6v6M3 9c0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0"/></svg>Feira</button>
+    <button type="button" data-view="hub"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V10l5-3v14M8 21V4l7 3v14M15 21v-9l6 2v7M2 21h20"/></svg>Cidade</button>
+  </nav><div class="sidefoot"><strong>Versão local 1.5.</strong> Sem cadastro, jogadores reais ou compras. Rivais são simulados pelo jogo. Seu progresso é salvo somente neste navegador.<br><button type="button" class="btn small ghost" data-action="help" style="margin-top:8px">Como jogar</button></div></aside>
+  <main class="content" id="content" tabindex="-1" aria-live="polite"></main></div>
+  <nav class="mobileNav" aria-label="Navegação principal no celular">
+    <button type="button" data-view="painel" class="active"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v9h5v-5h4v5h5v-9"/></svg>Rua</button>
+    <button type="button" data-view="acoes"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Roubar</button>
+    <button type="button" data-view="noite"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l-1 7a3 3 0 0 1-6 0zM12 13v7M8 20h8M17 4l3-1M18 7h3"/></svg>Noite</button>
+    <button type="button" data-view="feira"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l2-5h14l2 5M4 9v11h16V9M9 20v-6h6v6M3 9c0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0"/></svg>Feira</button>
+    <button type="button" data-view="hub"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V10l5-3v14M8 21V4l7 3v14M15 21v-9l6 2v7M2 21h20"/></svg>Cidade</button>
+  </nav>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <div id="resultPop" class="resultPop" hidden></div>
+  <div class="welcome hidden" id="welcome"><form id="newGameForm" class="intro"><div id="welcomeNotice"></div><div class="cover" id="coverArt" aria-hidden="true"></div><div class="logo"><span class="logoTop">SUBMUNDO</span><span class="logoBottom">BRASIL</span><i class="logoStripe"></i></div><p class="tagline">Faça seu nome. Encare as consequências.</p>
+    <label class="ageGate"><input type="checkbox" id="ageOk" required> <span><strong>Conteúdo para maiores de 18 anos.</strong> Crime, violência, drogas, armas e linguagem pesada, tudo ficcional. Confirmo que tenho 18 anos ou mais.</span></label>
+    <div class="onlineBox" id="onlineBox" hidden><h3>Entrar ou criar conta</h3><p class="mini">Save na nuvem e ranking de respeito. As regras rodam no servidor do jogo.</p><div id="onlineStatus" aria-live="polite"></div><div id="onlineFields"><div class="formfield"><label for="onEmail">E-mail</label><input id="onEmail" type="email" class="input" autocomplete="email"></div><div class="formfield"><label for="onPass">Senha (6 ou mais caracteres)</label><input id="onPass" type="password" class="input" autocomplete="current-password"></div><div class="btnbar"><button type="button" class="btn primary" data-action="on-login">Entrar</button><button type="button" class="btn ghost" data-action="on-signup">Criar conta</button></div></div></div>
+    <button class="btn block" type="submit" id="playOffline">Jogar sem conta (neste aparelho)</button><small><b class="age18">18+</b> As cidades são reais; bairros, grupos, personagens e situações são fictícios.</small>
+  </form></div>
+  <div class="welcome hidden" id="setup" role="dialog" aria-modal="true" aria-label="Sua ficha"><div class="intro setupBox" id="setupBox"></div></div>
+  <div class="helpOverlay hidden" id="help" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="helpBox" id="helpBox"></div></div>

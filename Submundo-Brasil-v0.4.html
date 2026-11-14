@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111b1e">
+  <meta name="description" content="Submundo Brasil — RPG urbano brasileiro de estratégia por turnos para navegador.">
+  <title>Submundo Brasil | Jogo de estratégia 0.4</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0d1319;--panel:#151e26;--panel2:#1a2630;--line:#30404d;--muted:#9eabb5;--text:#f0f2f1;--accent:#e8a04b;--accent2:#ffbd6e;--green:#81c9a6;--red:#ee948a;--info:#8dbedb;--radius:9px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}a{color:var(--accent)}.hidden{display:none!important}
+    .topbar{position:sticky;z-index:30;top:0;border-bottom:1px solid var(--line);background:#111920ed;backdrop-filter:blur(10px)}.topwrap{max-width:1240px;margin:auto;padding:10px 18px;display:flex;gap:14px;align-items:center;justify-content:space-between}.brand{display:flex;gap:11px;align-items:center;min-width:0}.brandmark{background:var(--accent);color:#101820;font-weight:1000;font-size:15px;letter-spacing:-1px;padding:8px 9px;border-radius:6px;line-height:1}.brand strong{font-weight:900;letter-spacing:.08em;font-size:16px;display:block;line-height:1.1}.brand small{display:block;color:var(--muted);font-size:11px;letter-spacing:.08em;margin-top:4px}.headright{display:flex;gap:15px;align-items:center}.headright .topcell{display:flex;flex-direction:column;line-height:1.25}.topcell span{color:var(--muted);font-size:11px}.topcell strong{font-size:13px;font-variant-numeric:tabular-nums}.menuToggle{display:none;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:7px;padding:7px 11px}
+    .layout{max-width:1240px;min-height:calc(100vh - 64px);margin:auto;display:grid;grid-template-columns:215px minmax(0,1fr);gap:23px;padding:22px 18px 38px}.sidebar{padding-top:6px}.sidehead{color:#7c919f;font-size:10px;letter-spacing:.18em;font-weight:800;margin:12px 12px 9px;text-transform:uppercase}.nav{display:grid;gap:4px}.nav button{background:transparent;border:1px solid transparent;color:#b9c7cf;text-align:left;padding:11px 12px;border-radius:6px;font-weight:650}.nav button.active{background:#23313c;border-color:#445868;color:#ffe0ad}.nav button:hover:not(.active){background:#19242e}.sidefoot{border-top:1px solid var(--line);color:var(--muted);margin-top:24px;padding:15px 12px;font-size:11px;line-height:1.6}.sidefoot strong{color:#c8d4dc}
+    .content{min-width:0}.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:17px}.pagehead h1{margin:0 0 4px;font-size:26px;letter-spacing:-.035em;line-height:1.18;font-weight:850}.pagehead p{margin:0;color:var(--muted);font-size:13px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.16em;font-size:10px;font-weight:900;margin-bottom:6px}.tag{font-size:11px;border:1px solid #475461;color:#b5c4cb;border-radius:4px;padding:4px 7px;white-space:nowrap}.grid{display:grid;gap:13px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:17px;min-width:0}.card h2,.card h3{margin:0}.card h2{font-size:16px;letter-spacing:-.02em}.card h3{font-size:14px}.card p{margin:7px 0;color:var(--muted)}.section{margin:21px 0 12px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}.section h2{margin:0;font-size:16px}.section small{color:var(--muted)}.statgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.stat{padding:14px;background:#1a252e;border:1px solid var(--line);border-radius:7px}.stat span{display:block;color:#a6b5bf;font-size:11px}.stat strong{font-size:21px;line-height:1.25;letter-spacing:-.025em;font-variant-numeric:tabular-nums}.stat strong.small{font-size:16px}.stat em{display:block;font-style:normal;font-size:10px;color:var(--muted)}.flex{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.space{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.space>*{min-width:0}.muted{color:var(--muted)}.quiet{font-size:12px;color:var(--muted)}.strong{font-weight:800}.positive{color:var(--green)}.negative{color:var(--red)}.accent{color:var(--accent)}.pill{color:var(--info);font-size:11px;border:1px solid #385468;background:#1b303c;border-radius:5px;padding:3px 7px;white-space:nowrap}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;border-radius:6px;border:1px solid #546575;background:#273641;color:#f1f5f4;font-weight:750;padding:9px 12px;text-decoration:none;line-height:1.15}.btn:hover:not(:disabled){filter:brightness(1.15)}.btn.primary{background:var(--accent);border-color:var(--accent);color:#181b1a}.btn.ghost{background:transparent;border-color:#485967}.btn.danger{color:#ffb9b4;border-color:#79534f;background:transparent}.btn.small{min-height:32px;padding:7px 10px;font-size:12px}.btn.block{width:100%}.btnbar{display:flex;gap:7px;flex-wrap:wrap}.meter{height:8px;border-radius:9px;background:#2b3842;overflow:hidden}.meter>div{height:100%;background:var(--accent);transition:width .2s}.meter.green>div{background:var(--green)}.meter.red>div{background:var(--red)}.meters{display:grid;gap:13px}.meterlabel{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}.table{width:100%;border-collapse:collapse}.table td,.table th{padding:10px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.table tr:last-child td{border-bottom:0}.table td:last-child,.table th:last-child{text-align:right}.table th{font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}.timeline{list-style:none;padding:0;margin:0}.timeline li{padding:10px 0;border-bottom:1px solid #263742;font-size:12px}.timeline li:last-child{border-bottom:0}.timeline time{display:block;color:var(--muted);font-size:10px;margin-bottom:2px}.mission{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}.mission h3{margin:0 0 4px;font-size:15px}.mission p{margin:0 0 7px;font-size:12px}.mission .details{color:#b6c4cc;font-size:11px}.mission .right{text-align:right}.mission .chance{display:block;font-weight:850;font-size:18px;color:var(--green);margin-bottom:6px}.mission .chance.risky{color:#e9ac7b}.mission .chance.danger{color:var(--red)}.mission .right .btn{min-width:88px}.district.selected{border-color:#aa814e;background:#202a30}.mini{font-size:11px;color:var(--muted)}.notice{padding:12px 14px;border:1px solid #665b40;background:#28271e;color:#f5d9b1;border-radius:7px;margin-bottom:15px;font-size:12px}.notice.ok{border-color:#426658;background:#1d302d;color:#b9e5d0}.notice.error{border-color:#7d4845;background:#311e22;color:#ffd5d2}.input{background:#0d171e;color:var(--text);border:1px solid #526575;border-radius:6px;padding:10px 12px;min-height:41px;width:100%;min-width:0}.input::placeholder{color:#81919d}.formrow{display:flex;gap:10px;align-items:end}.formrow>*{flex:1}.formfield label{display:block;font-size:12px;color:#c5cdd3;font-weight:650;margin:0 0 6px}.formrow .btn{flex:0 0 auto}.empty{padding:20px;border:1px dashed #4e5e69;border-radius:8px;text-align:center;color:var(--muted);font-size:13px}.divider{height:1px;background:var(--line);margin:15px 0}.rank{font-size:22px;font-weight:900;line-height:1.3}.rank small{display:block;font-size:12px;font-weight:500;color:var(--muted)}.brandpanel{border:1px solid #64503a;background:linear-gradient(105deg,#30271e,#151e26 67%);border-radius:var(--radius);padding:20px}.brandpanel h2{margin:0;font-size:23px}.brandpanel p{color:#beaaa0;max-width:580px}.dim{opacity:.68}.result{font-size:13px;color:#d1d9dd;margin-top:10px}.tips{padding:0 0 0 18px;color:#b4c0c8}.tips li{margin:7px 0}.seasonnumber{font-size:37px;font-weight:900;color:var(--accent);letter-spacing:-.04em}.statusbar{display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:12px}.badge{font-size:10px;font-weight:800;background:#2a3c48;border:1px solid #415464;color:#d1dbe0;padding:4px 7px;border-radius:4px}.footer{color:var(--muted);font-size:11px;border-top:1px solid var(--line);padding:14px 0;margin-top:25px}.toast{position:fixed;z-index:60;bottom:20px;right:20px;max-width:min(380px,calc(100vw - 30px));padding:14px 16px;background:#263b36;border:1px solid #4a8069;color:#e8f8ef;border-radius:7px;box-shadow:0 16px 45px #0009;animation:appear .2s ease}.toast.error{background:#422b2a;border-color:#84514b}.toast[hidden]{display:none}@keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    .welcome{position:fixed;inset:0;z-index:70;background:#0b1217f6;display:grid;place-items:center;padding:16px;overflow:auto}.welcome .intro{width:min(520px,100%);padding:28px;background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:10px}.intro h1{margin:10px 0;font-size:30px;letter-spacing:-.04em;line-height:1.13}.intro p{color:var(--muted);line-height:1.65}.intro .formfield{margin:16px 0}.intro .btn{margin-top:10px}.intro small{color:var(--muted);font-size:11px;display:block;margin-top:16px}
+    @media(max-width:930px){.grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:190px minmax(0,1fr);gap:13px;padding:16px 12px}.topwrap{padding:10px 12px}.statgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.layout{display:block;padding:14px 12px 30px;min-height:calc(100vh - 66px)}.sidebar{display:none;position:sticky;top:63px;z-index:25;background:#111b23;border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:13px;box-shadow:0 20px 30px #0008}.sidebar.open{display:block}.nav{grid-template-columns:repeat(2,minmax(0,1fr))}.nav button{padding:11px}.sidehead,.sidefoot{display:none}.menuToggle{display:block}.headright .topcell:nth-child(2){display:none}.brand strong{font-size:14px}.brand small{font-size:10px}.grid.two,.grid.three{grid-template-columns:1fr}.pagehead h1{font-size:23px}.pagehead{margin-bottom:13px}.card{padding:14px}.mission{grid-template-columns:minmax(0,1fr) auto;gap:9px}.mission .right .btn{min-width:78px}.formrow{flex-wrap:wrap}.brandpanel{padding:17px}.brandpanel h2{font-size:20px}}@media(max-width:390px){.topwrap{gap:7px;padding:10px}.headright{gap:7px}.topcell strong{font-size:11px}.brandmark{padding:7px}.brand strong{font-size:13px}.brand small{font-size:9px}.stat strong{font-size:19px}.mission{grid-template-columns:1fr}.mission .right{display:flex;justify-content:space-between;align-items:center;text-align:left}.mission .chance{margin:0}.btnbar .btn{flex:1}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+  
+/* SUBMUNDO BRASIL 0.2 — identidade clássica de RPG brasileiro */
+:root {--bg:#0c1115;--panel:#161d22;--panel2:#1f2a30;--line:#303b41;--muted:#aab6bb;--text:#f5f2e9;--accent:#e4b266;--accent2:#ffcc7d;--green:#86c8aa;--red:#eb8d7e;--info:#a0c5d1;--radius:7px}
+html{scroll-behavior:auto}body{background:radial-gradient(ellipse 90% 35% at 70% 2%,#14252a 0%, transparent 68%),#0c1115;font-size:13px;line-height:1.45}
+.topbar{background:#10181aeF;border-bottom:1px solid #384344;box-shadow:0 5px 26px #0005}
+.topwrap{max-width:1170px;padding:11px 20px}
+.brand{gap:10px}.brandmark{position:relative;display:grid;place-items:center;width:38px;height:38px;background:#e0af65;color:#171916;font-family:Georgia,serif;font-size:18px;border-radius:2px;border:1px solid #f5ce8f;box-shadow:inset 0 0 0 2px #1a2527}
+.brand strong{font-family:Georgia,'Times New Roman',serif;letter-spacing:.055em;font-size:17px}.brand small{font:600 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.1em;color:#adb4b2}
+.headright{gap:22px}.topcell span{font-size:9px;font-weight:750;text-transform:uppercase;letter-spacing:.1em}.topcell strong{font-size:13px;color:#f3d09b}.layout{max-width:1170px;grid-template-columns:190px minmax(0,1fr);gap:23px;padding-top:19px}
+.sidebar{border-right:1px solid #30393b;padding-right:12px}.sidehead{color:#cfab74;margin:8px 11px 14px}.nav{gap:3px}.nav button{font-size:13px;padding:11px 12px;border-radius:4px;border-left:2px solid transparent;font-weight:650}.nav button.active{background:linear-gradient(90deg,#31342c,#1d292d);color:#ffd38c;border-color:#eab568}.nav button:hover:not(.active){background:#1d292d}.sidefoot{line-height:1.7}
+.pagehead{align-items:start;margin-bottom:15px;border-bottom:1px solid #324044;padding-bottom:14px}.pagehead h1{font-family:Georgia,serif;letter-spacing:-.025em;font-size:26px;font-weight:700}.pagehead p{font-size:12px}.eyebrow{font:800 10px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.13em;color:#e7af63}
+.card{background:#171e23;border-color:#344248;border-radius:5px;padding:15px}.card h2{font-size:16px;font-family:Georgia,serif;font-weight:700;letter-spacing:-.02em}.card h3{font-size:14px}.card p{font-size:12px;color:#adbac0}.section{margin:18px 0 10px}.section h2{font-size:17px;font-family:Georgia,serif;font-weight:700}.statgrid{gap:8px}.stat{padding:11px;background:#1c262b;border-color:#344348;border-radius:4px}.stat strong{font-size:19px}.stat em{display:none}
+.btn{background:#29363a;border-color:#49575b;color:#f3f3ec;border-radius:3px;font-weight:750;transition:background .14s ease,border-color .14s ease;min-height:39px}.btn:hover:not(:disabled){background:#38484a}.btn.primary{background:#e0ab61;border-color:#e0ab61;color:#172025}.btn.primary:hover:not(:disabled){background:#f1c27c}.btn.ghost{background:transparent}.pill{border-radius:3px;color:#d0bf99;background:#2a302f;border-color:#4b5247}.badge{background:#253238;border-color:#3a4d50;border-radius:3px}.tag{border-radius:2px}.meter{height:5px;background:#344046;border-radius:1px}.meter>div{border-radius:1px}.mission{padding:12px 15px;background:linear-gradient(90deg,#1a2328,#141c21);border-left:3px solid #465b5c}.mission h3{font-size:14px}.mission p{margin:3px 0 4px}.mission .chance{font-size:17px}.mission .details{color:#afbbc0}.mission .right .btn{min-width:89px}.district.selected{background:#242a25;border-color:#b88d57}.brandpanel{background:radial-gradient(ellipse at top right,#3d3326,#192328 72%);border-color:#61533d;border-radius:4px}
+.welcome{background:radial-gradient(circle at 50% 25%,#2a352c,#0a0f13 65%)}.welcome .intro{background:#172025;border-radius:4px;border-top:4px solid #e5b16d;box-shadow:0 22px 80px #0008}.intro h1{font-family:Georgia,serif;font-size:31px;letter-spacing:-.02em}
+.cityHero{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:1fr auto;align-items:end;gap:12px;min-height:146px;padding:19px 22px 16px;background:linear-gradient(94deg,#1c2d32 0%,#193039 48%,#27352d 100%);border:1px solid #506160;border-bottom:3px solid #b48851;margin-bottom:10px;border-radius:4px}
+.cityHero:before{content:'';position:absolute;z-index:-1;inset:0;opacity:.19;background:linear-gradient(0deg,#0008 4px,transparent 5px),repeating-linear-gradient(90deg,transparent 0 26px,#8ca3a8 26px 29px,transparent 29px 47px,#607c85 47px 55px,transparent 55px 76px);background-size:100% 26px,100% 100%;background-position:0 bottom;mask-image:linear-gradient(0deg,#000 1%,transparent 77%)}
+.cityHero::after{content:'';position:absolute;right:-46px;top:-87px;z-index:-1;width:300px;height:300px;background:radial-gradient(circle,#d09c5f37 0%,transparent 65%)}
+.heroLabel{color:#e5be85;text-transform:uppercase;font:800 10px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.15em}.cityHero h1{font:700 clamp(27px,3.5vw,38px)/1.07 Georgia,serif;letter-spacing:-.03em;margin:10px 0 6px;overflow-wrap:anywhere}.cityHero p{margin:0;color:#c5d1ce;font-size:12px}.heroMeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.heroMeta span{font-size:10px;border:1px solid #71808080;background:#09171c55;padding:4px 8px;border-radius:2px;color:#dfe5df}.heroReputation{text-align:right;min-width:68px}.heroReputation strong{font:700 39px/1 Georgia,serif;color:#f6d09b;display:block}.heroReputation small{display:block;text-transform:uppercase;letter-spacing:.1em;color:#d3d7ce;font-size:9px;margin-top:5px}
+.commandHud{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.hudItem{background:#171f24;border:1px solid #354248;padding:10px 13px 11px;border-radius:3px;min-width:0}.hudItem span{display:block;color:#a5b4ba;font-size:10px;letter-spacing:.045em;text-transform:uppercase}.hudItem strong{font-size:19px;line-height:1.3;font-weight:850;font-variant-numeric:tabular-nums;display:block}.hudItem strong.heat{color:#e98e83}.hudItem strong.good{color:#a7d9bc}.hudItem small{display:block;color:#899ca5;font-size:10px}
+.statusStrip{display:flex;align-items:center;gap:12px;padding:10px 13px;border:1px solid #354248;background:#111b1f;margin-top:8px;border-radius:3px}.statusStrip .statusBar{flex:1;min-width:0}.statusBar .meterlabel{font-size:10px;margin-bottom:5px}.statusStrip .btn{flex:none}
+.boardGrid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:10px;margin-top:13px}.boardLead{background:#20252a;border:1px solid #514b3d;border-top:3px solid #ddac69;padding:15px 17px;border-radius:3px}.boardLead .eyebrow{margin-bottom:12px}.boardLead h2{font:700 20px/1.18 Georgia,serif;margin:0 0 6px}.boardLead p{margin:0;color:#bac7c7;font-size:12px}.boardMetrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:15px 0 12px}.boardMetrics .metric{border-top:1px solid #4e5351;padding-top:8px}.metric span{display:block;color:#9da9ad;font-size:9px;text-transform:uppercase;letter-spacing:.07em}.metric strong{font-size:15px;display:block;margin-top:3px;font-weight:800}.boardLead .btn{width:100%;min-height:42px}
+.cityBulletin{border:1px solid #384a4b;background:#172226;padding:15px 15px 12px;border-radius:3px}.cityBulletin .btitle{font:700 17px/1.1 Georgia,serif;margin:13px 0 7px;color:#e6c190}.cityBulletin p{font-size:12px;line-height:1.5;color:#b3c0c1;margin:0}.cityBulletin .bulletinFoot{border-top:1px solid #3a484b;margin-top:16px;padding-top:11px;color:#b7bfbf;font-size:10px}.cityBulletin .bulletinFoot strong{display:block;color:#93c9a8;font-size:14px;margin-top:2px}
+.commandHeader{margin:20px 0 9px;display:flex;gap:9px;justify-content:space-between;align-items:baseline}.commandHeader h2{margin:0;font:700 18px Georgia,serif}.commandHeader small{color:#8ea2a8}.commandGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.commandLink{text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:70px;padding:14px 16px;border:1px solid #3a474b;background:#1b2529;border-radius:3px;color:#f3f0e7}.commandLink:hover{background:#29363a;border-color:#a68352}.commandLink span{display:block;font-size:14px;font-weight:760}.commandLink small{display:block;margin-top:3px;color:#acb9bd;font-size:11px}.commandLink b{font:700 22px Georgia,serif;color:#c59c62;font-weight:600}.recentFeed{margin-top:18px}.recentFeed .card{padding:9px 15px}.recentFeed .timeline{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.recentFeed .timeline li{border:0;margin:0}.recentFeed .timeline li+li{border-left:1px solid #314146;padding-left:13px}
+.mobileNav{display:none}.footer{margin-top:21px;padding-bottom:17px}.notice{margin-top:10px}
+@media(max-width:930px){.layout{grid-template-columns:175px minmax(0,1fr)}.statgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){
+  body{font-size:13px;background:#0e1518}.topwrap{padding:9px 13px}.brandmark{width:34px;height:34px;font-size:17px}.brand strong{font-size:15px}.brand small{font-size:8px;letter-spacing:.06em}.topcell span{font-size:9px}.headright{gap:9px}.headright .topcell:nth-child(2){display:none}.topcell strong{font-size:12px}.menuToggle{display:none}
+  .layout{display:block;padding:12px 10px calc(92px + env(safe-area-inset-bottom));min-height:calc(100dvh - 60px)}.sidebar{display:none!important}.pagehead{padding-bottom:11px;margin-bottom:12px}.pagehead h1{font-size:23px}.pagehead p{font-size:11px}.card{padding:12px}.grid.two,.grid.three{grid-template-columns:1fr}.grid{gap:8px}.statgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mobileNav{position:fixed;z-index:40;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(6,1fr);background:#141e21f5;backdrop-filter:blur(14px);border-top:1px solid #536160;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -9px 29px #0007}
+  .mobileNav button{background:transparent;color:#a5b4b7;border:0;border-top:2px solid transparent;display:grid;place-items:center;gap:0;min-height:58px;padding:6px 0 8px;font-size:9px;font-weight:700;letter-spacing:.01em;min-width:0;white-space:nowrap}.mobileNav button .navSymbol{font-size:17px;font-family:Georgia,serif;height:24px;line-height:22px;color:#a6babd}.mobileNav button.active{color:#f6d39b;background:#2d312823;border-top-color:#e6b36d}.mobileNav button.active .navSymbol{color:#eac18b}
+  .cityHero{padding:16px 15px;min-height:140px}.cityHero h1{font-size:27px}.heroReputation strong{font-size:35px}.heroMeta span{font-size:9px}.commandHud{gap:6px}.hudItem{padding:9px 10px}.hudItem span{font-size:9px}.hudItem strong{font-size:17px}.hudItem small{font-size:9px}.boardGrid{grid-template-columns:1fr;gap:8px}.boardLead{padding:13px}.boardLead h2{font-size:19px}.boardMetrics{margin:12px 0}.cityBulletin{padding:12px}.cityBulletin .btitle{margin:6px 0}.cityBulletin .bulletinFoot{margin-top:8px}.commandHeader{margin-top:17px}.commandGrid{gap:7px}.commandLink{min-height:68px;padding:12px 10px}.commandLink span{font-size:13px}.commandLink small{font-size:10px}.commandLink b{font-size:18px}.recentFeed .timeline{grid-template-columns:1fr;gap:0}.recentFeed .timeline li+li{border-left:0;border-top:1px solid #314146;padding-left:0}
+  .toast{bottom:calc(74px + env(safe-area-inset-bottom));left:12px;right:12px;max-width:none;font-size:13px}
+  .section{margin:16px 0 9px}.section h2{font-size:16px}.intro h1{font-size:29px}
+}
+@media(max-width:370px){.brand strong{font-size:13px}.topwrap{gap:6px}.headright .topcell{display:none}.cityHero h1{font-size:25px}.heroReputation strong{font-size:31px}.statusStrip{gap:7px;padding:9px 10px}.statusStrip .btn{padding:6px 9px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){.btn,.commandLink{transition:none}}
+
+
+    /* Interações v0.3: mantém a linguagem visual do protótipo clássico. */
+    .compactNote{display:flex;gap:6px 10px;flex-wrap:wrap;align-items:center;padding:11px 13px;border:1px solid #4b5f57;background:#1b2b28;border-radius:3px;margin:9px 0;font-size:12px}
+    .compactNote strong{color:#d8e8ca}.compactNote span{color:#a8c4b8}
+    .choiceCard{margin:12px 0}.choiceCard h2{margin-bottom:7px}.choiceCard>p{margin:0 0 13px}
+    .choiceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .choiceGrid article{background:#19252c;border:1px solid #3b4d56;padding:12px;border-radius:5px;display:flex;flex-direction:column;align-items:stretch}
+    .choiceGrid article strong{font-size:13px;color:#f3d6ae}.choiceGrid article p{flex:1;font-size:11px;margin:6px 0 12px;line-height:1.5}.choiceGrid article button{margin-top:auto}
+    .dualMeters{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:13px}
+    .territoryRow{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #374650;background:#19242a;padding:10px;border-radius:5px;font-size:12px}
+    .territoryRow span{color:#a9bdc4;text-align:right;font-size:11px}.territoryRow strong{min-width:0}
+    .seasonObjective{margin-bottom:13px}
+    @media(max-width:700px){.choiceGrid{grid-template-columns:1fr}.choiceGrid article{padding:11px}.choiceGrid article p{margin-bottom:8px}.dualMeters{grid-template-columns:1fr}.territoryRow{padding:10px 8px}}
+    .rivalMetrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+  .rivalMetrics>div{border:1px solid var(--line,rgba(255,255,255,.1));border-radius:10px;padding:9px 7px;min-width:0}
+  .rivalMetrics span{display:block;font-size:11px;color:var(--muted,#a5a5a5);margin-bottom:3px}
+  .rivalMetrics strong{display:block;font-size:14px;overflow-wrap:anywhere}
+  .factionHeader{flex-wrap:wrap;align-items:flex-start;gap:8px}
+  .factionHeader>div{min-width:0;flex:1 1 190px}
+  .factionHeader>.pill{flex-shrink:0;white-space:normal}
+  .rivalCard .space{align-items:flex-start;flex-wrap:wrap;gap:8px}
+  .rivalCard .space>div{min-width:0;flex:1 1 160px}
+  .rivalCard .space .pill{flex-shrink:0;white-space:normal;overflow-wrap:anywhere}
+  .rivalCard .btnbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+  .rivalCard .btnbar .btn{white-space:normal;text-align:center;flex:1 1 138px}
+  @media(max-width:359px){.rivalMetrics{gap:4px}.rivalMetrics>div{padding:7px 4px}.rivalMetrics strong{font-size:12px}}
+</style>
+</head>
+<body>
+  <header class="topbar"><div class="topwrap">
+    <div class="brand"><span class="brandmark" aria-hidden="true">SB</span><div><strong>SUBMUNDO BRASIL</strong><small>ESTRATÉGIA URBANA • 0.4</small></div></div>
+    <div class="headright"><div class="topcell"><span>Dinheiro em mãos</span><strong id="topCash">R$ 0</strong></div><div class="topcell"><span>Temporada</span><strong id="topDay">Dia 1</strong></div><button id="menuToggle" class="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">Menu</button></div>
+  </div></header>
+  <div class="layout"><aside class="sidebar" id="sidebar"><div class="sidehead">Jogo</div><nav class="nav" aria-label="Navegação principal">
+    <button type="button" data-view="painel" class="active">Início</button>
+    <button type="button" data-view="acoes">Missões</button>
+    <button type="button" data-view="cidade">Cidade</button>
+    <button type="button" data-view="gestao">Economia</button>
+    <button type="button" data-view="gangue">Gangue</button>
+    <button type="button" data-view="temporada">Temporada</button>
+  </nav><div class="sidefoot"><strong>Versão local de testes.</strong> Sem cadastro, jogadores reais ou compras. Seu progresso é salvo somente neste navegador.</div></aside>
+  <main class="content" id="content" tabindex="-1" aria-live="polite"></main></div>
+  <nav class="mobileNav" aria-label="Navegação principal no celular">
+    <button type="button" class="active" data-view="painel"><span class="navSymbol" aria-hidden="true">⌂</span>Início</button>
+    <button type="button" data-view="acoes"><span class="navSymbol" aria-hidden="true">✦</span>Missões</button>
+    <button type="button" data-view="cidade"><span class="navSymbol" aria-hidden="true">◇</span>Cidade</button>
+    <button type="button" data-view="gestao"><span class="navSymbol" aria-hidden="true">▣</span>Banco</button>
+    <button type="button" data-view="gangue"><span class="navSymbol" aria-hidden="true">♠</span>Gangue</button>
+    <button type="button" data-view="temporada"><span class="navSymbol" aria-hidden="true">▤</span>Temporada</button>
+  </nav>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <div class="welcome hidden" id="welcome"><form id="newGameForm" class="intro"><div class="eyebrow">SUBMUNDO BRASIL / 0.4</div><h1>Faça seu nome.<br>Encare as consequências.</h1><p>Um RPG de navegador inspirado nos clássicos: ações rápidas, riscos, evolução e economia. Tudo em uma cidade brasileira fictícia.</p>
+    <div class="formfield"><label for="playerName">Seu codinome</label><input id="playerName" class="input" name="playerName" required minlength="2" maxlength="22" autocomplete="off" placeholder="Como vão te conhecer?"></div>
+    <div class="formfield"><label for="homeCity">Cidade de origem</label><select id="homeCity" class="input" name="homeCity"><option>Rio de Janeiro</option><option>São Paulo</option><option>Belo Horizonte</option><option>Salvador</option><option>Recife</option><option>Porto Alegre</option></select></div>
+    <button class="btn primary block" type="submit">Começar carreira</button><small>Todo o universo, os personagens e as situações são fictícios. Esta versão é offline e salva os dados apenas neste aparelho.</small>
+  </form></div>
+  <script>
+  (()=>{'use strict';
+    const KEY='submundo_brasil_v01';
+    const MAXDAY=30;
+    const $=sel=>document.querySelector(sel);
+    const $all=sel=>Array.from(document.querySelectorAll(sel));
+    const format=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(Math.round(n||0));
+    const num=n=>new Intl.NumberFormat('pt-BR').format(Math.round(n||0));
+    const html=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
+    const rand=(min,max)=>{const values=new Uint32Array(1);if(globalThis.crypto?.getRandomValues)crypto.getRandomValues(values);else values[0]=Math.floor(Math.random()*4294967296);return min+values[0]%(max-min+1)};
+    const MISSIONS=[
+      {id:'correria',name:'Serviço suspeito',desc:'Uma oportunidade duvidosa para quem está começando.',difficulty:11,cost:16,low:160,high:320,heat:7,respect:2,unlock:0},
+      {id:'mercadoria',name:'Mercadoria desaparecida',desc:'Um intermediário oferece pagamento por uma missão arriscada.',difficulty:17,cost:23,low:330,high:600,heat:10,respect:3,unlock:0},
+      {id:'deposito',name:'Operação no depósito',desc:'Um plano maior, com mais recompensa e mais vigilância.',difficulty:25,cost:32,low:590,high:990,heat:15,respect:5,unlock:15},
+      {id:'comboio',name:'Comboio misterioso',desc:'Uma operação de alto risco na cidade.',difficulty:35,cost:40,low:1050,high:1840,heat:19,respect:8,unlock:38},
+      {id:'cofre',name:'O grande cofre',desc:'A missão mais difícil da primeira temporada.',difficulty:46,cost:52,low:1900,high:3300,heat:27,respect:13,unlock:85}
+    ];
+    const DISTRICTS=[
+      {id:'centro',name:'Centro Antigo',desc:'Comércio intenso e circulação constante de gente.',risk:0,bonus:0},
+      {id:'cais',name:'Cais do Norte',desc:'Galpões, armazéns e uma região portuária em transformação.',risk:5,bonus:15},
+      {id:'jardim',name:'Jardim União',desc:'Bairro residencial de trabalhadores e pequenos negócios.',risk:-4,bonus:-10},
+      {id:'industrial',name:'Distrito Industrial',desc:'Grandes empresas e patrulhamento reforçado.',risk:10,bonus:28},
+      {id:'vila',name:'Vila das Palmeiras',desc:'Ruas movimentadas e comércio de bairro.',risk:-2,bonus:4}
+    ];
+    const BUSINESSES=[
+      {id:'bar',name:'Bar da Esquina',desc:'Um ponto de encontro que rende um caixa modesto.',cost:1250,net:85,respect:3},
+      {id:'oficina',name:'Oficina de Motos',desc:'Movimento diário e clientela recorrente.',cost:2850,net:190,respect:6},
+      {id:'mercado',name:'Mercadinho 24h',desc:'Renda regular e operação mais cara.',cost:5200,net:320,respect:10},
+      {id:'show',name:'Casa de Shows',desc:'Maior investimento e retorno da temporada.',cost:9700,net:580,respect:17}
+    ];
+    const EVENTS=[
+      {title:'Dia movimentado',desc:'Comércio aquecido. Recompensas das missões aumentam.',reward:12,risk:0},
+      {title:'Fiscalização reforçada',desc:'A vigilância está mais forte. O risco de fracassar aumenta.',reward:0,risk:10},
+      {title:'Festival de rua',desc:'A cidade recebe um grande evento e fica mais agitada.',reward:9,risk:4},
+      {title:'Rotina normal',desc:'Sem acontecimentos importantes. O jogo segue seu ritmo.',reward:0,risk:0},
+      {title:'Patrulhas reduzidas',desc:'O movimento está mais tranquilo e os riscos diminuem.',reward:0,risk:-7},
+      {title:'Semana de comércio',desc:'A movimentação econômica favorece oportunidades.',reward:7,risk:0}
+    ];
+    const SKILLS=[{id:'astucia',name:'Astúcia',desc:'Melhora as chances de sucesso nas operações.'},{id:'forca',name:'Força',desc:'Ajuda em missões que exigem preparo.'},{id:'labia',name:'Lábia',desc:'Aumenta sua capacidade de negociação.'},{id:'influencia',name:'Influência',desc:'Amplia contatos e oportunidades.'}];
+    // Sistemas da v0.3: especialização, influência local, imprensa e metas.
+    const CAREERS=[
+      {id:'operador',name:'Operador',desc:'+7 pontos na chance de missão. Em compensação, a vigilância sobe 20% mais rápido.'},
+      {id:'articulador',name:'Articulador',desc:'+30% de influência em ações sociais e +6 pontos na disputa com rivais. Sem bônus nas missões.'},
+      {id:'empreendedor',name:'Empreendedor',desc:'+20% na renda dos negócios. Em compensação, -6 pontos na chance de missão.'}
+    ];
+    const GOALS=[
+      {id:'capital',name:'Patrimônio',desc:'Chegar a R$ 15.000 de patrimônio total (caixa, banco e negócios).'},
+      {id:'renome',name:'Renome',desc:'Alcançar 135 de respeito e 25 missões concluídas.'},
+      {id:'dominio',name:'Territórios',desc:'Liderar 1 distrito e possuir pelo menos 40 de influência em outro.'}
+    ];
+    const NEWS=[
+      {id:'feira',name:'Feira do bairro',desc:'O comércio local organiza uma feira. Seu apoio pode melhorar seus contatos.',choices:[
+        {label:'Patrocinar a feira',desc:'R$ 180 · +14 influência · +2 respeito',cash:180,energy:0,influence:14,respect:2},
+        {label:'Ajudar na montagem',desc:'25 energia · R$ 90 · +7 influência',cash:0,energy:25,influence:7,money:90}]},
+      {id:'fiscalizacao',name:'Boletim de fiscalização',desc:'A cidade intensificou a fiscalização. Há diferentes caminhos para reduzir sua exposição.',choices:[
+        {label:'Contratar assessoria jurídica',desc:'R$ 260 · -24 vigilância',cash:260,energy:0,heat:-24},
+        {label:'Diminuir o ritmo',desc:'18 energia · -12 vigilância',cash:0,energy:18,heat:-12}]},
+      {id:'boatos',name:'Rumores na vizinhança',desc:'Um grupo rival espalha boatos. Você pode procurar diálogo ou agir por conta própria.',choices:[
+        {label:'Organizar reunião',desc:'R$ 160 e 12 energia · +12 influência · rival -8',cash:160,energy:12,influence:12,rival:-8},
+        {label:'Responder publicamente',desc:'18 energia · +4 respeito · +10 vigilância · rival +6',cash:0,energy:18,respect:4,heat:10,rival:6}]},
+      {id:'festival',name:'Festival da cidade',desc:'Um festival movimenta clientes e abre oportunidades para quem conhece a região.',choices:[
+        {label:'Investir em barracas',desc:'R$ 320 agora · R$ 480 no próximo dia',cash:320,energy:0,nextBonus:480},
+        {label:'Ajudar na produção',desc:'25 energia · R$ 150 · +6 influência',cash:0,energy:25,money:150,influence:6}]},
+      {id:'comercio',name:'Convite de comerciantes',desc:'Uma associação comercial pede apoio para reorganizar a região.',choices:[
+        {label:'Apoiar a associação',desc:'R$ 240 · +10 influência · rival -4',cash:240,energy:0,influence:10,rival:-4},
+        {label:'Oferecer seu tempo',desc:'20 energia · +6 influência · -5 vigilância',cash:0,energy:20,influence:6,heat:-5}]}
+    ];
+    // Facções fictícias. Cada distrito possui um rival principal, com diplomacia e atrito próprios.
+    const FACTIONS=[
+      {id:'esquina',name:'Círculo da Esquina',short:'Esquina',desc:'Um grupo antigo que preza por reputação e acordos de palavra.',districts:['centro','vila'],initialRelation:-10,temperament:0},
+      {id:'docas',name:'Frente dos Armazéns',short:'Armazéns',desc:'Organização pragmática ligada aos galpões e ao comércio portuário fictício.',districts:['cais','industrial'],initialRelation:-20,temperament:10},
+      {id:'aurora',name:'Coletivo Aurora',short:'Aurora',desc:'Uma rede de intermediários que prefere influência silenciosa ao confronto.',districts:['jardim'],initialRelation:0,temperament:-10}
+    ];
+    const factionFor=id=>FACTIONS.find(f=>f.districts.includes(id))||FACTIONS[0];
+    const startFactions=()=>Object.fromEntries(FACTIONS.map(f=>[f.id,{relation:f.initialRelation,tension:20+f.temperament,truceUntil:0,lastActionDay:0}]));
+    const startGangStats=()=>({confrontWins:0,confrontLosses:0,pacts:0,dialogs:0,retaliations:0,groupWins:0});
+    const initialInfluence=()=>Object.fromEntries(DISTRICTS.map(d=>[d.id,d.id==='centro'?8:0]));
+    const initialRivals=()=>Object.fromEntries(DISTRICTS.map((d,i)=>[d.id,22+i*3]));
+    const defaultState=(name,city)=>({schema:1,name,city,season:1,day:1,cash:1900,bank:0,energy:100,heat:0,respect:5,stats:{astucia:6,forca:4,labia:4,influencia:3},district:'centro',jail:0,businesses:[],gangName:null,gangLevel:0,successful:0,failed:0,seasonHistory:[],log:[{day:1,msg:'Você chegou à cidade com algum dinheiro, poucos contatos e muita ambição.'}],eventIndex:3,career:null,goal:null,influence:initialInfluence(),rivals:initialRivals(),newsPending:{id:'feira',day:1},nextBonus:0,goalWins:0,crewSize:0,crewMorale:0,crewLastRecruit:0,crewLastRally:0,factions:startFactions(),gangStats:startGangStats()});
+    let state=null,view='painel',notice=null,toastTimer=null;
+    const storage=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){notify('Não foi possível salvar no navegador. Exporte uma cópia.',true)}};
+    function validate(obj){
+      if(!obj||obj.schema!==1||typeof obj.name!=='string'||obj.name.length<2||obj.name.length>22||typeof obj.city!=='string'||!Array.isArray(obj.businesses)||!Array.isArray(obj.log)||!obj.stats||!Number.isInteger(obj.day)||obj.day<1||obj.day>MAXDAY||!Number.isInteger(obj.season)||obj.season<1||obj.season>9999) return false;
+      for(const k of ['cash','bank','energy','heat','respect','jail','gangLevel','successful','failed'])if(!Number.isSafeInteger(obj[k])||obj[k]<0||obj[k]>1e12)return false;
+      for(const k of ['astucia','forca','labia','influencia'])if(!Number.isSafeInteger(obj.stats[k])||obj.stats[k]<1||obj.stats[k]>1e7)return false;
+      if(!DISTRICTS.some(d=>d.id===obj.district)||!obj.businesses.every(k=>BUSINESSES.some(b=>b.id===k))||new Set(obj.businesses).size!==obj.businesses.length||!Array.isArray(obj.seasonHistory)||obj.seasonHistory.length>10000)return false;
+      return true;
+    }
+    function normalizeSave(saved){
+      const base=defaultState(saved.name,saved.city);
+      const clean={...base,...saved};
+      clean.career=CAREERS.some(x=>x.id===saved.career)?saved.career:null;
+      clean.goal=GOALS.some(x=>x.id===saved.goal)?saved.goal:null;
+      clean.influence=Object.fromEntries(DISTRICTS.map(d=>[d.id,Number.isSafeInteger(saved.influence?.[d.id])?clamp(saved.influence[d.id],0,100):base.influence[d.id]]));
+      clean.rivals=Object.fromEntries(DISTRICTS.map(d=>[d.id,Number.isSafeInteger(saved.rivals?.[d.id])?clamp(saved.rivals[d.id],0,100):base.rivals[d.id]]));
+      clean.newsPending=(NEWS.some(n=>n.id===saved.newsPending?.id)&&saved.newsPending?.day===saved.day)?{id:saved.newsPending.id,day:saved.day}:null;
+      clean.nextBonus=Number.isSafeInteger(saved.nextBonus)?clamp(saved.nextBonus,0,100000):0;
+      clean.goalWins=Number.isSafeInteger(saved.goalWins)?clamp(saved.goalWins,0,9999):0;
+      const migratedGang=!!clean.gangName;
+      clean.crewSize=migratedGang?(Number.isSafeInteger(saved.crewSize)?clamp(saved.crewSize,2,8):2):0;
+      clean.crewMorale=migratedGang?(Number.isSafeInteger(saved.crewMorale)?clamp(saved.crewMorale,0,100):70):0;
+      clean.crewLastRecruit=Number.isSafeInteger(saved.crewLastRecruit)?clamp(saved.crewLastRecruit,0,MAXDAY):0;
+      clean.crewLastRally=Number.isSafeInteger(saved.crewLastRally)?clamp(saved.crewLastRally,0,MAXDAY):0;
+      clean.factions=Object.fromEntries(FACTIONS.map(f=>{
+        const old=saved.factions?.[f.id]||{};
+        const baseFaction=startFactions()[f.id];
+        return [f.id,{
+          relation:Number.isSafeInteger(old.relation)?clamp(old.relation,-100,100):baseFaction.relation,
+          tension:Number.isSafeInteger(old.tension)?clamp(old.tension,0,100):baseFaction.tension,
+          truceUntil:Number.isSafeInteger(old.truceUntil)?clamp(old.truceUntil,0,MAXDAY):0,
+          lastActionDay:Number.isSafeInteger(old.lastActionDay)?clamp(old.lastActionDay,0,MAXDAY):0
+        }];
+      }));
+      clean.gangStats=Object.fromEntries(Object.keys(startGangStats()).map(k=>[k,Number.isSafeInteger(saved.gangStats?.[k])?clamp(saved.gangStats[k],0,10000):0]));
+      return clean;
+    }
+    function read(){try{const value=localStorage.getItem(KEY);const loaded=value?JSON.parse(value):null;if(!validate(loaded))return null;const clean=normalizeSave(loaded);try{localStorage.setItem(KEY,JSON.stringify(clean))}catch(e){}return clean}catch(e){return null}}
+    function log(msg){state.log.unshift({day:state.day,msg});state.log=state.log.slice(0,35)}
+    function notify(msg,isError=false){const node=$('#toast');node.textContent=msg;node.className='toast'+(isError?' error':'');node.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>node.hidden=true,3800)}
+    function update(){storage();render()}
+    const district=()=>DISTRICTS.find(d=>d.id===state.district)||DISTRICTS[0];
+    const event=()=>EVENTS[state.eventIndex]||EVENTS[3];
+    const career=()=>CAREERS.find(c=>c.id===state.career)||null;
+    const careerBonus=()=>state.career==='operador'?7:state.career==='empreendedor'?-6:0;
+    const careerHeat=heat=>Math.ceil(heat*(state.career==='operador'?1.2:1));
+    const controlled=id=>(state.influence[id]||0)>=60&&(state.influence[id]||0)>=(state.rivals[id]||0)+10;
+    const controls=()=>DISTRICTS.filter(d=>controlled(d.id));
+    const pactActive=id=>state.day<=state.factions[id].truceUntil;
+    const diplomacyState=id=>state.factions[id];
+    const factionStatus=id=>{
+      const rel=diplomacyState(id).relation;
+      return pactActive(id)?'Trégua em vigor':rel>=45?'Relações favoráveis':rel<=-40?'Rivalidade aberta':rel<0?'Relações tensas':'Neutro';
+    };
+    const groupUpkeep=()=>state.gangName?state.crewSize*25:0;
+    const gangOdds=()=>clamp(Math.round(51+state.gangLevel*4+state.stats.influencia*.8+state.crewSize*2.2+(state.crewMorale-50)*.16-state.heat*.35),16,91);
+    const clashOdds=(id)=>{
+      const f=factionFor(id),r=state.factions[f.id];
+      return clamp(Math.round(39+state.stats.influencia*1.15+state.stats.labia*.45+state.gangLevel*2.5+state.crewSize*1.6+(state.crewMorale-50)*.10-(state.rivals[id]-state.influence[id])*.23-state.heat*.18-r.tension*.08+(state.career==='articulador'?6:0)),18,85);
+    };
+    const assetsValue=()=>state.businesses.reduce((total,id)=>total+(BUSINESSES.find(b=>b.id===id)?.cost||0),0);
+    const power=()=>state.stats.astucia*1.7+state.stats.forca*.8+state.stats.labia*.45+state.stats.influencia*.4+state.gangLevel*3;
+    const chance=m=>clamp(Math.round(80+(power()-m.difficulty)*2-state.heat*.4-district().risk-event().risk+careerBonus()),12,96);
+    const income=()=>Math.round(state.businesses.reduce((total,id)=>total+(BUSINESSES.find(b=>b.id===id)?.net||0),0)*(state.career==='empreendedor'?1.2:1));
+    const strength=()=>Math.floor(state.respect+state.stats.astucia+state.stats.forca+state.stats.labia+state.stats.influencia+state.businesses.length*5+state.gangLevel*9);
+    const remaining=()=>MAXDAY-state.day;
+    function heading(label,desc,extra=''){return `<div class="pagehead"><div><div class="eyebrow">Temporada ${state.season} • Dia ${state.day} de ${MAXDAY}</div><h1>${label}</h1><p>${desc}</p></div>${extra}</div>`}
+    const button=(label,action,additional='',disabled=false,cls='')=>`<button type="button" class="btn ${cls}" data-action="${action}" ${additional} ${disabled?'disabled':''}>${label}</button>`;
+    function stats(){return `<div class="statgrid"><div class="stat"><span>Dinheiro em mãos</span><strong class="small">${format(state.cash)}</strong><em>Risco de perda em falhas</em></div><div class="stat"><span>Banco</span><strong class="small">${format(state.bank)}</strong><em>Saldo protegido</em></div><div class="stat"><span>Respeito</span><strong>${num(state.respect)}</strong><em>Influência na cidade</em></div><div class="stat"><span>Poder total</span><strong>${num(strength())}</strong><em>Sua evolução</em></div></div>`}
+    function bars(){return `<div class="meters"><div><div class="meterlabel"><span>Energia</span><strong>${state.energy}/100</strong></div><div class="meter green"><div style="width:${state.energy}%"></div></div></div><div><div class="meterlabel"><span>Pressão policial</span><strong>${state.heat}/100</strong></div><div class="meter red"><div style="width:${state.heat}%"></div></div></div></div>`}
+    function journal(max=5){return `<ul class="timeline">${state.log.slice(0,max).map(item=>`<li><time>Dia ${item.day}</time>${html(item.msg)}</li>`).join('')}</ul>`}
+    function jailNotice(){return state.jail>0?`<div class="notice error"><strong>Você está detido.</strong> Faltam ${state.jail} dia(s) para sair. Avance o calendário: missões e treinamentos ficam bloqueados.</div>`:''}
+    function panel(){
+      const level=clamp(Math.floor(state.respect/35)+1,1,99);
+      const standing=state.respect<30?'Desconhecido':state.respect<85?'Nome em ascensão':state.respect<180?'Figura conhecida':'Lenda da cidade';
+      const unlocked=MISSIONS.filter(m=>state.respect>=m.unlock).sort((a,b)=>b.low-a.low);
+      const feature=unlocked.find(m=>chance(m)>=55&&state.energy>=m.cost)||unlocked.find(m=>state.energy>=m.cost)||unlocked[0];
+      const canAct=feature&&state.energy>=feature.cost&&state.jail===0;
+      return jailNotice()+`
+      <section class="cityHero" aria-label="Personagem e reputação">
+        <div><div class="heroLabel">Temporada ${state.season} · Dia ${state.day} de ${MAXDAY}</div>
+          <h1>${html(state.name)}</h1>
+          <p>${html(state.city)} / ${html(district().name)}</p>
+          <div class="heroMeta"><span>${standing}</span><span>Nível ${level}</span><span>Jogo local</span></div>
+        </div><div class="heroReputation"><strong>${num(state.respect)}</strong><small>Respeito</small></div>
+      </section>
+      <div class="commandHud">
+        <div class="hudItem"><span>Em mãos</span><strong>${format(state.cash)}</strong><small>Banco ${format(state.bank)}</small></div>
+        <div class="hudItem"><span>Energia</span><strong class="good">${state.energy}<small style="display:inline;font-size:12px">/100</small></strong><small>${state.jail>0?'Detido por '+state.jail+' dia(s)':'Disponível para ações'}</small></div>
+        <div class="hudItem"><span>Vigilância</span><strong class="${state.heat>50?'heat':''}">${state.heat}<small style="display:inline;font-size:12px">/100</small></strong><small>${state.heat>=60?'Pressão elevada':'Pressão na cidade'}</small></div>
+      </div>
+      ${careerCard()}
+      ${goalSummary()}
+      ${newsCard()}
+      <div class="statusStrip"><div class="statusBar"><div class="meterlabel"><span>Energia restante</span><strong>${state.energy}%</strong></div><div class="meter green"><div style="width:${state.energy}%"></div></div></div>
+      ${button(state.day===MAXDAY?'Finalizar temporada':'Avançar dia',state.day===MAXDAY?'switch':'next-day',state.day===MAXDAY?'data-target="temporada"':'',false,'primary small')}</div>
+      <div class="boardGrid">
+        <section class="boardLead"><div class="eyebrow">Sua próxima decisão</div>
+          <h2>${feature?html(feature.name):'Explorar oportunidades'}</h2>
+          <p>${feature?html(feature.desc):'Conheça os caminhos disponíveis na cidade.'}</p>
+          ${feature?`<div class="boardMetrics"><div class="metric"><span>Chance</span><strong>${chance(feature)}%</strong></div><div class="metric"><span>Ganhos</span><strong>${format(feature.low)}+</strong></div><div class="metric"><span>Energia</span><strong>${feature.cost}</strong></div></div>
+          ${button(!canAct?(state.jail?'Ação indisponível':'Sem energia'):'Executar missão','mission',`data-id="${feature.id}"`,!canAct,'primary')}`:''}
+        </section>
+        <section class="cityBulletin"><div class="eyebrow">Boletim da cidade</div><h2 class="btitle">${html(event().title)}</h2><p>${html(event().desc)}</p><div class="bulletinFoot">Renda dos negócios<strong>${format(income())} / dia</strong></div><div class="bulletinFoot">Influência local<strong>${state.influence[state.district]} / 100 · rival ${state.rivals[state.district]} / 100</strong></div></section>
+      </div>
+      <div class="commandHeader"><h2>Escolha seu caminho</h2><small>Decisões disponíveis</small></div>
+      <div class="commandGrid">
+        <button class="commandLink" type="button" data-view="acoes"><div><span>Missões e treinos</span><small>Aumente seus atributos</small></div><b aria-hidden="true">01</b></button>
+        <button class="commandLink" type="button" data-view="cidade"><div><span>Distritos</span><small>Compare risco e retorno</small></div><b aria-hidden="true">02</b></button>
+        <button class="commandLink" type="button" data-view="gestao"><div><span>Banco e negócios</span><small>Administre seu patrimônio</small></div><b aria-hidden="true">03</b></button>
+        <button class="commandLink" type="button" data-view="gangue"><div><span>Sua gangue</span><small>${state.gangName?'Gerencie seu grupo':'Construa sua reputação'}</small></div><b aria-hidden="true">04</b></button>
+      </div>
+      <div class="recentFeed"><div class="commandHeader"><h2>Últimos acontecimentos</h2><small>Registro da carreira</small></div><section class="card">${journal(2)}</section></div>`;
+    }
+    function careerCard(){
+      if(state.career)return `<div class="compactNote"><strong>Especialização: ${career().name}</strong><span>${career().desc}</span></div>`;
+      return `<section class="card choiceCard"><div class="eyebrow">Decisão permanente nesta temporada</div><h2>Escolha seu estilo de carreira</h2><p>Cada caminho tem vantagens e desvantagens. Você poderá escolher novamente na próxima temporada.</p><div class="choiceGrid">${CAREERS.map(c=>`<article><strong>${c.name}</strong><p>${c.desc}</p>${button('Escolher '+c.name,'career',`data-id="${c.id}"`,false,'small primary block')}</article>`).join('')}</div></section>`;
+    }
+    function goalSummary(){
+      if(!state.goal)return '';
+      const g=GOALS.find(x=>x.id===state.goal),p=goalProgress(state.goal);
+      return `<div class="compactNote"><strong>Meta: ${g.name}</strong><span>${p.complete?'Concluída!':p.unit==='currency'?format(p.value)+' / '+format(p.max):Math.round(p.value)+'% do objetivo'}</span></div>`;
+    }
+    function newsCard(){
+      if(!state.newsPending)return '';
+      const news=NEWS.find(n=>n.id===state.newsPending.id);
+      if(!news)return '';
+      return `<section class="card choiceCard"><div class="eyebrow">Decisão da cidade · Dia ${state.day}</div><h2>${news.name}</h2><p>${news.desc}</p><div class="choiceGrid">${news.choices.map((c,i)=>`<article><strong>${c.label}</strong><p>${c.desc}</p>${button('Tomar decisão','news',`data-id="${news.id}" data-choice="${i}"`,state.cash<c.cash||state.energy<c.energy||state.jail>0,'small block')}</article>`).join('')}</div><div class="btnbar" style="margin-top:8px">${button('Ignorar notícia','skip-news','',false,'ghost small')}</div></section>`;
+    }
+    function pickCareer(id){
+      if(state.career)return notify('A carreira já foi escolhida nesta temporada.',true);
+      const selected=CAREERS.find(c=>c.id===id);if(!selected)return;
+      state.career=id;log(`Você escolheu a especialização ${selected.name}.`);notify(`Carreira definida: ${selected.name}.`);update();
+    }
+    function newsChoice(id,index){
+      const news=NEWS.find(n=>n.id===id),choice=news?.choices[index];
+      if(!news||!choice||state.newsPending?.id!==id||state.newsPending?.day!==state.day)return notify('Notícia indisponível.',true);
+      if(state.jail>0||state.energy<choice.energy||state.cash<choice.cash)return notify('Recursos insuficientes para essa escolha.',true);
+      state.energy-=choice.energy;state.cash+=choice.money||0;state.cash-=choice.cash;
+      state.respect+=choice.respect||0;state.heat=clamp(state.heat+(choice.heat||0),0,100);
+      const boost=Math.round((choice.influence||0)*(state.career==='articulador'?1.3:1));
+      state.influence[state.district]=clamp(state.influence[state.district]+boost,0,100);
+      state.rivals[state.district]=clamp(state.rivals[state.district]+(choice.rival||0),0,100);
+      state.nextBonus+=choice.nextBonus||0;state.newsPending=null;
+      log(`${news.name}: ${choice.label}. ${choice.desc}.`);notify('Decisão registrada.');update();
+    }
+    function skipNews(){if(!state.newsPending)return;const title=NEWS.find(n=>n.id===state.newsPending.id)?.name||'Notícia';state.newsPending=null;log(`${title}: você preferiu não se envolver.`);notify('Notícia encerrada sem custos.');update()}
+    function influenceAction(type){
+      if(state.jail>0)return notify('Você está detido.',true);
+      const id=state.district,own=state.influence[id],rival=state.rivals[id],isContest=type==='dispute';
+      const energy=isContest?33:22,cost=isContest?320:180;
+      const fid=factionFor(id).id,relation=diplomacyState(fid);
+      if(isContest&&own<20)return notify('Construa pelo menos 20 de influência neste distrito antes de disputar.',true);
+      if(isContest&&pactActive(fid))return notify('Há uma trégua ativa com este grupo. Aguarde o término antes de disputar.',true);
+      if(isContest&&relation.lastActionDay===state.day)return notify('Você já fez uma ação contra esta facção hoje.',true);
+      if(state.energy<energy||state.cash<cost)return notify('Energia ou dinheiro insuficiente.',true);
+      state.energy-=energy;state.cash-=cost;
+      if(!isContest){
+        const boost=Math.round((12+Math.floor(state.stats.influencia/10))*(state.career==='articulador'?1.3:1));
+        state.influence[id]=clamp(own+boost,0,100);state.respect+=2;state.heat=clamp(state.heat+2,0,100);
+        log(`Contatos fortalecidos em ${district().name}: +${boost} de influência local.`);notify(`+${boost} influência em ${district().name}.`);
+      }else{
+        const odds=clamp(Math.round(42+state.stats.influencia*1.3+state.gangLevel*3-state.heat*.15-(rival-own)*.22+(state.career==='articulador'?6:0)-relation.tension*.07),20,84);
+        relation.lastActionDay=state.day;
+        relation.relation=clamp(relation.relation-11,-100,100);
+        relation.tension=clamp(relation.tension+12,0,100);
+        if(rand(1,100)<=odds){state.influence[id]=clamp(own+17,0,100);state.rivals[id]=clamp(rival-12,0,100);state.respect+=6;state.heat=clamp(state.heat+8,0,100);log(`Disputa vencida em ${district().name}. Rivais perderam força.`);notify(`Disputa vencida! Chance: ${odds}%.`)}
+        else{state.influence[id]=clamp(own-6,0,100);state.rivals[id]=clamp(rival+9,0,100);state.heat=clamp(state.heat+11,0,100);log(`Disputa perdida em ${district().name}. O grupo rival ampliou sua presença.`);notify('Disputa perdida. O rival avançou.',true)}
+      }
+      update();
+    }
+    function influenceMap(){return `<section class="card" style="margin-top:13px"><div class="space factionHeader"><div><h2>Influência em ${html(district().name)}</h2><p>O rival principal é ${factionFor(state.district).name}. ${factionStatus(factionFor(state.district).id)}. Liderar o distrito concede +12% nas missões feitas aqui.</p></div>${controlled(state.district)?'<span class="pill">Distrito liderado</span>':''}</div><div class="dualMeters"><div><div class="meterlabel"><span>Sua influência</span><strong>${state.influence[state.district]}%</strong></div><div class="meter green"><div style="width:${state.influence[state.district]}%"></div></div></div><div><div class="meterlabel"><span>Rivais simulados</span><strong>${state.rivals[state.district]}%</strong></div><div class="meter red"><div style="width:${state.rivals[state.district]}%"></div></div></div></div><div class="btnbar" style="margin-top:14px">${button('Criar contatos · R$ 180','influence',`data-id="contact"`,state.jail>0||state.cash<180||state.energy<22,'small primary')}${button('Disputar área · R$ 320','influence',`data-id="dispute"`,state.jail>0||state.cash<320||state.energy<33||state.influence[state.district]<20||pactActive(factionFor(state.district).id)||diplomacyState(factionFor(state.district).id).lastActionDay===state.day,'small')}</div><p class="mini" style="margin-top:8px">Criar contatos: 22 energia, influência garantida. Disputa: 33 energia, uma por facção ao dia, bloqueada em tréguas. Grupos são personagens fictícios, não pessoas reais.</p></section><div class="section"><h2>Quadro de bairros</h2><small>${controls().length} distrito(s) liderado(s)</small></div><div class="grid two">${DISTRICTS.map(d=>`<div class="territoryRow"><strong>${html(d.name)}</strong><span>${controlled(d.id)?'Você lidera':`Você ${state.influence[d.id]} · ${factionFor(d.id).short} ${state.rivals[d.id]}`}</span></div>`).join('')}</div>`}
+    function factionDialogue(id){
+      const f=FACTIONS.find(x=>x.id===id);if(!f||!state.gangName||state.jail>0)return notify('É preciso ter um grupo ativo.',true);
+      const s=diplomacyState(id);
+      if(s.lastActionDay===state.day||state.energy<14||state.cash<170)return notify('Diálogo indisponível hoje: verifique energia, dinheiro e limite diário.',true);
+      state.energy-=14;state.cash-=170;s.lastActionDay=state.day;
+      const odds=clamp(Math.round(64+state.stats.labia*1.1+state.stats.influencia*.35+s.relation*.12-s.tension*.22-f.temperament*.45),30,91);
+      if(rand(1,100)<=odds){s.relation=clamp(s.relation+19,-100,100);s.tension=clamp(s.tension-12,0,100);state.gangStats.dialogs++;
+        log(`Conversa com ${f.name}: aproximação bem-sucedida. Relações melhoraram e tensão caiu.`);notify(`Diálogo positivo com ${f.short}!`)}
+      else{s.relation=clamp(s.relation-7,-100,100);s.tension=clamp(s.tension+5,0,100);
+        log(`Conversa com ${f.name}: não houve acordo e a tensão aumentou.`);notify('O diálogo não avançou.',true)}
+      update();
+    }
+    function factionPact(id){
+      const f=FACTIONS.find(x=>x.id===id);if(!f||!state.gangName||state.jail>0)return notify('Ação indisponível.',true);
+      const s=diplomacyState(id);
+      if(state.day>=MAXDAY||s.lastActionDay===state.day||pactActive(id)||s.relation<35||state.energy<18||state.cash<400)return notify('Para firmar trégua: relação +35, R$ 400, 18 energia e nenhuma interação com o grupo hoje.',true);
+      state.energy-=18;state.cash-=400;s.lastActionDay=state.day;s.truceUntil=Math.min(MAXDAY,state.day+3);
+      s.relation=clamp(s.relation+3,-100,100);s.tension=clamp(s.tension-15,0,100);state.gangStats.pacts++;
+      log(`Trégua com ${f.name} até o dia ${s.truceUntil}: sem disputas ou avanços rivais em seus bairros.`);
+      notify(`Trégua com ${f.short} até o dia ${s.truceUntil}.`);update();
+    }
+    function factionClash(id){
+      const f=FACTIONS.find(x=>x.id===id);if(!f||!state.gangName||state.jail>0)return notify('É necessário liderar seu grupo e estar livre.',true);
+      const s=diplomacyState(id),place=state.district;
+      if(!f.districts.includes(place)||state.influence[place]<20||pactActive(id)||s.lastActionDay===state.day||state.energy<32||state.cash<300)return notify('Confronto indisponível: é preciso estar no bairro, ter 20 de influência e recursos, sem trégua nem ação anterior hoje.',true);
+      const odds=clashOdds(place);state.energy-=32;state.cash-=300;s.lastActionDay=state.day;
+      s.relation=clamp(s.relation-18,-100,100);s.tension=clamp(s.tension+19,0,100);
+      if(rand(1,100)<=odds){state.influence[place]=clamp(state.influence[place]+16,0,100);state.rivals[place]=clamp(state.rivals[place]-12,0,100);
+        state.respect+=6;state.heat=clamp(state.heat+9,0,100);state.crewMorale=clamp(state.crewMorale+5,0,100);state.gangStats.confrontWins++;
+        log(`${state.gangName} venceu um confronto com ${f.name} em ${district().name}; a rivalidade aumentou.`);notify(`Confronto vencido! Chance: ${odds}%.`)}
+      else{state.influence[place]=clamp(state.influence[place]-9,0,100);state.rivals[place]=clamp(state.rivals[place]+11,0,100);
+        state.heat=clamp(state.heat+16,0,100);state.crewMorale=clamp(state.crewMorale-10,0,100);state.gangStats.confrontLosses++;
+        log(`${state.gangName} perdeu o confronto com ${f.name} em ${district().name}. A equipe ficou abalada.`);notify('Confronto perdido: influência e ânimo reduzidos.',true)}
+      update();
+    }
+    function crewRecruit(){
+      if(!state.gangName||state.jail>0||state.crewSize>=8||state.crewLastRecruit===state.day||state.cash<550||state.energy<18)return notify('Recrutamento indisponível agora.',true);
+      state.cash-=550;state.energy-=18;state.crewSize++;state.crewMorale=clamp(state.crewMorale+3,0,100);state.crewLastRecruit=state.day;
+      log(`Sua equipe recebeu um novo integrante. Total: ${state.crewSize}. A manutenção diária aumentou.`);notify(`Equipe com ${state.crewSize} integrantes.`);update();
+    }
+    function crewRally(){
+      if(!state.gangName||state.jail>0||state.crewLastRally===state.day||state.crewMorale>=100||state.cash<180||state.energy<12)return notify('Reunião indisponível agora.',true);
+      state.cash-=180;state.energy-=12;state.crewMorale=clamp(state.crewMorale+18,0,100);state.crewLastRally=state.day;
+      log('A equipe se reuniu e recuperou parte do ânimo.');notify('Ânimo do grupo recuperado.');update();
+    }
+    function goalProgress(id){
+      if(id==='capital')return {value:state.cash+state.bank+assetsValue(),max:15000,unit:'currency',complete:state.cash+state.bank+assetsValue()>=15000};
+      if(id==='renome')return {value:Math.min(135,state.respect)/135*50+Math.min(25,state.successful)/25*50,max:100,unit:'percent',complete:state.respect>=135&&state.successful>=25};
+      if(id==='dominio')return {value:controls().length>=1&&DISTRICTS.some(d=>!controlled(d.id)&&state.influence[d.id]>=40)?100:Math.min(100,controls().length*60+DISTRICTS.filter(d=>!controlled(d.id)).reduce((max,d)=>Math.max(max,state.influence[d.id]),0)),max:100,unit:'percent',complete:controls().length>=1&&DISTRICTS.some(d=>!controlled(d.id)&&state.influence[d.id]>=40)};
+      return {value:0,max:100,unit:'percent',complete:false};
+    }
+    function goalCard(){
+      if(!state.goal){
+        if(state.day>5)return `<section class="card"><h2>Meta da temporada</h2><p>Você não escolheu uma meta nos primeiros cinco dias. Poderá selecionar uma na próxima temporada.</p></section>`;
+        return `<section class="card choiceCard"><h2>Escolha a meta da temporada</h2><p>Defina até o dia 5 o que quer conquistar. Cumprir a meta garante R$ 600 adicionais na próxima temporada.</p><div class="choiceGrid">${GOALS.map(g=>`<article><strong>${g.name}</strong><p>${g.desc}</p>${button('Escolher meta','goal',`data-id="${g.id}"`,false,'small block')}</article>`).join('')}</div></section>`;
+      }
+      const g=GOALS.find(g=>g.id===state.goal),p=goalProgress(state.goal),value=p.unit==='currency'?format(p.value):`${Math.round(p.value)}%`;
+      return `<section class="card"><div class="space"><div><div class="eyebrow">Sua meta de temporada</div><h2>${g.name}</h2></div><span class="pill">${p.complete?'Concluída':'Em andamento'}</span></div><p>${g.desc}</p><div class="meter green"><div style="width:${clamp(p.value/p.max*100,0,100)}%"></div></div><div class="statusbar"><span>Progresso: ${value}</span><strong>${p.complete?'Bônus garantido ao encerrar':'Bônus: R$ 600'}</strong></div></section>`;
+    }
+    function chooseGoal(id){if(state.goal||state.day>5||!GOALS.some(g=>g.id===id))return notify('Meta não pode mais ser alterada.',true);state.goal=id;log(`Meta escolhida: ${GOALS.find(g=>g.id===id).name}.`);notify('Meta da temporada definida.');update()}
+    function safeJobs(){return `<div class=\"section\"><h2>Outras escolhas</h2><small>Menos risco, menor retorno</small></div><div class=\"grid two\"><section class=\"card\"><h3>Bico de ocasião</h3><p>Trabalho simples e garantido, sem aumentar sua reputação. Bom para preservar o caixa.</p><div class=\"space\"><span class=\"mini\">28 energia · R$ 110–170 · -4 vigilância</span>${button('Fazer bico','legal-gig','',state.energy<28||state.jail>0,'small')}</div></section><section class=\"card\"><h3>Ficar na sua</h3><p>Evite movimentações e reduza a atenção sobre você. Gasta energia e não rende dinheiro.</p><div class=\"space\"><span class=\"mini\">18 energia · -20 vigilância</span>${button('Reduzir exposição','lay-low','',state.energy<18||state.jail>0||state.heat===0,'small')}</div></section></div><div class=\"notice\" style=\"margin-top:9px\">Nas missões de risco, uma falha pode causar perda de dinheiro em mãos, aumentar a vigilância e resultar em detenção. Depósitos bancários não sofrem essas perdas.</div>`}
+    function legalGig(){if(state.jail>0||state.energy<28)return notify('Você não pode fazer o bico agora.',true);const pay=rand(110,170);state.energy-=28;state.cash+=pay;state.heat=clamp(state.heat-4,0,100);log(`Bico realizado: ${format(pay)} recebidos, sem aumentar a reputação.`);notify(`Bico concluído. +${format(pay)}`);update()}
+    function layLow(){if(state.jail>0||state.energy<18||state.heat===0)return notify('Não é necessário reduzir exposição agora.',true);state.energy-=18;state.heat=clamp(state.heat-20,0,100);log('Você ficou longe dos holofotes e reduziu a vigilância.');notify('Vigilância reduzida.');update()}
+    function actions(){return heading('Ações e treinamento','Escolha onde gastar energia. Resultados dependem dos seus atributos e do risco da cidade.')+jailNotice()+safeJobs()+`<div class="grid two"><section class="card">${bars()}</section><section class="card"><div class="space"><h2>Condições atuais</h2><span class="tag">${html(district().name)}</span></div><p>${html(event().desc)}</p><div class="space"><span class="quiet">Seu poder de operação</span><strong>${num(power())}</strong></div></section></div><div class="section"><h2>Missões individuais</h2><small>Chance máxima: 96%</small></div><div class="grid">${MISSIONS.map(m=>{const unlocked=state.respect>=m.unlock,p=chance(m),blocked=state.jail>0||state.energy<m.cost||!unlocked;return `<section class="card mission"><div><h3>${html(m.name)} ${unlocked?'':`<span class="pill">Requer ${m.unlock} respeito</span>`}</h3><p>${html(m.desc)}</p><div class="details">${m.cost} energia • ${format(m.low)}–${format(m.high)} • ${m.heat} pressão policial</div></div><div class="right"><span class="chance ${p<55?'danger':p<78?'risky':''}">${p}% <small class="mini">sucesso</small></span>${button('Executar','mission',`data-id="${m.id}"`,blocked,'primary small')}</div></section>`}).join('')}</div><div class="section"><h2>Centro de treinamento</h2><small>Custo em dinheiro e energia</small></div><div class="grid two">${SKILLS.map(skill=>{const level=state.stats[skill.id],cost=280+level*38;return `<section class="card"><div class="space"><h3>${skill.name}</h3><strong class="accent">${num(level)}</strong></div><p>${skill.desc}</p><div class="space"><span class="mini">+2 pontos • 22 energia • ${format(cost)}</span>${button('Treinar','train',`data-id="${skill.id}"`,state.jail>0||state.energy<22||state.cash<cost,'small')}</div></section>`}).join('')}</div>`}
+    function city(){return heading('Mapa da cidade','Distritos fictícios com diferenças reais de risco e recompensa.')+influenceMap()+`<section class="brandpanel"><div class="eyebrow">Você está em</div><h2>${html(district().name)}</h2><p>${html(district().desc)} Escolher um distrito muda as chances e a recompensa das missões.</p><div class="flex"><span class="badge">${district().bonus>=0?'+':''}${district().bonus}% recompensas</span><span class="badge">${district().risk>=0?'+':''}${district().risk} pressão de risco</span></div></section><div class="section"><h2>Distritos disponíveis</h2><small>Viagem: ${format(90)} e 5 energia</small></div><div class="grid two">${DISTRICTS.map(d=>`<section class="card district ${d.id===state.district?'selected':''}"><div class="space"><h3>${html(d.name)}</h3>${d.id===state.district?'<span class="pill">Local atual</span>':''}</div><p>${html(d.desc)}</p><div class="flex"><span class="badge">${d.bonus>=0?'+':''}${d.bonus}% retorno</span><span class="badge">Risco ${d.risk>=0?'+':''}${d.risk}</span></div><div class="statusbar"><span class="mini">${d.id===state.district?'Você está aqui':'Mudar de local'}</span>${d.id===state.district?'':button('Viajar','travel',`data-id="${d.id}"`,state.cash<90||state.energy<5||state.jail>0,'small')}</div></section>`).join('')}</div><p class="quiet" style="margin-top:15px">Os distritos e personagens são inventados. Não representam criminalidade em bairros ou comunidades reais.</p>`}
+    function management(){return heading('Gestão e banco','Proteja seu dinheiro e monte uma renda diária com estabelecimentos.')+jailNotice()+stats()+`<div class="grid two" style="margin-top:13px"><section class="card"><h2>Banco</h2><p>Dinheiro depositado não sofre as perdas de operações malsucedidas.</p><div class="formfield"><label for="bankAmount">Valor em reais (R$)</label><input class="input" id="bankAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="Ex.: 500"></div><div class="btnbar" style="margin-top:10px">${button('Depositar','bank','data-mode="deposit"',false,'primary small')}${button('Sacar','bank','data-mode="withdraw"',false,'small')}</div></section><section class="card"><h2>Seu patrimônio</h2><table class="table"><tbody><tr><td>Dinheiro em mãos</td><td>${format(state.cash)}</td></tr><tr><td>Banco</td><td>${format(state.bank)}</td></tr><tr><td>Valor investido</td><td>${format(state.businesses.reduce((n,k)=>n+(BUSINESSES.find(b=>b.id===k)?.cost||0),0))}</td></tr><tr><td><strong>Patrimônio total</strong></td><td><strong>${format(state.cash+state.bank+state.businesses.reduce((n,k)=>n+(BUSINESSES.find(b=>b.id===k)?.cost||0),0))}</strong></td></tr></tbody></table><div class="statusbar"><span>Renda por dia</span><strong class="positive">${format(income())}</strong></div></section></div><div class="section"><h2>Estabelecimentos</h2><small>Recebimento ao avançar o dia</small></div><div class="grid two">${BUSINESSES.map(b=>{const owned=state.businesses.includes(b.id);return `<section class="card"><div class="space"><h3>${b.name}</h3>${owned?'<span class="pill">Adquirido</span>':''}</div><p>${b.desc}</p><table class="table"><tbody><tr><td>Compra</td><td>${format(b.cost)}</td></tr><tr><td>Lucro líquido / dia</td><td class="positive">${format(b.net)}</td></tr><tr><td>Respeito na compra</td><td>+${b.respect}</td></tr></tbody></table>${button(owned?'Seu estabelecimento':'Comprar negócio','buy',`data-id="${b.id}"`,owned||state.cash<b.cost,'block '+(owned?'ghost':'primary'))}</section>`}).join('')}</div><p class="quiet" style="margin-top:13px">Valores experimentais. O balanceamento econômico será revisto antes do multiplayer.</p>`}
+    function factionCard(f){
+      const s=diplomacyState(f.id),active=pactActive(f.id),used=s.lastActionDay===state.day;
+      const areas=f.districts.map(id=>DISTRICTS.find(d=>d.id===id)?.name).join(' e ');
+      const inArea=f.districts.includes(state.district),canAct=!!state.gangName&&state.jail===0&&!used;
+      return `<section class="card rivalCard"><div class="space"><div><div class="eyebrow">Grupo fictício • ${html(areas)}</div><h3>${f.name}</h3></div><span class="pill">${factionStatus(f.id)}</span></div><p>${f.desc}</p><div class="rivalMetrics"><div><span>Relação</span><strong>${s.relation>0?'+':''}${s.relation}</strong></div><div><span>Tensão</span><strong>${s.tension}/100</strong></div><div><span>Trégua</span><strong>${active?`Até dia ${s.truceUntil}`:'Não'}</strong></div></div><div class="btnbar">${button('Dialogar · R$ 170','faction-dialogue',`data-id="${f.id}"`,!canAct||state.cash<170||state.energy<14,'small')}${button('Negociar trégua · R$ 400','faction-pact',`data-id="${f.id}"`,!canAct||active||s.relation<35||state.cash<400||state.energy<18||state.day>=MAXDAY,'small')}${button('Confrontar no bairro · R$ 300','faction-clash',`data-id="${f.id}"`,!canAct||active||!inArea||state.influence[state.district]<20||state.cash<300||state.energy<32,'small danger')}</div><p class="mini">${used?'Ação diária utilizada com este grupo.':active?'A trégua bloqueia confrontos, mas protege contra avanços e retaliações.':`O diálogo pode reduzir a tensão. Para uma trégua, alcance relação +35. O confronto exige 20 de influência no bairro da facção.`}</p></section>`;
+    }
+    function gang(){
+      const created=!!state.gangName,upgradeCost=1200+state.gangLevel*900;
+      const brief=`<section class="card"><div class="space"><h2>Disputa na cidade</h2><span class="pill">${state.gangStats.confrontWins} vitórias • ${state.gangStats.confrontLosses} derrotas</span></div><p>Três grupos rivais controlados pelo jogo têm interesses diferentes. Conversas, confrontos e tréguas alteram a pressão sobre os bairros.</p><div class="rivalMetrics"><div><span>Acordos firmados</span><strong>${state.gangStats.pacts}</strong></div><div><span>Reações rivais</span><strong>${state.gangStats.retaliations}</strong></div><div><span>Seus bairros</span><strong>${controls().length}/${DISTRICTS.length}</strong></div></div></section>`;
+      const group=created?`<section class="brandpanel"><div class="eyebrow">Seu grupo</div><h2>${html(state.gangName)}</h2><p>Uma equipe simulada com custos, disposição e capacidade de negociação. As escolhas têm efeito na sua temporada.</p><div class="flex"><span class="badge">Sede nível ${state.gangLevel}</span><span class="badge">${state.crewSize} integrantes</span><span class="badge">Ânimo ${state.crewMorale}/100</span></div></section><div class="grid two" style="margin-top:13px"><section class="card"><h2>Equipe e manutenção</h2><p>Manutenção diária: ${format(groupUpkeep())}. Sem dinheiro em mãos, o ânimo cai mais depressa.</p><div class="statusbar"><span>Recrutar +1 integrante</span><strong>${format(550)} · 18 energia</strong></div>${button('Recrutar','crew-recruit','',state.crewSize>=8||state.crewLastRecruit===state.day||state.cash<550||state.energy<18||state.jail>0,'block small')}<div class="statusbar"><span>Reunir equipe (+18 ânimo)</span><strong>${format(180)} · 12 energia</strong></div>${button('Reunir equipe','crew-rally','',state.crewLastRally===state.day||state.crewMorale>=100||state.cash<180||state.energy<12||state.jail>0,'block small')}</section><section class="card"><h2>Operações do grupo</h2><p>A chance depende do tamanho, ânimo, sede, atributos e vigilância.</p><div class="statusbar"><span>Operação coletiva · 35 energia</span><strong>${gangOdds()}% de sucesso</strong></div>${button('Organizar operação','gang-mission','',state.jail>0||state.energy<35,'primary block small')}<div class="statusbar"><span>Melhorar a sede</span><strong>${format(upgradeCost)}</strong></div>${button('Melhorar sede','upgrade','',state.cash<upgradeCost||state.gangLevel>=8,'block small')}</section></div>`:`<section class="brandpanel"><div class="eyebrow">Comece sua história</div><h2>Nenhuma gangue fundada</h2><p>Forme seu grupo para recrutar integrantes e negociar com os rivais da cidade.</p></section><section class="card" style="margin-top:13px"><h2>Fundar gangue</h2><p>Requisitos: 30 de respeito e ${format(1800)} em mãos. Você começa com dois integrantes.</p><div class="formfield"><label for="gangName">Nome do grupo</label><input id="gangName" class="input" maxlength="25" placeholder="Nome fictício da sua gangue" autocomplete="off"></div><div style="margin-top:12px">${button('Fundar grupo','found-gang','',state.respect<30||state.cash<1800,'primary')}</div></section>`;
+      return heading('Gangues e rivalidades','Negocie, fortaleça sua equipe ou enfrente rivais simulados. Cada escolha altera a cidade.')+group+`<div class="section"><h2>Grupos da cidade</h2><small>Uma interação por grupo a cada dia virtual</small></div>`+brief+`<div class="grid two" style="margin-top:13px">${FACTIONS.map(factionCard).join('')}</div><div class="notice" style="margin-top:13px">Simulação individual: não existem outros jogadores, chat, alianças online nem guerra multiplayer neste protótipo.</div>`;
+    }
+    function seasons(){return heading('Temporada','Trinta dias virtuais de evolução e decisões. Cada temporada cria uma nova carreira.')+`<div class="seasonObjective">${goalCard()}</div>`+`<div class="grid two"><section class="card"><div class="eyebrow">Temporada atual</div><div class="seasonnumber">${String(state.season).padStart(2,'0')}</div><div class="meter"><div style="width:${state.day/MAXDAY*100}%"></div></div><div class="statusbar"><span>Dia ${state.day} de ${MAXDAY}</span><strong>${remaining()} dias restantes</strong></div><div class="divider"></div>${button(state.day===MAXDAY?'Encerrar temporada':'Avançar um dia',state.day===MAXDAY?'end-season':'next-day','',false,'primary block')}</section><section class="card"><h2>Resumo da carreira</h2><table class="table"><tbody><tr><td>Missões concluídas</td><td>${num(state.successful)}</td></tr><tr><td>Missões fracassadas</td><td>${num(state.failed)}</td></tr><tr><td>Respeito conquistado</td><td>${num(state.respect)}</td></tr><tr><td>Negócios adquiridos</td><td>${state.businesses.length}</td></tr><tr><td>Confrontos vencidos</td><td>${state.gangStats.confrontWins}</td></tr><tr><td>Tréguas firmadas</td><td>${state.gangStats.pacts}</td></tr><tr><td>Patrimônio disponível</td><td>${format(state.cash+state.bank)}</td></tr></tbody></table></section></div><div class="section"><h2>Histórico de temporadas</h2><small>${state.goalWins} meta(s) cumprida(s)</small></div><section class="card">${state.seasonHistory.length?`<table class="table"><thead><tr><th>Temporada</th><th>Respeito</th><th>Patrimônio</th></tr></thead><tbody>${state.seasonHistory.slice(-8).reverse().map(h=>`<tr><td>${h.season}</td><td>${num(h.respect)}</td><td>${format(h.money)}${h.goal?`<div class="mini">${h.goalComplete?'Meta cumprida':'Meta não cumprida'}</div>`:''}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Nenhuma temporada encerrada ainda.</div>'}</section><div class="section"><h2>Salvamento e segurança</h2></div><section class="card"><h2>Seu progresso</h2><p>Os dados são salvos automaticamente neste navegador. Faça uma cópia para transportar o progresso entre aparelhos.</p><div class="btnbar">${button('Exportar carreira','export','',false,'small')}${button('Importar carreira','import','',false,'small ghost')}${button('Recomeçar tudo','reset','',false,'small danger')}</div><input type="file" id="importFile" accept=".json,application/json" class="hidden" aria-label="Selecionar salvamento JSON"><div class="divider"></div><div class="quiet">Salvar no navegador não sincroniza entre dispositivos e pode ser apagado ao limpar os dados do site. Nunca use esta versão como backend de multiplayer.</div></section>`}
+    function render(){if(!state)return;const pages={painel:panel,acoes:actions,cidade:city,gestao:management,gangue:gang,temporada:seasons};$('#content').innerHTML=(pages[view]||panel)()+`<div class="footer">SUBMUNDO BRASIL • v0.4 • Universo fictício • Protótipo local sem multiplayer, pagamentos ou conexão externa.</div>`;$('#topCash').textContent=format(state.cash);$('#topDay').textContent=`Dia ${state.day}/${MAXDAY}`;$all('.nav button, .mobileNav button').forEach(b=>{const active=b.dataset.view===view;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})}
+    function switchView(target){if(!['painel','acoes','cidade','gestao','gangue','temporada'].includes(target))return;view=target;$('#sidebar').classList.remove('open');$('#menuToggle').setAttribute('aria-expanded','false');render();window.scrollTo({top:0,behavior:'instant'})}
+    function mission(id){const m=MISSIONS.find(x=>x.id===id);if(!m)return;if(state.jail>0)return notify('Você está detido.',true);if(state.respect<m.unlock)return notify('Respeito insuficiente.',true);if(state.energy<m.cost)return notify('Energia insuficiente. Avance um dia.',true);const odds=chance(m),success=rand(1,100)<=odds;state.energy-=m.cost;if(success){const reward=Math.max(1,Math.round(rand(m.low,m.high)*(1+(district().bonus+event().reward+(controlled(state.district)?12:0))/100)));state.cash+=reward;state.respect+=m.respect;state.stats.astucia+=rand(0,1);state.heat=clamp(state.heat+careerHeat(m.heat),0,100);state.successful++;log(`${m.name}: missão bem-sucedida. Você recebeu ${format(reward)} e ganhou ${m.respect} de respeito.`);notify(`Operação concluída! +${format(reward)}`)}else{const lost=Math.min(state.cash,Math.ceil(state.cash*.12));state.cash-=lost;state.heat=clamp(state.heat+careerHeat(m.heat+rand(6,12)),0,100);state.failed++;const arrested=rand(1,100)<=45+Math.floor(state.heat*.25);if(arrested)state.jail=rand(1,3);log(`${m.name}: a missão falhou. Perda de ${format(lost)}.${arrested?` Você foi detido por ${state.jail} dia(s).`:''}`);notify(arrested?'Missão falhou. Você foi detido.':'Missão falhou. Houve perda de dinheiro.',true)}update()}
+    function nextDay(){
+      if(state.day>=MAXDAY)return notify('Fim de temporada. Acesse Temporada para encerrar.',true);
+      if(state.newsPending)log('Você deixou passar uma notícia sem escolher uma ação.');
+      state.day++;state.jail=Math.max(0,state.jail-1);
+      const profit=income(),extra=state.nextBonus;
+      state.cash+=profit+extra;state.nextBonus=0;
+      state.energy=clamp(state.energy+70,0,100);state.heat=clamp(state.heat-20,0,100);
+      state.eventIndex=rand(0,EVENTS.length-1);
+      let upkeepNote='';
+      if(state.gangName){
+        const cost=groupUpkeep();
+        if(state.cash>=cost){state.cash-=cost;state.crewMorale=clamp(state.crewMorale-2,0,100);upkeepNote=` Equipe: -${format(cost)} e -2 ânimo.`}
+        else{state.crewMorale=clamp(state.crewMorale-12,0,100);upkeepNote=' Caixa insuficiente para a manutenção: -12 ânimo.'}
+      }
+      const rivalDistrict=DISTRICTS[rand(0,DISTRICTS.length-1)].id;
+      const movingFaction=factionFor(rivalDistrict),movingState=diplomacyState(movingFaction.id);
+      const advance=pactActive(movingFaction.id)?0:rand(2,5)+(movingState.tension>=65?1:0);
+      state.rivals[rivalDistrict]=clamp(state.rivals[rivalDistrict]+advance,0,100);
+      for(const d of DISTRICTS)if(d.id!==state.district)state.influence[d.id]=clamp(state.influence[d.id]-1,0,100);
+      let retaliation='';
+      // No máximo uma retaliação por dia; nunca ocorre durante uma trégua.
+      const hostile=FACTIONS.filter(f=>!pactActive(f.id)&&diplomacyState(f.id).relation<=-40&&diplomacyState(f.id).tension>=40);
+      if(hostile.length){
+        const target=hostile.sort((a,b)=>diplomacyState(b.id).tension-diplomacyState(a.id).tension)[0];
+        if(rand(1,100)<=Math.min(60,10+Math.floor(diplomacyState(target.id).tension*.4))){
+          const districtId=target.districts.slice().sort((a,b)=>state.influence[b]-state.influence[a])[0];
+          const removed=Math.min(6,state.influence[districtId]);
+          state.influence[districtId]=clamp(state.influence[districtId]-removed,0,100);
+          state.rivals[districtId]=clamp(state.rivals[districtId]+4,0,100);
+          state.heat=clamp(state.heat+4,0,100);state.gangStats.retaliations++;
+          retaliation=` Retaliação de ${target.name}: -${removed} influência em ${DISTRICTS.find(d=>d.id===districtId).name}.`;
+        }
+      }
+      state.newsPending=(state.day%4===0)?{id:NEWS[rand(0,NEWS.length-1)].id,day:state.day}:null;
+      log(`Novo dia: energia recuperada e vigilância reduzida.${profit?` Negócios: ${format(profit)}.`:''}${extra?` Bônus comercial: ${format(extra)}.`:''}${advance?` ${movingFaction.name} avançou em ${DISTRICTS.find(d=>d.id===rivalDistrict).name}.`:` Trégua impediu o avanço em ${DISTRICTS.find(d=>d.id===rivalDistrict).name}.`}${upkeepNote}${retaliation}`);
+      notify(profit||extra?`Dia ${state.day}: receita total ${format(profit+extra)}.`:`Dia ${state.day} iniciado.`);update();
+    }
+    function train(id){const skill=SKILLS.find(s=>s.id===id);if(!skill)return;const cost=280+state.stats[id]*38;if(state.jail>0||state.energy<22||state.cash<cost)return notify('Você não atende aos requisitos do treinamento.',true);state.energy-=22;state.cash-=cost;state.stats[id]+=2;state.respect+=1;log(`Treinamento em ${skill.name}: +2 pontos e +1 respeito.`);notify(`${skill.name}: +2 pontos!`);update()}
+    function travel(id){const d=DISTRICTS.find(x=>x.id===id);if(!d||d.id===state.district)return;if(state.jail>0||state.cash<90||state.energy<5)return notify('Não foi possível viajar: verifique dinheiro, energia e detenção.',true);state.cash-=90;state.energy-=5;state.district=id;log(`Você viajou para ${d.name}.`);notify(`Agora você está em ${d.name}.`);update()}
+    function bank(mode){const input=$('#bankAmount');if(!input)return;const amount=Number(input.value);if(!Number.isSafeInteger(amount)||amount<=0)return notify('Digite um valor inteiro maior que zero.',true);if(mode==='deposit'){if(amount>state.cash)return notify('Dinheiro em mãos insuficiente.',true);state.cash-=amount;state.bank+=amount;log(`Depósito bancário de ${format(amount)}.`)}else{if(amount>state.bank)return notify('Saldo no banco insuficiente.',true);state.bank-=amount;state.cash+=amount;log(`Saque bancário de ${format(amount)}.`)}notify('Movimentação realizada.');update()}
+    function buy(id){const b=BUSINESSES.find(x=>x.id===id);if(!b||state.businesses.includes(id)||state.cash<b.cost)return notify('Compra indisponível.',true);state.cash-=b.cost;state.businesses.push(id);state.respect+=b.respect;log(`Você adquiriu ${b.name} por ${format(b.cost)}. Renda diária: ${format(b.net)}.`);notify(`${b.name} adquirido!`);update()}
+    function foundGang(){const node=$('#gangName');const name=node?.value.trim().replace(/\s+/g,' ');if(!name||name.length<3||name.length>25)return notify('Use um nome entre 3 e 25 caracteres.',true);if(state.gangName||state.respect<30||state.cash<1800)return notify('Requisitos insuficientes.',true);state.cash-=1800;state.gangName=name;state.gangLevel=1;state.crewSize=2;state.crewMorale=70;log(`Você fundou a gangue ${name}, com 2 integrantes e ânimo inicial 70.`);notify('Seu grupo foi fundado.');update()}
+    function upgrade(){const cost=1200+state.gangLevel*900;if(!state.gangName||state.gangLevel>=8||state.cash<cost)return notify('Melhoria indisponível.',true);state.cash-=cost;state.gangLevel++;state.respect+=4;log(`A sede da gangue foi melhorada para o nível ${state.gangLevel}.`);notify('Melhoria concluída!');update()}
+    function gangMission(){
+      if(!state.gangName||state.jail>0||state.energy<35)return notify('Operação indisponível.',true);
+      state.energy-=35;const odds=gangOdds();
+      if(rand(1,100)<=odds){const reward=rand(700,1450);state.cash+=reward;state.respect+=6;state.heat=clamp(state.heat+16,0,100);
+        state.crewMorale=clamp(state.crewMorale+3,0,100);state.successful++;state.gangStats.groupWins++;
+        log(`Operação de ${state.gangName} concluída: ${format(reward)} recebidos e ânimo da equipe melhorado.`);
+        notify(`Operação em grupo concluída! +${format(reward)}`)}
+      else{const lost=Math.ceil(state.cash*.08);state.cash-=lost;state.failed++;state.heat=clamp(state.heat+22,0,100);
+        state.crewMorale=clamp(state.crewMorale-8,0,100);
+        log(`Operação de ${state.gangName} falhou. Perda: ${format(lost)}; a equipe perdeu ânimo.`);notify('A operação em grupo falhou.',true)}update();
+    }
+    function endSeason(){
+      if(state.day!==MAXDAY)return;
+      const money=state.cash+state.bank,fulfilled=state.goal?goalProgress(state.goal).complete:false;
+      const record={season:state.season,respect:state.respect,money,success:state.successful,failed:state.failed,goal:state.goal,goalComplete:fulfilled,career:state.career,districts:controls().length,gangName:state.gangName,confrontWins:state.gangStats.confrontWins,confrontLosses:state.gangStats.confrontLosses,pacts:state.gangStats.pacts,groupWins:state.gangStats.groupWins};
+      if(!confirm(`Encerrar a temporada ${state.season}?\n\nRespeito: ${record.respect}\nDinheiro disponível: ${format(money)}\nMeta: ${state.goal?(fulfilled?'cumprida (+R$ 600 na próxima temporada)':'não cumprida'):'não escolhida'}\n\nVocê começará uma nova carreira e terá seu resultado registrado.`))return;
+      const newState=defaultState(state.name,state.city);
+      newState.season=state.season+1;
+      newState.seasonHistory=[...state.seasonHistory,record];
+      newState.goalWins=state.goalWins+(fulfilled?1:0);
+      newState.cash=1900+Math.min(1200,Math.floor(money*.05))+(fulfilled?600:0);
+      newState.log=[{day:1,msg:`Nova temporada iniciada. Legado anterior: ${record.respect} de respeito; meta ${fulfilled?'concluída':'não concluída'}. Você pode escolher nova especialização e meta.`}];
+      state=newState;view='temporada';notify(fulfilled?'Nova temporada! Meta recompensada.':'Nova temporada iniciada!');update();
+    }
+    function exportSave(){const payload={game:'Submundo Brasil',version:'0.4',exportedAt:new Date().toISOString(),save:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const link=document.createElement('a');const url=URL.createObjectURL(blob);link.href=url;link.download=`submundo-brasil-temporada-${state.season}-dia-${state.day}.json`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);notify('Cópia da carreira preparada para download.')}
+    async function importSave(file){if(!file)return;if(file.size>500000)return notify('Arquivo muito grande.',true);try{const obj=JSON.parse(await file.text());if(obj.game!=='Submundo Brasil'||!validate(obj.save))throw new Error('Formato inválido');if(!confirm('Substituir sua carreira atual pelo arquivo importado?'))return;state=normalizeSave(obj.save);view='painel';notify('Carreira importada com sucesso.');update()}catch(e){notify('Não foi possível importar. Verifique se é um arquivo do jogo.',true)}}
+    function reset(){if(!confirm('Apagar toda a carreira deste navegador? Esta ação não pode ser desfeita.'))return;if(!confirm('Confirme novamente: deseja realmente excluir o progresso?'))return;try{localStorage.removeItem(KEY)}catch(e){}state=null;$('#welcome').classList.remove('hidden');$('#playerName').focus();notify('Novo início disponível.')}
+    document.addEventListener('click',e=>{const nav=e.target.closest('[data-view]');if(nav){switchView(nav.dataset.view);return}const btn=e.target.closest('[data-action]');if(!btn||!state)return;const a=btn.dataset.action,id=btn.dataset.id;switch(a){case 'switch':switchView(btn.dataset.target);break;case 'mission':mission(id);break;case 'career':pickCareer(id);break;case 'goal':chooseGoal(id);break;case 'news':newsChoice(id,Number(btn.dataset.choice));break;case 'skip-news':skipNews();break;case 'influence':influenceAction(id);break;case 'legal-gig':legalGig();break;case 'lay-low':layLow();break;case 'train':train(id);break;case 'travel':travel(id);break;case 'bank':bank(btn.dataset.mode);break;case 'buy':buy(id);break;case 'next-day':nextDay();break;case 'found-gang':foundGang();break;case 'upgrade':upgrade();break;case 'gang-mission':gangMission();break;case 'faction-dialogue':factionDialogue(id);break;case 'faction-pact':factionPact(id);break;case 'faction-clash':factionClash(id);break;case 'crew-recruit':crewRecruit();break;case 'crew-rally':crewRally();break;case 'end-season':endSeason();break;case 'export':exportSave();break;case 'import':$('#importFile')?.click();break;case 'reset':reset();break}});
+    document.addEventListener('change',e=>{if(e.target.id==='importFile')importSave(e.target.files?.[0])});
+    $('#menuToggle').addEventListener('click',()=>{const open=$('#sidebar').classList.toggle('open');$('#menuToggle').setAttribute('aria-expanded',String(open))});
+    $('#newGameForm').addEventListener('submit',e=>{e.preventDefault();const name=$('#playerName').value.trim().replace(/\s+/g,' ');const city=$('#homeCity').value;if(name.length<2||name.length>22)return notify('Escolha um codinome entre 2 e 22 caracteres.',true);state=defaultState(name,city);$('#welcome').classList.add('hidden');view='painel';update();notify(`Bem-vindo à cidade, ${name}.`)});
+    state=read();if(state)render();else{$('#welcome').classList.remove('hidden');$('#playerName').focus()}
+  })();
+  </script>
+</body>
+</html>
