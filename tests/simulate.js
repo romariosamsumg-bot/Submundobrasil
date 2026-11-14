@@ -25,7 +25,8 @@ function ev(s, m) {
   const p = SB.missionChance(s, m) / 100;
   const avg = (m.low + m.high) / 2 * SB.missionRewardMult(s, m);
   const loss = s.cash * SB.failLoss(s, m) + SB.arrestChance(s, m) / 100 * 600;
-  return (p * avg - (1 - p) * loss) / m.cost - s.heat * .4;
+  // O Procurado pesa em proporção (antes: −0,4 R$ por ponto, que com o saque pequeno da escada travava o robô).
+  return (p * avg - (1 - p) * loss) / m.cost * Math.max(.05, 1 - s.heat / 120);
 }
 function bestMission(s, minChance = 50) {
   let best = null, bv = 0;
@@ -38,8 +39,8 @@ function armUp(s, factor = 1.25) {
   if (s.jail || s.hospital) return;
   const cur = SB.item(s.gear.arma) || { cost: 0, power: 0 };
   const locked = SB.MISSIONS.filter(m => (SB.missionLock(s, m) || '').startsWith('Requer arma')).map(m => m.req.power);
-  const want = locked.length ? Math.min(...locked) : (s.gear.arma ? 0 : 1);
-  if (!want) return;
+  // Escada (v1.5): o arsenal sobe a chance em todo roubo; o robô compra a próxima arma da prateleira quando pode.
+  const want = locked.length ? Math.min(...locked) : cur.power + 1;
   const funds = s.cash + s.bank; // v1.5: sem devolução na troca, e a trilha cobra as anteriores da prateleira
   const path = it => { const list = SB.chainList('items', it), i = list.findIndex(x => x.id === it.id); return list.slice(0, i + 1).filter(x => !SB.owns(s, x.id)).reduce((a, x) => a + x.cost, 0); };
   const pick = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && i.power >= want && i.power > cur.power && s.respect >= i.unlock && funds >= path(i) * factor)[0];
@@ -59,15 +60,26 @@ function kitUp(s) {
     const next = SB.ITEMS.filter(i => i.slot === slot && !SB.owns(s, i.id) && i.cost > cur.cost && s.respect >= i.unlock && (want ? i.escape >= want : true))[0];
     if (!next) continue;
     const cost = path(next), funds = s.cash + s.bank;
-    if (funds < cost * (want ? 1.25 : 3)) continue;
+    if (funds < cost * (want ? 1.25 : 1.6)) continue;
     if (cost > s.cash) SB.perform(s, 'bank', 'withdraw', Math.min(s.bank, Math.ceil(cost - s.cash)));
     SB.perform(s, 'buyItem', next.id);
   }
 }
+/** Ciclo (v1.5): sem energia, compra dose barata enquanto ela custar menos de 60% do que o roubo rende por
+ *  ponto de energia, com o vício até 60. É o "roubar → recuperar energia → roubar" do desenho. */
+function refuel(s, m) {
+  if (!m || s.jail || s.hospital || s.vicio >= 60) return false;
+  const gain = (m.low + m.high) / 2 * SB.missionRewardMult(s, m) * SB.missionChance(s, m) / 100 / SB.missionCost(s, m);
+  if (s.today.venue !== 'boteco' && !s.today.venue) { if (s.today.night >= SB.NIGHT_LIMIT || !SB.perform(s, 'night', 'boteco').ok) return false; }
+  const n = SB.NIGHT.find(x => x.id === s.today.venue); if (!n) return false;
+  const opts = n.menu.map(SB.doseOf).filter(d => !d.strong && s.cash - SB.doseCost(s, d, n) >= 50 && SB.doseCost(s, d, n) / Math.max(1, SB.nightEnergy(s, d)) < gain * .6)
+    .sort((a, b) => SB.doseCost(s, a, n) / SB.nightEnergy(s, a) - SB.doseCost(s, b, n) / SB.nightEnergy(s, b));
+  return !!opts.length && SB.perform(s, 'dose', opts[0].id).ok;
+}
 function grind(s, minChance, reserve = 0) {
   armUp(s); kitUp(s);
-  for (let i = 0; i < 12; i++) {
-    if (s.energy - reserve < 16) break;
+  for (let i = 0; i < 60; i++) {
+    if (s.energy - reserve < 13) { const e = s.energy; s.energy = 100; const want = bestMission(s, minChance); s.energy = e; if (i < 59 && refuel(s, want)) continue; break; }
     if (s.heat >= 65 && s.energy >= 18) { SB.perform(s, 'layLow'); continue; }
     const m = bestMission(s, minChance);
     if (!m || s.energy - m.cost < reserve) break;
@@ -226,6 +238,21 @@ const STRATEGIES = {
       if (!m) break; SB.perform(s, 'mission', m.id);
     }
     bankSurplus(s, 0); } },
+  /* Ciclo do autor (v1.5): roubar → recuperar energia → roubar → tirar Procurado → comprar → roubar → tirar vício.
+   * É o "jogador típico" usado para calibrar a escada (TYPICAL no motor). */
+  ciclo: { career: null, day(s) {
+    bail(s); handleNews(s);
+    for (let round = 0; round < 6; round++) {
+      armUp(s, 1.1); kitUp(s);
+      if (s.vicio >= 50 && !s.today.detox && s.energy >= 25) SB.perform(s, 'detox', 'soro');
+      // Propina enquanto ela custar menos que ~2 roubos do melhor degrau atual
+      const e = s.energy; s.energy = 100; const top = bestMission(s, 55); s.energy = e;
+      while (s.heat >= 45 && top && SB.cleanCost(s) < (top.low + top.high) * .9 && s.cash > SB.cleanCost(s) + 100 && SB.perform(s, 'cleanRecord').ok);
+      if (s.heat >= 70 && s.energy >= 18) SB.perform(s, 'layLow');
+      grind(s, 55);
+      if (s.stats.astucia < 30 && s.today.training < 1 && s.cash > SB.trainCost(s, 'astucia') + 250) SB.perform(s, 'train', 'astucia');
+    }
+    bankSurplus(s, 1500); } },
   aleatorio: { career: null, goal: null, day(s) {
     const acts = ['mission', 'train', 'gig', 'contact', 'travel', 'layLow', 'buy', 'dialogue'];
     for (let i = 0; i < 8; i++) {

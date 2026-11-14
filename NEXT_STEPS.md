@@ -150,12 +150,12 @@ Também sugerido: rebelião na cadeia com a gangue.
 - [x] Resultado de toda ação num popup; meta da temporada removida; roubo pequeno em sequência com equipamento básico a 2–7% de cadeia por tentativa; Procurado online esfria 60 por dia.
 - **Distância entre estratégias subiu** (1,49 → 1,66 vez): com menos cadeia, quem rouba muito (ciclo completo 163, Brigão 178) abriu sobre Diplomacia (107), Bonde (110) e Bando (81). Próximo passo: respeito por acordos, alianças e operações do bando.
 
-## Pendências dos roubos procedurais
+## Pendências do ciclo do roubo (desenho do autor)
 
-- [x] Escada de 18 roubos por fórmula, três tipos (golpe, misto, assalto), arsenal, repetição livre, gatilhos do Procurado, despachante repetível.
-- **Bola de neve dos negócios**: Bicheiro com negócios (192) e Dono da Noite (183) passaram o ladrão puro (177). Testar renda de negócio que cai com o Procurado alto, ou feitos de Fortuna mais caros.
-- **Mais degraus no topo**: quem treina e compra equipamento chega aos 95% no cofre antes do fim do mês. Um 19º e 20º degrau (assalto e golpe de elite, respeito 130–160) dariam objetivo ao fim de jogo.
-- Robôs não usam o despachante: medir se jogadores reais o usam e se o preço dobrando é freio suficiente.
+- [x] Escada de 13 degraus + 5 variações, chance pela proporção poder ÷ dificuldade, degrau 1 do autor, doses sem limite (até 200 de energia), propina pelo maior degrau, tirar vício custa saúde, UTI, clínica com preço subindo, Feira ajustada, 4 travas do iniciante em teste.
+- **Dono da Noite fora da curva** (249 de respeito): o +1 a cada entrada na noite pesa mais agora que todo mundo usa a noite. Opções: +1 só na 1ª entrada do dia, ou só em casas com respeito exigido. Decidir com o autor.
+- **Maratona sem teto**: 31 roubos por dia com dinheiro infinito (antes 14,4). Medir com jogadores reais se o Procurado e a propina seguram.
+- O robô do ciclo não chega ao topo (degrau 9 no dia 28): se jogadores reais também não chegarem, baixar o fator dos degraus 10 a 13.
 
 ## Online (Supabase)
 

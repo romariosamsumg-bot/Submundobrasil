@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**183 de 183 passaram** (v1.5: roubos procedurais, com a escada saindo das fórmulas, os três tipos, repetição livre e os gatilhos do Procurado; despachante várias vezes no dia, com o preço dobrando; meta removida, com a recusa sem mudar o estado e o save antigo no meio do guia; + 1 sobre roubo em sequência com equipamento básico (risco ≤ 5% por tentativa); + 2 sobre feitos do mês e respeito como placar; + 2 sobre equipamento nos roubos e veículo de fuga; + 1 sobre a conta da luta; + 3 sobre itens que são seus e a ficha da temporada; + 14 sobre o relógio do online; + 2 sobre o começo do zero e os preços da Feira; + 4 sobre a trilha de compra; v1.4: + retrato do jogador; + 4 sobre as quatro classes; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
+**188 de 188 passaram** (v1.5: ciclo do roubo do autor — 4 travas do iniciante, escada com chance pela proporção, propina, doses sem limite, desintoxicação que custa saúde, UTI e clínica com preço subindo; roubos procedurais, com a escada saindo das fórmulas, os três tipos, repetição livre e os gatilhos do Procurado; despachante várias vezes no dia, com o preço dobrando; meta removida, com a recusa sem mudar o estado e o save antigo no meio do guia; + 1 sobre roubo em sequência com equipamento básico (risco ≤ 5% por tentativa); + 2 sobre feitos do mês e respeito como placar; + 2 sobre equipamento nos roubos e veículo de fuga; + 1 sobre a conta da luta; + 3 sobre itens que são seus e a ficha da temporada; + 14 sobre o relógio do online; + 2 sobre o começo do zero e os preços da Feira; + 4 sobre a trilha de compra; v1.4: + retrato do jogador; + 4 sobre as quatro classes; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -87,35 +87,36 @@ ausência de cortes).
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 
-Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.5 com roubos procedurais** (escada de 18 degraus, três tipos, repetição livre, gatilhos do Procurado), em
-`npm run simulate` (`node tests/simulate.js 300 1`). Entre parênteses, a medição anterior (roubo em sequência mais seguro, sem meta):
+Bots com estratégias fixas jogam temporadas completas. Resultado do **ciclo do roubo desenhado com o autor** (escada de 13 degraus + 5 variações, chance pela proporção poder ÷ dificuldade, doses sem limite, propina pelo maior degrau, tirar vício custa saúde, UTI, Feira ajustada), em `npm run simulate` (`node tests/simulate.js 300 1`). Entre parênteses, a medição anterior (escada de 18 degraus):
 
 | Estratégia | Patrimônio | **Respeito (placar)** | Detenções |
 |---|---|---|---|
-| Assaltante farmando roubos | 7.823 | **177** (157) | 1,9 (2,3) |
-| Bicheiro com negócios | 20.892 | **192** (151) | 1,7 (1,8) |
-| Território (Bicheiro) | 1.309 | **140** (138) | 0,9 (1,2) |
-| Diplomacia (Bicheiro) | 1.286 | **110** (107) | 0,8 (1,4) |
-| Bonde (gangue) | 1.239 | **110** (110) | 0,7 (1,1) |
-| Comerciante sem a classe | 10.706 | **147** (149) | 1,4 (1,7) |
-| Ciclo completo: roubo, noite e arsenal | 13.344 | **210** (163) | 1,9 (2,4) |
-| Brigão (duelos) | 6.845 | **173** (178) | 0,9 (1,4) |
-| Bando de assaltos | 2.014 | **91** (81) | 0,7 (0,8) |
-| Traficante (Galpão e remessas) | 11.285 | **139** (125) | 1,2 (1,9) |
-| Dono da Noite (casas e noitadas) | 13.063 | **183** (136) | 2,0 (2,2) |
-| Império da noite | 12.252 | **183** (136) | 1,7 (2,2) |
-| Apostador | 4.772 | **139** (121) | 1,8 (2,1) |
-| Exploit: repetir a melhor e depositar tudo | 1.876 | **40** (39) | 10,2 (9,2) |
-| Aleatório | 195 | **30** (34) | 0,6 (0,5) |
+| **Ciclo do autor (robô novo, jogador típico)** | 4.001 | **170** | 1,8 |
+| Assaltante farmando roubos | 7.496 | **145** (177) | 1,8 (1,9) |
+| Bicheiro com negócios | 8.173 | **125** (192) | 2,1 (1,7) |
+| Território (Bicheiro) | 399 | **152** (140) | 0 (0,9) |
+| Diplomacia (Bicheiro) | 283 | **122** (110) | 0 (0,8) |
+| Bonde (gangue) | 2.036 | **117** (110) | 2,0 (0,7) |
+| Comerciante sem a classe | 7.529 | **125** (147) | 1,7 (1,4) |
+| Ciclo completo: roubo, noite e arsenal | 17.416 | **251** (210) | 2,4 (1,9) |
+| Brigão (duelos) | 7.681 | **191** (173) | 1,2 (0,9) |
+| Bando de assaltos | 2.368 | **81** (91) | 1,2 (0,7) |
+| Traficante (Galpão e remessas) | 8.651 | **135** (139) | 1,6 (1,2) |
+| Dono da Noite (casas e noitadas) | 1.519 | **249** (183) | 0,4 (2,0) |
+| Império da noite | 1.434 | **249** (183) | 0,4 (1,7) |
+| Apostador | 4.395 | **107** (139) | 2,2 (1,8) |
+| Exploit: repetir a melhor e depositar tudo | 2.313 | **24** (40) | 8,8 (10,2) |
+| Aleatório | 182 | **25** (30) | 0,6 (0,6) |
 
-Leitura dos roubos procedurais:
-- **Calibração pela curva medida.** Antes de mexer, medi atributos e arsenal dos robôs por faixa de respeito (5 estratégias, 200 temporadas): a soma dos atributos vai de 17 a ~40 no mês, o melhor atributo de 6 a ~24, o arsenal de 0 a ~20. A dificuldade de cada degrau foi posta logo abaixo do poder típico nesse ponto.
-- **Primeira versão inflou demais**: com saque de 13,5 por energia e respeito 1,5 + 0,65n, o respeito subiu 50 a 90 pontos e o patrimônio quase dobrou (repetir sem castigo rende mais). Passos até aqui: saque 13,5 → 11 → 10 por energia; respeito por degrau 0,3 + 0,45n. Testei também o respeito cheio só até 60 acima do exigido (em vez de 90): derrubou o ladrão puro para 122, e voltei para 90. Baixar o saque para 9 só derrubava o ladrão puro, sem mexer nos negócios.
-- **De onde vem a diferença.** Medi o respeito por ação: nos três robôs que mais roubam, cerca de 140 a 150 vêm dos roubos. O que põe "Bicheiro com negócios" e o Dono da Noite na frente são os feitos de Fortuna e a renda dos negócios, que chega mais cedo porque o dinheiro do começo não cai mais com a repetição.
-- **Assaltante**: com +25% de respeito em todo roubo, ele liderava todas as estratégias (Diplomacia 141 contra 110). Ficou **+50% só nos assaltos**: fora dos roubos, a diferença para as outras classes caiu para até 14 pontos.
-- O respeito subiu em média (o mais forte, ciclo completo, foi a 210). A distância do mais forte ao mais fraco (sem o Bando) é de 1,91 vez (antes 1,66). **Pendentes**: Diplomacia, Bonde e Bando, e a bola de neve dos negócios.
-- Maratona (`npm run maratona`, dinheiro infinito): 14,4 roubos por dia, 150 de energia em doses, sem overdose. O teto do corpo segura a repetição livre.
-- Ritmo da Feira (`npm run ritmo`): 2ª arma no roubo 4 (dia 3), 4ª no 14 (dia 11), Três-oitão no 27 (dia 18); 70% chegam à Pistola.
+Leitura do ciclo do autor:
+- **Travas do iniciante** (testes `INICIANTE:`): o personagem novo tem 91% no Bater carteira (94% com o Pedaço de pau); a 1ª arma sai em uns 4 roubos; nos degraus 1 a 3 a falha nunca dá cadeia nem tira caixa; no dia 1, começando do zero e bebendo cerveja e pinga, ele faz 15 roubos ou mais.
+- **Os robôs antigos não jogavam o ciclo novo**: só compravam arma quando um roubo a exigia, não usavam a noite para recuperar energia e descontavam R$ 0,40 por ponto de Procurado, que com o saque pequeno do começo os fazia parar após 1 roubo. Corrigi os três comportamentos (não as regras) e criei o robô **ciclo**, que segue exatamente o ciclo do autor e serve de jogador típico.
+- **Feira**: com o saque menor do começo, a 2ª arma (R$ 820) custava 8 roubos do degrau 3 e o robô passava o mês no degrau 3. Preço novo = antigo × (0,35 + antigo ÷ 12.000), no máximo 1. Ritmo (`npm run ritmo`): 2ª arma no dia 2, 3ª no 4, Facão no 6, Maquita no 10, Três-oitão no 15 (antes 3, 7, 11, 15, 18).
+- **Calibragem do jogador típico**: o sistema tem dois extremos. Com a escada difícil, o robô fica pobre e não sobe; com a fácil, ele dispara. Medi o robô do ciclo dia a dia e ajustei `TYPICAL` (atributos +0,3 por dia, melhor atributo +0,4, arsenal 2 + 0,55 por dia) e o Procurado típico (30, que tira 12% do poder). Resultado: o robô do ciclo chega ao degrau 4 no dia 6, ao 5 no dia 13, ao 7 no dia 21 e ao 9 no dia 28. O topo (10 a 13) fica para quem treina e se equipa mais.
+- **Respeito**: com repetição livre e energia sem teto, o robô do ciclo chegou a 351. Corrigi com respeito ~0,4 por degrau (mínimo 1) e **nenhum respeito** em roubo 3 ou mais degraus abaixo do maior já feito. O bônus de respeito do Assaltante nos assaltos voltou para +25% (com +50%, ciclo completo 276).
+- **Fora da curva**: Dono da Noite e Império da noite (249). Os roubos deles rendem o mesmo respeito que os do robô do ciclo; a diferença é o +1 de respeito a cada entrada na noite, que agora todo mundo usa. Testei o desconto de doses (40% → 20%) e o vício pela metade (→ 25% menos): nenhum resolveu e voltaram ao original. **Pendente** (decidir com o autor).
+- **Maratona** (`npm run maratona`, dinheiro infinito, sem se importar com o Procurado): 31 roubos por dia e 306 de energia em doses (antes, com o teto de 150, 14,4). O freio para quem joga normal é o Procurado com propina cada vez mais cara: um jogador só com cerveja no degrau 3 faz uns 7 roubos por dia até chegar a 60 de Procurado.
+- O jogador "da cerveja infinita" não quebra o jogo: vício 100 só reduz a dose à metade, mas o Procurado chega antes.
 
 Leitura da v1.5 (roubo em sequência e sem meta):
 - O autor jogou o 2º dia com arma, colete e veículo e não conseguia roubar em sequência sem correr muito risco de cadeia. Medido no motor: o iniciante com Pedaço de pau, Lista telefônica e Bicicleta, com Procurado 22, tinha **8% a 20% de cadeia por tentativa** nos roubos pequenos, e o equipamento somava só +2 a +4% de chance. Agora são **2% a 7%**, com +9 a +11% vindos do equipamento (Bater carteira: 74% → 83% de chance, 9% → 2% de cadeia).
@@ -156,15 +157,15 @@ Leitura e calibração da v1.4:
 - **Tolerância e teto do corpo** (`node tests/maratona.js`; na v1.5, 15,5 roubos por dia com 150 de energia em doses): um jogador com dinheiro infinito, que rouba, se droga e zera o vício na clínica sem parar, fazia **84,9 roubos e 1.313 de energia em drogas por dia**; agora faz **13,6 roubos e 150**. Sem a clínica, caiu de 11,4 para 9,3 roubos por dia. Nos robôs comuns a diferença ficou no ruído (até 6 pontos), porque quase ninguém passa de 150 por dia; o império da noite foi a 233, 13 acima do Traficante.
 - A refinaria (R$ 25.000, 150 de respeito) quase não é alcançada numa temporada: é meta de fim de jogo.
 
-### Classes — `tests/careers.js` (`npm run careers`: 200 temporadas por célula, roubos procedurais)
+### Classes — `tests/careers.js` (`npm run careers`: 200 temporadas por célula, ciclo do autor)
 
 | Estratégia (respeito) | Assaltante | Dono da Noite | Traficante | Bicheiro |
 |---|---|---|---|---|
-| Roubos | **178** | 145 | 140 | 139 |
-| Negócios | **218** | 189 | 185 | 190 |
-| Território | **150** | 140 | 141 | 141 |
-| Diplomacia | **123** | 111 | 111 | 109 |
-| Gangue | **118** | 115 | 116 | 111 |
+| Roubos | **143** | 99 | 96 | 95 |
+| Negócios | **209** | 141 | 117 | 122 |
+| Território | 150 | **184** | 152 | 151 |
+| Diplomacia | 102 | **153** | 122 | 121 |
+| Gangue | 120 | **129** | 98 | 96 |
 
 (O Traficante só brilha na estratégia de mercadoria, medida na tabela acima.)
 

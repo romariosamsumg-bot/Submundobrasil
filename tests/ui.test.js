@@ -73,7 +73,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   await page.evaluate(() => { window.SB_POP_PASSTHROUGH = false; });
   await page.click('[data-action=mission][data-id=correria]');
   const after = await st();
-  check(after.energy === before.energy - 15, 'missão consome 15 de energia (Assaltante gasta 10% menos que 17)');
+  check(after.energy === before.energy - 12, 'missão consome 12 de energia (Assaltante gasta 10% menos que 13)');
   check(after.tutorial.step === 2, 'primeiro serviço conclui o passo 2');
   await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-servicos-guia.png') });
   check(await page.isVisible('#resultPop .resultCard'), 'resultado pula num popup');
@@ -132,7 +132,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check((await st()).today.venue === 'boteco' && await page.isVisible('[data-action=dose][data-id=pinga]'), 'entrar no boteco abre o balcão com o cardápio');
   await page.click('[data-action=dose][data-id=pinga]');
   g7 = await st();
-  check(g7.energy === e0 + 10 && g7.ressaca === 1 && g7.vicio === 2, 'pinga: +10 de energia, vício e ressaca registrados');
+  check(g7.energy === e0 + 20 && g7.ressaca === 1 && g7.vicio === 3, 'pinga: +20 de energia, vício e ressaca registrados');
   await go('perfil');
   check((await page.textContent('.gearGrid')).includes('Cinquentinha'), 'Perfil mostra o equipamento');
   check(await page.isVisible('.mobileNav [data-view=hub].active') && await page.isVisible('.backLink'), 'Perfil fica dentro de Cidade');
@@ -192,7 +192,7 @@ await page.click('[data-action=duel][data-id=marrento]');
   check((await st()).vicio === 20, 'soro na veia: -20 de vício');
   await go('acoes');
   await page.click('[data-action=clean-record]');
-  check((await st()).heat === 16, 'despachante: -35 de vigilância (50 + 1 da aposta - 35)');
+  check((await st()).heat === 26, 'propina: -25 de Procurado (50 + 1 da aposta - 25)');
   await go('noite');
   check((await page.textContent('#content')).includes('Vício'), 'tela da Noite mostra o vício');
   await go('painel');

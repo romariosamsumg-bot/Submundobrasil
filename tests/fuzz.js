@@ -37,7 +37,7 @@ for(let season=0;season<Number(process.argv[3]||20);season++){
   // invariants
   const bad=[];for(const g of SB.GOODS)if(!Number.isInteger(s.goods[g.id])||s.goods[g.id]<0)bad.push('goods');if(SB.cargoUsed(s)>SB.cargoCap(s)+0)bad.push('cargo '+SB.cargoUsed(s)+'/'+SB.cargoCap(s));
   for(const k of ['cash','bank','energy','heat','respect','jail'])if(!Number.isInteger(s[k])||s[k]<0)bad.push(k+'='+s[k]);
-  if(s.energy>100||s.heat>100)bad.push('cap');if(!Number.isInteger(s.vicio)||s.vicio<0||s.vicio>100)bad.push('vicio '+s.vicio);if(!Number.isInteger(s.health)||s.health<0||s.health>100||s.hospital<0)bad.push('health '+s.health);
+  if(s.energy>SB.ENERGY_MAX||s.heat>100)bad.push('cap');if(s.uti&&!s.hospital)bad.push('uti sem internação');if(!Number.isInteger(s.vicio)||s.vicio<0||s.vicio>100)bad.push('vicio '+s.vicio);if(!Number.isInteger(s.health)||s.health<0||s.health>100||s.hospital<0)bad.push('health '+s.health);
   for(const d of SB.DISTRICTS){if(s.influence[d.id]<0||s.influence[d.id]>100)bad.push('inf');for(const f of SB.FACTIONS){const p=s.presence[d.id][f.id];if(!Number.isInteger(p)||p<0||p>100)bad.push('pres '+p)}}
   if(bad.length){console.log('INVARIANT',a,bad);process.exit(1)}
   if(s.day===30){const r=SB.perform(s,'endSeason');s=r.state;break}

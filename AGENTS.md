@@ -38,8 +38,10 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 
 ## Roubos (escada procedural)
 
-- Roubo novo → `mkMission({ id, name, desc, n, kind, stat, req })` em `MISSIONS`: só nome, texto, degrau, tipo (`golpe`, `misto`, `assalto`) e exigências. Os números saem das fórmulas (`KINDS`, `ladderUnlock`, `ladderDiff`, `ladderCost`, `ladderPay`); não escreva dificuldade, saque ou risco à mão.
-- Mudou uma fórmula → rode `npm run simulate`, `npm run careers` e `npm run ritmo` e atualize as tabelas. Repetir o mesmo roubo é livre de propósito: o freio é o Procurado (`HEAT_TIERS`).
+- A escada e o ciclo foram desenhados com o autor (GAME_DESIGN.md, "O ciclo do roubo"). Roubo novo → `mkMission({ id, name, desc, n, kind, stat, req })` em `MISSIONS`: só nome, texto, degrau, tipo (`gen`, `golpe`, `assalto`) e exigências temáticas. Os números saem das fórmulas (`KINDS`, `TYPICAL`, `LADDER_DAY`, `ladderDiff`, `ladderCost`, `ladderPay`, `chanceCurve`); não escreva dificuldade, saque ou risco à mão. O degrau 1 é âncora do autor (R$ 32–47, 13 de energia, +2 de Procurado, ~90%).
+- A chance vem sempre da conta (poder ÷ dificuldade). Nunca ponha uma porcentagem fixa num roubo.
+- **Travas do iniciante** (testes `INICIANTE:` em `tests/engine.test.js`): 1º roubo com 90% ou mais para o personagem novo; 1ª arma em até 5 roubos; degraus 1 a 3 sem cadeia e sem perda de caixa; dia 1 com 15 roubos ou mais usando cerveja e pinga. Nenhuma mudança pode quebrar essas travas.
+- Mudou uma fórmula → rode `npm run simulate`, `npm run careers`, `npm run ritmo` e `npm run maratona` e atualize as tabelas. O robô `ciclo` (`tests/simulate.js`) é o jogador típico: se ele mudar, recalibre `TYPICAL`. Repetir o mesmo roubo é livre de propósito: o freio é o Procurado (`HEAT_TIERS`) e a propina cada vez mais cara.
 
 ## Conteúdo adulto e temas sensíveis
 

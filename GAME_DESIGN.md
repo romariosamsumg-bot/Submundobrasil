@@ -641,47 +641,68 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
-### Roubos procedurais: escada, tipos e Procurado como freio (v1.5)
+### O ciclo do roubo (v1.5, desenhado com o autor)
 
-Inspiração: no The Crims cada roubo tem um "poder de roubo" exigido, recompensa e custo de energia; a energia volta com o tempo ou com droga, e a droga perde efeito quanto mais se usa. Aqui a ideia é a mesma, com números saindo de fórmulas.
+**Ciclo:** Roubar → recuperar energia → roubar → tirar o Procurado → comprar arma, proteção e transporte → roubar → tirar o vício → recuperar energia → roubar… Cada etapa consome o que a anterior produziu (dinheiro, energia, Procurado, vício), e nenhuma tem número fixo que trave o iniciante. As etapas vão aparecendo sozinhas: no começo é só roubar e beber; a ficha, a Feira e a clínica entram conforme o jogador sobe.
 
-**A escada.** Os 18 roubos têm um degrau `n` (1 = mais fácil) e aparecem nessa ordem. Tudo sai de `n` e do tipo:
+**A escada.** 13 roubos de rua, do mais fácil ao mais difícil, mais 5 variações que só existem num bairro (mesmo degrau, saque +15%). Não há trava por respeito: a própria chance mostra se você está pronto. Ficam só as travas temáticas (os assaltos grandes pedem arma e veículo, o Caminhão pede bando, o Leilão pede influência no bairro, o Cofre é uma vez por dia).
 
-| Medida | Fórmula | Degrau 1 → 18 |
-|---|---|---|
-| Respeito exigido | 0,4 × (n − 1)² | 0 → 116 |
-| Energia | 15 + 2 × (n − 1) | 15 → 49 |
-| Saque médio por energia | 10 × 1,08^(n − 1) × peso do tipo | 10 → 37 |
-| Saque | médio × 0,7 a 1,3 | Bater carteira R$ 120–220 · Cofre R$ 1.270–2.360 |
-| Respeito ganho | 0,3 + 0,45 × n | 1 → 8 (um terço quando você passa 90 do exigido) |
-| Dificuldade | d0 + d1 × respeito exigido (por tipo) | ver abaixo |
+| # | Roubo | Tipo | Dificuldade | Energia | Saque | Procurado | Respeito | Cadeia ao falhar |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Bater carteira | Genérico | 11 | 13 | R$ 32–47 | +2 | 1 | não |
+| 2 | Fiação de cobre | Genérico | 16 | 16 | R$ 55–80 | +3 | 1 | não |
+| 2 | Favor de vizinhança (só jardim) | Golpe · Influência | 14 | 16 | R$ 60–90 | +2 | 1 | não |
+| 3 | Barraquinha de pastel | Genérico | 19 | 19 | R$ 85–125 | +5 | 1 | não |
+| 4 | Celular no ponto de ônibus | Genérico | 22 | 22 | R$ 130–195 | +6 | 2 | 18% |
+| 5 | Rolo na feira | Golpe · Lábia | 24 | 25 | R$ 200–305 | +5 | 2 | 14% |
+| 5 | Esquema do camelódromo (só centro) | Golpe · Astúcia | 24 | 25 | R$ 230–350 | +5 | 2 | 14% |
+| 6 | Cobrança atrasada | Assalto | 24 | 28 | R$ 305–460 | +12 | 2 | 28% |
+| 7 | Clonar cartão de velho rico | Golpe · Astúcia | 31 | 31 | R$ 405–610 | +7 | 3 | 16% |
+| 7 | Bastidores do baile (só vila) | Golpe · Lábia | 31 | 31 | R$ 465–700 | +7 | 3 | 16% |
+| 8 | Mercadinho Dois Irmãos | Assalto | 31 | 34 | R$ 535–800 | +15 | 3 | 32% |
+| 8 | Carga sem dono (só cais) | Assalto | 31 | 34 | R$ 615–920 | +15 | 3 | 32% |
+| 9 | Leilão clandestino | Golpe · Lábia | 37 | 37 | R$ 695–1045 | +9 | 4 | 19% |
+| 10 | Caixa eletrônico na maquita | Genérico | 46 | 40 | R$ 905–1355 | +15 | 4 | 28% |
+| 11 | Casa lotérica | Assalto | 40 | 43 | R$ 1165–1750 | +21 | 4 | 38% |
+| 11 | Galpão desativado (só industrial) | Assalto | 40 | 43 | R$ 1340–2015 | +21 | 4 | 38% |
+| 12 | Caminhão de carga na rodovia | Assalto | 45 | 46 | R$ 1500–2245 | +23 | 5 | 40% |
+| 13 | Cofre da joalheria | Golpe · Astúcia | 50 | 49 | R$ 1915–2870 | +13 | 5 | 24% |
 
-**Os três tipos.** O poder no roubo é a soma de três partes:
+**O degrau 1 é do autor:** R$ 32–47, 13 de energia, +2 de Procurado e cerca de 90% de chance para o personagem novo. A 1ª arma (R$ 150) sai em uns 4 roubos.
 
-| Tipo | Atributo | Arsenal (arma + proteção + veículo) | Saque | Procurado | Detenção-base |
-|---|---|---|---|---|---|
-| **Golpe** (Bater carteira, Rolo, Baile, Camelódromo, Clonar cartão, Leilão, Favor) | 3 por ponto | 0,6 por ponto | × 0,9 | 2 + 0,6n | 8 + 1,2n |
-| **Misto** (Fiação, Celular, Cobrança, Caixa eletrônico, Cofre) | 2 por ponto | 1,5 por ponto | × 1 | 4 + 0,8n | 12 + 1,6n |
-| **Assalto** (Pastel, Carga, Mercadinho, Galpão, Lotérica, Caminhão) | não usa | 3 por ponto | × 1,2 | 5 + 1,1n | 16 + 2n |
+**A chance vem da conta**, nunca de um número fixo:
+- **Poder no roubo** por tipo: **genérico** = soma dos atributos + 3 por ponto de arsenal; **golpe** = 3 por ponto do atributo principal + 1 por ponto de arsenal; **assalto** = metade da soma dos atributos + 3 por ponto de arsenal + 1,5 por nível do bando. Arsenal = poder da arma + defesa da proteção + fuga do veículo.
+- **O Procurado tira poder em porcentagem**: Procurado + metade da polícia do bairro, ÷ 250 (com 50, −20%). Saúde abaixo de 60 também tira (0,4% por ponto). Dica de informante: +15%.
+- **Chance = curva da proporção poder ÷ dificuldade**: empate = 70%, 1,5 vez = 90%, teto 95%, piso 5%. A dificuldade sobe com o risco do bairro e dos eventos.
+- **Dificuldade de cada degrau** = poder do jogador típico no dia em que ele chega ali × 0,75 (degraus 2 a 4) ou 0,85 (5 em diante) × 0,88 (Procurado típico de 30). Jogador típico, medido no robô do ciclo: soma dos atributos 17 + 0,3 por dia, melhor atributo 6 + 0,4 por dia, arsenal 2 + 0,55 por dia.
+- **Saque por energia**: R$ 3 no degrau 1, +35% por degrau até o 6, depois +20%, até cerca de R$ 49 no 13.
 
-Mais **experiência** em todos: 0,4 × soma dos atributos + 1,5 × nível da gangue. Dificuldade: golpe 22 + 0,4 × exigido, misto 21 + 0,45 × exigido, assalto 14 + 0,42 × exigido. Calibrado na curva medida dos robôs (o poder típico de golpe é cerca de 26 + 0,4 × respeito): ao liberar, o roubo fica perto de 70% para quem chegou ali num ritmo normal. Quem treina ou compra equipamento passa da curva.
+**Falhar:** nos degraus 1 a 3, só perde a energia (sem cadeia e sem perder caixa). Do 4 em diante: perde parte do caixa em mãos, pode ser preso, e os assaltos ferem.
 
-**Chance** = 70 + 2 × (poder − dificuldade) − 0,3 × Procurado − 0,3 × polícia do bairro − risco do bairro e de eventos, entre 5% e 95%. Cada roubo mostra "Seu poder X × dificuldade Y" com as três partes.
+**Repetir é livre.** O freio é o Procurado. **Respeito**: cerca de 0,4 por degrau (mínimo 1, máximo 5); roubo 3 ou mais degraus abaixo do maior que você já fez dá dinheiro, mas não dá respeito. Assaltante: +25% de respeito nos assaltos.
 
-**Repetir é livre.** Não existe mais castigo por repetir o mesmo roubo no dia (nem na chance, nem no saque). O freio é o Procurado e a polícia do bairro, que sobem a cada roubo.
+**Gatilhos do Procurado:** 0–29 Na moita · 30–59 De olho · 60–84 Na mira (+10 de cadeia ao falhar, do degrau 4 em diante) · 85+ Caçado (do degrau 4 em diante, até o roubo que deu certo pode virar enquadro: perde o saque e 1 dia preso).
 
-**Gatilhos do Procurado:**
+**Propina** (substitui o despachante): −25 de Procurado. A polícia cobra pela sua ficha: a 1ª do dia custa o saque médio de 1 roubo do **maior degrau que você já fez**; cada nova no mesmo dia, +50%. Sem teto. Também esfriam: ficar na sua (18 de energia, −20), trocar de bairro, bico, dormir e o tempo.
 
-| Faixa | Nome | Efeito |
-|---|---|---|
-| 0–29 | Na moita | nada |
-| 30–59 | De olho | a chance já cai (0,3 por ponto, contínuo) |
-| 60–84 | Na mira | detenção +10 em todo roubo que falhar |
-| 85–100 | Caçado | mesmo dando certo, o roubo pode virar **enquadro**: (Procurado − 80) × 2% (até 40%), perde o saque e fica 1 dia detido |
+**Energia e doses.** Sem limite de doses e sem teto por dia. As doses levam a energia **até 200** (a recuperação natural para em 100).
 
-**Para esfriar** (no painel do Procurado, em Roubar): ficar na sua (18 energia, −20 e −10 da polícia do bairro), **despachante** (R$ 150 + 14 × Procurado, −35; agora atende várias vezes no dia, mas o preço **dobra** a cada vez), trocar de bairro (a polícia é de cada bairro), bico (−4), dormir ou ir pra casa, e o tempo (15 por dia; 60 no online).
+| Dose | Energia | Preço | R$ por energia | Vício |
+|---|---|---|---|---|
+| Cigarro | 3 | R$ 3 | 1,0 | 0 |
+| Cerveja | 10 | R$ 12 | 1,2 | 1 |
+| Pinga | 20 | R$ 28 | 1,4 | 3 |
+| Whisky | 35 | R$ 70 | 2,0 | 5 |
+| Erva | 50 | R$ 110 | 2,2 | 6 |
+| Loló | 70 | R$ 200 | 2,9 | 12 |
+| Bala | 100 | R$ 350 | 3,5 | 20 |
+| Pó | 150 | R$ 700 | 4,7 | 32 |
 
-**Classes:** o Assaltante ganha **+50% de respeito nos assaltos**, e a habilidade "Ritmo de rua" (nível 2) passou a ser **25% menos Procurado por roubo** (antes cortava a penalidade de repetir, que não existe mais). O antigo bônus de +25% no saque do roubo armado virou o peso 1,2 do assalto.
+A fraca é barata por ponto (o iniciante lucra); a forte é cara, mas dá muito de uma vez. Freios: tolerância (a mesma dose rende 15% menos a cada vez no dia), vício (com 100 a dose dá metade), overdose nas fortes acima de 70 de vício, e o bolso.
+
+**Tirar o vício custa saúde:** 0,5 de saúde por ponto de vício removido (soro: −20 de vício e −10 de saúde; clínica: zera o vício, R$ 18 e 0,5 de saúde por ponto). **Saúde zero = UTI**: 24 horas sem jogar no online; no jogo local, o resto do dia e o seguinte. Na UTI a saúde não sobe; você sai com 40 de saúde e o vício zerado. A **clínica particular** (saúde cheia por R$ 12 o ponto) fica 50% mais cara a cada uso no mesmo dia.
+
+**Feira** ajustada à escada: preço = antigo × (0,35 + antigo ÷ 12.000), no máximo 1 (Pedaço de pau R$ 150, Chave de fenda R$ 340, Vergalhão R$ 460, Facão R$ 680, Maquita R$ 970, Três-oitão R$ 1.030, Pistola R$ 1.590…; a partir de uns R$ 7.700, igual a antes). Proteções: Lista R$ 70, Jaqueta R$ 380, Colete R$ 1.250… Veículos: Bicicleta R$ 110, Cinquentinha R$ 800, Moto R$ 1.890…
 
 ### Resultado em popup e sem meta (v1.5)
 
