@@ -622,3 +622,5 @@ body.busy #content{opacity:.6;pointer-events:none}
 .infRow>span{overflow-wrap:anywhere}
 .infRow>small{grid-column:1/-1;margin:0;overflow-wrap:anywhere}
 .infRow.here>span{color:#f3d6ae}
+.infTiers{margin:6px 0 8px;padding-left:16px}.infTiers li{margin:4px 0;color:#a9b7bb;font-size:12px;line-height:1.4}.infTiers li.on{color:#f3d6ae}
+.turfLine{margin:0 0 12px;font-size:12px;line-height:1.45}.turfLine.mine{border-left-color:#3f9a6d}

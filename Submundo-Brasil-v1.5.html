@@ -703,6 +703,8 @@ body.busy #content{opacity:.6;pointer-events:none}
 .infRow>span{overflow-wrap:anywhere}
 .infRow>small{grid-column:1/-1;margin:0;overflow-wrap:anywhere}
 .infRow.here>span{color:#f3d6ae}
+.infTiers{margin:6px 0 8px;padding-left:16px}.infTiers li{margin:4px 0;color:#a9b7bb;font-size:12px;line-height:1.4}.infTiers li.on{color:#f3d6ae}
+.turfLine{margin:0 0 12px;font-size:12px;line-height:1.45}.turfLine.mine{border-left-color:#3f9a6d}
 
   </style>
 </head>
@@ -879,7 +881,7 @@ body.busy #content{opacity:.6;pointer-events:none}
     mkMission({ id: 'baile', district: 'vila', name: 'Bastidores do baile', desc: 'Cuidar da “organização paralela” de um baile de rua.', n: 7, kind: 'golpe', stat: 'labia', festive: true, variant: true }),
     mkMission({ id: 'deposito', name: 'Mercadinho Dois Irmãos', desc: 'Limpar o caixa antes que o dono puxe o que guarda debaixo do balcão.', n: 8, kind: 'assalto', stat: null, req: { power: 4 } }),
     mkMission({ id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Uma carga esquecida nos galpões. O grupo que manda ali não vai gostar.', n: 8, kind: 'assalto', stat: null, req: { power: 4 }, variant: true }),
-    mkMission({ id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', n: 9, kind: 'golpe', stat: 'labia', req: { influence: 25 } }),
+    mkMission({ id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', n: 9, kind: 'golpe', stat: 'labia', req: { influence: 40 } }),
     mkMission({ id: 'caixa', name: 'Caixa eletrônico na maquita', desc: 'Posto de gasolina afastado, barulho alto e notas que podem queimar.', n: 10, kind: 'gen', stat: null, req: { escape: 1, power: 5 } }),
     mkMission({ id: 'loterica', name: 'Casa lotérica', desc: 'Fila cheia, malote de dinheiro vivo e risco de policial à paisana.', n: 11, kind: 'assalto', stat: null, req: { escape: 3, power: 7 } }),
     mkMission({ id: 'galpao', district: 'industrial', name: 'Galpão desativado', desc: 'Material valioso parado num galpão sob patrulha reforçada.', n: 11, kind: 'assalto', stat: null, req: { escape: 3, power: 7 }, variant: true }),
@@ -1629,6 +1631,18 @@ body.busy #content{opacity:.6;pointer-events:none}
   }
   const controlled = (s, did) => s.influence[did] >= 60 && s.influence[did] >= leader(s, did).value + 10;
   const controls = s => DISTRICTS.filter(d => controlled(s, d.id));
+  /* Influência com nome (v1.5): faixas como as do Procurado. "Dono do pedaço" = mandar no bairro
+   * (60 de influência e 10 acima do grupo que lidera). */
+  const INF_TIERS = [
+    { at: 0, name: 'Desconhecido', desc: 'Ninguém te conhece aqui.' },
+    { at: 20, name: 'Conhecido', desc: 'Dá para disputar o bairro e confrontar facções.' },
+    { at: 40, name: 'Respeitado', desc: 'Libera o Leilão clandestino; criar contatos fica 20% mais barato.' },
+    { at: 60, name: 'Dono do pedaço', desc: 'O bairro é seu: +12% nos roubos, +15% nos negócios, propina 25% mais barata, a polícia do bairro sobe pela metade e a vantagem do bairro.' }
+  ];
+  const infTier = (s, did = s.district) => controlled(s, did) ? 3 : s.influence[did] >= 40 ? 2 : s.influence[did] >= 20 ? 1 : 0;
+  /** Influência que um roubo bem-sucedido rende no bairro (degrau 4 em diante): golpe 2, genérico e assalto 1,
+   *  cada vez menos conforme a barra enche. Valor fracionário; doMission sorteia o arredondamento. */
+  const robberyInfluence = (s, m) => m.n < 4 ? 0 : (m.kind === 'golpe' ? 2 : 1) * (1 - s.influence[s.district] / 100) * (s.career === 'articulador' ? 1.3 : 1);
   const allyTurf = (s, did) => { const l = leader(s, did); return l.value >= 10 && s.factions[l.id].allied; };
 
   /* Equipe */
@@ -1757,7 +1771,7 @@ body.busy #content{opacity:.6;pointer-events:none}
   const trainCost = (s, id) => { const l = s.stats[id]; return Math.round((250 + l * 40 + l * l * 1.2) * (cityIs(s, 'poa') ? .9 : 1) * (s.career === 'empreendedor' && id === 'forca' ? 1.25 : 1)); };
   const travelCost = s => ({ cash: cityIs(s, 'recife') ? 45 : 90, energy: cityIs(s, 'recife') || gearVal(s, 'freeRide') ? 0 : 5 });
   const bailCost = s => s.jail > 0 ? Math.round((250 + s.jail * 250 + Math.floor(s.respect * 1.5)) * (s.career === 'empreendedor' ? .7 : 1)) : 0;
-  const contactCost = s => Math.round(180 * (hasPerk(s, 'articulador', 1) ? .7 : 1) * (controlled(s, 'centro') ? .8 : 1));
+  const contactCost = s => Math.round(180 * (hasPerk(s, 'articulador', 1) ? .7 : 1) * (controlled(s, 'centro') ? .8 : 1) * (s.influence[s.district] >= 40 ? .8 : 1));
   const allianceCost = s => Math.round(900 * (hasPerk(s, 'articulador', 2) ? .6 : 1));
   const allianceFee = s => 50 + s.gangLevel * 15;
   const upgradeCost = s => 1200 + s.gangLevel * 900;
@@ -2002,7 +2016,7 @@ body.busy #content{opacity:.6;pointer-events:none}
     s.energy -= missionCost(s, m);
     s.today.missions[m.id] = (s.today.missions[m.id] || 0) + 1;
     if (s.tip > 0) s.tip = 0;
-    s.dstate[d].vigil = clamp(s.dstate[d].vigil + m.vigil, 0, 100);
+    s.dstate[d].vigil = clamp(s.dstate[d].vigil + Math.ceil(m.vigil * (controlled(s, d) ? .5 : 1)), 0, 100); // no seu bairro, a polícia sobe pela metade
     if (roll(odds)) {
       const reward = Math.max(1, Math.round(rand(m.low, m.high) * mult));
       // Gatilho "Caçado" (Procurado 85+): mesmo dando certo, a polícia pode enquadrar na saída.
@@ -2017,6 +2031,7 @@ body.busy #content{opacity:.6;pointer-events:none}
       if (m.n > (s.ladderMax || 0)) s.ladderMax = m.n;
       if (m.stat && roll(30)) s.stats[m.stat] += 1;
       if (m.influence) addInf(s, d, m.influence * (s.career === 'articulador' ? 1.3 : 1));
+      { const g = robberyInfluence(s, m); if (g > 0) addInf(s, d, Math.floor(g) + (roll((g % 1) * 100) ? 1 : 0)); }
       addXP(s, 'operador', m.n >= 8 ? 2 : 1);
       turfFriction(s, d, m.tension);
       if (m.id === 'cofre') unlock(s, 'cofre');
@@ -2673,7 +2688,7 @@ body.busy #content{opacity:.6;pointer-events:none}
    *  saque médio de 1 roubo do maior degrau que você já fez; cada nova no mesmo dia, +50%. Sem teto. */
   const PROPINA = 25;
   const ladderAvg = n => { const m = MISSIONS.find(x => x.n === clamp(n || 1, 1, LADDER_TOP) && !x.variant); return Math.round((m.low + m.high) / 2); };
-  const cleanCost = s => Math.round(ladderAvg(s.ladderMax) * Math.pow(1.5, Math.min(40, s.today.despachante || 0)));
+  const cleanCost = s => Math.round(ladderAvg(s.ladderMax) * Math.pow(1.5, Math.min(40, s.today.despachante || 0)) * (controlled(s, s.district) ? .75 : 1)); // no seu bairro, 25% mais barata
   function doCleanRecord(s) {
     if (s.jail > 0) return refuse('Você está detido.');
     if (s.heat <= 0) return refuse('Ninguém está te procurando.');
@@ -3276,7 +3291,7 @@ body.busy #content{opacity:.6;pointer-events:none}
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
-    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     FEAT_CATS, FEAT_RESPECT, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
@@ -3778,8 +3793,10 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     if (!localeHelp || !state) return '';
     const s = state, d = D(), ds = s.dstate[d.id], l = SB.leader(s, d.id), f = F(l.id);
     const inf = s.influence[d.id], mine = SB.controlled(s, d.id), need = Math.max(60, l.value + 10);
-    return `<section class="card localeInfo"><p><b>Sua influência: ${num(inf)}/100</b>. É o quanto o seu nome pesa em ${esc(d.name)}. Sobe com <b>Criar contatos</b> (tela Bairros), com o roubo <b>Favor de vizinhança</b>, com decisões nas notícias e às vezes no pagode; cai 1 por dia nos bairros onde você não está, e os grupos rivais tomam.</p>
-      <p>Com <b>20</b> você pode disputar o bairro e confrontar facções; com <b>25</b>, o Leilão clandestino. Com <b>60 e 10 acima do grupo que manda</b>, o bairro é seu: +12% nos roubos daqui, +15% nos negócios daqui e a vantagem do bairro (${esc(d.advantage.replace(/\.$/, ''))}).${mine ? ' <b>Você manda aqui.</b>' : ` Faltam ${num(Math.max(0, need - inf))} para mandar.`}</p>
+    const ti = SB.infTier(s, d.id);
+    return `<section class="card localeInfo"><p><b>Sua influência: ${num(inf)}/100 · ${esc(SB.INF_TIERS[ti].name)}</b>. É o quanto o seu nome pesa em ${esc(d.name)}. Sobe com os <b>roubos do 4º degrau em diante feitos aqui</b> (golpe +2, os outros +1, cada vez menos conforme a barra enche), com <b>Criar contatos</b> (tela Bairros), com o Favor de vizinhança e com as notícias; cai 1 por dia nos bairros onde você não está, e os grupos rivais tomam.</p>
+      <ul class="infTiers">${SB.INF_TIERS.map((x, k) => `<li class="${k === ti ? 'on' : ''}"><b>${k === 3 ? '60 e 10 acima do dono' : x.at + '+'} · ${esc(x.name)}</b>: ${esc(x.desc)}${k === 3 ? ` Vantagem daqui: ${esc(d.advantage.replace(/\.$/, ''))}.` : ''}</li>`).join('')}</ul>
+      <p>${mine ? '<b>Você manda aqui.</b>' : `Faltam ${num(Math.max(0, need - inf))} para ser o dono do pedaço.`}</p>
       <p><b>Dono</b>: ${mine ? 'você.' : `${esc(f.name)} (${num(l.value)} de presença). Roubar no território dele gera atrito e retaliação; dá para conversar, firmar trégua ou tomar o bairro.`}</p>
       <p><b>Grana ${Math.round(ds.econ * 100)}%</b>: quanto dinheiro circula aqui hoje (de 60% a 140%). Multiplica o que você ganha nos roubos e nos negócios deste bairro.</p>
       <p><b>Polícia ${ds.vigil}</b>: a polícia de olho neste bairro (0 a 100), diferente do seu Procurado. Sobe a cada roubo aqui e tira poder dos seus roubos; cai um pouco por dia. Acima de 40, mude de bairro.</p>
@@ -3790,7 +3807,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
     return `<section class="locale ${tall ? 'tall' : ''}" aria-label="Onde você está">${scene(d.id)}
       <div class="localeTop">${plate(d.name, s.city)}${(flyers ? evs : []).map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
-      <button type="button" class="localeBottom" data-action="locale-help" aria-expanded="${localeHelp}" aria-label="Sua influência neste bairro; tocar explica"><span class="infTag ${SB.controlled(s, d.id) ? 'mine' : ''}">Sua influência ${num(s.influence[d.id])}/100${SB.controlled(s, d.id) ? ' · você manda aqui' : ''}</span><i class="localeQ" aria-hidden="true">?</i></button></section>`;
+      <button type="button" class="localeBottom" data-action="locale-help" aria-expanded="${localeHelp}" aria-label="Sua influência neste bairro; tocar explica"><span class="infTag ${SB.controlled(s, d.id) ? 'mine' : ''}">Sua influência ${num(s.influence[d.id])} · ${esc(SB.INF_TIERS[SB.infTier(s, d.id)].name)}</span><i class="localeQ" aria-hidden="true">?</i></button></section>`;
   }
   const statName = id => SB.STATS.find(x => x.id === id).name;
   const chanceClass = p => p < 55 ? 'danger' : p < 75 ? 'risky' : '';
@@ -3853,6 +3870,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
         ${state && state.clock ? '<p><strong>Online</strong>: o dia vira sozinho à meia-noite de Brasília e a temporada é o mês do calendário. A energia volta +1 a cada 3 minutos. <strong>Ir pra casa</strong> (3 horas, até 2 vezes por dia) enche a energia e zera o corpo. Na cadeia e no hospital, 1 dia vale 2 horas.</p>' : ''}
         <p><strong>Roubos</strong> vêm em escada, do mais fácil ao mais difícil. A chance vem do seu poder contra a dificuldade (poder igual = 70%, 1,5 vez = 90%). O <strong>genérico</strong> soma os atributos e 3 por ponto de arsenal (arma + proteção + veículo); o <strong>golpe</strong> pesa 3 por ponto de um atributo; o <strong>assalto</strong> pesa o arsenal. Nos 3 primeiros degraus, falhar não dá cadeia.</p>
         <p><strong>Procurado</strong>: repetir o mesmo roubo é permitido, mas cada um sobe o Procurado e a polícia do bairro. Ele tira poder (com 50, −20%); com 60 a detenção sobe +10, e com 85 até o roubo que deu certo pode virar enquadro. Para esfriar: ficar na sua (energia), a propina (dinheiro; mais cara para quem faz roubo maior, +50% a cada vez no dia), trocar de bairro ou esperar.</p>
+        <p><strong>Influência</strong>: cada bairro tem a sua. Roubos do 4º degrau em diante somam influência onde você rouba. Faixas: Conhecido (20), Respeitado (40, libera o Leilão) e Dono do pedaço (60 e 10 acima do grupo que manda): +12% no saque, propina 25% mais barata e a polícia do bairro sobe pela metade.</p>
         <p><strong>Saúde</strong>: tirar o vício custa saúde (meio ponto por ponto de vício). Saúde zero = UTI: ${state && state.clock ? '24 horas' : 'o resto do dia e o seguinte'} sem jogar.</p>
         <p>Os <strong>grupos rivais</strong> reagem: agir no território deles gera atrito, retaliação e extorsão. Dá para conversar, firmar trégua ou aliança.</p>`],
       ['Sua cidade', `<p><strong>${esc(c.name)} — ${esc(c.trait)}.</strong> ${esc(c.traitDesc)}</p>
@@ -3940,7 +3958,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   function actions() {
     const s = state, ds = s.dstate[s.district];
     const list = SB.MISSIONS.filter(m => missionFilter === 'todas' ? true : missionFilter === 'bairro' ? m.district === s.district : ['', 'Energia insuficiente.', 'Você está detido.', 'Você está internado.'].includes(SB.missionLock(s, m))).sort((a, b) => a.n - b.n); // v1.5: escada do mais fácil ao mais difícil
-    return heading('Roubar', 'Do mais fácil ao mais difícil. A chance vem do seu poder contra a dificuldade: o genérico soma atributos e arsenal, o golpe pesa um atributo e o assalto pesa o arsenal (arma + proteção + veículo). Repita quanto quiser: o freio é o Procurado.') + jailNotice() + resultCard() + heatCard() + `
+    return heading('Roubar', 'Do mais fácil ao mais difícil. A chance vem do seu poder contra a dificuldade: o genérico soma atributos e arsenal, o golpe pesa um atributo e o assalto pesa o arsenal (arma + proteção + veículo). Repita quanto quiser: o freio é o Procurado.') + jailNotice() + resultCard() + heatCard() + turfLine() + `
       ${stencil('Roubos', 'você está em ' + esc(D().name))}
       <div class="filterbar" role="group" aria-label="Filtrar missões">${[['disponiveis', 'Disponíveis'], ['bairro', 'Deste bairro'], ['todas', 'Todas']].map(([id, l]) => `<button type="button" class="btn ghost ${missionFilter === id ? 'on' : ''}" data-action="filter" data-id="${id}" aria-pressed="${missionFilter === id}">${l}</button>`).join('')}</div>
       <div class="jobs">${list.length ? list.map(missionCard).join('') : '<div class="empty">Nenhum roubo neste filtro. Ganhe respeito, compre arma na Feira ou veja “Todas”.</div>'}</div>
@@ -3961,6 +3979,11 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       ${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div>
       <div class="jobAct"><span class="seal ${chanceClass(p)}">${p}%</span>${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary')}</div></section>`;
   }
+  /** Influência no bairro onde você rouba (o roubo do 4º degrau em diante soma influência aqui). */
+  function turfLine() {
+    const s = state, d = D(), ti = SB.infTier(s, d.id), mine = ti === 3, l = SB.leader(s, d.id);
+    return `<p class="notice turfLine ${mine ? 'mine' : ''}">${mine ? `<strong>Você manda em ${esc(d.name)}:</strong> +12% no saque, propina 25% mais barata e a polícia do bairro sobe pela metade.` : `<strong>Influência em ${esc(d.name)}: ${num(s.influence[d.id])} · ${esc(SB.INF_TIERS[ti].name)}.</strong> Roubos do 4º degrau em diante somam influência aqui; com ${num(Math.max(60, l.value + 10))}, o bairro é seu.`}</p>`;
+  }
   /** v1.5: termômetro do Procurado com as faixas (gatilhos) e as formas de esfriar. */
   function heatCard() {
     const s = state, ti = SB.heatTier(s), tier = SB.HEAT_TIERS[ti], cc = SB.cleanCost(s), uses = s.today.despachante || 0;
@@ -3971,7 +3994,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       <p class="mini">${esc(tier.desc)}${ti < SB.HEAT_TIERS.length - 1 ? ` Próxima faixa: ${esc(SB.HEAT_TIERS[ti + 1].name)} com ${SB.HEAT_TIERS[ti + 1].at}.` : ''}</p>
       <div class="heatActs">
         <div><span class="mini"><b>Ficar na sua</b> · 18 energia · −20 (e −10 da polícia do bairro)</span>${button('Esfriar', 'lay-low', '', s.energy < 18 || s.jail > 0 || s.heat === 0, 'small')}</div>
-        <div><span class="mini"><b>Propina</b> · ${fmt(cc)} · −25${uses ? ` · ${uses + 1}ª hoje` : ''}. A polícia cobra pela sua ficha (maior roubo feito: ${num(Math.max(1, s.ladderMax || 0))}º degrau); cada nova no dia, +50%.</span>${button('Pagar', 'clean-record', '', s.heat <= 0 || s.cash < cc || s.jail > 0, 'small primary')}</div>
+        <div><span class="mini"><b>Propina</b> · ${fmt(cc)} · −25${uses ? ` · ${uses + 1}ª hoje` : ''}. A polícia cobra pela sua ficha (maior roubo feito: ${num(Math.max(1, s.ladderMax || 0))}º degrau); cada nova no dia, +50%${SB.controlled(s, s.district) ? '; no seu bairro, 25% mais barata' : ''}.</span>${button('Pagar', 'clean-record', '', s.heat <= 0 || s.cash < cc || s.jail > 0, 'small primary')}</div>
         <p class="mini">Também esfria: trocar de bairro (a polícia é de cada bairro, e ela pesa metade), fazer bico (−4)${s.clock ? ' e ir pra casa' : ' e dormir'}.</p>
       </div></section>`;
   }
@@ -4281,8 +4304,8 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
         <details class="fichaMore"><summary>Como a conta é feita</summary><ul class="lutaParts">${SB.combatParts(s).map(([k, v]) => `<li><span>${k}</span><b>${v ? '+' + (Math.round(v * 10) / 10).toString().replace('.', ',') : '0'}</b></li>`).join('')}</ul>
         <p class="mini">Força conta 1,6 por ponto, Astúcia 0,6, o poder da arma 1,8, a defesa da proteção 1 e cada nível da sede 1,5.${s.career === 'operador' ? ' Como Assaltante, arma e proteção valem 15% a mais.' : ''} Também pesam na chance: saúde abaixo de 60, cansaço (cada duelo no dia tira 4%) e, nos assaltos, Procurado, ânimo e informação.</p></details></section>
       ${stencil('Atributos')}<section class="card">${SB.STATS.map(st => `<div class="statRow">${statIcon(st.id)}<span>${st.name}</span><div class="meter"><div style="width:${pct(s.stats[st.id] / top * 100)}%"></div></div><strong>${num(s.stats[st.id])}</strong></div>`).join('')}</section>
-      ${stencil('Influência', 'nos bairros de ' + esc(s.city))}<section class="card infCard">${SB.DISTRICTS.map(x => { const v = s.influence[x.id], mine = SB.controlled(s, x.id), ld = SB.leader(s, x.id); return `<div class="statRow infRow ${x.id === s.district ? 'here' : ''}"><span>${esc(x.name)}${x.id === s.district ? ' · você está aqui' : ''}</span><div class="meter ${mine ? 'green' : ''}"><div style="width:${pct(v)}%"></div></div><strong>${num(v)}</strong><small class="mini">${mine ? 'Você manda aqui: ' + esc(x.advantage) : `Manda: ${esc(F(ld.id).short)} (${num(ld.value)}). Para mandar: ${num(Math.max(60, ld.value + 10))}.`}</small></div>`; }).join('')}
-        <p class="mini">Influência sobe com Criar contatos (tela Bairros), com o Favor de vizinhança e com as notícias. Com 20: disputar o bairro; com 25: Leilão; com 60 e 10 acima do dono: o bairro é seu (+12% nos roubos, +15% nos negócios e a vantagem do bairro).</p></section>
+      ${stencil('Influência', 'nos bairros de ' + esc(s.city))}<section class="card infCard">${SB.DISTRICTS.map(x => { const v = s.influence[x.id], mine = SB.controlled(s, x.id), ld = SB.leader(s, x.id); return `<div class="statRow infRow ${x.id === s.district ? 'here' : ''}"><span>${esc(x.name)}${x.id === s.district ? ' · você está aqui' : ''}</span><div class="meter ${mine ? 'green' : ''}"><div style="width:${pct(v)}%"></div></div><strong>${num(v)}</strong><small class="mini"><b>${esc(SB.INF_TIERS[SB.infTier(s, x.id)].name)}</b> · ${mine ? 'você manda aqui: ' + esc(x.advantage) : `manda ${esc(F(ld.id).short)} (${num(ld.value)}); para ser o dono: ${num(Math.max(60, ld.value + 10))}.`}</small></div>`; }).join('')}
+        <p class="mini">Sobe com os roubos do 4º degrau em diante (no bairro onde você rouba), com Criar contatos, com o Favor de vizinhança e com as notícias. Faixas: Conhecido (20) disputa o bairro; Respeitado (40) libera o Leilão e barateia contatos; Dono do pedaço (60 e 10 acima do dono): +12% nos roubos, +15% nos negócios, propina 25% mais barata, a polícia do bairro sobe pela metade e a vantagem do bairro.</p></section>
       ${stencil('Equipamento', 'troque na Feira do Rolo')}<div class="gearGrid">${SB.SLOTS.map(sl => { const it = SB.item(s.gear[sl.id]); const pic = it ? window.SBArt.item(it.id) : ''; return `<button type="button" class="gearSlot ${it ? 'on' : ''}" data-view="feira">${pic ? `<span class="gearPic" aria-hidden="true">${pic}</span>` : ''}<span>${sl.name}</span><b>${it ? esc(it.name) : '—'}</b><small>${it ? esc(it.slot === 'arma' ? 'poder ' + it.power : it.slot === 'protecao' ? 'defesa ' + it.def : 'carga +' + it.cargo) : 'vazio'}</small></button>`; }).join('')}</div>
       ${stencil('Nesta temporada')}<section class="card"><div class="kv"><div><span>Respeito</span><strong>${num(s.respect)}</strong></div><div><span>Patrimônio</span><strong>${fmt(SB.patrimony(s))}</strong></div><div><span>Serviços</span><strong>${num(s.successful)} certos · ${num(s.failed)} falhos</strong></div><div><span>Detenções</span><strong>${s.seasonStats.arrests}</strong></div><div><span>Saúde</span><strong>${s.health}/100${s.hospital ? ' · internado' : ''}</strong></div><div><span>Duelos</span><strong>${s.duelStats.wins} vitórias · ${s.duelStats.losses} derrotas</strong></div><div><span>Mercadoria vendida</span><strong>${fmt(s.trade.sold)}</strong></div><div><span>Remessas / blitze</span><strong>${num(s.trade.exported)} un. · ${s.trade.blitz}</strong></div><div><span>Bairros liderados</span><strong>${SB.controls(s).length}/5</strong></div><div><span>Conquistas</span><strong>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length}</strong></div></div></section>
       ${onlineCard()}

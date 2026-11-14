@@ -133,7 +133,7 @@
     mkMission({ id: 'baile', district: 'vila', name: 'Bastidores do baile', desc: 'Cuidar da “organização paralela” de um baile de rua.', n: 7, kind: 'golpe', stat: 'labia', festive: true, variant: true }),
     mkMission({ id: 'deposito', name: 'Mercadinho Dois Irmãos', desc: 'Limpar o caixa antes que o dono puxe o que guarda debaixo do balcão.', n: 8, kind: 'assalto', stat: null, req: { power: 4 } }),
     mkMission({ id: 'carga', district: 'cais', name: 'Carga sem dono', desc: 'Uma carga esquecida nos galpões. O grupo que manda ali não vai gostar.', n: 8, kind: 'assalto', stat: null, req: { power: 4 }, variant: true }),
-    mkMission({ id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', n: 9, kind: 'golpe', stat: 'labia', req: { influence: 25 } }),
+    mkMission({ id: 'leilao', name: 'Leilão clandestino', desc: 'Intermediar um leilão fechado entre figuras da cidade.', n: 9, kind: 'golpe', stat: 'labia', req: { influence: 40 } }),
     mkMission({ id: 'caixa', name: 'Caixa eletrônico na maquita', desc: 'Posto de gasolina afastado, barulho alto e notas que podem queimar.', n: 10, kind: 'gen', stat: null, req: { escape: 1, power: 5 } }),
     mkMission({ id: 'loterica', name: 'Casa lotérica', desc: 'Fila cheia, malote de dinheiro vivo e risco de policial à paisana.', n: 11, kind: 'assalto', stat: null, req: { escape: 3, power: 7 } }),
     mkMission({ id: 'galpao', district: 'industrial', name: 'Galpão desativado', desc: 'Material valioso parado num galpão sob patrulha reforçada.', n: 11, kind: 'assalto', stat: null, req: { escape: 3, power: 7 }, variant: true }),
@@ -883,6 +883,18 @@
   }
   const controlled = (s, did) => s.influence[did] >= 60 && s.influence[did] >= leader(s, did).value + 10;
   const controls = s => DISTRICTS.filter(d => controlled(s, d.id));
+  /* Influência com nome (v1.5): faixas como as do Procurado. "Dono do pedaço" = mandar no bairro
+   * (60 de influência e 10 acima do grupo que lidera). */
+  const INF_TIERS = [
+    { at: 0, name: 'Desconhecido', desc: 'Ninguém te conhece aqui.' },
+    { at: 20, name: 'Conhecido', desc: 'Dá para disputar o bairro e confrontar facções.' },
+    { at: 40, name: 'Respeitado', desc: 'Libera o Leilão clandestino; criar contatos fica 20% mais barato.' },
+    { at: 60, name: 'Dono do pedaço', desc: 'O bairro é seu: +12% nos roubos, +15% nos negócios, propina 25% mais barata, a polícia do bairro sobe pela metade e a vantagem do bairro.' }
+  ];
+  const infTier = (s, did = s.district) => controlled(s, did) ? 3 : s.influence[did] >= 40 ? 2 : s.influence[did] >= 20 ? 1 : 0;
+  /** Influência que um roubo bem-sucedido rende no bairro (degrau 4 em diante): golpe 2, genérico e assalto 1,
+   *  cada vez menos conforme a barra enche. Valor fracionário; doMission sorteia o arredondamento. */
+  const robberyInfluence = (s, m) => m.n < 4 ? 0 : (m.kind === 'golpe' ? 2 : 1) * (1 - s.influence[s.district] / 100) * (s.career === 'articulador' ? 1.3 : 1);
   const allyTurf = (s, did) => { const l = leader(s, did); return l.value >= 10 && s.factions[l.id].allied; };
 
   /* Equipe */
@@ -1011,7 +1023,7 @@
   const trainCost = (s, id) => { const l = s.stats[id]; return Math.round((250 + l * 40 + l * l * 1.2) * (cityIs(s, 'poa') ? .9 : 1) * (s.career === 'empreendedor' && id === 'forca' ? 1.25 : 1)); };
   const travelCost = s => ({ cash: cityIs(s, 'recife') ? 45 : 90, energy: cityIs(s, 'recife') || gearVal(s, 'freeRide') ? 0 : 5 });
   const bailCost = s => s.jail > 0 ? Math.round((250 + s.jail * 250 + Math.floor(s.respect * 1.5)) * (s.career === 'empreendedor' ? .7 : 1)) : 0;
-  const contactCost = s => Math.round(180 * (hasPerk(s, 'articulador', 1) ? .7 : 1) * (controlled(s, 'centro') ? .8 : 1));
+  const contactCost = s => Math.round(180 * (hasPerk(s, 'articulador', 1) ? .7 : 1) * (controlled(s, 'centro') ? .8 : 1) * (s.influence[s.district] >= 40 ? .8 : 1));
   const allianceCost = s => Math.round(900 * (hasPerk(s, 'articulador', 2) ? .6 : 1));
   const allianceFee = s => 50 + s.gangLevel * 15;
   const upgradeCost = s => 1200 + s.gangLevel * 900;
@@ -1256,7 +1268,7 @@
     s.energy -= missionCost(s, m);
     s.today.missions[m.id] = (s.today.missions[m.id] || 0) + 1;
     if (s.tip > 0) s.tip = 0;
-    s.dstate[d].vigil = clamp(s.dstate[d].vigil + m.vigil, 0, 100);
+    s.dstate[d].vigil = clamp(s.dstate[d].vigil + Math.ceil(m.vigil * (controlled(s, d) ? .5 : 1)), 0, 100); // no seu bairro, a polícia sobe pela metade
     if (roll(odds)) {
       const reward = Math.max(1, Math.round(rand(m.low, m.high) * mult));
       // Gatilho "Caçado" (Procurado 85+): mesmo dando certo, a polícia pode enquadrar na saída.
@@ -1271,6 +1283,7 @@
       if (m.n > (s.ladderMax || 0)) s.ladderMax = m.n;
       if (m.stat && roll(30)) s.stats[m.stat] += 1;
       if (m.influence) addInf(s, d, m.influence * (s.career === 'articulador' ? 1.3 : 1));
+      { const g = robberyInfluence(s, m); if (g > 0) addInf(s, d, Math.floor(g) + (roll((g % 1) * 100) ? 1 : 0)); }
       addXP(s, 'operador', m.n >= 8 ? 2 : 1);
       turfFriction(s, d, m.tension);
       if (m.id === 'cofre') unlock(s, 'cofre');
@@ -1927,7 +1940,7 @@
    *  saque médio de 1 roubo do maior degrau que você já fez; cada nova no mesmo dia, +50%. Sem teto. */
   const PROPINA = 25;
   const ladderAvg = n => { const m = MISSIONS.find(x => x.n === clamp(n || 1, 1, LADDER_TOP) && !x.variant); return Math.round((m.low + m.high) / 2); };
-  const cleanCost = s => Math.round(ladderAvg(s.ladderMax) * Math.pow(1.5, Math.min(40, s.today.despachante || 0)));
+  const cleanCost = s => Math.round(ladderAvg(s.ladderMax) * Math.pow(1.5, Math.min(40, s.today.despachante || 0)) * (controlled(s, s.district) ? .75 : 1)); // no seu bairro, 25% mais barata
   function doCleanRecord(s) {
     if (s.jail > 0) return refuse('Você está detido.');
     if (s.heat <= 0) return refuse('Ninguém está te procurando.');
@@ -2530,7 +2543,7 @@
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
-    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     FEAT_CATS, FEAT_RESPECT, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,

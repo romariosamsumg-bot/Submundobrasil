@@ -641,9 +641,22 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
-### Influência à vista (v1.5)
+### Influência no ciclo do roubo (v1.5, desenhado com o autor)
 
-A influência no bairro aparece na faixa da placa (Rua e Bairros) e no **Perfil**, com uma linha por bairro: sua influência, quem manda e quanto falta (60 e 10 acima do dono), ou a vantagem, se o bairro é seu. Dono, Grana e Polícia ficaram na explicação do "?".
+**Respeito diz quem você é na cidade; influência diz onde você manda.** A influência é uma barra por bairro (0–100) e nunca entra no placar.
+
+**Roubar dá influência.** Todo roubo bem-sucedido do 4º degrau em diante soma influência no bairro onde foi feito: golpe +2, genérico e assalto +1, multiplicado por (1 − influência ÷ 100), cada vez menos conforme a barra enche (Articulador ×1,3). Os degraus 1 a 3 não somam. Continua subindo também com Criar contatos (R$ 180 · 22 de energia), o Favor de vizinhança (+4), as notícias e o pagode; cai 1 por dia nos bairros onde você não está, e os grupos rivais tomam.
+
+**Faixas com nome:**
+
+| Faixa | Nome | O que libera |
+|---|---|---|
+| 0–19 | Desconhecido | nada |
+| 20–39 | Conhecido | disputar o bairro e confrontar facções |
+| 40–59 | Respeitado | Leilão clandestino (antes 25) e criar contatos 20% mais barato |
+| 60 e 10 acima do grupo que manda | **Dono do pedaço** | +12% nos roubos daqui, +15% nos negócios daqui, **propina 25% mais barata**, **a polícia do bairro sobe pela metade** nos seus roubos e a vantagem do bairro |
+
+**Onde aparece:** na faixa da placa (Rua e Bairros), "Sua influência 46 · Respeitado"; o "?" explica as faixas, quanto falta para ser o dono, e mostra Dono, Grana e Polícia. Na tela Roubar, uma linha logo abaixo do Procurado ("Influência em X: 46 · Respeitado" ou "Você manda em X: +12% no saque…"). No Perfil, uma linha por bairro com a faixa e o que falta.
 
 ### O ciclo do roubo (v1.5, desenhado com o autor)
 
