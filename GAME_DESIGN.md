@@ -613,30 +613,11 @@ A fase aparece na barra do personagem. Lugares ainda fechados aparecem **trancad
 
 ### Entrada e ficha da temporada (v1.5)
 
-Sequência: **tela inicial** (aviso 18+, entrar ou criar conta, ou jogar sem conta) → **ficha 1**: retrato (10), vulgo e cidade, botão **Próximo** → **ficha 2**: classe (4), e só depois de escolher aparecem o aviso "retrato, vulgo e classe só poderão ser alterados na próxima temporada" e o botão **Salvar** → o **guia de primeiros passos** começa direto no passo 2 (primeiro roubo). A ação é , que só vale sem classe; ao virar a temporada a ficha reabre com o vulgo preenchido (a cidade não muda). O Perfil não troca mais o retrato. No online, o vulgo novo precisa ser único (o banco recusa repetido).
+Sequência: **tela inicial** (aviso 18+, entrar ou criar conta, ou jogar sem conta) → **ficha 1**: retrato (10), vulgo e cidade, botão **Próximo** → **ficha 2**: classe (4), e só depois de escolher aparecem o aviso "retrato, vulgo e classe só poderão ser alterados na próxima temporada" e o botão **Salvar** → o **guia de primeiros passos** começa direto no passo 2 (primeiro roubo). A ação é `setup(retrato, vulgo, classe)`, que só vale sem classe; ao virar a temporada a ficha reabre com o vulgo preenchido (a cidade não muda). O Perfil não troca mais o retrato. No online, o vulgo novo precisa ser único (o banco recusa repetido).
 
 ### Itens são seus (v1.5)
 
-Na Feira, comprar paga o **preço cheio** e o item fica **seu** na temporada; os que você já tem mostram **Usar** (troca de graça, recusada preso ou com veículo menor que a carga). Não há mais devolução de metade na troca, então os preços caíram pela regra *novo = antigo − metade do anterior da mesma prateleira*: o custo para subir a trilha ficou igual (o ritmo medido em 
-> submundo-brasil@1.5.0 ritmo
-> node tests/ritmo.js
-
-Ritmo da Feira (200 jogos, começo com R$ 0): mediana do roubo e do dia em que compra cada arma
- 1. Pedaço de pau com prego      R$    150  respeito   0  →  roubo    1 · dia   1 · 100% chegam
- 2. Chave de fenda amolada       R$    820  respeito   0  →  roubo    3 · dia   2 · 100% chegam
- 3. Vergalhão de obra            R$   1050  respeito   8  →  roubo    8 · dia   6 · 100% chegam
- 4. Facão                        R$   1450  respeito  15  →  roubo   14 · dia  11 · 100% chegam
- 5. Maquita                      R$   1900  respeito  25  →  roubo   22 · dia  18 · 93% chegam
- 6. Três-oitão raspado           R$   2000  respeito  35  →  roubo   28 · dia  23 · 73% chegam
- 7. Pistola .40                  R$   2750  respeito  60  →  roubo   34 · dia  26 · 35% chegam
- 8. Doze de cano serrado         R$   3750  respeito  80  →  roubo   47 · dia  26 · 12% chegam
- 9. Uzi de pente estendido       R$   4500  respeito 100  →  roubo   52 · dia  28 · 6% chegam
-10. Submetralhadora              R$   5250  respeito 115  →  roubo   61 · dia  28 · 2% chegam
-11. FAL 7.62, o Vovô             R$   6000  respeito 130  →  roubo   66 · dia  29 · 1% chegam
-12. Fuzil AR-15                  R$   7750  respeito 150  →  roubo    — · dia   — · 0% chegam
-13. Ponto Cinquenta              R$  11500  respeito 175  →  roubo    — · dia   — · 0% chegam
-14. Metralhadora MAG             R$  15000  respeito 200  →  roubo    — · dia   — · 0% chegam
-15. Lança-rojão                  R$  18000  respeito 220  →  roubo    — · dia   — · 0% chegam não mudou). Patrimônio conta só o que está em uso (itens guardados não viram dinheiro).
+Na Feira, comprar paga o **preço cheio** e o item fica **seu** na temporada; os que você já tem mostram **Usar** (troca de graça, recusada preso ou com veículo menor que a carga). Não há mais devolução de metade na troca, então os preços caíram pela regra *novo = antigo − metade do anterior da mesma prateleira*: o custo para subir a trilha ficou igual (o ritmo medido em `npm run ritmo` não mudou). Patrimônio conta só o que está em uso (itens guardados não viram dinheiro).
 
 | Arma | Preço | | Proteção | Preço | | Veículo | Preço |
 |---|---|---|---|---|---|---|---|

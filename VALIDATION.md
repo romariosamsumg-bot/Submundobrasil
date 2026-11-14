@@ -105,7 +105,7 @@ Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.5** (c
 
 Leitura da v1.5 (itens são seus, sem devolução na troca):
 - Preços recalculados para o custo de subir a trilha ficar igual; o ritmo da Feira (`npm run ritmo`) ficou o mesmo, arma a arma.
-- O robô de compra passou a somar o caminho inteiro da prateleira (antes olhava só o preço da arma desejada e, sem devolução, gastava o caixa). Comparando com o motor anterior e o robô anterior: a maioria ficou igual (±5); quem rouba perdeu cerca de 12 (Assaltante 195 → 183, ciclo completo 202 → 189), porque o patrimônio conta só o que está em uso e a arma em uso agora custa menos. Contar todos os itens guardados foi testado e exagerou (+16 a +46, cruzando a meta de R\$ 10.000), por isso ficou de fora.
+- O robô de compra passou a somar o caminho inteiro da prateleira (antes olhava só o preço da arma desejada e, sem devolução, gastava o caixa). Comparando com o motor anterior e o robô anterior: a maioria ficou igual (±5); quem rouba perdeu cerca de 12 (Assaltante 195 → 183, ciclo completo 202 → 189), porque o patrimônio conta só o que está em uso e a arma em uso agora custa menos. Contar todos os itens guardados foi testado e exagerou (+16 a +46, cruzando a meta de R$ 10.000), por isso ficou de fora.
 - Dono da Noite subiu (173 → 186); Bando de assaltos continua o mais fraco (122).
 
 Leitura e calibração da v1.5 (economia do começo):
