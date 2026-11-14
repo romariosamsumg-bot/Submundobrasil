@@ -53,6 +53,10 @@ ${src('ui.js')}
 </html>
 `;
 fs.writeFileSync(path.join(__dirname, 'Submundo-Brasil-v1.5.html'), html);
+// Hospedagem (GitHub Pages, pasta docs/): o jogo publicado é sempre o último build.
+fs.mkdirSync(path.join(__dirname, 'docs'), { recursive: true });
+fs.writeFileSync(path.join(__dirname, 'docs', 'index.html'), html);
+fs.writeFileSync(path.join(__dirname, 'docs', '.nojekyll'), '');
 // O servidor online usa exatamente o mesmo motor: copia a cada build.
 fs.copyFileSync(path.join(__dirname, 'src', 'engine.js'), path.join(__dirname, 'supabase', 'functions', 'jogar', 'engine.js'));
 console.log('Gerado Submundo-Brasil-v1.5.html (' + Math.round(html.length / 1024) + ' KB, ' + Object.keys(art).length + ' imagem(ns) pintada(s))');

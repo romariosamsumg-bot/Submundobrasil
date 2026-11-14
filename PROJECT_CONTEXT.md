@@ -85,6 +85,10 @@ curl -X POST -H "Authorization: Bearer <token>" \
   "https://api.supabase.com/v1/projects/bfnketwyttblsfljbafn/functions/deploy?slug=jogar"   # dentro de supabase/functions/jogar
 ```
 
+## Hospedagem (GitHub Pages)
+
+O `build.js` copia o jogo para `docs/index.html` (com `docs/.nojekyll`). O GitHub Pages publica essa pasta em `https://romariosamsumg-bot.github.io/Submundobrasil/`, e cada push da branch configurada atualiza o site. O jogo é um arquivo só, sem servidor próprio: o modo online fala direto com o Supabase.
+
 ## Backend e multiplayer (próximas fases)
 
 A 0.5 é deliberadamente local. Não há nada simulando "online". Para competição
