@@ -92,21 +92,21 @@ Bots com estratégias fixas jogam temporadas completas. Resultado da **v1.5** (c
 
 | Estratégia | Patrimônio | Respeito | Pontos | Meta | Detenções |
 |---|---|---|---|---|---|
-| Assaltante farmando roubos | 7.199 | — | 178 | 40% | 3,4 |
-| Bicheiro com negócios | 10.446 | — | 220 | 70% | 2,9 |
-| Território (Bicheiro) | 719 | — | 202 | 100% | 1,9 |
-| Diplomacia (Bicheiro) | 1.098 | — | 168 | 80% | 2,4 |
-| Bonde (gangue) | 1.260 | — | 172 | 20% | 1,6 |
-| Comerciante sem a classe | 8.746 | — | 243 | 60% | 2,9 |
-| Ciclo completo: roubo, noite e arsenal | 8.908 | — | 188 | 40% | 3,7 |
-| **Brigão (duelos)** | 7.939 | — | **207** | 40% | 2,2 |
-| **Bando de assaltos** | 2.129 | — | **123** | 0% | 1,7 |
-| Traficante (Galpão e remessas) | 8.726 | — | 242 | 60% | 2,7 |
-| Dono da Noite (casas e noitadas) | 8.294 | — | 184 | 50% | 3,2 |
-| Império da noite (Dono da Noite + produção e casas abastecidas) | 8.264 | — | 214 | 50% | 3,3 |
-| Apostador (metade do caixa na roleta, 3× ao dia) | 3.967 | — | 113 | 30% | 2,9 |
-| Exploit: repetir a melhor e depositar tudo | 1.785 | — | 30 | 0% | 11,4 |
-| Aleatório | 240 | — | 25 | 0% | 0,7 |
+| Assaltante farmando roubos | 7.199 | 125 | 178 | 40% | 3,4 |
+| Bicheiro com negócios | 10.446 | 122 | 220 | 70% | 2,9 |
+| Território (Bicheiro) | 719 | 120 | 202 | 100% | 1,9 |
+| Diplomacia (Bicheiro) | 1.098 | 94 | 168 | 80% | 2,4 |
+| Bonde (gangue) | 1.260 | 94 | 172 | 20% | 1,6 |
+| Comerciante sem a classe | 8.746 | 108 | 243 | 60% | 2,9 |
+| Ciclo completo: roubo, noite e arsenal | 8.908 | 121 | 188 | 40% | 3,7 |
+| **Brigão (duelos)** | 7.939 | 149 | **207** | 40% | 2,2 |
+| **Bando de assaltos** | 2.129 | 73 | **123** | 0% | 1,7 |
+| Traficante (Galpão e remessas) | 8.726 | 90 | 242 | 60% | 2,7 |
+| Dono da Noite (casas e noitadas) | 8.294 | 115 | 184 | 50% | 3,2 |
+| Império da noite (Dono da Noite + produção e casas abastecidas) | 8.264 | 106 | 214 | 50% | 3,3 |
+| Apostador (metade do caixa na roleta, 3× ao dia) | 3.967 | 101 | 113 | 30% | 2,9 |
+| Exploit: repetir a melhor e depositar tudo | 1.785 | 35 | 30 | 0% | 11,4 |
+| Aleatório | 240 | 33 | 25 | 0% | 0,7 |
 
 Leitura da v1.5 (equipamento nos roubos):
 - Só com o peso do equipamento, os caminhos de roubo subiram cerca de 30 pontos e o comerciante quase 40. As dificuldades subiram pela metade do equipamento esperado em cada degrau, e os robôs passaram a comprar proteção e veículo (antes só armas). O dinheiro que vira equipamento baixou o patrimônio; Fortuna e a meta Patrimônio caíram cerca de 10%.
