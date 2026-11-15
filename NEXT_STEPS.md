@@ -162,7 +162,7 @@ Também sugerido: rebelião na cadeia com a gangue.
 - [x] Teto de respeito por degrau (25, 60, 105, 160…), Banco e Negócios separados, seletor da Feira, entrada da noite uma vez por dia com ambiente e Sair, cardápio novo.
 - **Assaltante lidera as 5 estratégias nas classes** (o +25% de respeito nos assaltos pesa mais agora que o respeito vem dos degraus altos). Avaliar.
 - **Diplomacia (77) e Território (119) ficaram para trás:** precisam de respeito por acordos, alianças e domínio que não dependa da escada.
-- Imagem pintada `place-negocios` (prompt em PROMPTS_ARTE.md); por enquanto a tela usa o desenho em SVG.
+- [x] Imagem pintada `place-negocios` entregue pelo autor.
 
 ## Online (Supabase)
 
