@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
     if (!user) return json(401, { erro: 'Entre na sua conta.' });
     const pedido = await req.json().catch(() => null);
     const db = createClient(url, service, { auth: { persistSession: false } });
-    const { data: linha } = await db.from('saves').select('estado').eq('jogador', user.id).maybeSingle();
+    const { data: linha } = await db.from('saves').select('estado, mes, respeito').eq('jogador', user.id).maybeSingle();
     const saida = aplicar(SB, linha ? linha.estado : null, pedido, Date.now());
     if (saida.novo) {
       const { error } = await db.from('jogadores').upsert({ id: user.id, codinome: saida.novo.codinome, cidade: saida.novo.cidade }, { onConflict: 'id' });
@@ -31,6 +31,12 @@ Deno.serve(async (req) => {
     }
     if (saida.salvar) {
       const e = saida.salvar;
+      // Virou o mês: guarda o respeito final do mês que acabou (Galeria da fama).
+      const mesNovo = e.clock ? e.clock.month : null;
+      if (linha && linha.mes && mesNovo && linha.mes !== mesNovo) {
+        const v = linha.estado || {};
+        await db.from('historico').upsert({ jogador: user.id, mes: linha.mes, respeito: linha.respeito, codinome: String(v.name || '').slice(0, 22) || 'Sem vulgo', cidade: String(v.city || ''), classe: v.career || null, avatar: v.avatar || null }, { onConflict: 'jogador,mes', ignoreDuplicates: true });
+      }
       const { error } = await db.from('saves').upsert({ jogador: user.id, estado: e, temporada: e.season, dia: e.day, mes: e.clock ? e.clock.month : null, respeito: e.respect, patrimonio: SB.patrimony(e), atualizado_em: new Date().toISOString() }, { onConflict: 'jogador' });
       if (error) return json(500, { erro: 'Não foi possível salvar no servidor.' });
     }

@@ -11,9 +11,9 @@
   const KEY = SB.STORAGE_KEY;
   const CORRUPT_KEY = 'submundo_brasil_corrupt_backup';
   const V04_BACKUP_KEY = 'submundo_brasil_v04_backup';
-  const VIEWS = ['painel', 'acoes', 'hub', 'cidade', 'gestao', 'feira', 'galpao', 'noite', 'duelos', 'apostas', 'hospital', 'gangue', 'assaltos', 'perfil', 'temporada'];
+  const VIEWS = ['painel', 'acoes', 'hub', 'cidade', 'gestao', 'feira', 'galpao', 'noite', 'duelos', 'apostas', 'hospital', 'gangue', 'assaltos', 'perfil', 'temporada', 'ranking'];
   /* Telas que ficam "dentro" de uma aba da navegação. */
-  const PARENT = { cidade: 'hub', gestao: 'hub', galpao: 'hub', duelos: 'hub', apostas: 'hub', hospital: 'hub', gangue: 'hub', assaltos: 'gangue', perfil: 'hub', temporada: 'perfil' };
+  const PARENT = { cidade: 'hub', gestao: 'hub', galpao: 'hub', duelos: 'hub', apostas: 'hub', hospital: 'hub', gangue: 'hub', assaltos: 'gangue', perfil: 'hub', temporada: 'perfil', ranking: 'hub' };
   const tabOf = v => { while (PARENT[v]) v = PARENT[v]; return v; };
   const MAXDAY = SB.MAXDAY;
 
@@ -495,6 +495,7 @@
       ${mv && !guide ? `<section class="boardLead job nextMove"><div class="jobIcon">${statIcon(mv.icon || 'astucia')}</div><div class="jobMain"><div class="eyebrow">E agora? · ${esc(mv.tag)}</div><h3>${esc(mv.title)}</h3><p class="jobMeta">${esc(mv.text)}</p></div><div class="jobAct">${mv.btn}</div></section>` : ''}
       <section class="dayBar dayStrip"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span>${s.clock ? `<span class="clockLine">O dia vira em ${dur(SB.clockInfo(s).midnight)}${s.energy < 100 ? ` · +1 de energia em ${dur(SB.clockInfo(s).nextEnergy)}` : ''}</span>` : ''}<div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></div>${sleep}</section>
       ${evs.length ? `<section class="poster dayNews"><div class="posterHead">HOJE NA CIDADE</div><ul class="eventList">${evs.map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
+      ${s.tutorial.done ? rankCard() : ''}
       ${s.career || s.tutorial.done ? newsCard() : ''}
       ${fichaCard()}
       ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(2)}</section>`;
@@ -740,6 +741,7 @@
       ${gated('apostas', 'apostas', 'Apostas', `Bicho, sinuca e roleta · hoje ${s.today.bets}/${SB.BET_LIMIT}`)}
       ${gated('duelos', 'duelos', 'Duelos de rua', `Hoje ${s.today.duels}/${SB.DUEL_LIMIT} · ${s.duelStats.wins} vitória(s)`)}
       ${place('hospital', 'Hospital', s.hospital ? `${s.uti ? 'UTI' : 'Internado'} · ${s.hospital} ${s.clock ? 'período(s)' : 'dia(s)'}` : `Saúde ${s.health}/100`, s.health < 50 ? 'Ferido' : '')}
+      ${place('ranking', 'Mural do respeito', online ? (rank.me ? `Você é o ${num(rank.me.posicao)}º de ${num(rank.me.total)} no mês` : 'Ranking do mês e Galeria da fama') : 'Ranking (só no modo online)', '', 'temporada')}
       ${place('perfil', 'Perfil e temporada', `Dia ${s.day}/${MAXDAY} · ★ ${num(s.respect)} respeito`, '', 'temporada')}
     </div>`;
   }
@@ -898,7 +900,7 @@
   function render() {
     if (!state) return;
     SB.applyCity(state.city);
-    const pages = { painel: panel, acoes: actions, hub, cidade: city, gestao: management, feira, galpao, noite, duelos, apostas, hospital, gangue: gang, assaltos, perfil, temporada: seasons };
+    const pages = { painel: panel, acoes: actions, hub, cidade: city, gestao: management, feira, galpao, noite, duelos, apostas, hospital, gangue: gang, assaltos, perfil, temporada: seasons, ranking: rankingView };
     try {
       $('#content').innerHTML = (pages[view] || panel)() + `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • 18+ • Cidades reais, bairros e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`;
     } catch (e) {
@@ -915,6 +917,7 @@
     if (!VIEWS.includes(target)) return;
     if (target !== view) result = null;
     view = target; disarm(); $('#toast').hidden = true;
+    if (target === 'ranking') loadRank(true);
     $('#sidebar').classList.remove('open'); $('#menuToggle').setAttribute('aria-expanded', 'false');
     render(); window.scrollTo({ top: 0, behavior: 'instant' });
   }
@@ -941,6 +944,8 @@
       case 'switch': switchView(btn.dataset.target); break;
       case 'locale-help': localeHelp = !localeHelp; render(); break;
       case 'dismiss-result': result = null; render(); break;
+      case 'rank-scope': if (rank.scope !== id) { rank.scope = id; rank.rows = null; rank.me = null; render(); loadRank(true); } break;
+      case 'rank-reload': loadRank(true); break;
       case 'sound-toggle': if (window.SBSound) window.SBSound.setOn(!window.SBSound.on); render(); break;
       case 'buy-item': run('buyItem', id); break;
       case 'equip': run('equip', id); break;
@@ -1179,19 +1184,85 @@
     } catch (e) { rankingRows = []; notify('Não foi possível carregar o ranking.', true); }
     render();
   }
+  /* ---------- Ranking (Mural do respeito) ---------- */
+  const rank = { scope: 'brasil', rows: null, me: null, fame: null, at: 0, loading: false, err: false };
+  const MONTHS = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+  const monthName = m => { const [y, mm] = String(m).split('-').map(Number), n = MONTHS[(mm || 1) - 1] || ''; return n.charAt(0).toUpperCase() + n.slice(1) + ' de ' + y; };
+  async function rpc(fn, body, auth) {
+    const h = { apikey: ON.anonKey, 'Content-Type': 'application/json' };
+    if (auth) { const tk = await accessToken(); if (tk) h.Authorization = 'Bearer ' + tk; }
+    const r = await fetch(ON.url + '/rest/v1/rpc/' + fn, { method: 'POST', headers: h, body: JSON.stringify(body || {}) });
+    if (!r.ok) throw new Error(fn);
+    return r.json();
+  }
+  /** Carrega o ranking do mês, a sua posição e a Galeria da fama (no máximo a cada minuto, salvo se forçado). */
+  async function loadRank(force) {
+    if (!online || !ON || rank.loading || (!force && Date.now() - rank.at < 60000)) return;
+    rank.loading = true; rank.err = false;
+    const cid = rank.scope === 'cidade' && state ? state.city : null;
+    try {
+      const [rows, me, fame] = await Promise.all([rpc('ranking_mes', { limite: 50, cidade_f: cid }, true), rpc('minha_posicao', { cidade_f: cid }, true), rank.fame ? rank.fame : rpc('galeria', { meses: 6 })]);
+      rank.rows = Array.isArray(rows) ? rows : []; rank.me = Array.isArray(me) && me[0] && me[0].posicao ? me[0] : null; rank.fame = Array.isArray(fame) ? fame : [];
+      rank.at = Date.now();
+    } catch (e) { rank.err = true; rank.rows = rank.rows || []; }
+    rank.loading = false;
+    if (state && (view === 'ranking' || view === 'painel' || view === 'hub')) render();
+  }
+  const patenteOf = r => { let p = SB.PHASES[0]; for (const x of SB.PHASES) if (r >= x.at) p = x; return p.name; };
+  const careerName = id => { const c = SB.CAREERS.find(x => x.id === id); return c ? c.name : ''; };
+  function monthLeft(s) {
+    if (!s.clock) return '';
+    const [y, m] = String(s.clock.month).split('-').map(Number), dim = new Date(y, m, 0).getDate(), left = dim - s.day;
+    return left > 0 ? `O mês acaba em ${left} dia${left > 1 ? 's' : ''}` : 'Último dia do mês';
+  }
+  function chaseText(me) {
+    if (!me) return '';
+    if (Number(me.posicao) === 1) return 'Você está em 1º. Segure a ponta até o fim do mês.';
+    return me.acima_codinome ? `Faltam ${num(Math.max(1, me.acima_respeito - me.respeito + 1))} de respeito para passar ${esc(me.acima_codinome)} (${num(me.posicao - 1)}º).` : '';
+  }
+  /** Cartão da Rua: sua posição no mês (online) ou o convite para o ranking (offline). */
+  function rankCard() {
+    const s = state;
+    if (!online) return `<section class="card rankTeaser"><div class="space"><div><div class="eyebrow">Mural do respeito</div><p class="mini" style="margin:2px 0 0">O ranking do mês é do modo online. Aqui você joga para os seus recordes.</p></div>${button('Ver', 'switch', 'data-target="ranking"', false, 'small ghost')}</div></section>`;
+    if (!rank.at && !rank.loading) setTimeout(() => loadRank(), 0);
+    const me = rank.me;
+    return `<section class="card rankTeaser"><div class="space"><div><div class="eyebrow">Ranking do mês${rank.scope === 'cidade' ? ' · ' + esc(s.city) : ''}</div>
+      <h3 style="margin:2px 0">${me ? `Você é o ${num(me.posicao)}º de ${num(me.total)}` : rank.loading ? 'Carregando…' : 'Você ainda não entrou no ranking deste mês'}</h3>
+      <p class="mini" style="margin:0">${me ? chaseText(me) + ' ' : ''}${esc(monthLeft(s))}</p></div>${button('Ranking', 'switch', 'data-target="ranking"', false, 'small')}</div></section>`;
+  }
+  function rankingView() {
+    const s = state;
+    const head = heading('Ranking', 'O placar é o respeito. O ranking zera todo mês, e os 3 primeiros entram para a Galeria da fama.');
+    if (!online) {
+      const hist = s.seasonHistory.slice(-6).reverse();
+      return head + `<section class="card"><h2>Ranking só no modo online</h2><p>Para disputar com outros jogadores, jogue com conta: na tela inicial, toque em <b>Entrar</b> ou <b>Criar conta</b>. Aqui, offline, você joga contra a cidade e os seus recordes.</p></section>
+        ${stencil('Seus recordes')}<section class="card"><div class="kv"><div><span>Respeito agora</span><strong>★ ${num(s.respect)}</strong></div><div><span>Patente</span><strong>${esc(patenteOf(s.respect))}</strong></div><div><span>Temporadas fechadas</span><strong>${num(s.seasonHistory.length)}</strong></div><div><span>Melhor temporada</span><strong>★ ${num(Math.max(0, ...s.seasonHistory.map(h => h.respect || 0)))}</strong></div></div>
+        ${hist.length ? `<ol class="rankList">${hist.map(h => `<li><span>T${num(h.season)}</span><b>${num(h.respect)} de respeito</b><small>${esc(h.title || '')}</small><strong>★ ${num(h.respect)}</strong></li>`).join('')}</ol>` : '<p class="mini">Nenhuma temporada fechada ainda.</p>'}</section>`;
+    }
+    const me = rank.me, rows = rank.rows;
+    const filt = `<div class="filterbar" role="group" aria-label="Filtrar ranking">${[['brasil', 'Brasil'], ['cidade', esc(s.city)]].map(([id, l]) => `<button type="button" class="btn ghost ${rank.scope === id ? 'on' : ''}" data-action="rank-scope" data-id="${id}" aria-pressed="${rank.scope === id}">${l}</button>`).join('')}</div>`;
+    const meCard = `<section class="card rankMe"><div class="eyebrow">Você${rank.scope === 'cidade' ? ' em ' + esc(s.city) : ' no Brasil'}</div>
+      <h2>${me ? `${num(me.posicao)}º de ${num(me.total)}` : rank.loading ? 'Carregando…' : 'Fora do ranking deste mês'}</h2>
+      <p class="mini">${me ? `★ ${num(me.respeito)} de respeito. ${chaseText(me)}` : 'Jogue neste mês para aparecer.'} ${esc(monthLeft(s))}.</p></section>`;
+    const row = x => `<li class="rankRow2 ${x.eu ? 'me' : ''}"><span class="rkPos ${x.posicao <= 3 ? 'top' + x.posicao : ''}">${num(x.posicao)}º</span><span class="rkPic" aria-hidden="true">${window.SBArt.avatar(x.avatar) || ''}</span>
+      <span class="rkWho"><b>${esc(x.codinome)}${x.eu ? ' (você)' : ''}</b><small>${esc(x.cidade)}${x.classe ? ' · ' + esc(careerName(x.classe)) : ''} · ${esc(patenteOf(x.respeito))}${x.bairros ? ` · manda em ${num(x.bairros)} bairro${x.bairros > 1 ? 's' : ''}` : ''}</small></span><strong>★ ${num(x.respeito)}</strong></li>`;
+    const list = rows === null || (rank.loading && !rows.length) ? '<div class="empty">Carregando o ranking…</div>' : rank.err && !rows.length ? `<div class="empty">Não foi possível carregar o ranking. ${button('Tentar de novo', 'rank-reload', '', false, 'small')}</div>` : rows.length ? `<ol class="rankBoard">${rows.map(row).join('')}</ol>` : '<div class="empty">Ninguém jogou neste mês ainda. Seja o primeiro.</div>';
+    const byMonth = {}; for (const f of rank.fame || []) (byMonth[f.mes] = byMonth[f.mes] || []).push(f);
+    const fame = Object.keys(byMonth).length ? Object.keys(byMonth).sort().reverse().map(m => `<section class="card fameCard"><h3>${esc(monthName(m))}</h3><ol class="fameList">${byMonth[m].map(f => `<li class="f${f.posicao}"><span class="rkPos top${f.posicao}">${num(f.posicao)}º</span><span class="rkPic" aria-hidden="true">${window.SBArt.avatar(f.avatar) || ''}</span><span class="rkWho"><b>${esc(f.codinome)}</b><small>${esc(f.cidade)}${f.classe ? ' · ' + esc(careerName(f.classe)) : ''}</small></span><strong>★ ${num(f.respeito)}</strong></li>`).join('')}</ol></section>`).join('') : '<p class="mini">A Galeria da fama começa quando o primeiro mês acabar: os 3 primeiros de cada mês ficam aqui para sempre.</p>';
+    return head + filt + meCard + stencil('Top do mês', rank.scope === 'cidade' ? esc(s.city) : 'Brasil') + list + `<div class="btnbar" style="margin-top:8px">${button('Atualizar', 'rank-reload', '', rank.loading, 'small ghost')}</div>` + stencil('Galeria da fama', 'os 3 primeiros de cada mês') + fame;
+  }
   /** Cartão da conta e do ranking (Perfil, só no online). */
   function onlineCard() {
     if (!online) return '';
-    const rows = Array.isArray(rankingRows) ? rankingRows : null;
     return `${stencil('Online', 'save na nuvem')}<section class="card onlineCard"><p class="mini" style="margin:0 0 8px">Conta: <b>${esc(session && session.email)}</b>. As regras rodam no servidor do jogo.</p>
-      ${rows ? (rows.length ? `<ol class="rankList">${rows.map(x => `<li class="${x.codinome === state.name ? 'me' : ''}"><span>${num(x.posicao)}º</span><b>${esc(x.codinome)}</b><small>${esc(x.cidade)}</small><strong>★ ${num(x.respeito)}</strong></li>`).join('')}</ol>` : '<p class="mini">Ninguém no ranking ainda.</p>') : ''}
-      <div class="btnbar">${button(rows ? 'Atualizar ranking' : 'Ver ranking de respeito', 'on-ranking', '', false, 'small')}${button('Sair da conta', 'on-logout', '', false, 'small ghost')}</div></section>`;
+      <p class="mini">O ranking do mês, com filtro por cidade e a Galeria da fama, fica no Mural do respeito.</p>
+      <div class="btnbar">${button('Ver ranking', 'switch', 'data-target="ranking"', false, 'small')}${button('Sair da conta', 'on-logout', '', false, 'small ghost')}</div></section>`;
   }
   document.addEventListener('click', async e => {
     const btn = e.target.closest('[data-action^="on-"]'); if (!btn || !ON) return;
     const a = btn.dataset.action;
     if (a === 'on-ranking') return loadRanking();
-    if (a === 'on-logout') { storeSession(null); online = false; pendingOnline = false; if (setup) closeSetup(); state = load(); rankingRows = null; if (state) render(); else showWelcome(); notify('Você saiu da conta online.'); return; }
+    if (a === 'on-logout') { storeSession(null); online = false; pendingOnline = false; if (setup) closeSetup(); state = load(); rankingRows = null; rank.rows = null; rank.me = null; rank.at = 0; if (state) render(); else showWelcome(); notify('Você saiu da conta online.'); return; }
     const email = $('#onEmail').value.trim(), pass = $('#onPass').value;
     if (!$('#ageOk').checked) return notify('Confirme que tem 18 anos ou mais.', true);
     if (!email || pass.length < 6) return notify('Digite o e-mail e uma senha com pelo menos 6 caracteres.', true);

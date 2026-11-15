@@ -641,6 +641,15 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
+### Ranking: Mural do respeito (v1.5)
+
+Tela própria de Ranking, sem aba nova. Abre por três caminhos: **tocar na estrela de respeito no topo**, o **cartão da Rua** ("Você é o 12º de 340 · faltam 8 de respeito para passar Fulano · o mês acaba em N dias"; aparece depois dos primeiros passos) e o lugar **Mural do respeito** na Cidade.
+- **Top do mês** (50 primeiros): posição, retrato, vulgo, cidade, classe, patente, quantos bairros comanda e respeito. A sua linha fica destacada, e o cartão "Você" mostra sempre a sua posição e quanto falta para passar quem está logo acima.
+- **Filtro:** Brasil ou só a sua cidade.
+- **Galeria da fama:** os 3 primeiros de cada mês que passou (últimos 6 meses), para sempre.
+- **Offline:** sem ranking de jogadores (não se inventa jogador falso); a tela mostra os seus recordes por temporada e o convite para jogar com conta.
+- Servidor: migração `0003_ranking.sql` (funções `ranking_mes`, `minha_posicao` e `galeria`, tabela `historico`). A função `jogar` grava o respeito final de cada mês quando o save vira para o mês seguinte; quem não voltou entra na galeria pelo próprio save.
+
 ### Sons (v1.5)
 
 Efeitos sintetizados pelo navegador (Web Audio, `src/sound.js`), sem arquivos de áudio e sem licença: roubo certo = caixa registradora + carimbo; roubo errado = som grave + carimbo; preso = sirene; compra, venda, banco, propina, fiança e aposta = moedas; dose = lata abrindo; entrar na noite = batida grave; treino = soco; hospital e desintoxicação = bipe de monitor; UTI = monitor apitando direto; respeito novo (faixa de influência, feito do mês, primeiros passos, conquista) = fanfarra curta; virar o dia = sino; ação recusada = bipe curto. Botão de alto-falante no topo (ao lado do dia) e volume no Perfil; a escolha fica no aparelho. O áudio só começa depois do primeiro toque (regra dos celulares).

@@ -653,3 +653,21 @@ body.busy #content{opacity:.6;pointer-events:none}
 .soundBtn:focus-visible{outline:2px solid var(--ambar);outline-offset:1px}
 .soundVol{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:12px;color:#c3cfcf}
 .soundVol input{flex:1;accent-color:var(--ambar)}
+
+/* Ranking: estrela do topo, cartão da Rua, mural e Galeria da fama */
+button.hudResp{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;min-height:0}
+button.hudResp:focus-visible{outline:2px solid var(--ambar);outline-offset:2px}
+.rankTeaser{margin:0 0 12px;border-left:3px solid var(--ambar)}
+.rankTeaser h3{font:700 16px/1.25 Georgia,serif;color:#f3d6ae}
+.rankMe{border-top:3px solid var(--ambar);margin:10px 0 4px}.rankMe h2{margin:2px 0 4px}
+.rankBoard,.fameList{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.rankRow2,.fameList li{display:grid;grid-template-columns:34px 38px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 10px;background:#141b1f;border:1px solid #2c3a3e;border-radius:4px}
+.rankRow2.me{border-color:var(--ambar);background:#2a2419}
+.rkPos{font:800 13px/1 ui-monospace,Consolas,monospace;color:#a9b7bb;text-align:center}
+.rkPos.top1{color:#f0c14b}.rkPos.top2{color:#d6dde0}.rkPos.top3{color:#d08a4a}
+.rkPic{width:38px;height:38px;border-radius:50%;overflow:hidden;background:#0b1013;border:1px solid #3d4a4f;display:block}
+.rkPic img,.rkPic svg,.rkPic .art{width:100%;height:100%;object-fit:cover;display:block}
+.rkWho{min-width:0}.rkWho b{display:block;font-size:14px;color:#f5f2e9;overflow-wrap:anywhere}.rkWho small{display:block;font-size:11px;line-height:1.35;color:#a9b7bb;overflow-wrap:anywhere}
+.rankRow2 strong,.fameList strong{font-size:13px;color:#ffd98f;white-space:nowrap}
+.fameCard{margin:0 0 10px}.fameCard h3{margin:0 0 8px}
+.fameList li.f1{border-color:#8a6d2a}

@@ -44,7 +44,8 @@ milhares de ações): **0 exceções, 0 violações**.
 
 **131 de 131 verificações passaram** (v1.5: o resultado pula num popup inteiro dentro da tela, some do topo e fecha no OK; nos demais testes o popup deixa os toques passarem; v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
 
-- **Nenhum texto cortado** (v1.5): 15 telas nas 6 cidades, com nome de 22 letras, R$ 123.456 e a patente mais longa, mais as páginas de "Como jogar". O detector foi conferido contra a versão anterior, onde acusou o corte do topo.
+- **Ranking** (v1.5): a estrela do topo abre o ranking do mês com você destacado, quanto falta para passar o de cima, a Galeria da fama, o filtro pela cidade e a sua posição na Rua (servidor simulado).
+- **Nenhum texto cortado** (v1.5): 16 telas (com o Ranking) nas 6 cidades, com nome de 22 letras, R$ 123.456 e a patente mais longa, mais as páginas de "Como jogar". O detector foi conferido contra a versão anterior, onde acusou o corte do topo.
 - 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
 - A missão consome energia e mostra o resultado com as variações num popup.
 - "Avançar dia" pede um segundo toque com energia ≥ 40 e mostra o resumo do dia.
