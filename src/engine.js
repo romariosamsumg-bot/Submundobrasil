@@ -166,16 +166,24 @@
   /* v1.4: quatro classes, uma por pilar (assaltos, noite, produção, esquemas de rua). Os ids antigos
    * continuam para não quebrar saves; a classe Articulador saiu (quem estava nela escolhe de novo). */
   const CAREERS = [
-    { id: 'operador', name: 'Assaltante', tag: 'Linha de Frente', desc: '+15% de dinheiro em qualquer roubo (sozinho ou com o bando), roubos gastam 10% menos energia e armas e coletes rendem 15% mais (menos dano quando dá errado). Negócios e esquemas rendem 10% menos.',
+    { id: 'operador', name: 'Assaltante', tag: 'Linha de Frente', desc: '+15% de dinheiro em qualquer roubo (sozinho ou com o bando), +25% de respeito nos assaltos, roubos gastam 10% menos energia e armas e coletes rendem 15% mais (menos dano quando dá errado). Negócios e esquemas rendem 10% menos.',
+      art: 'assaltos', pitch: 'Vive de roubo: mais dinheiro, mais respeito e menos risco na rua.',
+      pros: ['+15% de dinheiro em todo roubo, sozinho ou com o bando', '+25% de respeito nos assaltos', 'Roubos gastam 10% menos energia', 'Arma e colete rendem 15% mais'], cons: ['Negócios e esquemas rendem 10% menos'],
       xpDesc: 'Ganha experiência concluindo roubos (mais nos grandes).',
       perks: ['Rota de fuga: −15 pontos na chance de detenção.', 'Ritmo de rua: cada roubo gera 25% menos Procurado.', 'Sangue frio: o Procurado pesa metade nas chances.'] },
-    { id: 'barao', name: 'Dono da Noite', tag: 'Rei do Inferninho', desc: 'Casas da noite rendem +30% e custam 20% menos; entrada e doses 40% mais baratas; whisky, loló, bala e pó sobem metade do vício. Nos roubos, a arma dele conta 20% menos.',
+    { id: 'barao', name: 'Dono da Noite', tag: 'Rei do Inferninho', desc: 'Casas da noite rendem +30% e custam 20% menos; entrada e doses 40% mais baratas; whisky, loló, bala e pó sobem metade do vício; +1 de respeito a cada saída na noite. Nos roubos, a arma dele conta 20% menos.',
+      art: 'noite', pitch: 'Vive da noite: casas que dão lucro e energia barata para roubar mais.',
+      pros: ['Casas da noite rendem +30% e custam 20% menos', 'Entrada e doses 40% mais baratas', 'Whisky, loló, bala e pó dão metade do vício', '+1 de respeito a cada saída na noite'], cons: ['Nos roubos, a arma conta 20% menos'],
       xpDesc: 'Ganha experiência a cada saída na noite, a cada dia de lucro das casas e a cada casa comprada.',
       perks: ['Fígado de aço: ressaca pela metade.', 'Porta fechada: sem batida policial nem briga para você na noite.', 'Casa cheia: casas da noite rendem mais 20%.'] },
     { id: 'traficante', name: 'Traficante', tag: 'Dono da Produção', desc: 'Esquemas produzem +25% e custam 10% menos; no Navio, vende 10% mais caro que todo mundo. Chama a atenção da Polícia Federal: comércio de mercadoria gera 60% mais Procurado e cada esquema de mercadoria ativo soma +1 de Procurado por dia.',
+      art: 'galpao', pitch: 'Vive da produção: esquemas, mercadoria e a remessa no Navio.',
+      pros: ['Esquemas produzem +25% e custam 10% menos', 'No Navio, vende 10% mais caro que todo mundo'], cons: ['Comércio de mercadoria gera 60% mais Procurado', 'Cada esquema de mercadoria ativo: +1 de Procurado por dia'],
       xpDesc: 'Ganha experiência vendendo mercadoria, fechando remessas e montando esquemas.',
       perks: ['Rota limpa: chance de blitz −12.', 'Fundo falso: +15 de espaço de carga.', 'Olheiro na esquina: batidas nos esquemas pela metade e remessas de até 70 unidades.'] },
-    { id: 'empreendedor', name: 'Bicheiro', tag: 'Dono da Área', desc: 'Gatonet e negócios de rua rendem +35%; paga metade da taxa do banco, advogado e suborno 30% mais baratos e ganha +1 de respeito por dia a cada R$ 10.000 no banco (até +3); o bicho paga 20×. Nos roubos de Força tem −5 de chance, e o treino de Força custa 25% mais.',
+    { id: 'empreendedor', name: 'Bicheiro', tag: 'Dono da Área', desc: 'Gatonet e negócios de rua rendem +35% e os negócios custam 12% menos; paga metade da taxa do banco, advogado e suborno 30% mais baratos e ganha +1 de respeito por dia a cada R$ 10.000 no banco (até +3); o bicho paga 20×. O treino de Força custa 25% mais.',
+      art: 'apostas', pitch: 'Vive do dinheiro guardado: negócios de rua, banco e o bicho.',
+      pros: ['Gatonet e negócios de rua rendem +35%; negócios custam 12% menos', 'Metade da taxa do banco; advogado e suborno 30% mais baratos', '+1 de respeito por dia a cada R$ 10.000 no banco (até +3)', 'O bicho paga 20× (os outros, 18×)'], cons: ['O treino de Força custa 25% mais'],
       xpDesc: 'Ganha experiência a cada dia lucrativo e a cada negócio comprado.',
       perks: ['Contador: a taxa do banco cai para 0,75%.', 'Fornecedores: crises e extorsões afetam metade dos seus negócios.', 'Sócio oculto: o banco rende 0,4% ao dia (até R$ 120).'] }
   ];

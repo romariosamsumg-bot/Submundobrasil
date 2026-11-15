@@ -995,8 +995,14 @@
       <div class="formfield"><label for="suName">Seu vulgo</label><input id="suName" class="input" maxlength="22" autocomplete="off" placeholder="Como vão te conhecer?" value="${esc(su.name)}"></div>
       ${su.mode === 'new' ? `<div class="formfield"><label for="suCity">Sua cidade</label><select id="suCity" class="input">${SB.CITIES.map(x => `<option ${x.name === su.city ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select><p class="cityTrait"><strong>${esc(c.trait)}:</strong> ${esc(c.traitDesc)}</p></div>` : `<p class="mini">Cidade: <b>${esc(su.city)}</b></p>`}
       <button type="button" class="btn primary block" data-action="su-next">Próximo</button>`
-    : `${steps}<h2>Escolha sua classe</h2><p class="mini">Quatro caminhos para o topo do respeito. Toque em uma para escolher.</p>
-      <div class="suClasses" role="group" aria-label="Classe">${SB.CAREERS.map(k => `<button type="button" class="suClass ${su.career === k.id ? 'on' : ''}" data-action="su-class" data-id="${k.id}" aria-pressed="${su.career === k.id}"><b>${k.name}</b><small>${esc(k.tag)}</small><span>${esc(k.desc)}</span></button>`).join('')}</div>
+    : `${steps}<h2>Escolha sua classe</h2><p class="mini">Quatro jeitos de chegar ao topo. Todas roubam; muda o que rende mais para você.</p>
+      <div class="suClasses" role="group" aria-label="Classe">${SB.CAREERS.map(k => { const on = su.career === k.id; return `<button type="button" class="suClass ${on ? 'on' : ''}" data-action="su-class" data-id="${k.id}" aria-pressed="${on}">
+        <span class="suBanner" aria-hidden="true">${window.SBArt.place(k.art)}</span>
+        <span class="suHead"><b>${esc(k.name)}</b><small>${esc(k.tag)}</small>${on ? '<em class="suPicked">✓ Escolhida</em>' : ''}</span>
+        <span class="suPitch">${esc(k.pitch)}</span>
+        <ul class="suPros">${k.pros.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+        <ul class="suCons">${k.cons.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+        ${on ? `<span class="suPerks"><b>Como sobe de nível: ${esc(k.xpDesc.charAt(0).toLowerCase() + k.xpDesc.slice(1))}</b>${k.perks.map((x, i) => `<span>Nível ${i + 1}: ${esc(x)}</span>`).join('')}</span>` : ''}</button>`; }).join('')}</div>
       ${su.career ? `<div class="notice suWarn"><strong>Atenção:</strong> retrato, vulgo e classe só poderão ser alterados na próxima temporada.</div><button type="button" class="btn primary block" data-action="su-save">Salvar</button>` : ''}
       <button type="button" class="btn ghost block" data-action="su-back" style="margin-top:8px">Voltar</button>`;
   }
