@@ -641,6 +641,10 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
+### Dono da Noite: respeito na noite (v1.5)
+
+O +1 de respeito do Dono da Noite agora vale só na **1ª saída da noite de cada dia** (antes, a cada saída, até 3 por dia). Motivo: com a noite virando parte do ciclo de todo mundo, o Dono da Noite chegava a 262 de respeito, à frente de todas as estratégias.
+
 ### Tela de escolha da classe (v1.5)
 
 Cada classe aparece com imagem, uma frase de resumo, vantagens (✓) e custos (✗); ao tocar, aparece "✓ Escolhida" e as habilidades por nível. Textos conferidos com as regras: o Bicheiro perdeu o "−5 nos roubos de Força" (não existe na escada) e ganhou "negócios custam 12% menos"; o Assaltante mostra o +25% de respeito nos assaltos; o Dono da Noite, o +1 de respeito a cada saída na noite.

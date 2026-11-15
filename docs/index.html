@@ -938,9 +938,9 @@ body.busy #content{opacity:.6;pointer-events:none}
       pros: ['+15% de dinheiro em todo roubo, sozinho ou com o bando', '+25% de respeito nos assaltos', 'Roubos gastam 10% menos energia', 'Arma e colete rendem 15% mais'], cons: ['Negócios e esquemas rendem 10% menos'],
       xpDesc: 'Ganha experiência concluindo roubos (mais nos grandes).',
       perks: ['Rota de fuga: −15 pontos na chance de detenção.', 'Ritmo de rua: cada roubo gera 25% menos Procurado.', 'Sangue frio: o Procurado pesa metade nas chances.'] },
-    { id: 'barao', name: 'Dono da Noite', tag: 'Rei do Inferninho', desc: 'Casas da noite rendem +30% e custam 20% menos; entrada e doses 40% mais baratas; whisky, loló, bala e pó sobem metade do vício; +1 de respeito a cada saída na noite. Nos roubos, a arma dele conta 20% menos.',
+    { id: 'barao', name: 'Dono da Noite', tag: 'Rei do Inferninho', desc: 'Casas da noite rendem +30% e custam 20% menos; entrada e doses 40% mais baratas; whisky, loló, bala e pó sobem metade do vício; +1 de respeito na 1ª saída da noite de cada dia. Nos roubos, a arma dele conta 20% menos.',
       art: 'noite', pitch: 'Vive da noite: casas que dão lucro e energia barata para roubar mais.',
-      pros: ['Casas da noite rendem +30% e custam 20% menos', 'Entrada e doses 40% mais baratas', 'Whisky, loló, bala e pó dão metade do vício', '+1 de respeito a cada saída na noite'], cons: ['Nos roubos, a arma conta 20% menos'],
+      pros: ['Casas da noite rendem +30% e custam 20% menos', 'Entrada e doses 40% mais baratas', 'Whisky, loló, bala e pó dão metade do vício', '+1 de respeito na 1ª saída da noite de cada dia'], cons: ['Nos roubos, a arma conta 20% menos'],
       xpDesc: 'Ganha experiência a cada saída na noite, a cada dia de lucro das casas e a cada casa comprada.',
       perks: ['Fígado de aço: ressaca pela metade.', 'Porta fechada: sem batida policial nem briga para você na noite.', 'Casa cheia: casas da noite rendem mais 20%.'] },
     { id: 'traficante', name: 'Traficante', tag: 'Dono da Produção', desc: 'Esquemas produzem +25% e custam 10% menos; no Navio, vende 10% mais caro que todo mundo. Chama a atenção da Polícia Federal: comércio de mercadoria gera 60% mais Procurado e cada esquema de mercadoria ativo soma +1 de Procurado por dia.',
@@ -2538,7 +2538,7 @@ body.busy #content{opacity:.6;pointer-events:none}
     if (s.cash < c) return refuse(`A entrada custa ${money(c)} em mãos.`);
     s.cash -= c; s.today.night++; s.today.venue = n.id; markDone(s, 'night', n.id);
     addXP(s, 'barao', 1);
-    if (s.career === 'barao') s.respect += 1; // é visto, é lembrado
+    if (s.career === 'barao' && s.today.night === 1) s.respect += 1; // é visto, é lembrado (só na 1ª saída do dia)
     if (n.morale) addMorale(s, n.morale);
     if (n.heat) addHeat(s, n.heat);
     let extra = '';
