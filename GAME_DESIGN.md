@@ -660,6 +660,11 @@ Cada classe aparece com imagem, uma frase de resumo, vantagens (✓) e custos (�
 | 40–59 | Respeitado | Leilão clandestino (antes 25) e criar contatos 20% mais barato |
 | 60 e 10 acima do grupo que manda | **Dono do pedaço** | +12% nos roubos daqui, +15% nos negócios daqui, **propina 25% mais barata**, **a polícia do bairro sobe pela metade** nos seus roubos e a vantagem do bairro |
 
+**Respeito × influência** (desenho com o autor):
+- **A patente limita quantos bairros você segura:** Pé de chinelo 0, Rato de pista (30) 1, Linha de frente (90) 2, Gerente do movimento (150) 3, Dono do morro (230) todos os 5. Se você tem influência para mandar em mais bairros do que a patente permite, ficam os de maior influência; os outros aparecem como "pronto para mandar, mas falta patente".
+- **Subir de faixa num bairro paga respeito**, uma vez por bairro na temporada: Conhecido +3, Respeitado +5, Dono do pedaço +10. Substitui o antigo feito de Território (que saiu dos feitos do mês; save antigo entra com as faixas que já tinha dadas como pagas).
+- **Perder o comando de um bairro custa 5 de respeito**, quando a influência cai (rival, ausência). Perder por falta de patente (respeito que caiu) não cobra. Retomar não paga de novo.
+
 **Onde aparece:** na faixa da placa (Rua e Bairros), "Sua influência 46 · Respeitado"; o "?" explica as faixas, quanto falta para ser o dono, e mostra Dono, Grana e Polícia. Na tela Roubar, uma linha logo abaixo do Procurado ("Influência em X: 46 · Respeitado" ou "Você manda em X: +12% no saque…"). No Perfil, uma linha por bairro com a faixa e o que falta.
 
 ### O ciclo do roubo (v1.5, desenhado com o autor)

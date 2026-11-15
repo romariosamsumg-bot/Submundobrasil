@@ -538,7 +538,10 @@
   const MEDALS = ['—', 'Bronze', 'Prata', 'Ouro'];
   /* v1.5: um placar só. As medalhas viram "feitos do mês" que pagam respeito na hora (a Fama sai:
    * ela já era o próprio respeito). */
-  const FEAT_CATS = ['fortuna', 'territorio', 'diplomacia', 'gangue', 'comercio'];
+  // Território saiu dos feitos: agora paga pelas faixas de influência (TURF_RESPECT), uma vez por bairro na temporada.
+  const FEAT_CATS = ['fortuna', 'diplomacia', 'gangue', 'comercio'];
+  const TURF_RESPECT = [0, 3, 5, 10]; // Conhecido, Respeitado, Dono do pedaço
+  const TURF_LOSS = 5;
   const FEAT_RESPECT = [0, 6, 10, 14];
   
   const ACHIEVEMENTS = [
@@ -600,7 +603,7 @@
       district: 'centro', jail: 0, businesses: [], gangName: null, gangLevel: 0,
       successful: 0, failed: 0, seasonHistory: [],
       log: [{ day: 1, msg: 'Você chegou à cidade com algum dinheiro, poucos contatos e muita ambição.' }],
-      avatar: null, clock: null, uti: false, ladderMax: 0, feats: Object.fromEntries(FEAT_CATS.map(c => [c, 0])), career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
+      avatar: null, clock: null, uti: false, ladderMax: 0, turfPaid: {}, turfOwned: [], feats: Object.fromEntries(FEAT_CATS.map(c => [c, 0])), career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
       influence: initialInfluence(), presence: initialPresence(null), dstate: initialDistrictState(),
       events: [{ id: 'rotina', start: 1, until: 1, district: null }],
       newsPending: { id: 'feira', day: 1, faction: null }, lastEvent: 'rotina', nextBonus: 0, tip: 0, contracts: [], extorted: {},
@@ -825,6 +828,11 @@
     else s.tutorial = { v: 2, step: 0, done: s.season > 1 || s.day > 1, trained: false, contacted: false, banked: false, nighted: false };
     if (s.tutorial.step >= TUTORIAL.length) s.tutorial.done = true;
     // Maior degrau já roubado (base da propina). Save anterior à escada: estima pelo maior degrau com 70% de chance.
+    s.turfPaid = {};
+    if (saved.turfPaid && typeof saved.turfPaid === 'object') {
+      for (const d of DISTRICTS) if (isNum(saved.turfPaid[d.id])) s.turfPaid[d.id] = toInt(saved.turfPaid[d.id], 0, 0, 3);
+    } else for (const d of DISTRICTS) { const ti = infTier(s, d.id); if (ti) s.turfPaid[d.id] = ti; } // save antigo: o que já tinha conta como pago
+    s.turfOwned = Array.isArray(saved.turfOwned) ? DISTRICTS.map(d => d.id).filter(id => saved.turfOwned.includes(id)) : ownedTurf(s);
     if (isNum(saved.ladderMax)) s.ladderMax = toInt(saved.ladderMax, 0, 0, LADDER_TOP);
     else s.ladderMax = s.successful > 0 ? Math.max(1, ...MISSIONS.filter(m => !m.variant && missionChance(s, m) >= 70).map(m => m.n)) : 0;
     s.schema = SCHEMA; s.version = VERSION;
@@ -889,7 +897,17 @@
     for (const f of FACTIONS) { const v = s.presence[did][f.id]; if (!best || v > best.value) best = { id: f.id, value: v }; }
     return best;
   }
-  const controlled = (s, did) => s.influence[did] >= 60 && s.influence[did] >= leader(s, did).value + 10;
+  /** Influência suficiente para mandar (60 e 10 acima do grupo que lidera), sem contar a patente. */
+  const turfReady = (s, did) => s.influence[did] >= 60 && s.influence[did] >= leader(s, did).value + 10;
+  /* Respeito × influência (desenho com o autor): a patente limita quantos bairros você segura. */
+  const TURF_SLOTS = [0, 1, 2, 3, 5]; // Pé de chinelo, Rato de pista, Linha de frente, Gerente do movimento, Dono do morro
+  const turfSlots = s => TURF_SLOTS[phaseIndex(s)] || 0;
+  /** Bairros em que você manda: os de maior influência entre os prontos, até o limite da patente. */
+  function ownedTurf(s) {
+    const ready = DISTRICTS.filter(d => turfReady(s, d.id)).sort((a, b) => s.influence[b.id] - s.influence[a.id]);
+    return ready.slice(0, turfSlots(s)).map(d => d.id);
+  }
+  const controlled = (s, did) => turfReady(s, did) && ownedTurf(s).includes(did);
   const controls = s => DISTRICTS.filter(d => controlled(s, d.id));
   /* Influência com nome (v1.5): faixas como as do Procurado. "Dono do pedaço" = mandar no bairro
    * (60 de influência e 10 acima do grupo que lidera). */
@@ -2429,6 +2447,14 @@
   /** Executado após cada ação: paga feitos do mês em respeito, verifica conquistas. Devolve as linhas para o resultado. */
   function afterAction(s) {
     const out = [];
+    // Território: perder um bairro custa respeito (só se a influência caiu, não por limite de patente).
+    for (const did of s.turfOwned || []) if (!turfReady(s, did)) { const r = Math.min(s.respect, TURF_LOSS); s.respect -= r; const m = `Você perdeu o comando de ${district(s, did).name}: −${r} de respeito.`; log(s, m); out.push(m); }
+    s.turfOwned = ownedTurf(s);
+    // Subir de faixa num bairro paga respeito, uma vez por bairro na temporada.
+    for (const d of DISTRICTS) {
+      const ti = infTier(s, d.id), paid = s.turfPaid[d.id] || 0;
+      if (ti > paid) { let r = 0; for (let k = paid + 1; k <= ti; k++) r += TURF_RESPECT[k]; s.turfPaid[d.id] = ti; s.respect += r; const m = `${d.name}: você agora é ${INF_TIERS[ti].name}. +${r} de respeito.`; log(s, m); out.push(m); }
+    }
     for (const c of CATEGORIES) {
       if (!FEAT_CATS.includes(c.id)) continue;
       const lvl = medalFor(c, Math.max(0, categoryValue(s, c.id)));
@@ -2554,7 +2580,7 @@
     missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
-    FEAT_CATS, FEAT_RESPECT, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
+    FEAT_CATS, FEAT_RESPECT, TURF_SLOTS, TURF_RESPECT, TURF_LOSS, turfSlots, turfReady, ownedTurf, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
     chainLock, chainList, CHAIN_KINDS, CLOCK, heatDecayPerDay, startClock, tick, clockInfo, atHome, dayKey, monthKey, act, perform
   };
   applyCity(CITIES[0].name); // as tabelas sempre refletem uma cidade real

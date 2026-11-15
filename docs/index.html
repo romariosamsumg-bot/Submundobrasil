@@ -1305,7 +1305,10 @@ body.busy #content{opacity:.6;pointer-events:none}
   const MEDALS = ['—', 'Bronze', 'Prata', 'Ouro'];
   /* v1.5: um placar só. As medalhas viram "feitos do mês" que pagam respeito na hora (a Fama sai:
    * ela já era o próprio respeito). */
-  const FEAT_CATS = ['fortuna', 'territorio', 'diplomacia', 'gangue', 'comercio'];
+  // Território saiu dos feitos: agora paga pelas faixas de influência (TURF_RESPECT), uma vez por bairro na temporada.
+  const FEAT_CATS = ['fortuna', 'diplomacia', 'gangue', 'comercio'];
+  const TURF_RESPECT = [0, 3, 5, 10]; // Conhecido, Respeitado, Dono do pedaço
+  const TURF_LOSS = 5;
   const FEAT_RESPECT = [0, 6, 10, 14];
   
   const ACHIEVEMENTS = [
@@ -1367,7 +1370,7 @@ body.busy #content{opacity:.6;pointer-events:none}
       district: 'centro', jail: 0, businesses: [], gangName: null, gangLevel: 0,
       successful: 0, failed: 0, seasonHistory: [],
       log: [{ day: 1, msg: 'Você chegou à cidade com algum dinheiro, poucos contatos e muita ambição.' }],
-      avatar: null, clock: null, uti: false, ladderMax: 0, feats: Object.fromEntries(FEAT_CATS.map(c => [c, 0])), career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
+      avatar: null, clock: null, uti: false, ladderMax: 0, turfPaid: {}, turfOwned: [], feats: Object.fromEntries(FEAT_CATS.map(c => [c, 0])), career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
       influence: initialInfluence(), presence: initialPresence(null), dstate: initialDistrictState(),
       events: [{ id: 'rotina', start: 1, until: 1, district: null }],
       newsPending: { id: 'feira', day: 1, faction: null }, lastEvent: 'rotina', nextBonus: 0, tip: 0, contracts: [], extorted: {},
@@ -1592,6 +1595,11 @@ body.busy #content{opacity:.6;pointer-events:none}
     else s.tutorial = { v: 2, step: 0, done: s.season > 1 || s.day > 1, trained: false, contacted: false, banked: false, nighted: false };
     if (s.tutorial.step >= TUTORIAL.length) s.tutorial.done = true;
     // Maior degrau já roubado (base da propina). Save anterior à escada: estima pelo maior degrau com 70% de chance.
+    s.turfPaid = {};
+    if (saved.turfPaid && typeof saved.turfPaid === 'object') {
+      for (const d of DISTRICTS) if (isNum(saved.turfPaid[d.id])) s.turfPaid[d.id] = toInt(saved.turfPaid[d.id], 0, 0, 3);
+    } else for (const d of DISTRICTS) { const ti = infTier(s, d.id); if (ti) s.turfPaid[d.id] = ti; } // save antigo: o que já tinha conta como pago
+    s.turfOwned = Array.isArray(saved.turfOwned) ? DISTRICTS.map(d => d.id).filter(id => saved.turfOwned.includes(id)) : ownedTurf(s);
     if (isNum(saved.ladderMax)) s.ladderMax = toInt(saved.ladderMax, 0, 0, LADDER_TOP);
     else s.ladderMax = s.successful > 0 ? Math.max(1, ...MISSIONS.filter(m => !m.variant && missionChance(s, m) >= 70).map(m => m.n)) : 0;
     s.schema = SCHEMA; s.version = VERSION;
@@ -1656,7 +1664,17 @@ body.busy #content{opacity:.6;pointer-events:none}
     for (const f of FACTIONS) { const v = s.presence[did][f.id]; if (!best || v > best.value) best = { id: f.id, value: v }; }
     return best;
   }
-  const controlled = (s, did) => s.influence[did] >= 60 && s.influence[did] >= leader(s, did).value + 10;
+  /** Influência suficiente para mandar (60 e 10 acima do grupo que lidera), sem contar a patente. */
+  const turfReady = (s, did) => s.influence[did] >= 60 && s.influence[did] >= leader(s, did).value + 10;
+  /* Respeito × influência (desenho com o autor): a patente limita quantos bairros você segura. */
+  const TURF_SLOTS = [0, 1, 2, 3, 5]; // Pé de chinelo, Rato de pista, Linha de frente, Gerente do movimento, Dono do morro
+  const turfSlots = s => TURF_SLOTS[phaseIndex(s)] || 0;
+  /** Bairros em que você manda: os de maior influência entre os prontos, até o limite da patente. */
+  function ownedTurf(s) {
+    const ready = DISTRICTS.filter(d => turfReady(s, d.id)).sort((a, b) => s.influence[b.id] - s.influence[a.id]);
+    return ready.slice(0, turfSlots(s)).map(d => d.id);
+  }
+  const controlled = (s, did) => turfReady(s, did) && ownedTurf(s).includes(did);
   const controls = s => DISTRICTS.filter(d => controlled(s, d.id));
   /* Influência com nome (v1.5): faixas como as do Procurado. "Dono do pedaço" = mandar no bairro
    * (60 de influência e 10 acima do grupo que lidera). */
@@ -3196,6 +3214,14 @@ body.busy #content{opacity:.6;pointer-events:none}
   /** Executado após cada ação: paga feitos do mês em respeito, verifica conquistas. Devolve as linhas para o resultado. */
   function afterAction(s) {
     const out = [];
+    // Território: perder um bairro custa respeito (só se a influência caiu, não por limite de patente).
+    for (const did of s.turfOwned || []) if (!turfReady(s, did)) { const r = Math.min(s.respect, TURF_LOSS); s.respect -= r; const m = `Você perdeu o comando de ${district(s, did).name}: −${r} de respeito.`; log(s, m); out.push(m); }
+    s.turfOwned = ownedTurf(s);
+    // Subir de faixa num bairro paga respeito, uma vez por bairro na temporada.
+    for (const d of DISTRICTS) {
+      const ti = infTier(s, d.id), paid = s.turfPaid[d.id] || 0;
+      if (ti > paid) { let r = 0; for (let k = paid + 1; k <= ti; k++) r += TURF_RESPECT[k]; s.turfPaid[d.id] = ti; s.respect += r; const m = `${d.name}: você agora é ${INF_TIERS[ti].name}. +${r} de respeito.`; log(s, m); out.push(m); }
+    }
     for (const c of CATEGORIES) {
       if (!FEAT_CATS.includes(c.id)) continue;
       const lvl = medalFor(c, Math.max(0, categoryValue(s, c.id)));
@@ -3321,7 +3347,7 @@ body.busy #content{opacity:.6;pointer-events:none}
     missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
-    FEAT_CATS, FEAT_RESPECT, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
+    FEAT_CATS, FEAT_RESPECT, TURF_SLOTS, TURF_RESPECT, TURF_LOSS, turfSlots, turfReady, ownedTurf, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
     chainLock, chainList, CHAIN_KINDS, CLOCK, heatDecayPerDay, startClock, tick, clockInfo, atHome, dayKey, monthKey, act, perform
   };
   applyCity(CITIES[0].name); // as tabelas sempre refletem uma cidade real
@@ -3823,7 +3849,8 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const ti = SB.infTier(s, d.id);
     return `<section class="card localeInfo"><p><b>Sua influência: ${num(inf)}/100 · ${esc(SB.INF_TIERS[ti].name)}</b>. É o quanto o seu nome pesa em ${esc(d.name)}. Sobe com os <b>roubos do 4º degrau em diante feitos aqui</b> (golpe +2, os outros +1, cada vez menos conforme a barra enche), com <b>Criar contatos</b> (tela Bairros), com o Favor de vizinhança e com as notícias; cai 1 por dia nos bairros onde você não está, e os grupos rivais tomam.</p>
       <ul class="infTiers">${SB.INF_TIERS.map((x, k) => `<li class="${k === ti ? 'on' : ''}"><b>${k === 3 ? '60 e 10 acima do dono' : x.at + '+'} · ${esc(x.name)}</b>: ${esc(x.desc)}${k === 3 ? ` Vantagem daqui: ${esc(d.advantage.replace(/\.$/, ''))}.` : ''}</li>`).join('')}</ul>
-      <p>${mine ? '<b>Você manda aqui.</b>' : `Faltam ${num(Math.max(0, need - inf))} para ser o dono do pedaço.`}</p>
+      <p>${mine ? '<b>Você manda aqui.</b>' : SB.turfReady(s, d.id) ? '<b>Você tem influência para mandar aqui, mas a sua patente não segura mais um bairro.</b>' : `Faltam ${num(Math.max(0, need - inf))} para ser o dono do pedaço.`} ${turfSlotsText(s)}</p>
+      <p>Cada faixa nova num bairro paga respeito uma vez na temporada: Conhecido +${SB.TURF_RESPECT[1]}, Respeitado +${SB.TURF_RESPECT[2]}, Dono do pedaço +${SB.TURF_RESPECT[3]}. Perder o comando de um bairro custa ${SB.TURF_LOSS} de respeito.</p>
       <p><b>Dono</b>: ${mine ? 'você.' : `${esc(f.name)} (${num(l.value)} de presença). Roubar no território dele gera atrito e retaliação; dá para conversar, firmar trégua ou tomar o bairro.`}</p>
       <p><b>Grana ${Math.round(ds.econ * 100)}%</b>: quanto dinheiro circula aqui hoje (de 60% a 140%). Multiplica o que você ganha nos roubos e nos negócios deste bairro.</p>
       <p><b>Polícia ${ds.vigil}</b>: a polícia de olho neste bairro (0 a 100), diferente do seu Procurado. Sobe a cada roubo aqui e tira poder dos seus roubos; cai um pouco por dia. Acima de 40, mude de bairro.</p>
@@ -3897,7 +3924,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
         ${state && state.clock ? '<p><strong>Online</strong>: o dia vira sozinho à meia-noite de Brasília e a temporada é o mês do calendário. A energia volta +1 a cada 3 minutos. <strong>Ir pra casa</strong> (3 horas, até 2 vezes por dia) enche a energia e zera o corpo. Na cadeia e no hospital, 1 dia vale 2 horas.</p>' : ''}
         <p><strong>Roubos</strong> vêm em escada, do mais fácil ao mais difícil. A chance vem do seu poder contra a dificuldade (poder igual = 70%, 1,5 vez = 90%). O <strong>genérico</strong> soma os atributos e 3 por ponto de arsenal (arma + proteção + veículo); o <strong>golpe</strong> pesa 3 por ponto de um atributo; o <strong>assalto</strong> pesa o arsenal. Nos 3 primeiros degraus, falhar não dá cadeia.</p>
         <p><strong>Procurado</strong>: repetir o mesmo roubo é permitido, mas cada um sobe o Procurado e a polícia do bairro. Ele tira poder (com 50, −20%); com 60 a detenção sobe +10, e com 85 até o roubo que deu certo pode virar enquadro. Para esfriar: ficar na sua (energia), a propina (dinheiro; mais cara para quem faz roubo maior, +50% a cada vez no dia), trocar de bairro ou esperar.</p>
-        <p><strong>Influência</strong>: cada bairro tem a sua. Roubos do 4º degrau em diante somam influência onde você rouba. Faixas: Conhecido (20), Respeitado (40, libera o Leilão) e Dono do pedaço (60 e 10 acima do grupo que manda): +12% no saque, propina 25% mais barata e a polícia do bairro sobe pela metade.</p>
+        <p><strong>Influência</strong>: cada bairro tem a sua. Roubos do 4º degrau em diante somam influência onde você rouba. Faixas: Conhecido (20), Respeitado (40, libera o Leilão) e Dono do pedaço (60 e 10 acima do grupo que manda): +12% no saque, propina 25% mais barata e a polícia do bairro sobe pela metade. Cada faixa nova paga respeito (+3, +5, +10); perder o comando custa 5. A patente limita os bairros: Rato de pista 1, Linha de frente 2, Gerente do movimento 3, Dono do morro todos.</p>
         <p><strong>Saúde</strong>: tirar o vício custa saúde (meio ponto por ponto de vício). Saúde zero = UTI: ${state && state.clock ? '24 horas' : 'o resto do dia e o seguinte'} sem jogar.</p>
         <p>Os <strong>grupos rivais</strong> reagem: agir no território deles gera atrito, retaliação e extorsão. Dá para conversar, firmar trégua ou aliança.</p>`],
       ['Sua cidade', `<p><strong>${esc(c.name)} — ${esc(c.trait)}.</strong> ${esc(c.traitDesc)}</p>
@@ -4006,10 +4033,16 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       ${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div>
       <div class="jobAct"><span class="seal ${chanceClass(p)}">${p}%</span>${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary')}</div></section>`;
   }
+  /** Quantos bairros a patente segura e o que falta para a próxima. */
+  function turfSlotsText(s) {
+    const pi = SB.phaseIndex(s), n = SB.turfSlots(s), own = SB.controls(s).length, k = SB.TURF_SLOTS.findIndex((v, i) => i > pi && v > n), nx = k > 0 ? SB.PHASES[k] : null;
+    return `Sua patente (${esc(SB.PHASES[pi].name)}) segura ${n ? n + ' bairro' + (n > 1 ? 's' : '') : 'nenhum bairro'}; você manda em ${own}.${nx ? ` Com ${esc(nx.name)} (${nx.at} de respeito), ${SB.TURF_SLOTS[k]}.` : ''}`;
+  }
   /** Influência no bairro onde você rouba (o roubo do 4º degrau em diante soma influência aqui). */
   function turfLine() {
     const s = state, d = D(), ti = SB.infTier(s, d.id), mine = ti === 3, l = SB.leader(s, d.id);
-    return `<p class="notice turfLine ${mine ? 'mine' : ''}">${mine ? `<strong>Você manda em ${esc(d.name)}:</strong> +12% no saque, propina 25% mais barata e a polícia do bairro sobe pela metade.` : `<strong>Influência em ${esc(d.name)}: ${num(s.influence[d.id])} · ${esc(SB.INF_TIERS[ti].name)}.</strong> Roubos do 4º degrau em diante somam influência aqui; com ${num(Math.max(60, l.value + 10))}, o bairro é seu.`}</p>`;
+    const capped = !mine && SB.turfReady(s, d.id);
+    return `<p class="notice turfLine ${mine ? 'mine' : ''}">${mine ? `<strong>Você manda em ${esc(d.name)}:</strong> +12% no saque, propina 25% mais barata e a polícia do bairro sobe pela metade.` : capped ? `<strong>Influência em ${esc(d.name)}: ${num(s.influence[d.id])}.</strong> Dava para mandar aqui, mas falta patente. ${turfSlotsText(s)}` : `<strong>Influência em ${esc(d.name)}: ${num(s.influence[d.id])} · ${esc(SB.INF_TIERS[ti].name)}.</strong> Roubos do 4º degrau em diante somam influência aqui; com ${num(Math.max(60, l.value + 10))}, o bairro é seu.`}</p>`;
   }
   /** v1.5: termômetro do Procurado com as faixas (gatilhos) e as formas de esfriar. */
   function heatCard() {
@@ -4142,7 +4175,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       <div class="grid two"><section class="card"><div class="eyebrow">Temporada atual</div><div class="seasonnumber">${String(s.season).padStart(2, '0')}</div><div class="meter"><div style="width:${s.day / MAXDAY * 100}%"></div></div>
         <div class="statusbar"><span>Dia ${s.day} de ${MAXDAY}</span><strong>${MAXDAY - s.day} dia(s) restante(s)</strong></div><p class="mini">Cada temporada tem 30 dias jogáveis (29 viradas). A renda entra ao virar o dia; o dia 30 é o último para agir.</p><div class="divider"></div>
         ${s.day === MAXDAY ? button('Encerrar temporada', 'end-season', '', false, 'primary block') : nextDayButton('block')}</section>
-      <section class="card"><h2>Feitos do mês</h2><p>Respeito: <strong>★ ${num(s.respect)}</strong> · patente <strong>${esc(sc.title)}</strong>. Cada feito paga respeito na hora (bronze +${SB.FEAT_RESPECT[1]}, prata +${SB.FEAT_RESPECT[2]}, ouro +${SB.FEAT_RESPECT[3]}) e vale legado para a próxima temporada (até ${fmt(800)}).</p>
+      <section class="card"><h2>Feitos do mês</h2><p>Respeito: <strong>★ ${num(s.respect)}</strong> · patente <strong>${esc(sc.title)}</strong>. Cada feito paga respeito na hora (bronze +${SB.FEAT_RESPECT[1]}, prata +${SB.FEAT_RESPECT[2]}, ouro +${SB.FEAT_RESPECT[3]}) e vale legado para a próxima temporada (até ${fmt(800)}). O território paga à parte, pelas faixas de influência em cada bairro (+3, +5, +10).</p>
         ${sc.cats.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => { const cat = SB.CATEGORIES.find(x => x.id === c.id); const next = cat.tiers[c.medal]; return `<div class="catRow"><div class="space"><span><strong>${c.name}</strong> <span class="mini" style="display:inline">${cat.unit === 'money' ? fmt(c.value) : num(c.value)}</span></span><span class="medal m${c.medal}">${SB.MEDALS[c.medal]}</span></div><div class="meter green"><div style="width:${pct(c.pct)}%"></div></div><span class="mini">${esc(cat.desc)}${next ? ` Próximo: ${cat.unit === 'money' ? fmt(next) : num(next)} (+${SB.FEAT_RESPECT[c.medal + 1]} de respeito).` : ''}</span></div>`; }).join('')}</section></div>
       <div class="section"><h2>Conquistas</h2><small>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length} · permanentes</small></div>
       <section class="card"><div class="achGrid">${SB.ACHIEVEMENTS.map(a => `<div class="ach ${s.achievements[a.id] ? 'on' : ''}"><strong>${s.achievements[a.id] ? '✓ ' : ''}${esc(a.name)}</strong><span>${esc(a.desc)}${s.achievements[a.id] ? ` (T${s.achievements[a.id]})` : ''}</span></div>`).join('')}</div></section>
@@ -4331,8 +4364,8 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
         <details class="fichaMore"><summary>Como a conta é feita</summary><ul class="lutaParts">${SB.combatParts(s).map(([k, v]) => `<li><span>${k}</span><b>${v ? '+' + (Math.round(v * 10) / 10).toString().replace('.', ',') : '0'}</b></li>`).join('')}</ul>
         <p class="mini">Força conta 1,6 por ponto, Astúcia 0,6, o poder da arma 1,8, a defesa da proteção 1 e cada nível da sede 1,5.${s.career === 'operador' ? ' Como Assaltante, arma e proteção valem 15% a mais.' : ''} Também pesam na chance: saúde abaixo de 60, cansaço (cada duelo no dia tira 4%) e, nos assaltos, Procurado, ânimo e informação.</p></details></section>
       ${stencil('Atributos')}<section class="card">${SB.STATS.map(st => `<div class="statRow">${statIcon(st.id)}<span>${st.name}</span><div class="meter"><div style="width:${pct(s.stats[st.id] / top * 100)}%"></div></div><strong>${num(s.stats[st.id])}</strong></div>`).join('')}</section>
-      ${stencil('Influência', 'nos bairros de ' + esc(s.city))}<section class="card infCard">${SB.DISTRICTS.map(x => { const v = s.influence[x.id], mine = SB.controlled(s, x.id), ld = SB.leader(s, x.id); return `<div class="statRow infRow ${x.id === s.district ? 'here' : ''}"><span>${esc(x.name)}${x.id === s.district ? ' · você está aqui' : ''}</span><div class="meter ${mine ? 'green' : ''}"><div style="width:${pct(v)}%"></div></div><strong>${num(v)}</strong><small class="mini"><b>${esc(SB.INF_TIERS[SB.infTier(s, x.id)].name)}</b> · ${mine ? 'você manda aqui: ' + esc(x.advantage) : `manda ${esc(F(ld.id).short)} (${num(ld.value)}); para ser o dono: ${num(Math.max(60, ld.value + 10))}.`}</small></div>`; }).join('')}
-        <p class="mini">Sobe com os roubos do 4º degrau em diante (no bairro onde você rouba), com Criar contatos, com o Favor de vizinhança e com as notícias. Faixas: Conhecido (20) disputa o bairro; Respeitado (40) libera o Leilão e barateia contatos; Dono do pedaço (60 e 10 acima do dono): +12% nos roubos, +15% nos negócios, propina 25% mais barata, a polícia do bairro sobe pela metade e a vantagem do bairro.</p></section>
+      ${stencil('Influência', 'nos bairros de ' + esc(s.city))}<section class="card infCard"><p class="mini infSlots">${turfSlotsText(s)}</p>${SB.DISTRICTS.map(x => { const v = s.influence[x.id], mine = SB.controlled(s, x.id), ld = SB.leader(s, x.id); return `<div class="statRow infRow ${x.id === s.district ? 'here' : ''}"><span>${esc(x.name)}${x.id === s.district ? ' · você está aqui' : ''}</span><div class="meter ${mine ? 'green' : ''}"><div style="width:${pct(v)}%"></div></div><strong>${num(v)}</strong><small class="mini"><b>${esc(SB.INF_TIERS[SB.infTier(s, x.id)].name)}</b> · ${!mine && SB.turfReady(s, x.id) ? 'pronto para mandar, mas falta patente; ' : ''}${mine ? 'você manda aqui: ' + esc(x.advantage) : `manda ${esc(F(ld.id).short)} (${num(ld.value)}); para ser o dono: ${num(Math.max(60, ld.value + 10))}.`}</small></div>`; }).join('')}
+        <p class="mini">Sobe com os roubos do 4º degrau em diante (no bairro onde você rouba), com Criar contatos, com o Favor de vizinhança e com as notícias. Faixas: Conhecido (20) disputa o bairro; Respeitado (40) libera o Leilão e barateia contatos; Dono do pedaço (60 e 10 acima do dono): +12% nos roubos, +15% nos negócios, propina 25% mais barata, a polícia do bairro sobe pela metade e a vantagem do bairro. Cada faixa nova paga respeito uma vez na temporada (+3, +5, +10); perder o comando custa 5. A patente limita quantos bairros você segura: Rato de pista 1, Linha de frente 2, Gerente do movimento 3, Dono do morro todos.</p></section>
       ${stencil('Equipamento', 'troque na Feira do Rolo')}<div class="gearGrid">${SB.SLOTS.map(sl => { const it = SB.item(s.gear[sl.id]); const pic = it ? window.SBArt.item(it.id) : ''; return `<button type="button" class="gearSlot ${it ? 'on' : ''}" data-view="feira">${pic ? `<span class="gearPic" aria-hidden="true">${pic}</span>` : ''}<span>${sl.name}</span><b>${it ? esc(it.name) : '—'}</b><small>${it ? esc(it.slot === 'arma' ? 'poder ' + it.power : it.slot === 'protecao' ? 'defesa ' + it.def : 'carga +' + it.cargo) : 'vazio'}</small></button>`; }).join('')}</div>
       ${stencil('Nesta temporada')}<section class="card"><div class="kv"><div><span>Respeito</span><strong>${num(s.respect)}</strong></div><div><span>Patrimônio</span><strong>${fmt(SB.patrimony(s))}</strong></div><div><span>Serviços</span><strong>${num(s.successful)} certos · ${num(s.failed)} falhos</strong></div><div><span>Detenções</span><strong>${s.seasonStats.arrests}</strong></div><div><span>Saúde</span><strong>${s.health}/100${s.hospital ? ' · internado' : ''}</strong></div><div><span>Duelos</span><strong>${s.duelStats.wins} vitórias · ${s.duelStats.losses} derrotas</strong></div><div><span>Mercadoria vendida</span><strong>${fmt(s.trade.sold)}</strong></div><div><span>Remessas / blitze</span><strong>${num(s.trade.exported)} un. · ${s.trade.blitz}</strong></div><div><span>Bairros liderados</span><strong>${SB.controls(s).length}/5</strong></div><div><span>Conquistas</span><strong>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length}</strong></div></div></section>
       ${onlineCard()}
