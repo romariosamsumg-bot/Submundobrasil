@@ -271,8 +271,31 @@
     let r;
     try { r = SB.perform(state, name, ...args); }
     catch (e) { console.error(e); notify('Erro inesperado na ação. Seu progresso anterior foi mantido.', true); return null; }
-    if (!r.ok) { notify(r.msg, true); return r; }
+    if (!r.ok) { notify(r.msg, true); sfx('deny'); return r; }
     return finish(name, r, before);
+  }
+  /* Sons (src/sound.js): cada ação toca o seu efeito; o botão do topo e o Perfil ligam, desligam e ajustam o volume. */
+  const sfx = (...n) => { try { return window.SBSound && window.SBSound.play(...n); } catch (e) { return false; } };
+  const MONEY_ACTIONS = ['buyItem', 'buy', 'buyGood', 'sellGood', 'bank', 'cleanRecord', 'bail', 'bribe', 'exportGoods', 'bet', 'gig'];
+  function actionSound(name, r) {
+    const s = state, all = [r.msg || '', ...(r.lines || [])].join(' ');
+    const extra = /\+\d+ de respeito/.test((r.lines || []).join(' ')) && /(Feito do mês|você agora é|Primeiros passos|Conquista)/.test(all) ? [['fanfare', .55]] : [];
+    if (s && s.uti && s.hospital > 0 && /UTI/.test(all)) return sfx('flatline');
+    if (s && s.jail > 0 && ['mission', 'duel', 'bribe'].includes(name) && !r.good) return sfx('bad', ['siren', .25]);
+    if (name === 'mission' || name === 'duel' || name === 'heistRun') return sfx(r.good ? 'ok' : 'bad', ['stamp', .12], ...extra);
+    if (name === 'dose') return sfx('fizz', ...extra);
+    if (name === 'night') return sfx('thump', ...extra);
+    if (name === 'train') return sfx('punch', ...extra);
+    if (name === 'detox' || name === 'clinic') return sfx('beep', ...extra);
+    if (name === 'nextDay') return sfx('chime', ...extra);
+    if (MONEY_ACTIONS.includes(name)) return sfx(r.good ? 'coins' : 'bad', ...extra);
+    return sfx(r.good ? 'tick' : 'bad', ...extra);
+  }
+  /** Botão de som do topo: alto-falante ligado ou riscado. */
+  function soundIcon() {
+    const on = window.SBSound ? window.SBSound.on : false, b = $('#soundToggle'); if (!b) return;
+    b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-label', on ? 'Som ligado (tocar para desligar)' : 'Som desligado (tocar para ligar)');
+    b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/>${on ? '<path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>' : '<path d="M16 9l6 6M22 9l-6 6"/>'}</svg>`;
   }
   /** Monta o cartão de resultado e redesenha (vale para o jogo local e para o online). */
   function finish(name, r, before) {
@@ -282,7 +305,7 @@
       result = { good: true, msg: r.msg, lines: [`Respeito final: ${rec.score} · ${rec.title}.`, ...SB.CATEGORIES.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`)], deltas: [], fresh: true };
     } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()), fresh: true, stamp: STAMPED.includes(name) };
     if (name === 'nextDay') dawn();
-    save(); render();
+    save(); render(); actionSound(name, r);
     $('#toast').hidden = true; // o popup já informa
     return r;
   }
@@ -865,6 +888,8 @@
         <p class="mini">Sobe com os roubos do 4º degrau em diante (no bairro onde você rouba), com Criar contatos, com o Favor de vizinhança e com as notícias. Faixas: Conhecido (20) disputa o bairro; Respeitado (40) libera o Leilão e barateia contatos; Dono do pedaço (60 e 10 acima do dono): +12% nos roubos, +15% nos negócios, propina 25% mais barata, a polícia do bairro sobe pela metade e a vantagem do bairro. Cada faixa nova paga respeito uma vez na temporada (+3, +5, +10); perder o comando custa 5. A patente limita quantos bairros você segura: Rato de pista 1, Linha de frente 2, Gerente do movimento 3, Dono do morro todos.</p></section>
       ${stencil('Equipamento', 'troque na Feira do Rolo')}<div class="gearGrid">${SB.SLOTS.map(sl => { const it = SB.item(s.gear[sl.id]); const pic = it ? window.SBArt.item(it.id) : ''; return `<button type="button" class="gearSlot ${it ? 'on' : ''}" data-view="feira">${pic ? `<span class="gearPic" aria-hidden="true">${pic}</span>` : ''}<span>${sl.name}</span><b>${it ? esc(it.name) : '—'}</b><small>${it ? esc(it.slot === 'arma' ? 'poder ' + it.power : it.slot === 'protecao' ? 'defesa ' + it.def : 'carga +' + it.cargo) : 'vazio'}</small></button>`; }).join('')}</div>
       ${stencil('Nesta temporada')}<section class="card"><div class="kv"><div><span>Respeito</span><strong>${num(s.respect)}</strong></div><div><span>Patrimônio</span><strong>${fmt(SB.patrimony(s))}</strong></div><div><span>Serviços</span><strong>${num(s.successful)} certos · ${num(s.failed)} falhos</strong></div><div><span>Detenções</span><strong>${s.seasonStats.arrests}</strong></div><div><span>Saúde</span><strong>${s.health}/100${s.hospital ? ' · internado' : ''}</strong></div><div><span>Duelos</span><strong>${s.duelStats.wins} vitórias · ${s.duelStats.losses} derrotas</strong></div><div><span>Mercadoria vendida</span><strong>${fmt(s.trade.sold)}</strong></div><div><span>Remessas / blitze</span><strong>${num(s.trade.exported)} un. · ${s.trade.blitz}</strong></div><div><span>Bairros liderados</span><strong>${SB.controls(s).length}/5</strong></div><div><span>Conquistas</span><strong>${Object.keys(s.achievements).length}/${SB.ACHIEVEMENTS.length}</strong></div></div></section>
+      ${stencil('Som', 'efeitos do jogo')}<section class="card soundCard"><div class="space"><span class="mini">Sons feitos pelo próprio jogo, sem arquivos: caixa registradora, carimbo, sirene, moedas, lata abrindo e mais.</span>${button(window.SBSound && window.SBSound.on ? 'Desligar som' : 'Ligar som', 'sound-toggle', '', !window.SBSound, 'small')}</div>
+        <label class="soundVol" for="soundVol">Volume <input type="range" id="soundVol" min="0" max="100" step="5" value="${Math.round((window.SBSound ? window.SBSound.vol : .7) * 100)}"></label></section>
       ${onlineCard()}
       <div class="btnbar" style="margin-top:12px">${button('Temporada, medalhas e conquistas', 'switch', 'data-target="temporada"', false, 'primary')}${button('Como jogar', 'help', '', false, 'ghost')}</div>`;
   }
@@ -880,7 +905,7 @@
       console.error(e);
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
     }
-    renderHud(); renderPop();
+    renderHud(); renderPop(); soundIcon();
     if (state && !state.career && !setup) openSetup('season');
     $all('.nav button, .mobileNav button').forEach(b => { const on = b.dataset.view === tabOf(view); b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     const st = SB.tutorialStep(state);
@@ -916,6 +941,7 @@
       case 'switch': switchView(btn.dataset.target); break;
       case 'locale-help': localeHelp = !localeHelp; render(); break;
       case 'dismiss-result': result = null; render(); break;
+      case 'sound-toggle': if (window.SBSound) window.SBSound.setOn(!window.SBSound.on); render(); break;
       case 'buy-item': run('buyItem', id); break;
       case 'equip': run('equip', id); break;
       case 'buy-good': run('buyGood', id, Number(btn.dataset.qty)); break;
@@ -1051,6 +1077,8 @@
     state = null; result = null; showWelcome(); notify('Novo início disponível.');
   }
   function paintCover() { $('#coverArt').innerHTML = window.SBArt.capa() || scene('centro', false, SB.CITIES[0].name); }
+  document.addEventListener('input', e => { if (e.target.id === 'soundVol' && window.SBSound) window.SBSound.setVol(Number(e.target.value) / 100); });
+  document.addEventListener('change', e => { if (e.target.id === 'soundVol') sfx('coins'); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#help').classList.contains('hidden')) closeHelp(); else if (e.key === 'Escape' && result) { result = null; render(); } });
   function showWelcome() {
     { const p = $('#resultPop'); p.hidden = true; p.innerHTML = ''; }
@@ -1138,7 +1166,7 @@
       const d = await server({ acao: 'agir', nome: name, args });
       const r = d.resultado || { ok: false, msg: 'Resposta inválida do servidor.' };
       if (d.estado) state = fromServer(d.estado); // o tempo andou no servidor mesmo quando a ação é recusada
-      if (!r.ok) { if (Array.isArray(d.avisos) && d.avisos.length) awayCard(d.avisos); notify(r.msg, true); render(); return r; }
+      if (!r.ok) { if (Array.isArray(d.avisos) && d.avisos.length) awayCard(d.avisos); notify(r.msg, true); sfx('deny'); render(); return r; }
       if (Array.isArray(d.avisos) && d.avisos.length) r.lines = d.avisos.map(String).concat(r.lines || []);
       return finish(name, r, before);
     } catch (e) { notify(e.message, true); return null; }

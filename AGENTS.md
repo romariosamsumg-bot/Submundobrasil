@@ -67,6 +67,10 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 - Imagens pintadas opcionais: `art/<chave>.(webp|jpg|png)` com prefixo `place-`, `rival-`, `heist-`, `avatar-`, `bairro-`, `item-` (Feira), `roubo-`, `casa-` (noite), `esquema-` (Galpão) ou `capa-entrada` e `grupo-<cidade>-<esquina|docas|aurora>` (dossiê das facções); a cadeia usa `place-cadeia`, até 400 KB cada; o build embute e elas substituem o SVG da mesma chave. Prompts e nomes em `PROMPTS_ARTE.md`.
 - Lugar, adversário ou assalto novo → desenho em `src/art.js` **e** linha de prompt em `PROMPTS_ARTE.md`.
 
+## Sons
+
+- Efeitos sintetizados em `src/sound.js` (Web Audio, sem arquivos). Ação nova → escolha o som em `actionSound` (`ui.js`). Não toque som em loop nem música de fundo sem botão para desligar; o botão do topo e o volume do Perfil precisam continuar funcionando.
+
 ## Primeiros passos e ajuda
 
 - A trilha fica em `TUTORIAL` (`engine.js`). Passo novo → `check(s)` puro, recompensa pequena e a `view` onde acontece.

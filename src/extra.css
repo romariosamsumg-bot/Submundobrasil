@@ -643,3 +643,13 @@ body.busy #content{opacity:.6;pointer-events:none}
 .suCons li::before{content:"✗";position:absolute;left:2px;top:0;color:#c0392b;font-weight:800}
 .suPerks{display:grid!important;gap:3px;margin:9px 12px 0!important;padding-top:8px;border-top:1px dashed #5a4a2c;font-size:11px!important;line-height:1.4!important;color:#e2c48f!important}
 .suPerks b{font:700 11px/1.4 system-ui,sans-serif!important;color:#f3d6ae!important}
+
+/* Som: botão no topo e volume no Perfil */
+.hudDayRow{display:inline-flex;align-items:center;gap:6px;justify-content:flex-end}
+.soundBtn{width:26px;height:26px;min-height:0;padding:3px;display:grid;place-items:center;border:1px solid #3d4a4f;border-radius:4px;background:#0b1013;color:#e2c48f;cursor:pointer}
+.soundBtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.soundBtn svg path:first-child{fill:currentColor}
+.soundBtn[aria-pressed="false"]{color:#7d8a8d}
+.soundBtn:focus-visible{outline:2px solid var(--ambar);outline-offset:1px}
+.soundVol{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:12px;color:#c3cfcf}
+.soundVol input{flex:1;accent-color:var(--ambar)}

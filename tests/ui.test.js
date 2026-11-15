@@ -83,6 +83,10 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   await page.click('#resultPop .popOk');
   check(await page.isHidden('#resultPop'), 'OK fecha o popup');
   await page.evaluate(() => { window.SB_POP_PASSTHROUGH = true; });
+  check(await page.isVisible('#soundToggle'), 'botão de som no topo');
+  { const b0 = await page.getAttribute('#soundToggle', 'aria-pressed'); await page.click('#soundToggle'); const b1 = await page.getAttribute('#soundToggle', 'aria-pressed'); check(b0 === 'true' && b1 === 'false' && (await page.evaluate(() => localStorage.getItem('sb_som'))).includes('"on":false'), 'o botão desliga o som e guarda a escolha'); await page.click('#soundToggle'); }
+  check(await page.evaluate(() => window.SBSound.names.length >= 12 && window.SBSound.names.every(n => { window.SBSound.play(n); return true; })), 'todos os efeitos tocam sem erro');
+  { await page.evaluate(() => { window.__sons = []; const p0 = window.SBSound.play; window.SBSound.play = (...n) => { window.__sons.push(...n.map(x => Array.isArray(x) ? x[0] : x)); return p0(...n); }; }); await page.click('[data-action=mission][data-id=correria]'); const sons = await page.evaluate(() => window.__sons); check((sons.includes('ok') || sons.includes('bad')) && sons.includes('stamp'), 'o roubo toca caixa registradora (ou erro) e carimbo'); }
   // a missão acima pode falhar e prender o personagem (sem confirmação nesse caso): normaliza antes de testar
   await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.jail = 0; s.energy = 80; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
   await page.reload();
