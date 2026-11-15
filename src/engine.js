@@ -334,9 +334,9 @@
   /* Vida noturna: troca dinheiro por energia, com ressaca no dia seguinte. */
   /* v1.4: a casa cobra a entrada (e traz os riscos dela); a energia vem das doses do cardápio. */
   const NIGHT = [
-    { id: 'boteco', name: 'Boteco do Zé', desc: 'Cerveja quente, pinga com mel e café no copo americano. Pra quem ainda não é ninguém.', cost: 10, raid: 8, menu: ['cigarro', 'cerveja', 'pinga'] },
-    { id: 'pagode', name: 'Pagode na laje', desc: 'Churrasquinho de gato e balde de latão. Bom lugar para firmar contato e animar o bonde.', cost: 40, morale: 4, contact: 60, raid: 4, menu: ['cigarro', 'cerveja', 'pinga', 'erva'] },
-    { id: 'baile', name: 'Baile de favela', desc: 'Copão até de manhã. Recarrega muito, mas é onde se cruza com gente de outra gangue.', cost: 60, morale: 3, heat: 2, brawl: 22, raid: 10, menu: ['cigarro', 'cerveja', 'whisky', 'erva', 'lolo'] },
+    { id: 'boteco', name: 'Boteco do Zé', desc: 'Cigarro solto, crakudinha e pinga com mel no copo americano. Pra quem ainda não é ninguém.', cost: 10, raid: 8, menu: ['cigarro', 'crakudinha', 'pinga'] },
+    { id: 'pagode', name: 'Pagode na laje', desc: 'Churrasquinho de gato e balde de latão. Bom lugar para firmar contato e animar o bonde.', cost: 40, morale: 4, contact: 60, raid: 4, menu: ['cerveja', 'batida', 'erva'] },
+    { id: 'baile', name: 'Baile de favela', desc: 'Copão até de manhã. Recarrega muito, mas é onde se cruza com gente de outra gangue.', cost: 60, morale: 3, heat: 2, brawl: 22, raid: 10, menu: ['whisky', 'lolo', 'po'] },
     { id: 'inferninho', name: 'Inferninho da Luz Vermelha', desc: 'Luz vermelha, som alto e porta fechada. Pra quem não quer perder tempo.', cost: 150, heat: 3, raid: 12, unlock: 40, menu: ['cigarro', 'whisky', 'lolo', 'bala'] },
     { id: 'termas', name: 'Termas VIP', desc: 'Fachada com manobrista e segurança armada na porta. Os chefões fecham negócio na suíte presidencial.', cost: 400, unlock: 60, boss: true, menu: ['whisky', 'bala', 'po'] }
   ];
@@ -344,7 +344,9 @@
   const DOSES = [
     { id: 'cigarro', name: 'Cigarro', energy: 3, vicio: 0, ressaca: 0, price: 3, good: 'cigarro', desc: 'Inteira os pontinhos que faltam para o próximo roubo.' },
     { id: 'cerveja', name: 'Cerveja', energy: 10, vicio: 1, ressaca: 0, price: 12, desc: 'O combustível do começo da noite.' },
-    { id: 'pinga', name: 'Pinga', energy: 20, vicio: 3, ressaca: 1, price: 28, desc: 'Barata e direta, para quem ainda rouba de peixeira.' },
+    { id: 'crakudinha', name: 'Crakudinha', energy: 15, vicio: 2, ressaca: 1, price: 19, desc: 'A garrafinha de plástico mais barata do balcão. Desce rasgando.' },
+    { id: 'pinga', name: 'Pinga com mel', energy: 20, vicio: 3, ressaca: 1, price: 28, desc: 'Barata e direta, para quem ainda rouba de peixeira.' },
+    { id: 'batida', name: 'Batida de maracujá', energy: 28, vicio: 4, ressaca: 1, price: 45, desc: 'Doce, gelada e traiçoeira: quando você vê, já foi.' },
     { id: 'whisky', name: 'Whisky falsificado', energy: 35, vicio: 5, ressaca: 1, price: 70, azia: 12, good: 'bebida', desc: 'Copão batizado: às vezes dá azia braba (−5 de saúde).' },
     { id: 'erva', name: 'Erva', energy: 50, vicio: 6, ressaca: 0, price: 110, good: 'erva', desc: 'O melhor custo-benefício: muita energia, pouco vício.' },
     { id: 'lolo', name: 'Loló', energy: 70, vicio: 12, ressaca: 2, price: 200, strong: true, good: 'lolo', desc: 'Uma e a barra quase enche. Com vício alto, risco de teto preto.' },
@@ -589,7 +591,7 @@
     return [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, f.id === owner ? (legacyRivals && isNum(legacyRivals[d.id]) ? clamp(Math.round(legacyRivals[d.id]), 0, 100) : 22 + i * 3) : (f.id === 'aurora' ? 4 : 2)]))];
   }));
   const initialDistrictState = () => Object.fromEntries(DISTRICTS.map(d => [d.id, { vigil: 0, econ: 1 }]));
-  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false, bribe: false, bets: 0, detox: false, despachante: 0, clinicPaid: 0, termas: false, venue: null, doses: 0, dose: {}, chem: 0, home: 0 });
+  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false, bribe: false, bets: 0, detox: false, despachante: 0, clinicPaid: 0, paid: [], termas: false, venue: null, doses: 0, dose: {}, chem: 0, home: 0 });
   const startMarket = () => Object.fromEntries(DISTRICTS.map((d, i) => [d.id, Object.fromEntries(GOODS.map((g, j) => [g.id, 85 + ((i * 7 + j * 11) % 5) * 8]))]));
   const emptySeasonStats = () => ({ arrests: 0, startRespect: 5, bailPaid: 0, controlDays: Object.fromEntries(DISTRICTS.map(d => [d.id, 0])), bestCash: 0 });
 
@@ -774,6 +776,7 @@
       for (const k of ['detox', 'termas']) s.today[k] = saved.today[k] === true;
       s.today.despachante = saved.today.despachante === true ? 1 : toInt(saved.today.despachante, 0, 0, 40);
       s.today.clinicPaid = toInt(saved.today.clinicPaid, 0, 0, 40);
+      s.today.paid = Array.isArray(saved.today.paid) ? NIGHT.map(n => n.id).filter(id => saved.today.paid.includes(id)) : (NIGHT.some(n => n.id === saved.today.venue) ? [saved.today.venue] : []);
       s.today.venue = NIGHT.some(n => n.id === saved.today.venue) ? saved.today.venue : null;
       s.today.doses = toInt(saved.today.doses, 0, 0, 99);
       s.today.chem = toInt(saved.today.chem, 0, 0, CHEM_CAP);
@@ -1013,8 +1016,11 @@
   ];
   const heatTier = s => { let i = 0; HEAT_TIERS.forEach((t, k) => { if (s.heat >= t.at) i = k; }); return i; };
   const enquadroChance = s => s.heat >= 85 ? clamp(Math.round((s.heat - 80) * 2), 0, 40) : 0;
+  /** Cada degrau só dá respeito até um teto: 5 × n × (n + 4), ou seja 25, 60, 105, 160, 225… Quem fica no roubo fácil para de subir. */
+  const RESPECT_STEP = 25;
+  const respectCap = n => 5 * n * (n + 4);
   /** Respeito cheio até 2 degraus abaixo do maior que você já fez; 3 ou mais abaixo, só dinheiro (coisa de iniciante). */
-  function respectGain(s, m) { const r = m.n <= (s.ladderMax || 0) - 3 ? 0 : m.respect; return s.career === 'operador' && m.kind === 'assalto' ? Math.round(r * 1.25) : r; }
+  function respectGain(s, m) { const r = m.n <= (s.ladderMax || 0) - 3 || s.respect >= respectCap(m.n) ? 0 : m.respect; return s.career === 'operador' && m.kind === 'assalto' ? Math.round(r * 1.25) : r; }
 
   /* Economia */
   function businessIncome(s, b) {
@@ -1084,11 +1090,11 @@
   const labUpkeep = s => sum(LABS.map(l => s.labs[l.id] * (30 + (l.bribe || 0))));
   const labRaid = (s, l) => l.cash || good(l.good).risk === 0 ? 0 : Math.round(raidChance(s) * (l.bribe ? .5 : 1));
   const raidChance = s => clamp(Math.round((s.heat - 40) * .5 * (hasPerk(s, 'traficante', 3) ? .5 : 1)), 0, 25);
-  const NIGHT_LIMIT = 3;
+  const NIGHT_LIMIT = 99; // sem limite de saídas desde a v1.5: a entrada de cada casa é paga uma vez por dia
   /** Dono do Bar bebe de graça no boteco; cada saída extra no dia custa 50% a mais. */
   /** Sua própria Termas VIP dá uma recarga limpa por dia: grátis, sem vício e sem exigir respeito. */
   const ownTermas = (s, n) => n.id === 'termas' && s.businesses.includes('termas') && !s.today.termas;
-  const nightCost = (s, n) => (ownTermas(s, n) || (n.id === 'boteco' && s.businesses.includes('bar')) || (n.id === 'inferninho' && s.businesses.includes('inferninho'))) ? 0 : Math.round(n.cost * (s.career === 'barao' ? .6 : 1) * (1 + s.today.night * .5));
+  const nightCost = (s, n) => (ownTermas(s, n) || (n.id === 'boteco' && s.businesses.includes('bar')) || (n.id === 'inferninho' && s.businesses.includes('inferninho'))) || (s.today.paid || []).includes(n.id) ? 0 : Math.round(n.cost * (s.career === 'barao' ? .6 : 1));
   /** Dose: Barão paga 40% menos; dono do Bar paga metade no Boteco. */
   const doseCost = (s, d, n = NIGHT.find(x => x.id === s.today.venue)) => Math.round(d.price * (s.career === 'barao' ? .6 : 1) * (n && n.id === 'boteco' && s.businesses.includes('bar') ? .5 : 1));
   const doseVicio = (s, d) => Math.ceil(d.vicio * (s.career === 'barao' && ['whisky', 'lolo', 'bala', 'po'].includes(d.id) ? .5 : 1));
@@ -1762,20 +1768,20 @@
     const n = NIGHT.find(x => x.id === id); if (!n) return refuse('Lugar desconhecido.');
     if (blocked(s)) return refuse(blocked(s));
     if (s.today.venue === n.id) return refuse(`Você já está no ${n.name}. Peça no balcão.`);
-    if (s.today.night >= NIGHT_LIMIT) return refuse('Três saídas por dia já é demais. Durma e amanhã tem mais.');
-    if (s.energy >= 100) return refuse('Você já está com a energia cheia.');
     const own = ownTermas(s, n), barao2 = hasPerk(s, 'barao', 2);
     if (!own && !s.businesses.includes(n.id)) { const c = chainLock(s, 'night', n.id); if (c) return refuse(c); }
     if (n.unlock && s.respect < n.unlock && !own) return refuse(`A porta só abre para quem tem ${n.unlock} de respeito.`);
     const c = nightCost(s, n);
     if (s.cash < c) return refuse(`A entrada custa ${money(c)} em mãos.`);
-    s.cash -= c; s.today.night++; s.today.venue = n.id; markDone(s, 'night', n.id);
+    // Entrada paga uma vez por dia em cada casa: voltar no mesmo dia é de graça e não repete os acontecimentos da porta.
+    if ((s.today.paid || []).includes(n.id)) { s.today.venue = n.id; log(s, `${n.name}: você voltou (entrada de hoje já paga).`); return done(true, `Você voltou ao ${n.name}. A entrada de hoje já está paga.`); }
+    s.cash -= c; s.today.night++; s.today.venue = n.id; s.today.paid = (s.today.paid || []).concat(n.id); markDone(s, 'night', n.id);
     addXP(s, 'barao', 1);
     if (s.career === 'barao' && s.today.night === 1) s.respect += 1; // é visto, é lembrado (só na 1ª saída do dia)
     if (n.morale) addMorale(s, n.morale);
     if (n.heat) addHeat(s, n.heat);
     let extra = '';
-    if (own) { s.today.termas = true; s.tutorial.nighted = true; s.energy = 100; extra += ' Na sua casa: energia cheia, sem vício e sem conta.'; }
+    if (own) { s.today.termas = true; s.tutorial.nighted = true; s.energy = Math.max(s.energy, 100); extra += ' Na sua casa: energia cheia, sem vício e sem conta.'; }
     if (n.contact && roll(n.contact)) { const b = 3 + Math.floor(s.stats.labia / 8); addInf(s, s.district, b); extra += ` Você firmou contatos: +${b} de influência em ${district(s).name}.`; }
     if (n.brawl && !nightSafe(s, n) && !barao2 && roll(n.brawl)) { addHeat(s, 5); extra += ` Cruzou com gente de outra gangue e saiu na mão:${hurt(s, rand(8, 16))}`; }
     if (n.raid && !barao2 && !s.hospital && roll(Math.round(n.raid * eventMod(s, 'nightRiskMult')))) { const fine = Math.min(s.cash, 500, Math.ceil(s.cash * .05)); s.cash -= fine; addHeat(s, 8); extra += ` Batida policial: ${money(fine)} de "cafezinho" e +8 de Procurado.`; }
@@ -1783,6 +1789,11 @@
     if (s.hospital) s.today.venue = null;
     log(s, `${n.name}: entrada ${money(c)}.${extra}`);
     return done(true, `Você entrou no ${n.name}.${extra}`);
+  }
+  function doLeaveNight(s) {
+    const n = NIGHT.find(x => x.id === s.today.venue); if (!n) return refuse('Você não está em nenhuma casa.');
+    s.today.venue = null; log(s, `Você saiu do ${n.name}.`);
+    return done(true, `Você saiu do ${n.name}. Hoje a entrada lá já está paga.`);
   }
   /** Uma dose do cardápio da casa onde você está; `fromStock` usa a sua mercadoria em vez de pagar. */
   function doDose(s, id, fromStock) {
@@ -2553,7 +2564,7 @@
     bank: doBank, buy: doBuy, sell: doSell, contact: doContact, dispute: doDispute,
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
-    duel: doDuel, clinic: doClinic, bribe: doBribe, detox: doDetox, cleanRecord: doCleanRecord, bet: doBet, heistPlan: doHeistPlan, heistScout: doHeistScout, heistRun: doHeistRun, heistCancel: doHeistCancel, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, dose: doDose, night: doNight,
+    duel: doDuel, clinic: doClinic, bribe: doBribe, detox: doDetox, cleanRecord: doCleanRecord, bet: doBet, heistPlan: doHeistPlan, heistScout: doHeistScout, heistRun: doHeistRun, heistCancel: doHeistCancel, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, dose: doDose, night: doNight, leaveNight: doLeaveNight,
     avatar: doAvatar, setup: doSetup, equip: doEquip, career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay: s => turnDay(s), endSeason: s => closeSeason(s), goHome: doGoHome, leaveHome: doLeaveHome // sem repassar argumentos do pedido
   };
   /** Executa uma ação e roda verificações pós-ação. */
@@ -2577,7 +2588,7 @@
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
-    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     FEAT_CATS, FEAT_RESPECT, TURF_SLOTS, TURF_RESPECT, TURF_LOSS, turfSlots, turfReady, ownedTurf, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,

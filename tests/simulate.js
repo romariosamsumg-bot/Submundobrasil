@@ -26,7 +26,8 @@ function ev(s, m) {
   const avg = (m.low + m.high) / 2 * SB.missionRewardMult(s, m);
   const loss = s.cash * SB.failLoss(s, m) + SB.arrestChance(s, m) / 100 * 600;
   // O Procurado pesa em proporção (antes: −0,4 R$ por ponto, que com o saque pequeno da escada travava o robô).
-  return (p * avg - (1 - p) * loss) / m.cost * Math.max(.05, 1 - s.heat / 120);
+  // Respeito vale: com o teto por degrau, o jogador procura o roubo que ainda sobe o placar (1 de respeito ≈ R$ 40).
+  return (p * (avg + SB.respectGain(s, m) * 40) - (1 - p) * loss) / m.cost * Math.max(.05, 1 - s.heat / 120);
 }
 function bestMission(s, minChance = 50) {
   let best = null, bv = 0;

@@ -671,3 +671,12 @@ button.hudResp:focus-visible{outline:2px solid var(--ambar);outline-offset:2px}
 .rankRow2 strong,.fameList strong{font-size:13px;color:#ffd98f;white-space:nowrap}
 .fameCard{margin:0 0 10px}.fameCard h3{margin:0 0 8px}
 .fameList li.f1{border-color:#8a6d2a}
+
+/* Noite: ambiente de cada casa; Feira: seletor de prateleira */
+.venueArt{position:relative}
+.venueTag{position:absolute;left:10px;bottom:8px;font:800 10px/1 ui-monospace,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:#1b1712;background:var(--ambar);padding:4px 7px;border-radius:2px}
+.venueBar{align-items:center;margin:0 0 6px}.venueBar .mini{margin:0;flex:1;min-width:0}
+.venue.v-boteco .stencilRow,.venue.v-boteco h1{color:#f1dfae}
+.venue.v-pagode{--ambar:#e8c56a}.venue.v-baile{--ambar:#f08a6a}.venue.v-inferninho{--ambar:#e25a5a}.venue.v-termas{--ambar:#d9b0e8}
+.feiraTabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0 4px}
+.feiraTabs .btn{min-width:0;padding-left:4px;padding-right:4px;white-space:normal;overflow-wrap:anywhere}

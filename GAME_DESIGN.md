@@ -641,6 +641,14 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
+### Teto de respeito por degrau, Negócios, seletor da Feira e casas da noite (v1.5)
+
+- **Teto de respeito por degrau:** cada degrau da escada só dá respeito enquanto o seu respeito for menor que **5 × n × (n + 4)**: 1º até 25 (abaixo dos 30 do bando), 2º até 60, 3º até 105, 4º até 160, 5º até 225… Acima disso o roubo continua pagando dinheiro, mas não sobe o placar. Vale junto com a regra de 3 degraus abaixo do maior já feito. Quem fica no roubo fácil não destrava o jogo nem sobe no ranking; o cartão do roubo avisa.
+- **Banco e Negócios separados** na Cidade: **Banco** (depósito, saque e patrimônio) e **Negócios** (estabelecimentos e os esquemas de produção, que saíram do Galpão). O Galpão ficou com a mercadoria e o comprador de fora.
+- **Feira com seletor** no topo: Arma, Proteção e Veículo, uma prateleira por vez.
+- **Casas da noite:** a entrada de cada casa é paga **uma vez por dia**; sair e voltar no mesmo dia é de graça e não repete os acontecimentos da porta (batida, briga, contatos, ânimo). Sem limite de saídas e sem aumento de preço. Dentro da casa a tela vira o ambiente dela (imagem, cardápio e botão **Sair**).
+- **Cardápio:** Boteco do Zé: Cigarro, Crakudinha, Pinga com mel. Pagode na laje: Cerveja, Batida de maracujá, Erva. Baile de favela: Whisky falsificado, Loló, Pó. (Inferninho e Termas não mudaram.) Doses novas: Crakudinha (+15 de energia, R$ 19, vício +2) e Batida de maracujá (+28, R$ 45, vício +4).
+
 ### Ranking: Mural do respeito (v1.5)
 
 Tela própria de Ranking, sem aba nova. Abre por três caminhos: **tocar na estrela de respeito no topo**, o **cartão da Rua** ("Você é o 12º de 340 · faltam 8 de respeito para passar Fulano · o mês acaba em N dias"; aparece depois dos primeiros passos) e o lugar **Mural do respeito** na Cidade.
@@ -734,7 +742,9 @@ Cada classe aparece com imagem, uma frase de resumo, vantagens (✓) e custos (�
 |---|---|---|---|---|
 | Cigarro | 3 | R$ 3 | 1,0 | 0 |
 | Cerveja | 10 | R$ 12 | 1,2 | 1 |
-| Pinga | 20 | R$ 28 | 1,4 | 3 |
+| Crakudinha | 15 | R$ 19 | 1,3 | 2 |
+| Pinga com mel | 20 | R$ 28 | 1,4 | 3 |
+| Batida de maracujá | 28 | R$ 45 | 1,6 | 4 |
 | Whisky | 35 | R$ 70 | 2,0 | 5 |
 | Erva | 50 | R$ 110 | 2,2 | 6 |
 | Loló | 70 | R$ 200 | 2,9 | 12 |

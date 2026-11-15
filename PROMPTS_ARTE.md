@@ -34,6 +34,7 @@ Mantenha sempre o mesmo modelo e, se a ferramenta permitir, a mesma "seed" ou im
 | `place-duelos.webp` | Beco estreito entre prédios, um único poste lançando cone de luz, duas silhuetas de homens se encarando, um de boné, poças no chão. |
 | `place-hospital.webp` | Fachada de UPA brasileira à noite, luz fria fluorescente, ambulância branca estacionada, cruz vermelha acesa, fila de pessoas cansadas na porta. |
 | `place-gestao.webp` | Fachada de banco antigo com colunas no centro da cidade, caixa eletrônico iluminado ao lado, calçada vazia de madrugada. |
+| `place-negocios.webp` | Rua de comércio de bairro à noite: um bar de esquina com toldo vermelho, uma oficina com porta de enrolar e um mercadinho com luz acesa, fios cruzando a rua, calçada molhada. (Tela Negócios.) |
 | `place-temporada.webp` | Parede de bar com troféu dourado de campeonato de várzea na prateleira, medalhas de bronze e prata penduradas, fotos desbotadas e bandeirinhas. |
 | `place-apostas.webp` | Fundo de bar com mesa de sinuca de pano verde sob lâmpada pendurada, quadro de anotações de jogo do bicho na parede, roleta pequena num canto, fumaça e copos. |
 | `place-assaltos.webp` | Van escura parada numa rua lateral de madrugada, porta lateral aberta, sacola de lona no chão, reflexo distante de giroflex vermelho e azul. |

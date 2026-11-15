@@ -157,6 +157,13 @@ Também sugerido: rebelião na cadeia com a gangue.
 - **Maratona sem teto**: 31 roubos por dia com dinheiro infinito (antes 14,4). Medir com jogadores reais se o Procurado e a propina seguram.
 - O robô do ciclo não chega ao topo (degrau 9 no dia 28): se jogadores reais também não chegarem, baixar o fator dos degraus 10 a 13.
 
+## Pendências do teto de respeito por degrau
+
+- [x] Teto de respeito por degrau (25, 60, 105, 160…), Banco e Negócios separados, seletor da Feira, entrada da noite uma vez por dia com ambiente e Sair, cardápio novo.
+- **Assaltante lidera as 5 estratégias nas classes** (o +25% de respeito nos assaltos pesa mais agora que o respeito vem dos degraus altos). Avaliar.
+- **Diplomacia (77) e Território (119) ficaram para trás:** precisam de respeito por acordos, alianças e domínio que não dependa da escada.
+- Imagem pintada `place-negocios` (prompt em PROMPTS_ARTE.md); por enquanto a tela usa o desenho em SVG.
+
 ## Online (Supabase)
 
 - [x] **Fase 1**: conta com e-mail e senha, servidor de regras (`jogar`), save na nuvem e ranking de respeito no Perfil.

@@ -112,9 +112,12 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   console.log('3b. Cidade, Feira do Rolo, Galpão, noite e Perfil (v0.7)');
   await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.cash = 6000; s.respect = 50; s.jail = 0; s.energy = 60; s.heat = 0; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
   await page.reload(); await go('hub');
-  check(await page.locator('.place').count() === 9, 'tela Cidade mostra 9 lugares (com o Mural do respeito)');
+  check(await page.locator('.place').count() === 10, 'tela Cidade mostra 10 lugares (Banco e Negócios separados, e o Mural do respeito)');
   check(await page.locator('.place.locked').count() === 0, 'com 50 de respeito nada fica trancado');
   await page.click('.mobileNav [data-view=feira]');
+  check(await page.locator('.feiraTabs [data-action=feira-tab]').count() === 3 && await page.locator('[data-action=buy-item][data-id=bike]').count() === 0, 'Feira abre na prateleira de armas, com seletor de 3 prateleiras');
+  await page.click('[data-action=feira-tab][data-id=veiculo]');
+  check(await page.locator('[data-action=buy-item][data-id=porrete]').count() === 0, 'o seletor mostra uma prateleira por vez');
   check(await page.isDisabled('[data-action=buy-item][data-id=cinquentinha]') && (await page.textContent('.shopRow:has([data-id=cinquentinha])')).includes('Primeiro compre: Bicicleta'), 'trilha: a Cinquentinha pede a bicicleta antes, com o motivo à vista');
   await page.click('[data-action=buy-item][data-id=bike]');
   await page.click('[data-action=buy-item][data-id=cinquentinha]');
@@ -122,6 +125,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check(await page.isVisible('[data-action=equip][data-id=bike]') && (await page.textContent('.shopRow:has([data-id=bike])')).includes('É seu'), 'a bicicleta continua sua, com o botão Usar');
   { const c0 = (await st()).cash; await page.click('[data-action=equip][data-id=bike]'); const s1 = await st(); check(s1.gear.veiculo === 'bike' && s1.cash === c0 && s1.owned.includes('cinquentinha'), 'Usar troca de graça e não perde o outro'); }
   await page.click('[data-action=equip][data-id=cinquentinha]');
+  await page.click('[data-action=feira-tab][data-id=arma]');
   check(await page.isDisabled('[data-action=buy-item][data-id=fuzil]'), 'item acima do seu respeito fica bloqueado');
   await go('galpao');
   await page.click('[data-action=buy-good][data-id=cigarro][data-qty="5"]');
@@ -129,14 +133,18 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check(g7.goods.cigarro === 5 && g7.energy === 57, 'compra de mercadoria: +5 unidades e -3 de energia');
   await page.click('[data-action=sell-good][data-id=cigarro][data-qty="5"]');
   check((await st()).goods.cigarro === 0, 'venda de mercadoria esvazia o estoque');
-  check(await page.isDisabled('[data-action=build-lab][data-id=laboratorio]'), 'produção acima do seu respeito fica bloqueada');
+  check(await page.locator('[data-action=build-lab]').count() === 0, 'os esquemas saíram do Galpão');
+  await go('negocios');
+  check(await page.isDisabled('[data-action=build-lab][data-id=laboratorio]') && await page.locator('[data-action=buy]').count() > 0, 'Negócios reúne estabelecimentos e esquemas; produção acima do respeito fica bloqueada');
+  await go('gestao'); check(await page.isVisible('#bankAmount') && await page.locator('[data-action=buy]').count() === 0, 'o Banco ficou só com o banco');
   await go('noite');
   const e0 = (await st()).energy;
   await page.click('[data-action=night][data-id=boteco]');
-  check((await st()).today.venue === 'boteco' && await page.isVisible('[data-action=dose][data-id=pinga]'), 'entrar no boteco abre o balcão com o cardápio');
+  check((await st()).today.venue === 'boteco' && await page.isVisible('[data-action=dose][data-id=pinga]') && await page.isVisible('[data-action=dose][data-id=crakudinha]') && await page.locator('[data-action=night]').count() === 0 && (await page.textContent('#content')).includes('Boteco do Zé'), 'entrar no boteco abre o ambiente dele, só com o cardápio da casa');
   await page.click('[data-action=dose][data-id=pinga]');
   g7 = await st();
   check(g7.energy === e0 + 20 && g7.ressaca === 1 && g7.vicio === 3, 'pinga: +20 de energia, vício e ressaca registrados');
+  { const c1 = g7.cash; await page.click('[data-action=leave-night]'); check((await st()).today.venue === null && await page.locator('[data-action=night][data-id=pagode]').count() === 1, 'Sair volta para a lista de casas'); check((await page.textContent('.shopRow:has([data-action=night][data-id=boteco])')).includes('Entrada paga hoje'), 'a casa aparece como paga hoje'); await page.click('[data-action=night][data-id=boteco]'); check((await st()).cash === c1 && (await st()).today.venue === 'boteco', 'voltar no mesmo dia não cobra de novo'); }
   await go('perfil');
   check((await page.textContent('.gearGrid')).includes('Cinquentinha'), 'Perfil mostra o equipamento');
   check(await page.isVisible('.mobileNav [data-view=hub].active') && await page.isVisible('.backLink'), 'Perfil fica dentro de Cidade');
@@ -214,10 +222,10 @@ await page.click('[data-action=duel][data-id=marrento]');
 
   console.log('3c. Arte (v1.1)');
   await go('hub');
-  check(await page.locator('.place .placeScene .art').count() === 9, 'os 9 lugares da Cidade têm cena ilustrada');
+  check(await page.locator('.place .placeScene .art').count() === 10, 'os 10 lugares da Cidade têm cena ilustrada');
   check(await page.evaluate(() => { window.__ART = window.SB_ART; window.SB_ART = { 'place-galpao': 'data:image/png;base64,iVBORw0KGgo=' }; return window.SBArt.place('galpao').startsWith('<img') && window.SBArt.place('feira').startsWith('<svg'); }), 'imagem pintada substitui só a chave correspondente');
   await page.evaluate(() => { window.SB_ART = window.__ART; });
-  check(await page.evaluate(() => window.SBArt.keys().length) === 24, '24 chaves de arte (10 lugares, 8 adversários, 6 assaltos)');
+  check(await page.evaluate(() => window.SBArt.keys().length) === 25, '25 chaves de arte (11 lugares, 8 adversários, 6 assaltos)');
 
   await go('perfil');
   check(await page.locator('#content .avatarPick, #content [data-action=avatar]').count() === 0, 'Perfil não troca mais o retrato');
@@ -295,7 +303,7 @@ await page.click('[data-action=duel][data-id=marrento]');
 
   console.log('7b. Nenhum texto cortado no celular (360 px)');
   {
-    const cutViews = ['painel', 'acoes', 'noite', 'feira', 'hub', 'cidade', 'gestao', 'galpao', 'duelos', 'apostas', 'hospital', 'gangue', 'assaltos', 'perfil', 'temporada', 'ranking'];
+    const cutViews = ['painel', 'acoes', 'noite', 'feira', 'hub', 'cidade', 'gestao', 'galpao', 'duelos', 'apostas', 'hospital', 'gangue', 'assaltos', 'perfil', 'temporada', 'ranking', 'negocios'];
     const cutStates = await page.evaluate(() => { const out = []; for (const c of SB.CITIES) { const s = SB.defaultState('Wellington Aparecido S', c.name); s.tutorial.done = true; Object.assign(s, { respect: 180, cash: 123456, bank: 987654, day: 18, heat: 72, vicio: 48, career: 'barao', gangName: 'Bonde do Morro Alto', gangLevel: 3, crewMorale: 66, avatar: 'golpista' }); s.businesses = ['pensao', 'bar', 'inferninho']; s.labs.gelo = 1; s.labs.laboratorio = 2; out.push(JSON.stringify(s)); } out.push(JSON.stringify(SB.defaultState('Zé', SB.CITIES[0].name))); return out; });
     const cuts = new Set();
     const scan = () => page.evaluate(() => { const bad = []; for (const el of document.querySelectorAll('#hud *, #content *, #helpBox *, #setupBox *')) { if (!el.getClientRects().length) continue; const cs = getComputedStyle(el); if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue; const hid = cs.overflowX !== 'visible' || cs.textOverflow === 'ellipsis' || cs.webkitLineClamp !== 'none'; if (hid && (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 2)) bad.push(el.textContent.trim().slice(0, 50)); if (el.getBoundingClientRect().right > innerWidth + 1) bad.push('fora da tela: ' + el.textContent.trim().slice(0, 40)); } return bad; });
@@ -307,7 +315,7 @@ await page.click('[data-action=duel][data-id=marrento]');
     }
     await page.click('#hud .hudWho'); await page.click('[data-action=help]').catch(() => {});
     for (let i = 0; i < 8 && await page.isVisible('#help'); i++) { for (const x of await scan()) cuts.add('ajuda: ' + x); const nx = page.locator('#helpBox .btn.primary'); if (await nx.count()) await nx.first().click(); else break; }
-    check(cuts.size === 0, 'nenhum texto cortado em 16 telas, 6 cidades, nome longo e valores altos' + (cuts.size ? ': ' + [...cuts].slice(0, 5).join(' | ') : ''));
+    check(cuts.size === 0, 'nenhum texto cortado em 17 telas, 6 cidades, nome longo e valores altos' + (cuts.size ? ': ' + [...cuts].slice(0, 5).join(' | ') : ''));
   }
   console.log('7c. Online com servidor simulado (mesma lógica do servidor, sem rede)');
   {
