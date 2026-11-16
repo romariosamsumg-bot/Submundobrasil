@@ -421,8 +421,8 @@
     const c = state ? SB.cityOf(state.city) : SB.CITIES[0];
     return [
       ['O objetivo', `<p><b class="age18">18+</b> Ficção adulta: crime, violência, drogas e linguagem pesada.</p><p>Você chega a <strong>${esc(c.name)}</strong> com pouco dinheiro e nenhum nome. Tem <strong>30 dias</strong> (uma temporada) para virar alguém.</p>
-        <p>O placar é um só: o <strong>respeito</strong>. Ele sobe nos roubos, duelos, assaltos e negócios, e também nos <strong>feitos do mês</strong> (bronze, prata e ouro em Fortuna, Território, Diplomacia, Gangue e Comércio), que pagam respeito na hora. Não precisa ser bom em tudo: escolha um ou dois caminhos e vá fundo.</p>
-        <p>O respeito também dá a sua <strong>patente</strong>, de <em>Pé de chinelo</em> a <em>Dono do morro</em>, e é o que conta no ranking. O cartão <strong>Sua temporada</strong>, na Rua, mostra a próxima patente e o feito mais perto.</p>`],
+        <p>O placar é um só: o <strong>respeito</strong>. Ele sobe nos roubos, duelos, assaltos e negócios, e também nos <strong>feitos do mês</strong> (bronze, prata e ouro em Fortuna, Diplomacia, Gangue e Comércio), que pagam respeito na hora. Não precisa ser bom em tudo: escolha um ou dois caminhos e vá fundo.</p>
+        <p>O respeito também dá a sua <strong>patente</strong>, de <em>Pé de chinelo</em> a <em>Dono do morro</em>, e é o que conta no ranking. A faixa de progresso, na Rua, mostra quanto falta para a próxima patente.</p>`],
       ['Seu dia', `<p>Tudo gasta <strong>energia</strong> (barra verde). Um dia típico:</p>
         <ol><li><strong>Serviços</strong> rendem dinheiro e respeito. Veja a chance antes.</li><li><strong>Treino</strong> melhora atributos e libera serviços maiores.</li><li><strong>Contatos</strong> nos bairros viram influência e tributo.</li><li>O ciclo fica nas abas: <strong>Roubar</strong>, <strong>Noite</strong> (recarrega energia) e <strong>Feira</strong> (arma abre roubo maior). Na <strong>Cidade</strong> ficam o bando, o banco e o resto, que vão se abrindo com o respeito: Galpão (comprar barato, vender caro, produzir e despachar), a noite (energia extra, com ressaca), os Duelos de rua e o Hospital.</li><li>Sem energia? <strong>Avance o dia</strong>: +70 de energia, a renda entra e os grupos se movem.</li></ol>
         <p>Respeito libera serviços, a gangue (30) e mais. Dinheiro compra treino, negócios e equipe.</p>`],
@@ -450,13 +450,24 @@
         <p>O mês tem quatro semanas com ritmo próprio. Dias de pagamento (5 e 20) engordam lotérica, caixa e assaltos; nas Noites de fluxo suas casas rendem o dobro; nos três últimos dias a polícia aperta e no dia 30 atraca o Último Navio. Fique de olho no calendário: <strong>${esc(SB.EVENTS.carnaval.title)}</strong> começa no dia 9 e o <strong>${esc(SB.EVENTS.classico.title)}</strong> é no dia 20.</p>`]
     ];
   }
-  function renderHelp() {
-    const pages = helpPages(), [title, body] = pages[helpPage], last = helpPage === pages.length - 1;
-    $('#helpBox').innerHTML = `<div class="helpHead"><span>Como jogar · ${helpPage + 1}/${pages.length}</span><button type="button" class="close" data-action="close-help" aria-label="Fechar">×</button></div>
-      <h2 id="helpTitle">${title}</h2><div class="helpBody">${body}</div>
-      <div class="helpBtns">${helpPage ? button('Voltar', 'help-prev', '', false, 'small ghost') : '<span></span>'}${last ? button(state && SB.tutorialStep(state) ? 'Começar' : 'Fechar', 'close-help', '', false, 'primary') : button('Próximo', 'help-next', '', false, 'primary')}</div>`;
+  /** Apresentação curta para personagem novo: o que é o jogo e o objetivo, sem contas. Abre antes do guia. */
+  let helpMode = 'help';
+  function introPages() {
+    const c = state ? SB.cityOf(state.city) : SB.CITIES[0];
+    return [
+      ['Você chegou', `<p>Você desce na rodoviária de <strong>${esc(c.name)}</strong> sem dinheiro, sem arma e sem nome.</p><p>Até o fim do mês, a cidade vai saber quem você é. O placar é o <strong>respeito</strong>: ele te leva de <em>Pé de chinelo</em> a <em>Dono do morro</em> e decide a sua posição no ranking.</p>`],
+      ['A rua gira assim', `<p><strong>Roube</strong> do mais fácil ao mais difícil: cada roubo mostra a sua chance.</p><p>Acabou a energia? A <strong>noite</strong> vende energia no balcão.</p><p>Com o dinheiro, a <strong>Feira</strong> te arma, protege e leva mais longe, e os roubos maiores se abrem. Subir de degrau é o que traz respeito.</p>`],
+      ['A rua cobra', `<p>Cada roubo chama a <strong>polícia</strong>. Esfrie antes que ela chegue, ou vai pra cadeia.</p><p>A noite cobra no <strong>vício</strong> e o corpo cobra na <strong>saúde</strong>.</p><p>Na <strong>Rua</strong>, a sua história acontece: gente que aparece, decisões sem volta e avisos do que pede atenção.</p><p>O guia te acompanha nos primeiros passos.</p>`]
+    ];
   }
-  function openHelp(page = 0) { if (state) SB.applyCity(state.city); helpPage = page; renderHelp(); $('#help').classList.remove('hidden'); const b = $('#helpBox .btn.primary'); if (b) b.focus(); }
+  function openIntro() { if (state) SB.applyCity(state.city); helpMode = 'intro'; helpPage = 0; renderHelp(); $('#help').classList.remove('hidden'); const b = $('#helpBox .btn.primary'); if (b) b.focus(); }
+  function renderHelp() {
+    const pages = helpMode === 'intro' ? introPages() : helpPages(), [title, body] = pages[helpPage], last = helpPage === pages.length - 1;
+    $('#helpBox').innerHTML = `<div class="helpHead"><span>${helpMode === 'intro' ? 'Bem-vindo' : 'Como jogar'} · ${helpPage + 1}/${pages.length}</span><button type="button" class="close" data-action="close-help" aria-label="Fechar">×</button></div>
+      <h2 id="helpTitle">${title}</h2><div class="helpBody">${body}</div>
+      <div class="helpBtns">${helpPage ? button('Voltar', 'help-prev', '', false, 'small ghost') : '<span></span>'}${last ? button(helpMode === 'intro' || (state && SB.tutorialStep(state)) ? 'Começar' : 'Fechar', 'close-help', '', false, 'primary') : button('Próximo', 'help-next', '', false, 'primary')}</div>`;
+  }
+  function openHelp(page = 0) { if (state) SB.applyCity(state.city); helpMode = 'help'; helpPage = page; renderHelp(); $('#help').classList.remove('hidden'); const b = $('#helpBox .btn.primary'); if (b) b.focus(); }
   function closeHelp() { $('#help').classList.add('hidden'); }
 
   /* ---------- telas ---------- */
@@ -1102,7 +1113,7 @@
     if (su.online) return createOnline(su);
     const s = SB.defaultState(su.name, su.city), r = SB.perform(s, 'setup', su.avatar, su.name, su.career);
     if (!r.ok) return notify(r.msg, true);
-    state = s; view = 'painel'; result = null; closeSetup(); save(); render();
+    state = s; view = 'painel'; result = null; closeSetup(); save(); render(); openIntro();
   }
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-action^="su-"]'); if (!b || !setup) return;
@@ -1212,7 +1223,7 @@
     pendingOnline = true; openSetup('new');
   }
   async function createOnline(su) {
-    try { const d = await server({ acao: 'novo', codinome: su.name, cidade: su.city, avatar: su.avatar, classe: su.career }); closeSetup(); enterOnline(d.estado); }
+    try { const d = await server({ acao: 'novo', codinome: su.name, cidade: su.city, avatar: su.avatar, classe: su.career }); closeSetup(); enterOnline(d.estado); openIntro(); }
     catch (e) { notify(e.message, true); }
   }
   async function runOnline(name, args) {

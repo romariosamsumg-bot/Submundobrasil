@@ -45,6 +45,9 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   await page.click('[data-action=su-save]');
   check(!(await page.isVisible('#welcome')) && !(await page.isVisible('#setup')), 'jogo iniciado');
   { const s0 = await st(); check(s0.name === 'Malandro' && s0.avatar === 'capoeirista' && s0.career === 'operador' && s0.city === 'Salvador' && s0.cash === 0, 'ficha salva: vulgo, retrato, classe e cidade'); }
+  check(await page.isVisible('#help') && (await page.textContent('#helpBox')).includes('Bem-vindo') && (await page.textContent('#helpBox')).includes('respeito'), 'personagem novo vê a apresentação curta do jogo e do objetivo');
+  for (let i = 0; i < 2; i++) await page.click('[data-action=help-next]'); await page.click('#helpBox [data-action=close-help].primary');
+  check(!(await page.isVisible('#help')), 'Começar fecha a apresentação e segue para o guia');
   check((await page.textContent('.guide')).includes('2/8') && (await page.textContent('.guide')).toLowerCase().includes('roubo'), 'logo em seguida o guia começa, no primeiro roubo');
   await page.click('.guide [data-action=help]'); for (let i = 0; i < 3; i++) await page.click('[data-action=help-next]');
   check((await page.textContent('#helpBox')).includes('Largo das Ladeiras'), 'ajuda mostra os bairros da cidade escolhida');
@@ -288,7 +291,7 @@ await page.click('[data-action=duel][data-id=marrento]');
   check(typeof sv.seasonHistory.at(-1).score === 'number', 'pontuação registrada no histórico');
   await page.screenshot({ path: path.join(__dirname, 'screens', '360-nova-temporada.png'), fullPage: true });
   check(await page.isVisible('#setup') && (await page.inputValue('#suName')).length >= 2 && await page.locator('#suCity').count() === 0, 'temporada nova: a ficha reabre com o vulgo preenchido, sem trocar a cidade');
-  await page.click('[data-action=su-avatar][data-id=coroa]'); await page.click('[data-action=su-next]'); await page.click('[data-action=su-class][data-id=empreendedor]'); await page.click('[data-action=su-save]');
+  await page.click('[data-action=su-avatar][data-id=coroa]'); await page.click('[data-action=su-next]'); await page.click('[data-action=su-class][data-id=empreendedor]'); await page.click('[data-action=su-save]'); await page.waitForSelector('#help:not(.hidden)').catch(() => {}); await page.evaluate(() => document.querySelector('#help').classList.add('hidden'));
   sv = await st();
   check(!(await page.isVisible('#setup')) && sv.avatar === 'coroa' && sv.career === 'empreendedor', 'ficha da temporada nova salva');
 
@@ -345,7 +348,7 @@ await page.click('[data-action=duel][data-id=marrento]');
     check(true, 'conta criada: abre a ficha (retrato, vulgo e cidade)');
     await op.click('[data-action=su-avatar][data-id=gaucho]'); await op.fill('#suName', 'Zé Online'); await op.selectOption('#suCity', 'Recife');
     await op.click('[data-action=su-next]'); await op.click('[data-action=su-class][data-id=traficante]'); await op.click('[data-action=su-save]');
-    await op.waitForFunction(() => window.__SB_UI.state && window.__SB_UI.state.name === 'Zé Online');
+    await op.waitForFunction(() => window.__SB_UI.state && window.__SB_UI.state.name === 'Zé Online'); await op.waitForSelector('#help:not(.hidden)'); check((await op.textContent('#helpBox')).includes('Bem-vindo'), 'conta nova online também vê a apresentação'); await op.evaluate(() => document.querySelector('#help').classList.add('hidden'));
     check(saved && saved.name === 'Zé Online' && saved.cash === 0 && saved.avatar === 'gaucho' && saved.career === 'traficante', 'personagem criado no servidor com a ficha completa, começando com R$ 0');
     await op.evaluate(() => { const h = document.querySelector('#help'); if (h) h.classList.add('hidden'); });
     const before = calls;
