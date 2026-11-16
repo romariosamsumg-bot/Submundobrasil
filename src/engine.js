@@ -916,9 +916,9 @@
    * (60 de influência e 10 acima do grupo que lidera). */
   const INF_TIERS = [
     { at: 0, name: 'Desconhecido', desc: 'Ninguém te conhece aqui.' },
-    { at: 20, name: 'Conhecido', desc: 'Dá para disputar o bairro e confrontar facções.' },
-    { at: 40, name: 'Respeitado', desc: 'Libera o Leilão clandestino; criar contatos fica 20% mais barato.' },
-    { at: 60, name: 'Dono do pedaço', desc: 'O bairro é seu: +12% nos roubos, +15% nos negócios, propina 25% mais barata, a polícia do bairro sobe pela metade e a vantagem do bairro.' }
+    { at: 20, name: 'Conhecido', desc: 'pode disputar o bairro.' },
+    { at: 40, name: 'Respeitado', desc: 'libera o Leilão; contatos mais baratos.' },
+    { at: 60, name: 'Dono do pedaço', desc: 'o bairro é seu: roubos e negócios rendem mais e a propina sai mais barata.' }
   ];
   const infTier = (s, did = s.district) => controlled(s, did) ? 3 : s.influence[did] >= 40 ? 2 : s.influence[did] >= 20 ? 1 : 0;
   /** Influência que um roubo bem-sucedido rende no bairro (degrau 4 em diante): golpe 2, genérico e assalto 1,
@@ -1009,10 +1009,10 @@
   const missionHeat = (s, m) => heatGain(s, m.heat * (hasPerk(s, 'operador', 2) ? .75 : 1));
   /* v1.5: gatilhos do Procurado. Cada faixa muda o jogo de um jeito que dá para ver. */
   const HEAT_TIERS = [
-    { at: 0, name: 'Na moita', desc: 'Pouca gente te procura: o Procurado tira 4% do poder a cada 10 pontos.' },
-    { at: 30, name: 'De olho', desc: 'Já pesa: com 50, o seu poder nos roubos cai 20%.' },
-    { at: 60, name: 'Na mira', desc: 'Detenção +10 em todo roubo que falhar (a partir do 4º degrau) e blitz mais provável.' },
-    { at: 85, name: 'Caçado', desc: 'Mesmo dando certo, o roubo (a partir do 4º degrau) pode virar enquadro: perde o saque e 1 dia detido.' }
+    { at: 0, name: 'Na moita', desc: 'Pouca gente te procura. Quanto mais Procurado, menor a chance nos roubos.' },
+    { at: 30, name: 'De olho', desc: 'A polícia já te conhece: os roubos ficam mais difíceis.' },
+    { at: 60, name: 'Na mira', desc: 'Falhar um roubo dá cadeia com mais facilidade.' },
+    { at: 85, name: 'Caçado', desc: 'Até o roubo que dá certo pode virar enquadro: perde o saque e vai preso.' }
   ];
   const heatTier = s => { let i = 0; HEAT_TIERS.forEach((t, k) => { if (s.heat >= t.at) i = k; }); return i; };
   const enquadroChance = s => s.heat >= 85 ? clamp(Math.round((s.heat - 80) * 2), 0, 40) : 0;

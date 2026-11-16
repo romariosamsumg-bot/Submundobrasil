@@ -641,6 +641,16 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
+### Menos texto, decisão à vista (v1.5)
+
+Pedido do autor: o jogo não precisa explicar todas as contas na tela. Regra de interface: **cada cartão mostra só o que serve para decidir; a conta completa fica atrás de "Detalhes" ou em "Como jogar".**
+- **Roubar:** cartão com número do degrau, nome, tipo, chance grande e fichas (saque, energia, Procurado, respeito, "influência +", "cadeia X%"). Descrição, poder × dificuldade e o que acontece na falha ficam em "Detalhes". O Procurado virou um cartão curto: faixa, barra e dois botões (Ficar na sua, Propina), com "Como funciona" recolhido. Treino em grade de 4, Bico numa linha.
+- **Noite:** dose com energia e vício em fichas; casas só com o cardápio e a entrada; a explicação do vício em "Como funciona".
+- **Feira:** cada item com uma linha (Poder, Defesa ou Fuga e carga).
+- **Perfil:** classe com vantagens e custos em lista; influência com a faixa e o que falta em cada bairro.
+- **Negócios:** renda por dia, bairro e preço.
+- Os textos das faixas de Procurado e de influência ficaram sem números.
+
 ### Teto de respeito por degrau, Negócios, seletor da Feira e casas da noite (v1.5)
 
 - **Teto de respeito por degrau:** cada degrau da escada só dá respeito enquanto o seu respeito for menor que **5 × n × (n + 4)**: 1º até 25 (abaixo dos 30 do bando), 2º até 60, 3º até 105, 4º até 160, 5º até 225… Acima disso o roubo continua pagando dinheiro, mas não sobe o placar. Vale junto com a regra de 3 degraus abaixo do maior já feito. Quem fica no roubo fácil não destrava o jogo nem sobe no ranking; o cartão do roubo avisa.
