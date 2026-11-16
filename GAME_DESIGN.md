@@ -643,7 +643,7 @@ A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do b
 
 ### Apresentação para personagem novo (v1.5)
 
-Logo depois de criar o personagem (no jogo local e no online), abre uma apresentação de 3 telas, sem contas: **Você chegou** (a cidade, o mês e o objetivo: respeito, patente e ranking), **A rua gira assim** (roubar do fácil ao difícil, a noite dá energia, a Feira abre roubos maiores) e **A rua cobra** (polícia, vício, saúde e a história na Rua). "Começar" fecha e o guia de primeiros passos segue. Não abre na virada de temporada. As páginas completas continuam em "Como jogar".
+Logo depois de criar o personagem (no jogo local e no online), abre uma apresentação de 3 telas, sem contas: **Você chegou** (a cidade, o mês e o objetivo: respeito, patente e ranking), **A rua gira assim** (roubar do fácil ao difícil, a noite dá energia, a Feira abre roubos maiores, os negócios pagam todo dia) e **A rua cobra** (polícia, vício, saúde e a história na Rua). "Começar" fecha e o guia de primeiros passos segue. Não abre na virada de temporada. As páginas completas continuam em "Como jogar".
 
 ### UPA de graça e abertura com conta (v1.5)
 
