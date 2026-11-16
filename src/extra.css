@@ -758,3 +758,4 @@ button.hudResp:focus-visible{outline:2px solid var(--ambar);outline-offset:2px}
 .poster .more summary{color:#5a4f40}.poster .moreBody{background:#00000010;border-left-color:#1b171255}.poster .moreBody p{color:#2a231a}
 .diary .more summary{color:#5a4f40}.diary .moreBody{background:transparent;border-left:0;padding:0}
 @media(prefers-reduced-motion:reduce){.storyCard{transform:none}}
+.travelBtn{white-space:normal;line-height:1.2;text-align:center;min-height:44px}

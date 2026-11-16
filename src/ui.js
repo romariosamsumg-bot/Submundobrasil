@@ -642,7 +642,7 @@
     return `<section class="card district ${here ? 'selected' : ''}"><div class="miniScene">${scene(x.id)}${plate(x.name)}${here ? '<span class="pill here">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill here">Você lidera</span>' : ''}</div>
       <div class="kv"><div><span>Líder</span><strong>${SB.controlled(s, x.id) ? 'Você' : esc(F(l.id).short) + ' ' + l.value}</strong></div><div><span>Sua influência</span><strong>${s.influence[x.id]}</strong></div><div><span>Grana</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Polícia no bairro</span><strong>${ds.vigil}</strong></div></div>
       ${evs.length ? `<div class="chips">${evs.map(e => `<span class="chip warn">${esc(SB.eventTitle(e))}</span>`).join('')}</div>` : ''}
-      <div class="statusbar"><span class="mini">${esc(x.advantage)}</span>${here ? '' : button('Viajar', 'travel', `data-id="${x.id}"`, s.cash < SB.travelCost(s).cash || s.energy < SB.travelCost(s).energy || s.jail > 0, 'small')}</div></section>`;
+      <div class="statusbar"><span class="mini">${esc(x.advantage)}</span>${here ? '<span class="pill">Você está aqui</span>' : (() => { const tc = SB.travelCost(s), price = tc.cash ? fmt(tc.cash) : 'grátis'; return button(`Comprar passagem e ir · ${price}${tc.energy ? ` · ${tc.energy} energia` : ''}`, 'travel', `data-id="${x.id}"`, s.cash < tc.cash || s.energy < tc.energy || s.jail > 0, 'small primary travelBtn'); })()}</div></section>`;
   }
 
   function management() {
