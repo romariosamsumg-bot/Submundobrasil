@@ -287,7 +287,7 @@
     if (name === 'night') return sfx('thump', ...extra);
     if (name === 'train') return sfx('punch', ...extra);
     if (name === 'detox' || name === 'clinic') return sfx('beep', ...extra);
-    if (name === 'nextDay') return sfx('chime', ...extra);
+    if (name === 'nextDay' || name === 'story') return sfx('chime', ...extra);
     if (MONEY_ACTIONS.includes(name)) return sfx(r.good ? 'coins' : 'bad', ...extra);
     return sfx(r.good ? 'tick' : 'bad', ...extra);
   }
@@ -405,7 +405,7 @@
     if (view !== 'painel') return `<section class="guide slim" aria-label="Primeiros passos"><div><b>Passo ${n}/${total}</b> ${esc(st.title)}</div>${go}</section>`;
     return `<section class="guide" aria-label="Primeiros passos"><div class="guideHead"><span>Primeiros passos · ${n}/${total}</span><span class="guideDots" aria-hidden="true">${dots}</span></div>
       <h3>${esc(st.title)}</h3><p>${esc(st.text)}${st.reward ? ` <strong>Recompensa: ${fmt(st.reward)}.</strong>` : ''}</p>
-      <div class="guideBtns">${go}${button('Como jogar', 'help', '', false, 'small ghost')}${button('Pular guia', 'skip-tutorial', '', false, 'small ghost')}</div></section>`;
+      <div class="guideBtns">${go}</div><div class="guideLinks"><button type="button" class="linkBtn" data-action="help">Como jogar</button><button type="button" class="linkBtn" data-action="skip-tutorial">Pular guia</button></div></section>`;
   }
   const CAT_TIPS = {
     fortuna: 'junte dinheiro com serviços e negócios e guarde no banco',
@@ -442,6 +442,7 @@
         <p><strong>Roubos</strong> vêm em escada, do mais fácil ao mais difícil. A chance vem do seu poder contra a dificuldade (poder igual = 70%, 1,5 vez = 90%). O <strong>genérico</strong> soma os atributos e 3 por ponto de arsenal (arma + proteção + veículo); o <strong>golpe</strong> pesa 3 por ponto de um atributo; o <strong>assalto</strong> pesa o arsenal. Nos 3 primeiros degraus, falhar não dá cadeia. Cada degrau só dá respeito até um teto (o 1º até 25, o 2º até 60, o 3º até 105…): para subir no ranking, suba de degrau.</p>
         <p><strong>Procurado</strong>: repetir o mesmo roubo é permitido, mas cada um sobe o Procurado e a polícia do bairro. Ele tira poder (com 50, −20%); com 60 a detenção sobe +10, e com 85 até o roubo que deu certo pode virar enquadro. Para esfriar: ficar na sua (energia), a propina (dinheiro; mais cara para quem faz roubo maior, +50% a cada vez no dia), trocar de bairro ou esperar.</p>
         <p><strong>Influência</strong>: cada bairro tem a sua. Roubos do 4º degrau em diante somam influência onde você rouba. Faixas: Conhecido (20), Respeitado (40, libera o Leilão) e Dono do pedaço (60 e 10 acima do grupo que manda): +12% no saque, propina 25% mais barata e a polícia do bairro sobe pela metade. Cada faixa nova paga respeito (+3, +5, +10); perder o comando custa 5. A patente limita os bairros: Rato de pista 1, Linha de frente 2, Gerente do movimento 3, Dono do morro todos.</p>
+        <p><strong>História</strong>: a Rua conta o seu momento e, a cada patente nova, traz um capítulo com uma decisão. Cada escolha tem preço e consequência, e não dá para voltar atrás.</p>
         <p><strong>Saúde</strong>: tirar o vício custa saúde (meio ponto por ponto de vício). Saúde zero = UTI: ${state && state.clock ? '24 horas' : 'o resto do dia e o seguinte'} sem jogar.</p>
         <p>Os <strong>grupos rivais</strong> reagem: agir no território deles gera atrito, retaliação e extorsão. Dá para conversar, firmar trégua ou aliança.</p>`],
       ['Sua cidade', `<p><strong>${esc(c.name)} — ${esc(c.trait)}.</strong> ${esc(c.traitDesc)}</p>
@@ -486,16 +487,42 @@
     const tired = s.energy < 16 || s.day >= MAXDAY;
     const sleep = s.clock ? nextDayButton('small ' + (tired ? 'primary' : 'ghost')) : s.day >= MAXDAY ? button('Encerrar temporada', 'switch', 'data-target="temporada"', false, 'primary small')
       : button(armedNext ? `Dormir com ${s.energy} de energia?` : 'Dormir', 'next-day', '', false, (armedNext ? 'armed' : tired ? 'primary' : 'ghost') + ' small');
+    const nx = SB.PHASES[SB.phaseIndex(s) + 1], ph = SB.PHASES[SB.phaseIndex(s)], story = storyCard();
+    if (online && !rank.at && !rank.loading) setTimeout(() => loadRank(), 0);
     return jailNotice() + localeStrip(true, false) + localeInfo() + `
-      ${resultCard()}
+      <section class="sceneCard" aria-label="A rua agora"><p>${esc(SB.streetScene(s))}</p></section>
       ${guide}${s.career ? '' : careerCard()}
       ${mv && !guide ? `<section class="boardLead job nextMove"><div class="jobIcon">${statIcon(mv.icon || 'astucia')}</div><div class="jobMain"><div class="eyebrow">E agora? · ${esc(mv.tag)}</div><h3>${esc(mv.title)}</h3><p class="jobMeta">${esc(mv.text)}</p></div><div class="jobAct">${mv.btn}</div></section>` : ''}
-      <section class="dayBar dayStrip"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span>${s.clock ? `<span class="clockLine">O dia vira em ${dur(SB.clockInfo(s).midnight)}${s.energy < 100 ? ` · +1 de energia em ${dur(SB.clockInfo(s).nextEnergy)}` : ''}</span>` : ''}<div class="dayTrack" aria-hidden="true"><i style="width:${(s.day - 1) / (MAXDAY - 1) * 100}%"></i></div></div>${sleep}</section>
-      ${evs.length ? `<section class="poster dayNews"><div class="posterHead">HOJE NA CIDADE</div><ul class="eventList">${evs.map(e => `<li><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? ` · até o dia ${e.until}` : ''}<br>${esc(SB.eventDesc(e))}</li>`).join('')}</ul></section>` : ''}
-      ${s.tutorial.done ? rankCard() : ''}
+      ${story}
       ${s.career || s.tutorial.done ? newsCard() : ''}
-      ${fichaCard()}
-      ${stencil('Diário', 'últimos registros')}<section class="diary">${journal(2)}</section>`;
+      ${recados()}
+      <section class="rumo ficha progress" aria-label="Seu progresso">
+        <div class="fichaRow"><div class="progHead"><b>${esc(ph.name)}</b><span>${nx ? `faltam ${num(nx.at - s.respect)} de respeito para ${esc(nx.name)}` : 'patente máxima'}</span></div><div class="meter"><div style="width:${pct(nx ? (s.respect - ph.at) / (nx.at - ph.at) * 100 : 100)}%"></div></div></div>
+        <div class="fichaRow progRank">${online ? (rank.me ? `<span>Ranking do mês: <b>${num(rank.me.posicao)}º de ${num(rank.me.total)}</b>${rank.me.acima_codinome && Number(rank.me.posicao) > 1 ? ` · ${num(Math.max(1, rank.me.acima_respeito - rank.me.respeito + 1))} para passar ${esc(rank.me.acima_codinome)}` : ''}</span>` : '<span>Ranking do mês</span>') : `<span>Temporada ${num(s.season)} · ★ ${num(s.respect)} de respeito</span>`}${button(online ? 'Ranking' : 'Temporada', 'switch', `data-target="${online ? 'ranking' : 'temporada'}"`, false, 'small ghost')}</div></section>
+      <section class="dayBar dayStrip"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span>${s.clock ? `<span class="clockLine">O dia vira em ${dur(SB.clockInfo(s).midnight)}</span>` : ''}</div>${sleep}</section>
+      ${evs.length ? `<section class="poster dayNews"><div class="posterHead">HOJE NA CIDADE</div>${evs.map(e => `<div class="evRow"><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? `<span>até o dia ${e.until}</span>` : ''}${more(`<p>${esc(SB.eventDesc(e))}</p>`, 'O que muda')}</div>`).join('')}</section>` : ''}
+      ${stencil('Diário')}<section class="diary">${journal(1)}${state.log.length > 1 ? more(journal(8), 'Ver mais') : ''}</section>`;
+  }
+  /** Capítulo da história à espera de decisão: quem fala, o que diz e as duas saídas. */
+  function storyCard() {
+    const s = state, ch = SB.storyPending(s); if (!ch) return '';
+    return `<section class="storyCard" aria-label="História"><div class="storyHead"><span>${esc(ch.who)}</span><b>Capítulo ${SB.STORY.indexOf(ch) + 1} de ${SB.STORY.length}</b></div>
+      <h3>${esc(ch.title)}</h3><p>${esc(ch.text)}</p>
+      <div class="storyChoices">${ch.choices.map((c, i) => { const cost = SB.storyCost(c), no = s.cash < cost; return `<button type="button" class="storyChoice" data-action="story" data-id="${ch.id}" data-i="${i}" ${no ? 'disabled' : ''}><b>${esc(c.label)}</b><small>${esc(c.desc)}${no ? ' · falta dinheiro' : ''}</small></button>`; }).join('')}</div></section>`;
+  }
+  /** Recados da rua: até 3 avisos do que pede atenção agora, cada um levando à tela certa. */
+  function recados() {
+    const s = state, out = [], add = (tone, txt, v) => out.push(`<button type="button" class="recado ${tone}" data-view="${v}"><i aria-hidden="true"></i><span>${txt}</span></button>`);
+    if (s.jail > 0 || s.hospital > 0) return '';
+    if (s.heat >= 85) add('bad', 'Você está sendo caçado. Esfrie antes do próximo roubo.', 'acoes');
+    else if (s.heat >= 60) add('warn', 'A polícia está na sua cola.', 'acoes');
+    if (s.health < 40) add('bad', 'Você está ferido. Passe no Hospital.', 'hospital');
+    if (s.vicio >= 70) add('bad', 'O vício passou do ponto.', 'hospital');
+    const deal = s.exportDeal; if (SB.placeOpen(s, 'galpao') && deal && deal.day === s.day && s.goods[deal.good] > 0 && s.exportDone !== s.day) add('good', `O comprador de fora está no cais hoje atrás de ${esc(SB.good(deal.good).name)}.`, 'galpao');
+    if (s.heist) add('warn', `O plano do bando (${esc(SB.heist(s.heist.id).name)}) está de pé. Não deixe esfriar.`, 'assaltos');
+    for (const d of SB.DISTRICTS) if ((s.turfOwned || []).includes(d.id)) { const l = SB.leader(s, d.id); if (s.influence[d.id] - l.value < 16) { add('warn', `${esc(F(l.id).short)} está crescendo em ${esc(d.name)}. Seu comando ali está em risco.`, 'cidade'); break; } }
+    if (s.day >= 25 && s.day < MAXDAY) add('warn', `Reta final: faltam ${MAXDAY - s.day} dia(s) no mês.`, online ? 'ranking' : 'temporada');
+    return out.length ? `<section class="recados" aria-label="Recados da rua">${out.slice(0, 3).join('')}</section>` : '';
   }
   /** Temporada em 4 blocos: patente, classe, mês e feitos, cada um com a sua barra. */
   function fichaCard() {
@@ -921,7 +948,7 @@
     SB.applyCity(state.city);
     const pages = { painel: panel, acoes: actions, hub, cidade: city, gestao: management, negocios, feira, galpao, noite, duelos, apostas, hospital, gangue: gang, assaltos, perfil, temporada: seasons, ranking: rankingView };
     try {
-      $('#content').innerHTML = (pages[view] || panel)() + `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • 18+ • Cidades reais, bairros e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`;
+      $('#content').innerHTML = (pages[view] || panel)() + (view !== 'perfil' ? '' : `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • 18+ • Cidades reais, bairros e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`);
     } catch (e) {
       console.error(e);
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
@@ -965,6 +992,7 @@
       case 'dismiss-result': result = null; render(); break;
       case 'rank-scope': if (rank.scope !== id) { rank.scope = id; rank.rows = null; rank.me = null; render(); loadRank(true); } break;
       case 'rank-reload': loadRank(true); break;
+      case 'story': run('story', id, Number(btn.dataset.i)); break;
       case 'feira-tab': feiraTab = id; render(); break;
       case 'leave-night': run('leaveNight'); break;
       case 'sound-toggle': if (window.SBSound) window.SBSound.setOn(!window.SBSound.on); render(); break;

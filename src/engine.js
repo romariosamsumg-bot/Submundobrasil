@@ -605,7 +605,7 @@
       district: 'centro', jail: 0, businesses: [], gangName: null, gangLevel: 0,
       successful: 0, failed: 0, seasonHistory: [],
       log: [{ day: 1, msg: 'Você chegou à cidade com algum dinheiro, poucos contatos e muita ambição.' }],
-      avatar: null, clock: null, uti: false, ladderMax: 0, turfPaid: {}, turfOwned: [], feats: Object.fromEntries(FEAT_CATS.map(c => [c, 0])), career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
+      avatar: null, clock: null, uti: false, ladderMax: 0, story: { done: {}, day: 0, season: 0 }, turfPaid: {}, turfOwned: [], feats: Object.fromEntries(FEAT_CATS.map(c => [c, 0])), career: null, careerXP: 0, goal: null, goalDone: false, goalWins: 0,
       influence: initialInfluence(), presence: initialPresence(null), dstate: initialDistrictState(),
       events: [{ id: 'rotina', start: 1, until: 1, district: null }],
       newsPending: { id: 'feira', day: 1, faction: null }, lastEvent: 'rotina', nextBonus: 0, tip: 0, contracts: [], extorted: {},
@@ -831,6 +831,8 @@
     else s.tutorial = { v: 2, step: 0, done: s.season > 1 || s.day > 1, trained: false, contacted: false, banked: false, nighted: false };
     if (s.tutorial.step >= TUTORIAL.length) s.tutorial.done = true;
     // Maior degrau já roubado (base da propina). Save anterior à escada: estima pelo maior degrau com 70% de chance.
+    s.story = { done: {}, day: 0, season: 0 };
+    if (saved.story && typeof saved.story === 'object') { const sd = saved.story.done; if (sd && typeof sd === 'object') for (const c of STORY) if (isNum(sd[c.id])) s.story.done[c.id] = toInt(sd[c.id], 0, 0, 1); s.story.day = toInt(saved.story.day, 0, 0, MAXDAY); s.story.season = toInt(saved.story.season, 0, 0, 9999); }
     s.turfPaid = {};
     if (saved.turfPaid && typeof saved.turfPaid === 'object') {
       for (const d of DISTRICTS) if (isNum(saved.turfPaid[d.id])) s.turfPaid[d.id] = toInt(saved.turfPaid[d.id], 0, 0, 3);
@@ -2055,6 +2057,80 @@
 
   /* Notícias */
   const currentNews = s => s.newsPending ? NEWS.find(n => n.id === s.newsPending.id) : null;
+  /* ---------- História (v1.5): a Rua conta quem você está virando ----------
+   * Cinco capítulos, um por patente, com personagens inventados (Dona Zefa, Miúdo, o delegado Bráulio, o Doutor).
+   * Cada capítulo pede uma decisão com custo e consequência; no máximo um por dia. A história acompanha o
+   * personagem entre temporadas (não se repete). */
+  const STORY = [
+    { id: 'quarto', at: 0, need: s => s.successful >= 1, who: 'Dona Zefa', title: 'O quarto dos fundos',
+      text: 'Dona Zefa te entrega a chave do quartinho atrás da pensão sem perguntar de onde você veio. "Paga quando puder. Só não me traz polícia pra porta, que eu já enterrei um filho." O colchão é fino, mas é o primeiro teto que alguém te dá em muito tempo.',
+      choices: [
+        { label: 'Dar a sua palavra', desc: '+4 de influência no bairro', influence: 4, after: 'Você deu a palavra. Dona Zefa fez o sinal da cruz e voltou pro fogão.' },
+        { label: 'Pedir um trocado emprestado', desc: '+R$ 40 · −1 de respeito', money: 40, respect: -1, after: 'Ela tirou duas notas do sutiã, sem olhar na sua cara. Você ficou devendo mais que dinheiro.' }] },
+    { id: 'miudo', at: 1, who: 'Miúdo', title: 'O entregador',
+      text: 'Miúdo tem dezenove anos, uma moto financiada e a mãe doente. Ele encosta do seu lado no ponto: "Eu rodo o bairro inteiro, chefe. Vejo onde a viatura para, que horas troca o turno. Me bota na fita." Os olhos dele brilham do jeito que os seus brilhavam.',
+      choices: [
+        { label: 'Botar o Miúdo na fita', desc: 'R$ 60 · −10 de Procurado', cash: 60, heat: -10, after: 'Miúdo agora roda de olho na polícia por você. A mãe dele acha que o dinheiro é gorjeta.' },
+        { label: 'Mandar ele ficar longe disso', desc: '+3 de respeito', respect: 3, after: 'Miúdo foi embora xingando. A rua ficou sabendo que você não queima moleque. Isso também é respeito.' }] },
+    { id: 'delegado', at: 2, who: 'Delegado Bráulio', title: 'O carro parado',
+      text: 'O Corsa prata está parado na sua esquina faz três dias. Hoje o vidro desceu. O delegado Bráulio nem tira o palito da boca: "Você cresceu, e quem cresce no meu plantão paga condomínio. Ou eu começo a trabalhar direito."',
+      choices: [
+        { label: 'Pagar o condomínio', desc: 'R$ 400 · −25 de Procurado', cash: 400, heat: -25, after: 'O envelope sumiu no porta-luvas. O Corsa foi embora, mas você sabe que ele volta todo mês.' },
+        { label: 'Mandar ele trabalhar direito', desc: '+6 de respeito · +15 de Procurado', respect: 6, heat: 15, after: 'O vidro subiu devagar. No dia seguinte tinha viatura em toda esquina, e gente te cumprimentando de longe.' }] },
+    { id: 'doutor', at: 3, who: 'O Doutor', title: 'A proposta',
+      text: 'O Doutor te recebe de roupão, com vista para a cidade inteira. Nunca sujou a mão e manda em quem suja. "Você tem futuro. Só precisa me dizer onde o pessoal que manda no seu bairro guarda o dinheiro. Eles caem, você sobe, e eu fico com a minha parte."',
+      choices: [
+        { label: 'Entregar o esquema deles', desc: '+R$ 1.500 · o grupo do bairro vira inimigo', money: 1500, relation: -25, tension: 20, after: 'Você falou. Na mesma semana o bairro amanheceu com gente nova na esquina, e gente antiga te procurando.' },
+        { label: 'Dizer que não entrega ninguém', desc: '+8 de respeito · +8 de influência', respect: 8, influence: 8, after: 'O Doutor sorriu, fechou o roupão e mandou te levarem até a porta. Na rua, a história chegou antes de você.' }] },
+    { id: 'topo', at: 4, who: 'Dona Zefa', title: 'O topo é frio',
+      text: 'Você volta ao quartinho dos fundos de carro novo. Dona Zefa está na mesma cadeira, mais magra. "Então é você o tal dono do morro. Meu filho também quis ser." Ela aponta a goteira no teto da pensão. "Tudo que sobe aqui, um dia desce. Só muda o que deixa."',
+      choices: [
+        { label: 'Reformar a pensão inteira', desc: 'R$ 2.000 · +15 de respeito', cash: 2000, respect: 15, after: 'Os pedreiros chegaram na segunda. Dona Zefa não agradeceu. Só voltou a deixar o seu prato feito na janela.' },
+        { label: 'Dizer que não deve nada a ninguém', desc: '+3 de respeito · −10 de influência no bairro', respect: 3, influence: -10, after: 'Você saiu sem olhar para trás. A goteira continuou. O bairro reparou.' }] }
+  ];
+  /** Capítulo à espera de decisão (ou null). No máximo um por dia. */
+  function storyPending(s) {
+    const st = s.story || { done: {} };
+    if (st.day === s.day && st.season === s.season) return null;
+    const pi = phaseIndex(s);
+    return STORY.find(c => !(c.id in st.done) && c.at <= pi && (!c.need || c.need(s))) || null;
+  }
+  const storyCost = c => c.cash || 0;
+  function doStory(s, id, index) {
+    const ch = storyPending(s), c = ch && ch.id === id ? ch.choices[index] : null;
+    if (!c) return refuse('Esse momento já passou.');
+    if (s.cash < storyCost(c)) return refuse(`Você precisa de ${money(storyCost(c))} em mãos.`);
+    const d = s.district, l = leader(s, d);
+    s.cash -= storyCost(c); s.cash += c.money || 0;
+    s.respect = Math.max(0, s.respect + (c.respect || 0)); addHeat(s, c.heat || 0);
+    if (c.influence) addInf(s, d, c.influence);
+    if (c.relation) addRel(s, l.id, c.relation);
+    if (c.tension) addTen(s, l.id, c.tension);
+    s.story.done[ch.id] = index; s.story.day = s.day; s.story.season = s.season;
+    log(s, `${ch.title}: ${c.after}`);
+    return done(true, ch.title, { lines: [c.after] });
+  }
+  /** Cena da rua: um parágrafo curto sobre o momento do personagem. Pura e estável dentro do mesmo dia. */
+  function streetScene(s) {
+    const b = district(s).name, pick2 = (...v) => v[(s.day + s.successful) % v.length], pi = phaseIndex(s);
+    if (s.uti) return 'O bipe do monitor marca o tempo. Do corredor vem cheiro de éter e café requentado. Lá fora a cidade continua sem você.';
+    if (s.hospital > 0) return 'Teto de hospital é tudo igual. Você conta as manchas de infiltração e pensa em quem ficou feliz de te ver aqui.';
+    if (s.jail > 0) return pick2('A cela cheira a suor e água sanitária. Alguém canta baixinho um pagode antigo. Lá fora, a sua esquina já tem outro dono por hoje.', 'O carcereiro passa batendo a chave na grade. Cada batida é uma hora da sua vida que alguém lá fora está aproveitando.');
+    if (s.heat >= 85) return `Toda sirene parece ser pra você. Em ${b}, as janelas fecham quando você passa. Hoje não é dia de dar bobeira.`;
+    if (s.vicio >= 70) return 'A mão treme segurando o copo. Faz tempo que a noite deixou de ser festa e virou combustível. O corpo cobra, e cobra com juros.';
+    if (s.health < 40) return 'Cada passo dói num lugar diferente. Na farmácia, a balconista te olha e nem pergunta nada. Só empurra a gaze no balcão.';
+    if (s.heat >= 60) return `Tem um carro parado na esquina que não é de ninguém de ${b}. O rapaz do bar faz sinal com o queixo: hoje estão de olho.`;
+    if (s.energy < 16) return 'As pernas pesam. A rua continua acordada, mas você não. O corpo pede boteco ou cama, nessa ordem.';
+    if (controlled(s, s.district)) return pick2(`Em ${b}, o pessoal da padaria já separa o seu pão sem você pedir. Mandar num bairro é isso: ninguém fala o seu nome alto.`, `Um moleque pinta o seu vulgo no muro de ${b}. A tinta ainda escorre. Amanhã alguém vai querer apagar.`);
+    return [
+      pick2(`${b} acorda cedo e não te conhece. Você é só mais um de chinelo olhando o movimento, contando quem tem e quem não tem.`, 'O estômago ronca mais alto que o ônibus. Todo mundo começa do mesmo jeito: de olho na carteira dos outros.'),
+      pick2(`Já tem quem te cumprimente em ${b}. Pouca gente, e de longe, mas cumprimenta. É assim que começa.`, 'O dono do bar te serve sem cobrar adiantado. Pequenas coisas mudam quando o nome começa a circular.'),
+      pick2(`Em ${b}, os mais novos param de falar quando você chega. Não é medo ainda. É atenção.`, 'Sua mãe ligou perguntando se o emprego novo é de carteira assinada. Você disse que sim e mudou de assunto.'),
+      pick2('O telefone não para. Todo mundo quer um favor, um adiantamento, uma palavra sua. O silêncio ficou caro.', `Você passa por ${b} de vidro fechado. Lá fora, um pé de chinelo te encara do jeito que você encarava os outros.`),
+      pick2('Lá de cima a cidade parece pequena e quieta. Daqui não dá pra ouvir quem está subindo atrás de você.', 'Não sobrou ninguém pra te dizer não. Era isso que você queria. Era?')
+    ][pi];
+  }
+
   function newsChoiceCost(s, c) { return (c.cash || 0) + (c.cashPerMember ? c.cashPerMember * crewSize(s) : 0); }
   function newsChoiceBlocked(s, c) {
     if (s.jail > 0) return 'Você está detido.';
@@ -2546,6 +2622,7 @@
     n.seasonHistory = [...s.seasonHistory, record].slice(-200);
     n.goalWins = goalWins;
     n.achievements = { ...s.achievements };
+    n.story = { done: { ...s.story.done }, day: 0, season: 0 };
     n.prestige = s.prestige + sum(sc.cats.map(c => c.medal));
     n.records = records;
     n.nemesis = nemesis;
@@ -2564,7 +2641,7 @@
     bank: doBank, buy: doBuy, sell: doSell, contact: doContact, dispute: doDispute,
     dialogue: doDialogue, pact: (s, f) => doPact(s, f, false), alliance: doAlliance, breakDeal: doBreak, clash: doClash,
     foundGang: doFoundGang, recruit: doRecruit, dismiss: doDismiss, rally: doRally, upgrade: doUpgrade, gangOp: doGangOp,
-    duel: doDuel, clinic: doClinic, bribe: doBribe, detox: doDetox, cleanRecord: doCleanRecord, bet: doBet, heistPlan: doHeistPlan, heistScout: doHeistScout, heistRun: doHeistRun, heistCancel: doHeistCancel, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, dose: doDose, night: doNight, leaveNight: doLeaveNight,
+    duel: doDuel, clinic: doClinic, bribe: doBribe, detox: doDetox, cleanRecord: doCleanRecord, bet: doBet, heistPlan: doHeistPlan, heistScout: doHeistScout, heistRun: doHeistRun, heistCancel: doHeistCancel, buyItem: doBuyItem, buyGood: doBuyGood, sellGood: doSellGood, exportGoods: doExport, buildLab: doBuildLab, dose: doDose, night: doNight, leaveNight: doLeaveNight, story: doStory,
     avatar: doAvatar, setup: doSetup, equip: doEquip, career: pickCareer, goal: chooseGoal, news: newsChoice, skipNews, skipTutorial, nextDay: s => turnDay(s), endSeason: s => closeSeason(s), goHome: doGoHome, leaveHome: doLeaveHome // sem repassar argumentos do pedido
   };
   /** Executa uma ação e roda verificações pós-ação. */
@@ -2588,7 +2665,7 @@
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
-    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, STORY, storyPending, storyCost, streetScene, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     FEAT_CATS, FEAT_RESPECT, TURF_SLOTS, TURF_RESPECT, TURF_LOSS, turfSlots, turfReady, ownedTurf, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,

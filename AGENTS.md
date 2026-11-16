@@ -67,6 +67,11 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 - Imagens pintadas opcionais: `art/<chave>.(webp|jpg|png)` com prefixo `place-`, `rival-`, `heist-`, `avatar-`, `bairro-`, `item-` (Feira), `roubo-`, `casa-` (noite), `esquema-` (Galpão) ou `capa-entrada` e `grupo-<cidade>-<esquina|docas|aurora>` (dossiê das facções); a cadeia usa `place-cadeia`, até 400 KB cada; o build embute e elas substituem o SVG da mesma chave. Prompts e nomes em `PROMPTS_ARTE.md`.
 - Lugar, adversário ou assalto novo → desenho em `src/art.js` **e** linha de prompt em `PROMPTS_ARTE.md`.
 
+## História e Rua
+
+- A Rua é a tela da narrativa (GAME_DESIGN.md, "A Rua conta a história"): cena do momento (`streetScene`), capítulos com decisão (`STORY`, `storyPending`, ação `story`) e recados (`recados` em `ui.js`). Capítulo novo → entrada em `STORY` com duas escolhas, cada uma com custo ou consequência e a frase `after`; personagens sempre inventados. Mecânica nova que pede atenção do jogador → um recado.
+- Texto de história é narrativa, não regra: curto, em segunda pessoa, sem números fora da linha de custo da escolha.
+
 ## Texto na tela
 
 - Pedido do autor: nada de explicar todas as contas. Cada cartão mostra só o que serve para decidir (preço, chance, ganho, risco), em fichas curtas (`stat()` e `.st` em `ui.js`). A conta e a explicação vão em `more(...)` ("Detalhes") ou em "Como jogar". Não acrescente parágrafos de regra às telas.

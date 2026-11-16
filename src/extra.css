@@ -726,3 +726,35 @@ button.hudResp:focus-visible{outline:2px solid var(--ambar);outline-offset:2px}
 .vicioCard{margin-top:10px}.doseRow .robStats{margin-top:5px}
 .classCard .perkList{margin-top:10px}
 @media(min-width:701px){.jobs{grid-template-columns:1fr 1fr}.trainGrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* ===== Rua: a história acontece aqui ===== */
+.sceneCard{margin:0 0 12px;padding:2px 4px 2px 14px;border-left:3px solid #5a4a2c}
+.sceneCard p{margin:0;font:italic 400 15px/1.55 Georgia,serif;color:#e6dcc6}
+.guideLinks{display:flex;gap:16px;margin-top:8px}
+.linkBtn{background:none;border:0;padding:6px 0;min-height:32px;font:600 12px/1 system-ui,sans-serif;color:#9fb0b3;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.linkBtn:focus-visible{outline:2px solid var(--ambar);outline-offset:2px}
+.storyCard{position:relative;margin:0 2px 14px;padding:14px 14px 13px;background:#efe6cf;color:#1b1712;box-shadow:3px 4px 0 #05080a;transform:rotate(-.35deg);border-top:5px solid #b03426}
+.storyHead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;font:800 10px/1.3 ui-monospace,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase}
+.storyHead span{color:#9b2318}.storyHead b{color:#5a4f40;font-weight:700}
+.storyCard h3{margin:6px 0 6px;font:700 21px/1.15 Georgia,serif;color:#1b1712}
+.storyCard p{margin:0 0 12px;font:400 14px/1.55 Georgia,serif;color:#2a231a}
+.storyChoices{display:grid;gap:8px}
+.storyChoice{display:block;width:100%;text-align:left;padding:10px 12px;background:#1b1712;color:#f5ecd9;border:0;border-left:4px solid var(--ambar);border-radius:3px;cursor:pointer;font:inherit;min-height:48px}
+.storyChoice b{display:block;font:700 14px/1.25 system-ui,sans-serif}.storyChoice small{display:block;margin-top:3px;font-size:12px;line-height:1.35;color:#e2c48f}
+.storyChoice:disabled{opacity:.55;cursor:not-allowed;border-left-color:#6a5f50}
+.storyChoice:focus-visible{outline:3px solid #b03426;outline-offset:2px}
+.recados{display:grid;gap:6px;margin:0 0 12px}
+.recado{display:grid;grid-template-columns:10px minmax(0,1fr);gap:9px;align-items:center;width:100%;text-align:left;padding:9px 11px;background:#141b1f;border:1px solid #2f3b40;border-radius:4px;color:#e9e4d6;font:500 13px/1.35 system-ui,sans-serif;cursor:pointer;min-height:40px}
+.recado i{width:8px;height:8px;border-radius:50%;background:var(--ambar)}
+.recado.bad i{background:#e2574a}.recado.bad{border-color:#6a3a36}.recado.good i{background:#3f9a6d}
+.recado:focus-visible{outline:2px solid var(--ambar);outline-offset:1px}
+.progress{margin:0 0 10px;padding:11px 12px}
+.progress .fichaRow{border:0;padding:0;background:none}
+.progHead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.progHead b{font:700 16px/1.2 Georgia,serif;color:#f3d6ae}.progHead span{font-size:12px;color:#a9b7bb}
+.progRank{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px!important;font-size:12px;color:#c3cfcf}
+.progRank span{min-width:0}.progRank b{color:#ffd98f}.progRank .btn{flex:none}
+.evRow{padding:4px 0}.evRow strong{display:inline-block;margin-right:8px}.evRow>span{font-size:12px;opacity:.8}
+.poster .more summary{color:#5a4f40}.poster .moreBody{background:#00000010;border-left-color:#1b171255}.poster .moreBody p{color:#2a231a}
+.diary .more summary{color:#5a4f40}.diary .moreBody{background:transparent;border-left:0;padding:0}
+@media(prefers-reduced-motion:reduce){.storyCard{transform:none}}

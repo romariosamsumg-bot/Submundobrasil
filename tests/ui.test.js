@@ -209,6 +209,10 @@ await page.click('[data-action=duel][data-id=marrento]');
   check((await page.textContent('#content')).includes('Vício'), 'tela da Noite mostra o vício');
   await go('painel');
   check((await page.textContent('.dayBar')).includes('Semana'), 'Rua mostra a semana do mês');
+  check(await page.isVisible('.sceneCard') && (await page.textContent('.sceneCard')).length > 40, 'a Rua abre com a cena do momento');
+  { await page.evaluate(() => { const k = 'submundo_brasil_v01', s = JSON.parse(localStorage.getItem(k)); s.successful = Math.max(1, s.successful); s.story = { done: {}, day: 0, season: 0 }; localStorage.setItem(k, JSON.stringify(s)); }); await page.reload(); await go('painel');
+    check(await page.isVisible('.storyCard') && (await page.textContent('.storyCard')).includes('Dona Zefa') && await page.locator('.storyChoice').count() === 2, 'capítulo da história aparece com duas decisões');
+    await page.click('.storyChoice[data-i="0"]'); const ss = await st(); check(ss.story.done.quarto === 0 && await page.locator('.storyCard').count() === 0, 'a decisão fica gravada e o capítulo some'); }
   check(await page.evaluate(() => document.querySelector('#hudHeatTxt').textContent.startsWith('Procurado') && document.querySelector('#hudVicioTxt').textContent.startsWith('Vício')), 'topo mostra Procurado e Vício');
   { const strip = await page.textContent('.localeBottom'); check(strip.includes('Sua influência') && !strip.includes('Grana') && !strip.includes('Polícia'), 'a faixa do bairro mostra só a sua influência'); }
   await page.click('[data-action=locale-help]');
@@ -356,8 +360,8 @@ await page.click('[data-action=duel][data-id=marrento]');
     await op.click('[data-action=rank-scope][data-id=cidade]'); await op.waitForSelector('.rankBoard li');
     check(rpcScope.includes('Recife'), 'filtro pela cidade pede o ranking da cidade');
     await op.screenshot({ path: path.join(__dirname, 'screens', 'v15-ranking.png'), fullPage: true });
-    await op.evaluate(() => { window.__SB_UI.state.tutorial.done = true; window.__SB_UI.go('painel'); }); await op.waitForSelector('.rankTeaser');
-    check((await op.textContent('.rankTeaser')).includes('2º de 2'), 'a Rua mostra a sua posição no mês');
+    await op.evaluate(() => { window.__SB_UI.state.tutorial.done = true; window.__SB_UI.go('painel'); }); await op.waitForFunction(() => { const e = document.querySelector('.progRank'); return e && e.textContent.includes('2º de 2'); });
+    check((await op.textContent('.progRank')).includes('2º de 2'), 'a Rua mostra a sua posição no mês');
     await op.evaluate(() => window.__SB_UI.go('painel'));
     check(await op.locator('[data-action=next-day]').count() === 0 && (await op.textContent('.dayStrip')).includes('O dia vira em'), 'online: sem Dormir; a faixa do dia mostra quando o dia vira');
     await op.click('[data-action=go-home]');

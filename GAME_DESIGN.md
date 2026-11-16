@@ -641,6 +641,30 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
+### A Rua conta a história (v1.5)
+
+Pedido do autor: a Rua é o lugar da narrativa, da emoção, das decisões e dos avisos. De cima para baixo:
+1. **Placa do bairro** com a sua influência.
+2. **Cena do momento**: um parágrafo curto, em segunda pessoa, que muda com a situação (preso, na UTI, caçado, na mira, viciado, ferido, exausto, dono do bairro) e, fora disso, com a patente. São duas variações por situação, estáveis no mesmo dia.
+3. **Ação principal**: o passo do guia (um botão; "Como jogar" e "Pular guia" viraram links) ou o "E agora?".
+4. **Capítulo da história**, quando há um à espera, em papel de lambe-lambe: quem fala, o texto e duas decisões com o preço à vista.
+5. **Notícia com decisão** (o sistema que já existia).
+6. **Recados da rua** (até 3): caçado ou na mira, ferido, vício alto, comprador de fora no cais, plano do bando de pé, rival crescendo num bairro seu, reta final do mês. Cada recado leva à tela certa.
+7. **Progresso** numa faixa: patente, quanto falta para a próxima e o ranking do mês (online) ou a temporada (offline).
+8. **Dia** numa linha, com Dormir ou Ir pra casa. **Hoje na cidade** só com o título; o efeito fica em "O que muda". **Diário** com o último registro e "Ver mais". O rodapé ficou só no Perfil.
+
+**Capítulos** (um por patente, no máximo um por dia; a história acompanha o personagem entre temporadas e não se repete). Personagens inventados:
+
+| # | Patente | Capítulo | Quem | Decisão A | Decisão B |
+|---|---|---|---|---|---|
+| 1 | Pé de chinelo (após o 1º roubo) | O quarto dos fundos | Dona Zefa | Dar a palavra: +4 de influência | Pedir um trocado: +R$ 40, −1 de respeito |
+| 2 | Rato de pista | O entregador | Miúdo | Botar na fita: R$ 60, −10 de Procurado | Mandar ficar longe: +3 de respeito |
+| 3 | Linha de frente | O carro parado | Delegado Bráulio | Pagar: R$ 400, −25 de Procurado | Recusar: +6 de respeito, +15 de Procurado |
+| 4 | Gerente do movimento | A proposta | O Doutor | Entregar o grupo do bairro: +R$ 1.500, relação −25 e tensão +20 | Não entregar: +8 de respeito, +8 de influência |
+| 5 | Dono do morro | O topo é frio | Dona Zefa | Reformar a pensão: R$ 2.000, +15 de respeito | "Não devo nada": +3 de respeito, −10 de influência |
+
+Cada escolha registra uma frase de consequência no diário. Ação `story(id, escolha)`; estado `story.done`.
+
 ### Menos texto, decisão à vista (v1.5)
 
 Pedido do autor: o jogo não precisa explicar todas as contas na tela. Regra de interface: **cada cartão mostra só o que serve para decidir; a conta completa fica atrás de "Detalhes" ou em "Como jogar".**
