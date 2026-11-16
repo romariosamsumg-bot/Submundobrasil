@@ -871,11 +871,11 @@
       <section class="card"><div class="meterlabel"><span>Saúde</span><strong>${s.health}/100</strong></div><div class="meter green"><div style="width:${s.health}%"></div></div>
         <p class="mini" style="margin-top:7px">Volta sozinha +10 por dia (+6 se detido). Se chegar a zero: <strong>UTI</strong>, ${s.clock ? '24 horas' : 'o resto de hoje e amanhã'} sem jogar, e você sai com 40 de saúde e o vício zerado.${SB.healthPenalty(s) ? ` <span class="negative">Agora: -${SB.healthPenalty(s)} de chance nas ações.</span>` : ''}</p></section>
       <div class="grid" style="margin-top:10px">
-        <section class="card shopRow"><div><h3>UPA</h3><p class="mini">De graça, mas é horas no corredor. +25 de saúde, uma vez por dia.</p></div><div class="shopAct"><strong>20 energia</strong>${button('Encarar o corredor', 'clinic', 'data-id="posto"', s.health >= 100 || s.today.clinic || s.energy < 20 || !!SB.blocked(s), 'small primary')}</div></section>
+        <section class="card shopRow"><div><h3>UPA</h3><p class="mini">De graça, uma vez por dia. +25 de saúde.</p></div><div class="shopAct"><strong>Grátis</strong>${button('Ser atendido', 'clinic', 'data-id="posto"', s.health >= 100 || s.today.clinic || !!SB.blocked(s), 'small primary')}</div></section>
         <section class="card shopRow"><div><h3>Propina pro plantonista</h3><p class="mini">Atestado, remédio e alta na hora. ${fmt(12)} por ponto de saúde que falta; cada nova vez no mesmo dia, +50%.</p></div><div class="shopAct"><strong>${fmt(c)}</strong>${button('Molhar a mão', 'clinic', 'data-id="clinica"', s.health >= 100 || s.cash < c || !!SB.blocked(s), 'small primary')}</div></section>
       </div>
       ${stencil('Desintoxicação', `vício ${s.vicio}/100`)}<div class="grid">
-        <section class="card shopRow"><div><h3>Soro na veia</h3><p class="mini">Na UPA, de graça. −20 de vício, uma vez por dia. Custa ${Math.ceil(Math.min(20, s.vicio) * SB.DETOX_HEALTH)} de saúde.${s.health - Math.ceil(Math.min(20, s.vicio) * SB.DETOX_HEALTH) <= 0 && s.vicio > 0 ? ' <span class="negative">Você vai para a UTI.</span>' : ''}</p></div><div class="shopAct"><strong>25 energia</strong>${button('Tomar soro', 'detox', 'data-id="soro"', s.vicio <= 0 || s.today.detox || s.energy < 25 || s.jail > 0, 'small primary')}</div></section>
+        <section class="card shopRow"><div><h3>Soro na veia</h3><p class="mini">Na UPA, de graça, uma vez por dia. −${Math.min(SB.SORO_VICIO, s.vicio) || SB.SORO_VICIO} de vício · −${Math.ceil(Math.min(SB.SORO_VICIO, s.vicio || SB.SORO_VICIO) * SB.DETOX_HEALTH)} de saúde.${s.vicio > 0 && s.health - Math.ceil(Math.min(SB.SORO_VICIO, s.vicio) * SB.DETOX_HEALTH) <= 0 ? ' <span class="negative">Você vai para a UTI.</span>' : ''}</p></div><div class="shopAct"><strong>Grátis</strong>${button('Tomar soro', 'detox', 'data-id="soro"', s.vicio <= 0 || s.today.detox || s.jail > 0, 'small primary')}</div></section>
         <section class="card shopRow"><div><h3>Clínica de desintoxicação</h3><p class="mini">Zera o vício na hora. ${fmt(18)} por ponto e ${SB.DETOX_HEALTH.toString().replace('.', ',')} de saúde por ponto: agora −${Math.ceil(s.vicio * SB.DETOX_HEALTH)} de saúde.${s.vicio > 0 && s.health - Math.ceil(s.vicio * SB.DETOX_HEALTH) <= 0 ? ' <span class="negative">Sua saúde não aguenta: você vai para a UTI.</span>' : ''}</p></div><div class="shopAct"><strong>${fmt(SB.detoxCost(s))}</strong>${button('Internar e limpar', 'detox', 'data-id="clinica"', s.vicio <= 0 || s.cash < SB.detoxCost(s) || s.jail > 0, 'small primary')}</div></section>
       </div>`;
   }
@@ -1345,15 +1345,34 @@
   }
   setInterval(clockBeat, 20000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) clockBeat(); });
-  async function bootOnline() {
+  /* Abertura com sessão guardada: nada de abrir o save local e trocar depois. Mostra "Carregando seu perfil…"
+   * até o servidor confirmar a sessão; se ela não valer mais, volta para a tela inicial com o aviso. */
+  let bootCancelled = false;
+  function showLoader(email) {
+    let el = $('#bootLoader');
+    if (!el) { el = document.createElement('div'); el.id = 'bootLoader'; el.className = 'bootLoader'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+    el.innerHTML = `<div class="loaderBox"><b class="loaderLogo">SUBMUNDO <span>BRASIL</span></b><span class="loaderSpin" aria-hidden="true"></span><p>Carregando seu perfil…</p>${email ? `<small>${esc(email)}</small>` : ''}<button type="button" class="btn ghost small" id="loaderOther">Entrar com outra conta</button></div>`;
+    el.hidden = false;
+    $('#loaderOther').addEventListener('click', () => { bootCancelled = true; storeSession(null); hideLoader(); localStart(); });
+  }
+  function hideLoader() { const el = $('#bootLoader'); if (el) el.hidden = true; }
+  function localStart() { state = load(); if (state) { save(); render(); if (!ageConfirmed()) ageGate(); } else showWelcome(); }
+  async function bootOnline(withLoader) {
     if (!ON) return;
     $('#onlineBox').hidden = false;
     session = readSession(); if (!session) return;
-    try { await afterLogin(); } catch (e) { onlineStatus(`<p class="notice">${esc(e.message)}</p>`); }
+    try { await afterLogin(); if (bootCancelled) return; hideLoader(); }
+    catch (e) {
+      if (bootCancelled) return;
+      hideLoader();
+      if (/expirou|Entre/.test(e.message)) storeSession(null);
+      if (withLoader) { state = null; showWelcome(); }
+      onlineStatus(`<p class="notice">${esc(e.message)}</p>`);
+    }
   }
 
-  state = load();
-  if (state) { save(); render(); if (!ageConfirmed()) ageGate(); } else showWelcome();
-  bootOnline();
+  const stored = ON ? readSession() : null;
+  if (stored) { showLoader(stored.email); bootOnline(true); }
+  else { localStart(); bootOnline(false); }
   window.__SB_UI = { get state() { return state; }, go: switchView }; // apoio a testes automatizados
 })();

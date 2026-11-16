@@ -201,7 +201,7 @@ await page.click('[data-action=duel][data-id=marrento]');
   check(await page.inputValue('#betStake') === '50', 'atalho de valor preenche a aposta');
   await go('hospital');
   await page.click('[data-action=detox][data-id=soro]');
-  check((await st()).vicio === 20, 'soro na veia: -20 de vício');
+  check((await st()).vicio === 0, 'soro na veia: −50 de vício (40 → 0), de graça');
   await go('acoes');
   await page.click('[data-action=clean-record]');
   check((await st()).heat === 26, 'propina: -25 de Procurado (50 + 1 da aposta - 25)');
@@ -385,6 +385,11 @@ await page.click('[data-action=duel][data-id=marrento]');
     await op.click('[data-action=on-login]');
     await op.waitForFunction(() => window.__SB_UI.state && window.__SB_UI.state.name === 'Zé Online');
     check(true, 'entrar de novo continua do mesmo ponto');
+    { let slow = true; await op.route('**/functions/v1/jogar', async route => { if (slow) { slow = false; await new Promise(r => setTimeout(r, 600)); } await route.fallback(); });
+      await op.reload(); await op.waitForSelector('#bootLoader:not([hidden])');
+      check((await op.textContent('#bootLoader')).includes('Carregando seu perfil') && !(await op.isVisible('#welcome')), 'abrir com conta guardada mostra "Carregando seu perfil…", sem a tela inicial');
+      await op.waitForFunction(() => window.__SB_UI.state && window.__SB_UI.state.name === 'Zé Online' && document.querySelector('#bootLoader').hidden);
+      check(true, 'depois que o servidor confirma, abre direto o personagem online'); }
     await octx.close();
   }
   console.log('8. Tela larga (1280×900)');

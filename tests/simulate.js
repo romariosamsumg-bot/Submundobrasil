@@ -245,7 +245,7 @@ const STRATEGIES = {
     bail(s); handleNews(s);
     for (let round = 0; round < 6; round++) {
       armUp(s, 1.1); kitUp(s);
-      if (s.vicio >= 50 && !s.today.detox && s.energy >= 25) SB.perform(s, 'detox', 'soro');
+      if (s.vicio >= 50 && !s.today.detox && s.health > 50) SB.perform(s, 'detox', 'soro');
       // Propina enquanto ela custar menos que ~2 roubos do melhor degrau atual
       const e = s.energy; s.energy = 100; const top = bestMission(s, 55); s.energy = e;
       while (s.heat >= 45 && top && SB.cleanCost(s) < (top.low + top.high) * .9 && s.cash > SB.cleanCost(s) + 100 && SB.perform(s, 'cleanRecord').ok);

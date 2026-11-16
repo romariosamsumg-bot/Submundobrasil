@@ -854,6 +854,16 @@ body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(
 .traits{margin:8px 0}.hereTraits{margin:-4px 0 10px}
 .st.trait{font-weight:600}.st.trait.t0{color:#ffd98f}.st.trait.t1{color:#9fd0e8}.st.trait.t2{color:#ffb9a8}
 
+/* Abertura com conta: "Carregando seu perfil…" até o servidor confirmar */
+.bootLoader{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:24px;background:#0b1013}
+.bootLoader[hidden]{display:none}
+.loaderBox{display:grid;justify-items:center;gap:12px;text-align:center;max-width:320px}
+.loaderLogo{font:400 34px/1 var(--stencil);letter-spacing:.04em;color:#f5ecd9}.loaderLogo span{display:block;margin-top:6px;padding:4px 10px;background:var(--ambar);color:#1b1712;font-size:20px;letter-spacing:.4em}
+.loaderBox p{margin:0;font:600 15px/1.3 system-ui,sans-serif;color:#e6dcc6}.loaderBox small{color:#8f9c9f;font-size:12px;overflow-wrap:anywhere}
+.loaderSpin{width:34px;height:34px;border-radius:50%;border:3px solid #2c3a3e;border-top-color:var(--ambar);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.loaderSpin{animation:none;border-top-color:#2c3a3e;border-right-color:var(--ambar)}}
+
   </style>
 </head>
 <body>
@@ -2013,6 +2023,7 @@ body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(
   const detoxCost = s => s.vicio * 18;
   /** Tirar o vício cobra do corpo: DETOX_HEALTH de saúde por ponto removido. Saúde zero = UTI. */
   const DETOX_HEALTH = .5;
+  const SORO_VICIO = 50; // soro na UPA: −50 de vício, de graça, uma vez por dia (pedido do autor)
   const detoxHealth = (s, g) => Math.ceil(g * DETOX_HEALTH);
   function detoxHit(s, g) {
     const h = detoxHealth(s, g); if (!h) return '';
@@ -2842,8 +2853,7 @@ body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(
     if (s.health >= 100) return refuse('Sua saúde está cheia.');
     if (kind === 'posto') {
       if (s.today.clinic) return refuse('A UPA só atende você uma vez por dia.');
-      if (s.energy < 20) return refuse('O corredor da UPA exige 20 de energia.');
-      s.energy -= 20; s.today.clinic = true;
+      s.today.clinic = true; // UPA é de graça: nem dinheiro nem energia, uma vez por dia
       const g = Math.min(100 - s.health, 25); s.health += g;
       log(s, `UPA: +${g} de saúde depois de horas no corredor.`);
       return done(true, `UPA: +${g} de saúde.`);
@@ -2938,8 +2948,7 @@ body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(
     if (s.vicio <= 0) return refuse('Você está limpo.');
     if (kind === 'soro') {
       if (s.today.detox) return refuse('Um soro por dia.');
-      if (s.energy < 25) return refuse('O soro na veia exige 25 de energia.');
-      s.energy -= 25; s.today.detox = true; const g = Math.min(s.vicio, 20); s.vicio -= g;
+      s.today.detox = true; const g = Math.min(s.vicio, SORO_VICIO); s.vicio -= g; // de graça, uma vez por dia; cobra só a saúde
       const hit = detoxHit(s, g);
       log(s, `Soro na veia na UPA: -${g} de vício (${s.vicio}/100).${hit}`);
       return done(!s.uti, `Soro na veia: -${g} de vício.${hit}`);
@@ -3645,7 +3654,7 @@ body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
-    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, LOCAL_MISSIONS, localMission, missionName, DISTRICT_VIBE, districtTraits, STORY, storyPending, storyCost, streetScene, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, LOCAL_MISSIONS, localMission, missionName, DISTRICT_VIBE, districtTraits, STORY, storyPending, storyCost, streetScene, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, SORO_VICIO, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     FEAT_CATS, FEAT_RESPECT, TURF_SLOTS, TURF_RESPECT, TURF_LOSS, turfSlots, turfReady, ownedTurf, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
@@ -4752,11 +4761,11 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       <section class="card"><div class="meterlabel"><span>Saúde</span><strong>${s.health}/100</strong></div><div class="meter green"><div style="width:${s.health}%"></div></div>
         <p class="mini" style="margin-top:7px">Volta sozinha +10 por dia (+6 se detido). Se chegar a zero: <strong>UTI</strong>, ${s.clock ? '24 horas' : 'o resto de hoje e amanhã'} sem jogar, e você sai com 40 de saúde e o vício zerado.${SB.healthPenalty(s) ? ` <span class="negative">Agora: -${SB.healthPenalty(s)} de chance nas ações.</span>` : ''}</p></section>
       <div class="grid" style="margin-top:10px">
-        <section class="card shopRow"><div><h3>UPA</h3><p class="mini">De graça, mas é horas no corredor. +25 de saúde, uma vez por dia.</p></div><div class="shopAct"><strong>20 energia</strong>${button('Encarar o corredor', 'clinic', 'data-id="posto"', s.health >= 100 || s.today.clinic || s.energy < 20 || !!SB.blocked(s), 'small primary')}</div></section>
+        <section class="card shopRow"><div><h3>UPA</h3><p class="mini">De graça, uma vez por dia. +25 de saúde.</p></div><div class="shopAct"><strong>Grátis</strong>${button('Ser atendido', 'clinic', 'data-id="posto"', s.health >= 100 || s.today.clinic || !!SB.blocked(s), 'small primary')}</div></section>
         <section class="card shopRow"><div><h3>Propina pro plantonista</h3><p class="mini">Atestado, remédio e alta na hora. ${fmt(12)} por ponto de saúde que falta; cada nova vez no mesmo dia, +50%.</p></div><div class="shopAct"><strong>${fmt(c)}</strong>${button('Molhar a mão', 'clinic', 'data-id="clinica"', s.health >= 100 || s.cash < c || !!SB.blocked(s), 'small primary')}</div></section>
       </div>
       ${stencil('Desintoxicação', `vício ${s.vicio}/100`)}<div class="grid">
-        <section class="card shopRow"><div><h3>Soro na veia</h3><p class="mini">Na UPA, de graça. −20 de vício, uma vez por dia. Custa ${Math.ceil(Math.min(20, s.vicio) * SB.DETOX_HEALTH)} de saúde.${s.health - Math.ceil(Math.min(20, s.vicio) * SB.DETOX_HEALTH) <= 0 && s.vicio > 0 ? ' <span class="negative">Você vai para a UTI.</span>' : ''}</p></div><div class="shopAct"><strong>25 energia</strong>${button('Tomar soro', 'detox', 'data-id="soro"', s.vicio <= 0 || s.today.detox || s.energy < 25 || s.jail > 0, 'small primary')}</div></section>
+        <section class="card shopRow"><div><h3>Soro na veia</h3><p class="mini">Na UPA, de graça, uma vez por dia. −${Math.min(SB.SORO_VICIO, s.vicio) || SB.SORO_VICIO} de vício · −${Math.ceil(Math.min(SB.SORO_VICIO, s.vicio || SB.SORO_VICIO) * SB.DETOX_HEALTH)} de saúde.${s.vicio > 0 && s.health - Math.ceil(Math.min(SB.SORO_VICIO, s.vicio) * SB.DETOX_HEALTH) <= 0 ? ' <span class="negative">Você vai para a UTI.</span>' : ''}</p></div><div class="shopAct"><strong>Grátis</strong>${button('Tomar soro', 'detox', 'data-id="soro"', s.vicio <= 0 || s.today.detox || s.jail > 0, 'small primary')}</div></section>
         <section class="card shopRow"><div><h3>Clínica de desintoxicação</h3><p class="mini">Zera o vício na hora. ${fmt(18)} por ponto e ${SB.DETOX_HEALTH.toString().replace('.', ',')} de saúde por ponto: agora −${Math.ceil(s.vicio * SB.DETOX_HEALTH)} de saúde.${s.vicio > 0 && s.health - Math.ceil(s.vicio * SB.DETOX_HEALTH) <= 0 ? ' <span class="negative">Sua saúde não aguenta: você vai para a UTI.</span>' : ''}</p></div><div class="shopAct"><strong>${fmt(SB.detoxCost(s))}</strong>${button('Internar e limpar', 'detox', 'data-id="clinica"', s.vicio <= 0 || s.cash < SB.detoxCost(s) || s.jail > 0, 'small primary')}</div></section>
       </div>`;
   }
@@ -5226,16 +5235,35 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   }
   setInterval(clockBeat, 20000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) clockBeat(); });
-  async function bootOnline() {
+  /* Abertura com sessão guardada: nada de abrir o save local e trocar depois. Mostra "Carregando seu perfil…"
+   * até o servidor confirmar a sessão; se ela não valer mais, volta para a tela inicial com o aviso. */
+  let bootCancelled = false;
+  function showLoader(email) {
+    let el = $('#bootLoader');
+    if (!el) { el = document.createElement('div'); el.id = 'bootLoader'; el.className = 'bootLoader'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+    el.innerHTML = `<div class="loaderBox"><b class="loaderLogo">SUBMUNDO <span>BRASIL</span></b><span class="loaderSpin" aria-hidden="true"></span><p>Carregando seu perfil…</p>${email ? `<small>${esc(email)}</small>` : ''}<button type="button" class="btn ghost small" id="loaderOther">Entrar com outra conta</button></div>`;
+    el.hidden = false;
+    $('#loaderOther').addEventListener('click', () => { bootCancelled = true; storeSession(null); hideLoader(); localStart(); });
+  }
+  function hideLoader() { const el = $('#bootLoader'); if (el) el.hidden = true; }
+  function localStart() { state = load(); if (state) { save(); render(); if (!ageConfirmed()) ageGate(); } else showWelcome(); }
+  async function bootOnline(withLoader) {
     if (!ON) return;
     $('#onlineBox').hidden = false;
     session = readSession(); if (!session) return;
-    try { await afterLogin(); } catch (e) { onlineStatus(`<p class="notice">${esc(e.message)}</p>`); }
+    try { await afterLogin(); if (bootCancelled) return; hideLoader(); }
+    catch (e) {
+      if (bootCancelled) return;
+      hideLoader();
+      if (/expirou|Entre/.test(e.message)) storeSession(null);
+      if (withLoader) { state = null; showWelcome(); }
+      onlineStatus(`<p class="notice">${esc(e.message)}</p>`);
+    }
   }
 
-  state = load();
-  if (state) { save(); render(); if (!ageConfirmed()) ageGate(); } else showWelcome();
-  bootOnline();
+  const stored = ON ? readSession() : null;
+  if (stored) { showLoader(stored.email); bootOnline(true); }
+  else { localStart(); bootOnline(false); }
   window.__SB_UI = { get state() { return state; }, go: switchView }; // apoio a testes automatizados
 })();
 

@@ -772,3 +772,13 @@ body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(
 .district.selected{box-shadow:0 0 0 2px var(--bc),3px 4px 0 #05080a}
 .traits{margin:8px 0}.hereTraits{margin:-4px 0 10px}
 .st.trait{font-weight:600}.st.trait.t0{color:#ffd98f}.st.trait.t1{color:#9fd0e8}.st.trait.t2{color:#ffb9a8}
+
+/* Abertura com conta: "Carregando seu perfil…" até o servidor confirmar */
+.bootLoader{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:24px;background:#0b1013}
+.bootLoader[hidden]{display:none}
+.loaderBox{display:grid;justify-items:center;gap:12px;text-align:center;max-width:320px}
+.loaderLogo{font:400 34px/1 var(--stencil);letter-spacing:.04em;color:#f5ecd9}.loaderLogo span{display:block;margin-top:6px;padding:4px 10px;background:var(--ambar);color:#1b1712;font-size:20px;letter-spacing:.4em}
+.loaderBox p{margin:0;font:600 15px/1.3 system-ui,sans-serif;color:#e6dcc6}.loaderBox small{color:#8f9c9f;font-size:12px;overflow-wrap:anywhere}
+.loaderSpin{width:34px;height:34px;border-radius:50%;border:3px solid #2c3a3e;border-top-color:var(--ambar);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.loaderSpin{animation:none;border-top-color:#2c3a3e;border-right-color:var(--ambar)}}

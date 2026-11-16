@@ -641,6 +641,11 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
+### UPA de graça e abertura com conta (v1.5)
+
+- **UPA de graça**, uma vez por dia cada: atendimento (+25 de saúde) e **soro na veia (−50 de vício)**, sem energia nem dinheiro. O soro continua custando saúde (0,5 por ponto de vício tirado: −25 com o soro cheio).
+- **Abertura com conta guardada:** o jogo mostra "Carregando seu perfil…" (com o e-mail e o botão "Entrar com outra conta") até o servidor confirmar a sessão, e só então abre o personagem online. Antes abria o save local ou a tela inicial e trocava sozinho depois. Se a sessão expirou, volta à tela inicial com o aviso.
+
 ### Bairros com identidade (v1.5, desenho com o autor)
 
 - **Cor própria:** a cor do bairro onde você está tinge o fundo da tela, a borda da cena, os cartões de roubo, o dia e o título das telas. Centro âmbar (#e0a040), Cais azul de porto (#4a8fc0), Jardim verde (#5aa36a), Industrial cinza de fábrica (#8a949a) e Vila **vinho bordô** (#8a2a3a, pedido do autor).

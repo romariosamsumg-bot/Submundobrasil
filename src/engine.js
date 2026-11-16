@@ -1117,6 +1117,7 @@
   const detoxCost = s => s.vicio * 18;
   /** Tirar o vício cobra do corpo: DETOX_HEALTH de saúde por ponto removido. Saúde zero = UTI. */
   const DETOX_HEALTH = .5;
+  const SORO_VICIO = 50; // soro na UPA: −50 de vício, de graça, uma vez por dia (pedido do autor)
   const detoxHealth = (s, g) => Math.ceil(g * DETOX_HEALTH);
   function detoxHit(s, g) {
     const h = detoxHealth(s, g); if (!h) return '';
@@ -1946,8 +1947,7 @@
     if (s.health >= 100) return refuse('Sua saúde está cheia.');
     if (kind === 'posto') {
       if (s.today.clinic) return refuse('A UPA só atende você uma vez por dia.');
-      if (s.energy < 20) return refuse('O corredor da UPA exige 20 de energia.');
-      s.energy -= 20; s.today.clinic = true;
+      s.today.clinic = true; // UPA é de graça: nem dinheiro nem energia, uma vez por dia
       const g = Math.min(100 - s.health, 25); s.health += g;
       log(s, `UPA: +${g} de saúde depois de horas no corredor.`);
       return done(true, `UPA: +${g} de saúde.`);
@@ -2042,8 +2042,7 @@
     if (s.vicio <= 0) return refuse('Você está limpo.');
     if (kind === 'soro') {
       if (s.today.detox) return refuse('Um soro por dia.');
-      if (s.energy < 25) return refuse('O soro na veia exige 25 de energia.');
-      s.energy -= 25; s.today.detox = true; const g = Math.min(s.vicio, 20); s.vicio -= g;
+      s.today.detox = true; const g = Math.min(s.vicio, SORO_VICIO); s.vicio -= g; // de graça, uma vez por dia; cobra só a saúde
       const hit = detoxHit(s, g);
       log(s, `Soro na veia na UPA: -${g} de vício (${s.vicio}/100).${hit}`);
       return done(!s.uti, `Soro na veia: -${g} de vício.${hit}`);
@@ -2749,7 +2748,7 @@
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
-    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, LOCAL_MISSIONS, localMission, missionName, DISTRICT_VIBE, districtTraits, STORY, storyPending, storyCost, streetScene, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, LOCAL_MISSIONS, localMission, missionName, DISTRICT_VIBE, districtTraits, STORY, storyPending, storyCost, streetScene, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, SORO_VICIO, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     FEAT_CATS, FEAT_RESPECT, TURF_SLOTS, TURF_RESPECT, TURF_LOSS, turfSlots, turfReady, ownedTurf, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
