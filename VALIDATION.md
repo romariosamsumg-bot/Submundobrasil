@@ -123,6 +123,8 @@ Teto de respeito por degrau (5 × n × (n + 4): 25, 60, 105, 160, 225…), entra
 
 Bairros com identidade (saque, dificuldade, polícia e atrito por bairro; o Centro passou a pagar +8% e o Cais, +18%): o respeito mudou no máximo 5 pontos (ciclo 147 → 148, Assaltante farmando 176 → 181, Brigão 231 → 233, exploit 26 → 21). O patrimônio subiu um pouco (ciclo R$ 3.779 → R$ 4.459, Dono da Noite R$ 3.847 → R$ 5.340), porque os robôs começam no Centro, que agora paga mais. As classes ficaram a até 9 pontos de antes.
 
+UPA de graça (atendimento +25 de saúde e soro −50 de vício, sem energia, uma vez por dia cada): a maioria das estratégias ficou igual (ciclo 148 → 144, Assaltante farmando 181 → 181, território 118 → 118). Subiram as que usam a UPA: **Brigão 233 → 263** (a saúde de graça deixa duelar mais) e **Dono da Noite 164 → 179** / **Império da noite 155 → 172** (o soro de graça segura o vício e deixa tomar mais doses). Maratona igual (31 roubos por dia; o robô dela usa a clínica paga).
+
 Leitura do ciclo do autor:
 - **Travas do iniciante** (testes `INICIANTE:`): o personagem novo tem 91% no Bater carteira (94% com o Pedaço de pau); a 1ª arma sai em uns 4 roubos; nos degraus 1 a 3 a falha nunca dá cadeia nem tira caixa; no dia 1, começando do zero e bebendo cerveja e pinga, ele faz 15 roubos ou mais.
 - **Os robôs antigos não jogavam o ciclo novo**: só compravam arma quando um roubo a exigia, não usavam a noite para recuperar energia e descontavam R$ 0,40 por ponto de Procurado, que com o saque pequeno do começo os fazia parar após 1 roubo. Corrigi os três comportamentos (não as regras) e criei o robô **ciclo**, que segue exatamente o ciclo do autor e serve de jogador típico.
