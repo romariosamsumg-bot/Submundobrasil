@@ -759,3 +759,16 @@ button.hudResp:focus-visible{outline:2px solid var(--ambar);outline-offset:2px}
 .diary .more summary{color:#5a4f40}.diary .moreBody{background:transparent;border-left:0;padding:0}
 @media(prefers-reduced-motion:reduce){.storyCard{transform:none}}
 .travelBtn{white-space:normal;line-height:1.2;text-align:center;min-height:44px}
+
+/* Identidade dos bairros: a cor do bairro onde você está tinge a tela (Vila em vinho bordô) */
+:root{--bairro:#e0a040}
+body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(--bairro) 20%,transparent),transparent 70%)!important;background-attachment:fixed}
+.locale{box-shadow:0 0 0 2px color-mix(in srgb,var(--bairro) 70%,#05080a),3px 4px 0 #05080a}
+.sceneCard{border-left-color:var(--bairro)}
+.rob{border-left-color:var(--bairro)}
+.dayStrip{border-left-color:var(--bairro)}
+.pagehead h1{text-shadow:0 0 0 transparent;border-bottom:3px solid var(--bairro);display:inline-block;padding-bottom:2px}
+.district{border-top:4px solid var(--bc)}
+.district.selected{box-shadow:0 0 0 2px var(--bc),3px 4px 0 #05080a}
+.traits{margin:8px 0}.hereTraits{margin:-4px 0 10px}
+.st.trait{font-weight:600}.st.trait.t0{color:#ffd98f}.st.trait.t1{color:#9fd0e8}.st.trait.t2{color:#ffb9a8}

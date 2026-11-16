@@ -142,11 +142,11 @@
   ];
 
   const DISTRICTS = [
-    { id: 'centro', name: 'Centro Antigo', desc: 'Comércio intenso e circulação constante de gente.', risk: 0, bonus: 0, tribute: 110, advantage: 'Diálogos com facções +8 e criar contatos 20% mais barato.' },
-    { id: 'cais', name: 'Cais do Norte', desc: 'Galpões, armazéns e uma região portuária em transformação.', risk: 5, bonus: 15, tribute: 140, advantage: 'Operações coletivas rendem +20%.' },
-    { id: 'jardim', name: 'Jardim União', desc: 'Bairro residencial de trabalhadores e pequenos negócios.', risk: -4, bonus: -10, tribute: 70, advantage: 'Recrutar custa 25% menos e a equipe ganha +2 de ânimo por dia.' },
-    { id: 'industrial', name: 'Distrito Industrial', desc: 'Grandes empresas e patrulhamento reforçado.', risk: 10, bonus: 28, tribute: 160, advantage: 'Todos os seus negócios rendem +12%.' },
-    { id: 'vila', name: 'Vila das Palmeiras', desc: 'Ruas movimentadas e comércio de bairro.', risk: -2, bonus: 4, tribute: 90, advantage: 'Seu Procurado cai 5 pontos extras por dia.' }
+    { id: 'centro', name: 'Centro Antigo', desc: 'Comércio intenso e circulação constante de gente.', risk: 3, bonus: 8, police: 1, danger: 1, tribute: 110, advantage: 'Diálogos com facções +8 e criar contatos 20% mais barato.' },
+    { id: 'cais', name: 'Cais do Norte', desc: 'Galpões, armazéns e uma região portuária em transformação.', risk: 0, bonus: 18, police: .6, danger: 1.6, tribute: 140, advantage: 'Operações coletivas rendem +20%.' },
+    { id: 'jardim', name: 'Jardim União', desc: 'Bairro residencial de trabalhadores e pequenos negócios.', risk: -6, bonus: -12, police: .6, danger: .7, tribute: 70, advantage: 'Recrutar custa 25% menos e a equipe ganha +2 de ânimo por dia.' },
+    { id: 'industrial', name: 'Distrito Industrial', desc: 'Grandes empresas e patrulhamento reforçado.', risk: 12, bonus: 28, police: 1.5, danger: 1, tribute: 160, advantage: 'Todos os seus negócios rendem +12%.' },
+    { id: 'vila', name: 'Vila das Palmeiras', desc: 'Ruas movimentadas e comércio de bairro.', risk: 4, bonus: 5, police: 1, danger: 1.3, tribute: 90, advantage: 'Seu Procurado cai 5 pontos extras por dia.' }
   ];
 
   /* Negócios: cada um fica em um bairro e sofre a economia e as facções locais. */
@@ -1278,8 +1278,91 @@
     }
   }
   /** Atrito com a facção que lidera o bairro quando você age no território dela. */
+  /* Identidade dos bairros (v1.5): o mesmo degrau ganha nome e texto do lugar. O Centro usa os nomes padrão.
+   * Chaves por TIPO de bairro (centro, cais, jardim, industrial, vila), iguais em todas as cidades. */
+  const LOCAL_MISSIONS = {
+    cais: {
+      correria: ['Rapa no terminal das barcas', 'Gente apressada, mochila aberta e o apito do barco disfarçando tudo.'],
+      fiacao: ['Cobre dos guindastes parados', 'Guindaste enferrujado tem mais fio do que vigia.'],
+      pastel: ['Caixa do quiosque do porto', 'O quiosque fecha tarde e conta o dinheiro no balcão.'],
+      mercadoria: ['Celular no ponto do terminal', 'Fila de estivador cansado, celular no bolso de trás.'],
+      rolo: ['Rolo com o marinheiro gringo', 'Ele quer trocar dólar por qualquer coisa. Você tem qualquer coisa.'],
+      cobranca: ['Cobrança no armazém 7', 'O dono do armazém deve a gente perigosa. Agora deve a você.'],
+      cartao: ['Golpe no despachante aduaneiro', 'Carimbo falso, nota de embarque e um cliente com pressa.'],
+      deposito: ['Contêiner violado', 'Lacre cortado, carga misturada e uma hora até a ronda voltar.'],
+      leilao: ['Leilão de carga apreendida', 'Mercadoria que ninguém vai reclamar, comprador que ninguém vai ver.'],
+      caixa: ['Caixa eletrônico da rodoviária', 'Movimento a noite inteira e câmera que ninguém olha.'],
+      loterica: ['Lotérica da avenida do porto', 'Dia de pagamento dos portuários: o malote vem gordo.'],
+      comboio: ['Caminhão saindo do porto', 'Carreta lacrada, estrada escura, o bonde inteiro esperando.'],
+      cofre: ['Cofre da agência de câmbio', 'Dólar, euro e um cofre que já viu dias melhores.']
+    },
+    jardim: {
+      correria: ['Bolsa no ponto do ônibus', 'Fim de expediente, todo mundo distraído pensando no jantar.'],
+      fiacao: ['Fio do poste da rua de trás', 'Rua escura, vizinho dormindo, cobre esquecido no alto.'],
+      pastel: ['Caixa da quitanda', 'A dona deixa o dinheiro na lata de biscoito. Todo mundo sabe.'],
+      mercadoria: ['Celular na saída da escola', 'Pai distraído, celular na mão, portão lotado.'],
+      rolo: ['Rolo na feira de domingo', 'Barraca de pirata, troco errado e conversa boa.'],
+      cobranca: ['Cobrança do agiota da rua', 'O agiota mandou você buscar o que é dele. Metade fica.'],
+      cartao: ['Golpe do bilhete premiado', 'A senhora acredita em sorte. Você vende sorte.'],
+      deposito: ['Mercadinho do seu Joaquim', 'Seu Joaquim conhece todo mundo. Por isso fecha tarde.'],
+      leilao: ['Rifa da associação', 'O prêmio não existe, mas o dinheiro dos números sim.'],
+      caixa: ['Caixa eletrônico do posto', 'Posto afastado, frentista dormindo, barulho alto.'],
+      loterica: ['Lotérica da praça', 'Fila de aposentado e um segurança que já passou dos sessenta.'],
+      comboio: ['Caminhão do supermercado', 'Entrega de madrugada na rua sem saída.'],
+      cofre: ['Cofre da joalheria do bairro', 'Pequena, antiga e cheia de ouro de família.']
+    },
+    industrial: {
+      correria: ['Rapa na saída do turno', 'Sirene da fábrica, gente cansada, carteira no bolso.'],
+      fiacao: ['Cobre da subestação', 'Alta tensão, alta grana, alta chance de dar errado.'],
+      pastel: ['Caixa do bandejão', 'Fim do almoço, o caixa conta as notas na frente de todo mundo.'],
+      mercadoria: ['Celular no pátio da fábrica', 'Operário tira foto do turno e larga o celular na bancada.'],
+      rolo: ['Rolo com sucata', 'Ferro-velho compra sem perguntar de onde veio.'],
+      cobranca: ['Cobrança no galpão terceirizado', 'O empreiteiro sumiu com o salário de alguém. Você vai buscar.'],
+      cartao: ['Golpe na folha de pagamento', 'Um funcionário fantasma a mais. Ninguém confere.'],
+      deposito: ['Almoxarifado da metalúrgica', 'Peça cara, prateleira cheia e cadeado barato.'],
+      leilao: ['Leilão de maquinário', 'Máquina de fábrica falida, comprador que paga em espécie.'],
+      caixa: ['Caixa eletrônico do distrito', 'Ninguém mora aqui. À noite, ninguém escuta nada.'],
+      loterica: ['Lotérica da portaria', 'Dia de pagamento: fila de operário sacando o mês inteiro.'],
+      comboio: ['Carreta de peças na rodovia', 'Carga cara, motorista sozinho, trecho sem posto.'],
+      cofre: ['Cofre da tesouraria da fábrica', 'A folha do mês inteiro dorme num cofre só.']
+    },
+    vila: {
+      correria: ['Rapa no meio do baile', 'Som alto, gente dançando, ninguém sente a mão no bolso.'],
+      fiacao: ['Fio do gato da rua', 'O gato de luz da rua inteira passa por um poste só.'],
+      pastel: ['Caixa da barraca do baile', 'A barraca de bebida fatura a noite inteira e guarda tudo num isopor.'],
+      mercadoria: ['Celular na saída do baile', 'Cinco da manhã, todo mundo bêbado chamando carro.'],
+      rolo: ['Rolo do camarote', 'Pulseira VIP falsa vendida por preço de verdade.'],
+      cobranca: ['Cobrança do dono da laje', 'O dono da laje alugou e não recebeu. Você recebe por ele.'],
+      cartao: ['Golpe da maquininha', 'Maquininha adulterada no bar mais cheio da rua.'],
+      deposito: ['Depósito de bebida', 'O estoque do fim de semana inteiro, guardado num cômodo só.'],
+      leilao: ['Leilão de moto sem papel', 'Moto boa, preço bom, documento nenhum.'],
+      caixa: ['Caixa eletrônico da padaria', 'A padaria abre às cinco. O caixa já está cheio desde as quatro.'],
+      loterica: ['Lotérica da ladeira', 'Ladeira estreita, viatura não sobe, fuga a pé.'],
+      comboio: ['Caminhão de bebida do evento', 'Abastecimento do maior baile do mês, estacionado na esquina.'],
+      cofre: ['Cofre do dono da quadra', 'Quem promove o baile guarda o lucro em casa.']
+    }
+  };
+  /** Nome e texto do roubo no bairro onde você está. */
+  const localMission = (s, m, did = s.district) => { const l = (LOCAL_MISSIONS[did] || {})[m.id]; return l ? { name: l[0], desc: l[1] } : { name: m.name, desc: m.desc }; };
+  const missionName = (s, m) => localMission(s, m).name;
+  /** Clima de cada bairro: uma frase de chegada e a cor da tela (a Vila em vinho bordô, pedido do autor). */
+  const DISTRICT_VIBE = {
+    centro: { color: '#e0a040', line: 'O Centro nunca dorme: camelô, buzina e gente com pressa. Aqui todo mundo tem um preço, e todo mundo está à venda.' },
+    cais: { color: '#4a8fc0', line: 'Cheiro de maresia e diesel. No Cais, todo mundo carrega alguma coisa e ninguém pergunta o quê.' },
+    jardim: { color: '#5aa36a', line: 'Varal na laje, criança jogando bola na rua. O Jardim é calmo até alguém de fora chamar atenção.' },
+    industrial: { color: '#8a949a', line: 'Sirene de turno, poeira de ferro e viatura na porta de toda fábrica. Aqui o dinheiro é grande e a polícia também.' },
+    vila: { color: '#8a2a3a', line: 'O grave do baile treme as janelas da Vila. Festa, confusão e muita gente que não esquece um rosto.' }
+  };
+  /** Ficha curta do bairro: quanto paga, a polícia e o perigo do grupo que manda. */
+  function districtTraits(d) {
+    const pay = d.bonus >= 15 ? 'Paga muito' : d.bonus >= 5 ? 'Paga bem' : d.bonus > -5 ? 'Paga o normal' : 'Paga pouco';
+    const pol = d.police >= 1.4 ? 'Polícia forte' : d.police <= .7 ? 'Polícia fraca' : 'Polícia média';
+    const grp = d.danger >= 1.5 ? 'Grupo perigoso' : d.danger >= 1.2 ? 'Grupo esquentado' : d.danger <= .8 ? 'Grupo tranquilo' : 'Grupo atento';
+    return [pay, pol, grp];
+  }
   function turfFriction(s, did, t) {
     if (!t) return;
+    t = Math.round(t * (district(s, did).danger || 1)); // grupo perigoso: o atrito cresce mais rápido
     const l = leader(s, did);
     if (l.value < 10 || s.factions[l.id].allied) return;
     if (pactActive(s, l.id)) {
@@ -1302,14 +1385,14 @@
     s.energy -= missionCost(s, m);
     s.today.missions[m.id] = (s.today.missions[m.id] || 0) + 1;
     if (s.tip > 0) s.tip = 0;
-    s.dstate[d].vigil = clamp(s.dstate[d].vigil + Math.ceil(m.vigil * (controlled(s, d) ? .5 : 1)), 0, 100); // no seu bairro, a polícia sobe pela metade
+    s.dstate[d].vigil = clamp(s.dstate[d].vigil + Math.ceil(m.vigil * (district(s).police || 1) * (controlled(s, d) ? .5 : 1)), 0, 100); // no seu bairro, a polícia sobe pela metade
     if (roll(odds)) {
       const reward = Math.max(1, Math.round(rand(m.low, m.high) * mult));
       // Gatilho "Caçado" (Procurado 85+): mesmo dando certo, a polícia pode enquadrar na saída.
       const stop = m.safe ? 0 : enquadroChance(s);
       if (stop && roll(stop)) {
         addHeat(s, missionHeat(s, m)); s.failed++; s.jail = Math.max(s.jail, 1); s.seasonStats.arrests++;
-        log(s, `${m.name}: deu certo, mas você estava caçado e foi enquadrado na saída (${stop}%). O saque de ${money(reward)} ficou com a polícia; 1 dia detido.`);
+        log(s, `${missionName(s, m)}: deu certo, mas você estava caçado e foi enquadrado na saída (${stop}%). O saque de ${money(reward)} ficou com a polícia; 1 dia detido.`);
         return done(false, `Enquadrado na saída! Você estava caçado (Procurado ${s.heat}): perdeu o saque de ${money(reward)} e ficou 1 dia detido.`);
       }
       const rg = respectGain(s, m);
@@ -1322,8 +1405,8 @@
       turfFriction(s, d, m.tension);
       if (m.id === 'cofre') unlock(s, 'cofre');
       unlock(s, 'primeira');
-      log(s, `${m.name}: sucesso (${odds}%). +${money(reward)} e +${rg} de respeito.`);
-      return done(true, `${m.name}: sucesso! +${money(reward)}`);
+      log(s, `${missionName(s, m)}: sucesso (${odds}%). +${money(reward)} e +${rg} de respeito.`);
+      return done(true, `${missionName(s, m)}: sucesso! +${money(reward)}`);
     }
     const lost = Math.min(s.cash, Math.ceil(s.cash * failLoss(s, m)));
     s.cash -= lost; addHeat(s, missionHeat(s, m) + heatGain(s, rand(4, 10))); s.failed++;
@@ -1334,8 +1417,8 @@
     const ac = arrestChance(s, m);
     let jailMsg = '';
     if (roll(ac)) { s.jail = rand(1, 3) + (s.heat >= 70 ? 1 : 0) + (gearVal(s, 'power') >= 7 ? 1 : 0); s.seasonStats.arrests++; jailMsg = ` Você foi detido por ${s.jail} dia(s) e perdeu ${loseRespect(s, .04)} de respeito.`; }
-    log(s, `${m.name}: fracasso (${odds}%). Perda de ${money(lost)} em mãos.${wound}${jailMsg}`);
-    return done(false, `${m.name} falhou. -${money(lost)}.${wound}${jailMsg}`);
+    log(s, `${missionName(s, m)}: fracasso (${odds}%). Perda de ${money(lost)} em mãos.${wound}${jailMsg}`);
+    return done(false, `${missionName(s, m)} falhou. -${money(lost)}.${wound}${jailMsg}`);
   }
 
   function doTrain(s, id) {
@@ -2122,6 +2205,7 @@
     if (s.heat >= 60) return `Tem um carro parado na esquina que não é de ninguém de ${b}. O rapaz do bar faz sinal com o queixo: hoje estão de olho.`;
     if (s.energy < 16) return 'As pernas pesam. A rua continua acordada, mas você não. O corpo pede boteco ou cama, nessa ordem.';
     if (controlled(s, s.district)) return pick2(`Em ${b}, o pessoal da padaria já separa o seu pão sem você pedir. Mandar num bairro é isso: ninguém fala o seu nome alto.`, `Um moleque pinta o seu vulgo no muro de ${b}. A tinta ainda escorre. Amanhã alguém vai querer apagar.`);
+    if ((s.day + s.successful) % 3 === 0 && DISTRICT_VIBE[s.district]) return DISTRICT_VIBE[s.district].line;
     return [
       pick2(`${b} acorda cedo e não te conhece. Você é só mais um de chinelo olhando o movimento, contando quem tem e quem não tem.`, 'O estômago ronca mais alto que o ônibus. Todo mundo começa do mesmo jeito: de olho na carteira dos outros.'),
       pick2(`Já tem quem te cumprimente em ${b}. Pouca gente, e de longe, mas cumprimenta. É assim que começa.`, 'O dono do bar te serve sem cobrar adiantado. Pequenas coisas mudam quando o nome começa a circular.'),
@@ -2665,7 +2749,7 @@
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
-    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, STORY, storyPending, storyCost, streetScene, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, LOCAL_MISSIONS, localMission, missionName, DISTRICT_VIBE, districtTraits, STORY, storyPending, storyCost, streetScene, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     FEAT_CATS, FEAT_RESPECT, TURF_SLOTS, TURF_RESPECT, TURF_LOSS, turfSlots, turfReady, ownedTurf, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,

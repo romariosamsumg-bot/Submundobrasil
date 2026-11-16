@@ -72,6 +72,10 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 - A Rua é a tela da narrativa (GAME_DESIGN.md, "A Rua conta a história"): cena do momento (`streetScene`), capítulos com decisão (`STORY`, `storyPending`, ação `story`) e recados (`recados` em `ui.js`). Capítulo novo → entrada em `STORY` com duas escolhas, cada uma com custo ou consequência e a frase `after`; personagens sempre inventados. Mecânica nova que pede atenção do jogador → um recado.
 - Texto de história é narrativa, não regra: curto, em segunda pessoa, sem números fora da linha de custo da escolha.
 
+## Bairros
+
+- Cada tipo de bairro tem cor (`DISTRICT_VIBE`), frase de chegada, nomes locais dos 13 roubos (`LOCAL_MISSIONS`) e ficha de risco (`districtTraits`, a partir de `bonus`, `police` e `danger` em `DISTRICTS`). Roubo novo na escada → nome local nos 4 tipos de bairro além do Centro. Use `missionName(s, m)` em qualquer texto que cite um roubo.
+
 ## Texto na tela
 
 - Pedido do autor: nada de explicar todas as contas. Cada cartão mostra só o que serve para decidir (preço, chance, ganho, risco), em fichas curtas (`stat()` e `.st` em `ui.js`). A conta e a explicação vão em `more(...)` ("Detalhes") ou em "Como jogar". Não acrescente parágrafos de regra às telas.

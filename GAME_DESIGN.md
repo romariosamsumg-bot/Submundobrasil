@@ -641,6 +641,23 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
+### Bairros com identidade (v1.5, desenho com o autor)
+
+- **Cor própria:** a cor do bairro onde você está tinge o fundo da tela, a borda da cena, os cartões de roubo, o dia e o título das telas. Centro âmbar (#e0a040), Cais azul de porto (#4a8fc0), Jardim verde (#5aa36a), Industrial cinza de fábrica (#8a949a) e Vila **vinho bordô** (#8a2a3a, pedido do autor).
+- **Roubos com nome do lugar:** a escada é a mesma (degraus e números iguais), mas nome e texto mudam com o tipo de bairro. Exemplos: Bater carteira vira "Rapa no terminal das barcas" no Cais, "Rapa no meio do baile" na Vila, "Rapa na saída do turno" no Industrial e "Bolsa no ponto do ônibus" no Jardim. O Centro usa os nomes padrão. São 13 nomes por tipo de bairro (`LOCAL_MISSIONS`), válidos nas 6 cidades.
+- **Personalidade de risco e recompensa,** com ficha curta no topo de Roubar e em cada bairro:
+
+| Bairro | Ficha | Saque | Dificuldade | Polícia do bairro sobe | Atrito com o grupo |
+|---|---|---|---|---|---|
+| Centro | Paga bem · Polícia média · Grupo atento | +8% | +3% | ×1 | ×1 |
+| Cais | Paga muito · Polícia fraca · Grupo perigoso | +18% | 0 | ×0,6 | ×1,6 |
+| Jardim | Paga pouco · Polícia fraca · Grupo tranquilo | −12% | −6% | ×0,6 | ×0,7 |
+| Industrial | Paga muito · Polícia forte · Grupo atento | +28% | +12% | ×1,5 | ×1 |
+| Vila | Paga bem · Polícia média · Grupo esquentado | +5% | +4% | ×1 | ×1,3 |
+
+- **Chegada na Rua:** uma frase do clima do bairro aparece entre as cenas do momento.
+- **Viagem:** o botão diz "Comprar passagem e ir · R$ 90 · 5 energia" ("grátis" quando não custa).
+
 ### A Rua conta a história (v1.5)
 
 Pedido do autor: a Rua é o lugar da narrativa, da emoção, das decisões e dos avisos. De cima para baixo:
