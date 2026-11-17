@@ -1078,3 +1078,8 @@ button.hudBar:active{filter:brightness(1.25)}
     repeating-linear-gradient(90deg,#00000000 0 9px,#0000001f 9px 10px,#00000000 10px 23px,#ffffff12 23px 24px),
     repeating-linear-gradient(0deg,#8f5e30 0 2px,#7d5027 2px 3px,#996633 3px 5px),#875729}
 .place:not(.locked){background:var(--chapa);box-shadow:inset 0 1px 0 #ffffff14,2px 3px 0 #05080a}
+/* Feira: foto do item maior (96 px, como nos roubos); o resto do cartão fica igual */
+.shopRow.feiraRow.withPic{grid-template-columns:96px minmax(0,1fr) auto!important;align-items:start}
+.feiraRow .itemPic{width:96px!important;height:96px!important;border-radius:5px;border:2px solid #3a4a4f;box-shadow:2px 2px 0 #05080a}
+@media(max-width:390px){.shopRow.feiraRow.withPic{grid-template-columns:96px minmax(0,1fr)!important}.feiraRow.withPic .shopAct{grid-column:1/-1}}
+.feiraRow.locked .itemPic::after{font-size:11px;letter-spacing:.1em}

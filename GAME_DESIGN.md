@@ -861,6 +861,10 @@ Lugar novo no menu Cidade, **só no modo online** (offline, a tela explica e nã
 - **Todos os cartões** (roubos, Feira, Galpão, Negócios, noite, Esquina, lugares da Cidade) são uma chapa de metal escovado, presa por um **parafuso enferrujado em cada canto**, com um fio de ferrugem escorrendo dos parafusos de cima. É feita só em CSS (`--chapa` em `extra.css`) e não pesa no arquivo.
 - **Trancado:** o cartão fica **na sombra**: a mesma chapa escurecida, a foto em cinza escuro e o texto apagado, sem transparência (o muro não aparece mais por dentro). Uma **tábua de madeira pregada** atravessa a foto com **TRANCADO** pintado. Nas fotos pequenas a letra é menor, para a palavra caber inteira. O motivo ("Abre com 15 de respeito", "Requer…") continua legível embaixo.
 
+### Feira com foto maior (v1.5, pedido do autor)
+
+A foto do item na Feira passou de 52–64 px para 96 px (como nos roubos). O resto do cartão ficou igual. Nos itens trancados, a palavra da tábua cresceu junto.
+
 ### Sons (v1.5)
 
 Efeitos sintetizados pelo navegador (Web Audio, `src/sound.js`), sem arquivos de áudio e sem licença: roubo certo = caixa registradora + carimbo; roubo errado = som grave + carimbo; preso = sirene; compra, venda, banco, propina, fiança e aposta = moedas; dose = lata abrindo; entrar na noite = batida grave; treino = soco; hospital e desintoxicação = bipe de monitor; UTI = monitor apitando direto; respeito novo (faixa de influência, feito do mês, primeiros passos, conquista) = fanfarra curta; virar o dia = sino; ação recusada = bipe curto. Botão de alto-falante no topo (ao lado do dia) e volume no Perfil; a escolha fica no aparelho. O áudio só começa depois do primeiro toque (regra dos celulares).
