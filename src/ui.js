@@ -292,7 +292,7 @@
     if ((s.uti && /UTI/.test(all)) || (s.jail > 0 && !r.good && ['mission', 'duel', 'bribe', 'story'].includes(name)) || /enquadrado|Enquadrado/.test(all)) return screenShake('hard');
     if (typeof hpBefore === 'number' && s.health < hpBefore) return screenShake('soft');
   }
-  let lastTexture = null;
+  let lastTexture = null, lastFoto = null;
   function actionSound(name, r) {
     const s = state, all = [r.msg || '', ...(r.lines || [])].join(' ');
     const extra = /\+\d+ de respeito/.test((r.lines || []).join(' ')) && /(Feito do mês|você agora é|Primeiros passos|Conquista)/.test(all) ? [['fanfare', .55]] : [];
@@ -472,7 +472,7 @@
     const c = state ? SB.cityOf(state.city) : SB.CITIES[0];
     return [
       ['Você chegou', `<p>Você desce na rodoviária de <strong>${esc(c.name)}</strong> sem dinheiro, sem arma e sem nome.</p><p>Até o fim do mês, a cidade vai saber quem você é. O placar é o <strong>respeito</strong>: ele te leva de <em>Pé de chinelo</em> a <em>Dono do morro</em> e decide a sua posição no ranking.</p>`],
-      ['A rua gira assim', `<p><strong>Roube</strong> do mais fácil ao mais difícil: cada roubo mostra a sua chance.</p><p>Acabou a energia? A <strong>noite</strong> vende energia no balcão.</p><p>Com o dinheiro, a <strong>Feira</strong> te arma, protege e leva mais longe, e os roubos maiores se abrem. Subir de degrau é o que traz respeito.</p><p>Quando sobrar dinheiro, compre <strong>negócios</strong>: bar, oficina, banca do bicho… Eles pagam todo dia, até enquanto você dorme.</p>`],
+      ['A rua gira assim', `<p><strong>Roube</strong> do mais fácil ao mais difícil: cada roubo mostra a sua chance.</p><p>Acabou a energia? A <strong>noite</strong> vende energia no balcão.</p><p>Com o dinheiro, a <strong>Feira</strong> te arma, protege e leva mais longe, e os roubos maiores se abrem. Subir de degrau é o que traz respeito.</p><p>Quando sobrar dinheiro, compre <strong>negócios</strong>: bar, oficina, banca do bicho… Eles pagam todo dia, até enquanto você dorme.</p><p>Toda manhã, o <strong>Jornal do Submundo</strong> na Rua conta o que mudou: sua patente, o que o respeito abriu, polícia, gangues, preços do Galpão, o comprador de fora e o resultado do bicho, que corre de noite e sai no jornal do dia seguinte. Toque numa notícia para ir à tela dela.</p>`],
       ['A rua cobra', `<p>Cada roubo chama a <strong>polícia</strong>. Esfrie antes que ela chegue, ou vai pra cadeia.</p><p>A noite cobra no <strong>vício</strong> e o corpo cobra na <strong>saúde</strong>.</p><p>Na <strong>Rua</strong>, a sua história acontece: gente que aparece, decisões sem volta e avisos do que pede atenção.</p><p>O guia te acompanha nos primeiros passos.</p>`]
     ];
   }
@@ -510,11 +510,10 @@
   }
   function panel() {
     const s = state, mv = nextMove(), guide = guideCard();
-    const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
     const tired = s.energy < 16 || s.day >= MAXDAY;
     const sleep = s.clock ? nextDayButton('small ' + (tired ? 'primary' : 'ghost')) : s.day >= MAXDAY ? button('Encerrar temporada', 'switch', 'data-target="temporada"', false, 'primary small')
       : button(armedNext ? `Dormir com ${s.energy} de energia?` : 'Dormir', 'next-day', '', false, (armedNext ? 'armed' : tired ? 'primary' : 'ghost') + ' small');
-    const nx = SB.PHASES[SB.phaseIndex(s) + 1], ph = SB.PHASES[SB.phaseIndex(s)], story = storyCard();
+    const story = storyCard();
     if (online && !rank.at && !rank.loading) setTimeout(() => loadRank(), 0);
     return jailNotice() + localeStrip(true, false) + localeInfo() + `
       <section class="sceneCard" aria-label="A rua agora"><p>${esc(SB.streetScene(s))}</p></section>
@@ -523,12 +522,96 @@
       ${story}
       ${s.career || s.tutorial.done ? newsCard() : ''}
       ${recados()}
-      <section class="rumo ficha progress" aria-label="Seu progresso">
-        <div class="fichaRow"><div class="progHead"><b>${esc(ph.name)}</b><span>${nx ? `faltam ${num(nx.at - s.respect)} de respeito para ${esc(nx.name)}` : 'patente máxima'}</span></div><div class="meter"><div style="width:${pct(nx ? (s.respect - ph.at) / (nx.at - ph.at) * 100 : 100)}%"></div></div></div>
-        <div class="fichaRow progRank">${online ? (rank.me ? `<span>Ranking do mês: <b>${num(rank.me.posicao)}º de ${num(rank.me.total)}</b>${rank.me.acima_codinome && Number(rank.me.posicao) > 1 ? ` · ${num(Math.max(1, rank.me.acima_respeito - rank.me.respeito + 1))} para passar ${esc(rank.me.acima_codinome)}` : ''}</span>` : '<span>Ranking do mês</span>') : `<span>Temporada ${num(s.season)} · ★ ${num(s.respect)} de respeito</span>`}${button(online ? 'Ranking' : 'Temporada', 'switch', `data-target="${online ? 'ranking' : 'temporada'}"`, false, 'small ghost')}</div></section>
       <section class="dayBar dayStrip"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span>${s.clock ? `<span class="clockLine">O dia vira em ${dur(SB.clockInfo(s).midnight)}</span>` : ''}</div>${sleep}</section>
-      ${evs.length ? `<section class="poster dayNews"><div class="posterHead">HOJE NA CIDADE</div>${evs.map(e => `<div class="evRow"><strong>${esc(SB.eventTitle(e))}</strong>${e.until > s.day ? `<span>até o dia ${e.until}</span>` : ''}${more(`<p>${esc(SB.eventDesc(e))}</p>`, 'O que muda')}</div>`).join('')}</section>` : ''}
-      ${stencil('Diário')}<section class="diary">${journal(1)}${state.log.length > 1 ? more(journal(8), 'Ver mais') : ''}</section>`;
+      ${jornalCard()}
+      ${agenda()}`;
+  }
+  /* ------------------------------------------------------------------ */
+  /* Jornal do Submundo (Rua): os fatos vêm de SB.jornal; aqui só se escreve a notícia.                     */
+  /* ------------------------------------------------------------------ */
+  const KIND_TXT = { arma: 'arma', protecao: 'proteção', veiculo: 'veículo', noite: 'casa da noite', mercadoria: 'mercadoria', esquema: 'esquema', assalto: 'assalto do bando', duelo: 'adversário de duelo', lugar: 'lugar', patente: 'patente' };
+  const unlockList = us => { const a = us.slice(0, 3).map(u => `${esc(u.name)} <small>(${KIND_TXT[u.kind] || u.kind})</small>`); return a.join(', ') + (us.length > 3 ? ` e mais ${us.length - 3}` : ''); };
+    /** Lista de notícias do dia, cada uma com prioridade (a maior vira manchete), seção, título, texto e a tela para onde leva. */
+  function jornalNews(s, j) {
+    const N = [], add = (prio, kick, title, text, view = '', tone = '') => N.push({ prio, kick, title, text, view, tone });
+    const dn = id => esc(D(id).name), fname = id => id === 'voce' ? 'Você' : esc(F(id).short), gal = SB.placeOpen(s, 'galpao');
+    const nx = j.nextPhase, falta = nx ? Math.max(0, nx.at - s.respect) : 0;
+    // Carreira: patente nova e o que o respeito abriu (ontem e agora há pouco).
+    const patNow = j.extra.find(u => u.kind === 'patente'), patOld = j.unlocked.find(u => u.kind === 'patente');
+    if (patNow) add(99, 'Extra', `${esc(s.name)} vira ${esc(patNow.name)}`, `Aconteceu agora há pouco: a rua já te chama de ${esc(patNow.name)}.${nx && nx.name !== patNow.name ? ` Próximo degrau: ${esc(nx.name)}, com ${num(nx.at)} de respeito.` : ''}`, 'perfil', 'extra');
+    else if (patOld) add(98, 'Carreira', `${esc(s.name)} agora é ${esc(patOld.name)}`, `Ontem a rua mudou o jeito de te chamar. ${nx ? `Faltam ${num(falta)} de respeito para ${esc(nx.name)}.` : 'Acima disso, só o topo da cidade.'}`, 'perfil');
+    const novo = j.extra.filter(u => u.kind !== 'patente'), velho = j.unlocked.filter(u => u.kind !== 'patente');
+    if (novo.length) add(94, 'Extra', 'Saiu agora na rua', `Seu respeito de hoje abriu: ${unlockList(novo)}.`, novo[0].view, 'extra');
+    if (velho.length) add(86, 'Novidades', velho.length > 1 ? 'Chegou mercadoria nova pra você' : `${esc(velho[0].name)} liberado`, `Com o respeito de ontem, a rua abriu: ${unlockList(velho)}.`, velho[0].view);
+    // O dia de ontem.
+    const y = j.yesterday;
+    if (y && y.arrests > 0) add(90, 'Polícia', `${esc(s.name)} rodou ontem`, `Foram ${num(y.arrests)} enquadro(s) no dia. ${y.fail ? `${num(y.fail)} roubo(s) deram errado.` : ''}`.trim(), 'acoes', 'bad');
+    if (y && (y.ok || y.fail)) add(y.respect >= 20 ? 70 : 52, 'Ontem', y.ok ? `${num(y.ok)} roubo${y.ok > 1 ? 's' : ''} na conta de ${esc(s.name)}` : 'Dia ruim nos roubos', `${y.fail ? `${num(y.fail)} deu errado. ` : ''}Respeito ${y.respect >= 0 ? '+' : ''}${num(y.respect)}, patrimônio ${y.worth >= 0 ? '+' : '−'}${fmt(Math.abs(y.worth))}.`, 'acoes');
+    // Bicho com bilhete seu.
+    const b = j.bicho;
+    if (b && b.picks.length) add(b.won ? 97 : 66, 'Bicho', b.won ? `Deu ${esc(SB.ANIMALS[b.animal])}! ${esc(s.name)} acertou` : `Deu ${esc(SB.ANIMALS[b.animal])}: não foi dessa vez`, b.won ? `A banca pagou ${fmt(b.won)} de lucro.` : `Você tinha ${b.picks.map(k => esc(SB.ANIMALS[k.pick])).join(', ')}. Perdeu ${fmt(b.lost)}.`, 'apostas', b.won ? 'good' : '');
+    // Cidade: eventos de hoje e a previsão de amanhã.
+    for (const e of j.events) add(e.fresh ? 78 : 48, e.fresh ? 'Hoje' : 'Continua', esc(e.title), `${esc(e.desc)}${e.until > s.day ? ` Até o dia ${num(e.until)}.` : ' Só hoje.'}`, e.district ? 'cidade' : '', e.id === 'operacao' || e.id === 'fechames' || e.id === 'fiscalizacao' ? 'bad' : '');
+    if (j.tomorrow.length) add(46, 'Previsão', `Amanhã: ${j.tomorrow.map(t => esc(t.title)).join(' e ')}`, 'Se prepare hoje.', '');
+    // Gangues: quem tomou o quê e o que cada grupo fez na noite.
+    for (const t of j.turf) add(t.to === 'voce' || t.from === 'voce' ? 88 : 74, 'Gangues', t.to === 'voce' ? `${esc(s.name)} assume a ${dn(t.district)}` : t.from === 'voce' ? `${esc(s.name)} perde a ${dn(t.district)}` : `${fname(t.to)} toma a ${dn(t.district)}`, t.to === 'voce' ? 'Agora quem manda ali é você.' : t.from === 'voce' ? `${fname(t.to)} passou na frente. Volte a fazer contatos e roubos por lá.` : `${fname(t.from)} perdeu o comando da região durante a noite.`, 'cidade', t.from === 'voce' ? 'bad' : '');
+    if (j.moves.length) add(34, 'Gangues', 'O movimento da noite', j.moves.slice(0, 3).map(m => esc(m.text)).join(' '), 'cidade');
+    // Polícia.
+    const pol = j.police;
+    if (pol.heat >= 60) add(76, 'Polícia', pol.heat >= 85 ? 'Caçado: seu retrato está na delegacia' : 'A polícia está na sua cola', `Procurado ${num(pol.heat)} (${esc(pol.tier)}). Esfrie antes do próximo roubo.`, 'acoes', 'bad');
+    else if (pol.hot.v >= 20) add(40, 'Polícia', `Viatura de sobra na ${dn(pol.hot.id)}`, `Polícia ${num(pol.hot.v)} por lá. Mais tranquila: ${dn(pol.calm.id)} (${num(pol.calm.v)}).`, 'cidade');
+    else add(22, 'Polícia', 'Ronda fraca na cidade', `Nenhuma região com polícia reforçada hoje. Seu Procurado: ${num(pol.heat)} (${esc(pol.tier)}).`, 'acoes');
+    // Galpão: comprador de fora (sem contar o que ele quer), preços que mexeram e a melhor rota.
+    if (gal) {
+      const ex = j.export;
+      if (ex.today) add(SB.cargoUsed(s) > 0 ? 80 : 56, 'Porto', 'O comprador de fora atracou', `Hoje, na ${dn('cais')}. Ele só fala de negócio pessoalmente.`, 'galpao', 'good');
+      else if (ex.day > s.day && ex.day - s.day <= 2) add(44, 'Porto', `Barco previsto para o dia ${num(ex.day)}`, `Na ${dn('cais')}. Ninguém sabe o que ele vem buscar.`, 'galpao');
+      for (const m of j.movers.filter((x, i, a) => a.findIndex(y => y.good === x.good) === i).slice(0, 2)) add(50 + Math.min(10, Math.abs(m.pct) / 3), 'Galpão', `${esc(SB.good(m.good).name)} ${m.pct > 0 ? 'dispara' : 'despenca'} ${Math.abs(m.pct)}% na ${dn(m.district)}`, `De ${fmt(m.from)} para ${fmt(m.price)} por ${esc(SB.good(m.good).unit)}.`, 'galpao', m.pct > 0 ? 'good' : 'bad');
+      if (j.spread && j.spread.gain >= 2) add(42, 'Galpão', `Rota do dia: ${esc(SB.good(j.spread.good).name)}`, `Compre na ${dn(j.spread.buy)} por ${fmt(j.spread.buyPrice)} e venda na ${dn(j.spread.sell)} por ${fmt(j.spread.sellPrice)}.`, 'galpao');
+    }
+    // Negócios.
+    if (j.boom) add(58, 'Negócios', `${esc(SB.business(j.boom.id).name)} fatura alto hoje`, `O movimento da cidade puxa a casa: +${Math.round((j.boom.mult - 1) * 100)}% na renda de hoje.`, 'negocios', 'good');
+    if (j.business && SB.placeOpen(s, 'negocios')) { const bz = j.business, cabe = bz.cost <= s.cash + s.bank; add(cabe ? 38 : 26, 'Negócios', `Negócio da vez: ${esc(SB.business(bz.id).name)}`, `${fmt(bz.cost)}, rende cerca de ${fmt(bz.day)} por dia e se paga em ${num(bz.payback)} dias.${cabe ? '' : ' Junte o dinheiro.'}`, 'negocios'); }
+    // Fofoca: o próximo desbloqueio.
+    if (j.next) add(30, 'Fofoca', `Dizem que com ${num(j.next.at)} de respeito…`, `…aparece ${esc(j.next.name)} (${KIND_TXT[j.next.kind] || j.next.kind}). Faltam ${num(j.next.at - s.respect)}.`, j.next.view);
+    return N.sort((a, b) => b.prio - a.prio);
+  }
+  function jornalCard() {
+    const s = state, j = SB.jornal(s), c = SB.cityOf(s.city), news = jornalNews(s, j);
+    const lead = news[0] && news[0].prio >= 60 ? news.shift() : { kick: 'Cidade', title: esc(j.week.name.split('·').pop().trim()), text: `${esc(j.week.desc)} ${s.day < MAXDAY ? `Faltam ${num(MAXDAY - s.day)} dias para o fim do mês.` : 'Último dia do mês.'}`, view: '', tone: '' };
+    const go = v => v ? ` data-view="${v}"` : '';
+    const item = n => `<article class="jItem ${n.tone}"${go(n.view)}${n.view ? ' role="button" tabindex="0"' : ''}><span class="jKick">${esc(n.kick)}</span><h4>${n.title}</h4><p>${n.text}</p></article>`;
+    const pi = SB.phaseIndex(s), ph = SB.PHASES[pi], nx = SB.PHASES[pi + 1];
+    const ficha = `<section class="rumo ficha jFicha" aria-label="Seu progresso"><span class="jKick">Coluna do respeito</span>
+        <div class="progHead"><b>${esc(ph.name)}</b><span>${nx ? `faltam ${num(nx.at - s.respect)} para ${esc(nx.name)}` : 'patente máxima'}</span></div><div class="meter"><div style="width:${pct(nx ? (s.respect - ph.at) / (nx.at - ph.at) * 100 : 100)}%"></div></div>
+        <div class="progRank">${online ? (rank.me ? `<span>Ranking do mês: <b>${num(rank.me.posicao)}º de ${num(rank.me.total)}</b>${rank.me.acima_codinome && Number(rank.me.posicao) > 1 ? ` · ${num(Math.max(1, rank.me.acima_respeito - rank.me.respeito + 1))} para passar ${esc(rank.me.acima_codinome)}` : ''}</span>` : '<span>Ranking do mês</span>') : `<span>Temporada ${num(s.season)} · ★ ${num(s.respect)} de respeito</span>`}${button(online ? 'Ranking' : 'Temporada', 'switch', `data-target="${online ? 'ranking' : 'temporada'}"`, false, 'small ghost')}</div></section>`;
+    const b = j.bicho, tk = j.tickets, apostas = SB.placeOpen(s, 'apostas');
+    const bicho = b || tk.length ? `<section class="jBicho ${b && b.won ? 'paid' : ''}" aria-label="Resultado do bicho"${apostas ? ' data-view="apostas" role="button" tabindex="0"' : ''}><span class="jKick">Deu no bicho</span>
+        ${b ? `<div class="jDraw"><b>${String(b.animal + 1).padStart(2, '0')}</b><span>${esc(SB.ANIMALS[b.animal])}<em>grupo ${String(b.animal + 1).padStart(2, '0')} · extração do dia ${num(b.day)}</em></span></div>` : ''}
+        ${b && b.picks.length ? `<p class="${b.won ? 'win' : 'lose'}">${b.won ? `Você acertou: +${fmt(b.won)}` : `Seu jogo: ${b.picks.map(k => esc(SB.ANIMALS[k.pick])).join(', ')}. Não deu.`}</p>` : ''}
+        ${tk.length ? `<p class="tick">Hoje à noite: ${tk.map(k => `${esc(SB.ANIMALS[k.pick])} ${fmt(k.stake)}`).join(' · ')}</p>` : ''}</section>` : '';
+    const list = bicho ? news.filter(n => n.kick !== 'Bicho') : news; // o quadro do bicho já conta o resultado
+    const shown = list.slice(0, 2), rest = list.slice(2);
+    return `<section class="jornal" aria-label="Jornal do Submundo">
+      <header class="jMast"><div class="jEars"><span>Edição ${esc(c.name)}</span><span>Dia ${num(s.day)} de ${num(MAXDAY)}</span></div>
+        <h2 class="jTitle">Jornal do Submundo</h2>
+        <div class="jSub"><span>${esc(j.week.name)}</span><span>O que a polícia não lê</span></div></header>
+      <article class="jLead ${lead.tone}"${go(lead.view)}${lead.view ? ' role="button" tabindex="0"' : ''}><div class="jPhoto" aria-hidden="true"></div><div class="jLeadText"><span class="jKick">${esc(lead.kick)}</span><h3>${lead.title}</h3><p>${lead.text}</p></div></article>
+      <div class="jGrid">${ficha}${bicho}${shown.map(item).join('')}</div>
+      ${rest.length ? `<details class="jMore"><summary>Ler o jornal inteiro <small>${rest.length} notícia${rest.length > 1 ? 's' : ''}</small></summary><div class="jGrid">${rest.map(item).join('')}</div></details>` : ''}
+    </section>`;
+  }
+  /** Diário: agenda de folhas gastas, o dia de hoje aberto e os anteriores para folhear. */
+  function agenda() {
+    const s = state, byDay = new Map();
+    for (const i of state.log) { if (!byDay.has(i.day)) byDay.set(i.day, []); byDay.get(i.day).push(i.msg); }
+    const days = [...byDay.keys()].sort((a, b) => b - a), hoje = byDay.get(s.day) || [], wk = SB.week(s).name.split('·')[0].trim();
+    const page = (d, msgs, max) => `<div class="agPage"><h4 class="agDay"><b>Dia ${num(d)}</b>${d === s.day ? '<span>hoje</span>' : `<span>${num(s.day - d)} dia${s.day - d > 1 ? 's' : ''} atrás</span>`}</h4><ul class="agList">${msgs.slice(0, max).map(m => `<li>${esc(m)}</li>`).join('')}</ul>${msgs.length > max ? more(`<ul class="agList">${msgs.slice(max).map(m => `<li>${esc(m)}</li>`).join('')}</ul>`, `Mais ${msgs.length - max} anotaç${msgs.length - max > 1 ? 'ões' : 'ão'}`) : ''}</div>`;
+    const old = days.filter(d => d !== s.day);
+    return `<section class="agenda" aria-label="Diário"><div class="agRings" aria-hidden="true"></div>
+      <div class="agHead"><b>Diário</b><span>${esc(wk)} · ${esc(s.city)}</span></div>
+      ${page(s.day, hoje.length ? hoje : ['Nada anotado ainda hoje.'], 5)}
+      ${old.length ? `<details class="agBack"><summary>Folhear os dias anteriores</summary>${old.map(d => page(d, byDay.get(d), 4)).join('')}</details>` : ''}</section>`;
   }
   /** Capítulo da história à espera de decisão: quem fala, o que diz e as duas saídas. */
   function storyCard() {
@@ -567,7 +650,6 @@
       <div class="btnbar fichaGo">${button('Feitos', 'switch', 'data-target="temporada"', false, 'small ghost')}${c ? button('Habilidades', 'switch', 'data-target="perfil"', false, 'small ghost') : ''}</div>
       ${s.day >= 25 && s.day < MAXDAY ? `<p class="warn">Reta final: faltam ${MAXDAY - s.day} dia(s).</p>` : ''}</section>`;
   }
-  function journal(max) { return `<ul class="timeline">${state.log.slice(0, max).map(i => `<li><time>Dia ${num(i.day)}</time>${esc(i.msg)}</li>`).join('')}</ul>`; }
 
   function careerCard() {
     return `<section class="card choiceCard"><div class="eyebrow">Decisão permanente nesta temporada</div><h2>Escolha sua especialização</h2><p>Quatro caminhos para o topo do Respeito: cada um com vantagens, uma desvantagem e três habilidades desbloqueáveis com experiência.</p>
@@ -920,9 +1002,11 @@
         <div class="formfield" style="margin-top:10px"><label for="betStake">Valor da aposta (R$)</label><input class="input" id="betStake" type="number" min="10" step="10" inputmode="numeric" value="${st}"></div>
         <div class="filterbar" style="margin-top:8px">${stakes.map(v => `<button type="button" class="btn ghost" data-action="bet-stake" data-id="${v}">${fmt(v)}</button>`).join('')}<button type="button" class="btn ghost" data-action="bet-stake" data-id="${Math.min(s.cash, SB.BET_MAX)}">Tudo</button></div></section>
       <div class="grid" style="margin-top:10px">
-        <section class="card"><h3>Jogo do bicho</h3><p class="mini">Escolha um dos 25 bichos. Acertou, a banca paga <strong>${SB.bichoPays(s)}×</strong> (1 chance em 25).</p>
+        <section class="card"><h3>Jogo do bicho</h3><p class="mini">Escolha um dos 25 bichos. Acertou, a banca paga <strong>${SB.bichoPays(s)}×</strong> (1 chance em 25). A extração é de noite: o resultado sai amanhã cedo, no jornal da Rua.</p>
+          ${s.bicho.tickets.length ? `<p class="mini"><strong>Seus bilhetes para hoje:</strong> ${s.bicho.tickets.map(k => `${esc(SB.ANIMALS[k.pick])} ${fmt(k.stake)}`).join(' · ')}</p>` : ''}
+          ${s.bicho.last && s.bicho.last.day === s.day - 1 ? `<p class="mini">Ontem deu <strong>${esc(SB.ANIMALS[s.bicho.last.animal])}</strong>${s.bicho.last.picks.length ? (s.bicho.last.won ? ` · você ganhou ${fmt(s.bicho.last.won)}` : ' · seu jogo não saiu') : ''}.</p>` : ''}
           <div class="formfield"><label for="betAnimal">Seu bicho</label><select class="input" id="betAnimal">${SB.ANIMALS.map((a, i) => `<option value="${i}" ${i === betPick ? 'selected' : ''}>${String(i + 1).padStart(2, '0')} · ${a}</option>`).join('')}</select></div>
-          <div style="margin-top:8px">${button('Fazer a fezinha', 'bet', 'data-id="bicho"', off || s.cash < 10, 'small primary block')}</div></section>
+          <div style="margin-top:8px">${button('Fazer a fezinha', 'bet', 'data-id="bicho"', off || s.cash < 10 || s.day >= MAXDAY, 'small primary block')}</div>${s.day >= MAXDAY ? '<p class="mini negative" style="margin:6px 0 0">Último dia do mês: não tem extração amanhã.</p>' : ''}</section>
         <section class="card shopRow"><div><h3>Sinuca valendo dinheiro</h3><p class="mini">No bar, contra o malandro da mesa. Dobra o valor; sua chance depende de Astúcia e Lábia. Teto de ${fmt(2000)}.</p></div><div class="shopAct"><strong>${SB.sinucaOdds(s)}%</strong>${button('Jogar', 'bet', 'data-id="sinuca"', off || s.cash < 10, 'small primary')}</div></section>
         <section class="card shopRow"><div><h3>Roleta clandestina</h3><p class="mini">Vermelho ou preto no cassino do fundo. Dobra o valor. Teto de ${fmt(SB.BET_MAX)}.</p></div><div class="shopAct"><strong>47%</strong>${button('Girar', 'bet', 'data-id="roleta"', off || s.cash < 10, 'small primary')}</div></section>
       </div><p class="mini" style="margin-top:6px">Até ${SB.BET_LIMIT} apostas por dia. Em todos os jogos a banca tem vantagem: aposta é adrenalina, não renda.</p>`;
@@ -982,7 +1066,10 @@
     { const v = SB.DISTRICT_VIBE[state.district]; document.documentElement.style.setProperty('--bairro', v ? v.color : '#e0a040'); document.body.dataset.bairro = state.district;
       // Fundo com a textura da região (art/textura-<tipo>.webp); sem a imagem, fica o fundo escuro padrão.
       const tx = window.SB_ART && window.SB_ART['textura-' + state.district];
-      if (tx !== lastTexture) { lastTexture = tx; document.documentElement.style.setProperty('--textura', tx ? `url("${tx}")` : 'none'); document.body.classList.toggle('textured', !!tx); } }
+      if (tx !== lastTexture) { lastTexture = tx; document.documentElement.style.setProperty('--textura', tx ? `url("${tx}")` : 'none'); document.body.classList.toggle('textured', !!tx); }
+      // Foto da manchete do jornal: a pintura da região, em preto e branco.
+      const ft = window.SB_ART && window.SB_ART['bairro-' + state.district];
+      if (ft !== lastFoto) { lastFoto = ft; document.documentElement.style.setProperty('--foto', ft ? `url("${ft}")` : 'none'); } }
     const pages = { painel: panel, acoes: actions, hub, cidade: city, gestao: management, negocios, feira, galpao, noite, duelos, apostas, hospital, gangue: gang, assaltos, perfil, temporada: seasons, ranking: rankingView };
     try {
       $('#content').innerHTML = (pages[view] || panel)() + (view !== 'perfil' ? '' : `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • 18+ • Cidades reais, pontos e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`);
@@ -1097,6 +1184,8 @@
   });
   document.addEventListener('change', e => { if (e.target.id === 'importFile') importFile(e.target.files && e.target.files[0], false); });
   document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'bankAmount') { e.preventDefault(); run('bank', 'deposit', Number(e.target.value)); } });
+  // Notícias do jornal e o quadro do bicho são atalhos: Enter ou espaço abrem a tela da notícia.
+  document.addEventListener('keydown', e => { const t = e.target; if ((e.key === 'Enter' || e.key === ' ') && t && t.matches && t.matches('[role=button][data-view]')) { e.preventDefault(); switchView(t.dataset.view); } });
   $('#menuToggle').addEventListener('click', () => { const open = $('#sidebar').classList.toggle('open'); $('#menuToggle').setAttribute('aria-expanded', String(open)); });
   $('#newGameForm').addEventListener('submit', e => {
     e.preventDefault();

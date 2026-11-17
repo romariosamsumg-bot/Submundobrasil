@@ -199,7 +199,8 @@ await page.click('[data-action=duel][data-id=marrento]');
   await page.fill('#betStake', '200'); await page.selectOption('#betAnimal', '6');
   await page.click('[data-action=bet][data-id=bicho]');
   let bs = await st();
-  check(bs.today.bets === 1 && (bs.cash === 4800 || bs.cash === 5000 + 200 * 17), 'jogo do bicho: aposta de R$ 200 perdida ou paga 18×');
+  check(bs.today.bets === 1 && bs.cash === 4800 && bs.bicho.tickets.length === 1 && bs.bicho.tickets[0].pick === 6, 'jogo do bicho: a fezinha de R$ 200 vira bilhete (resultado amanhã)');
+  check((await page.textContent('#content')).includes('Seus bilhetes para hoje'), 'Apostas mostra o bilhete do bicho');
   await page.click('[data-action=bet-stake][data-id="50"]');
   check(await page.inputValue('#betStake') === '50', 'atalho de valor preenche a aposta');
   await go('hospital');
@@ -232,7 +233,18 @@ await page.click('[data-action=duel][data-id=marrento]');
   await go('perfil'); check(await page.locator('.infCard .infRow').count() === 5, 'Perfil mostra a influência nos 5 bairros'); await go('painel');
   check(await page.evaluate(() => { const keep = window.SB_ART; window.SB_ART = {}; window.__SB_UI.go('painel'); const drawn = !document.querySelector('.locale .paintedScene') && !!document.querySelector('.locale svg.scene'); window.SB_ART = keep; window.__SB_UI.go('painel'); return drawn && !!document.querySelector('.locale .paintedScene img'); }), 'imagem pintada do bairro substitui a cena desenhada (e sem ela volta o desenho)');
   check(await page.locator('.loop').count() === 0, 'Rua sem o bloco Seu ciclo (a barra de baixo já leva às telas)');
-  check(await page.locator('.ficha .fichaRow').count() >= 2, 'ficha da temporada reúne patente, classe, meta e título');
+  check(await page.locator('.jornal .jFicha .progHead').count() === 1 && await page.locator('.jornal .jFicha .progRank').count() === 1, 'a patente e o progresso estão no jornal (Coluna do respeito)');
+  check(await page.locator('.jornal .jTitle').count() === 1 && await page.locator('.jornal .jLead h3').count() === 1 && await page.locator('.dayNews').count() === 0, 'Rua: o Hoje na cidade virou o Jornal do Submundo, com manchete');
+  check(await page.locator('.agenda .agPage').count() >= 1 && (await page.textContent('.agenda .agDay')).includes('Dia'), 'Diário em forma de agenda, com o dia de hoje aberto');
+  { // bicho: aposta hoje, resultado no jornal de amanhã
+    await page.evaluate(() => { const k = 'submundo_brasil_v01', SB = window.SB, s = JSON.parse(localStorage.getItem(k)); s.cash = Math.max(s.cash, 500); s.respect = Math.max(s.respect, 10); s.jail = 0; s.hospital = 0; s.today.bets = 0; s.clock = null; s.day = Math.min(s.day, SB.MAXDAY - 2);
+      SB.perform(s, 'bet', 'bicho', 100, 4); SB.perform(s, 'nextDay'); localStorage.setItem(k, JSON.stringify(s)); });
+    await page.reload(); await go('painel');
+    const jb = await page.textContent('.jornal .jBicho');
+    check(jb.includes('Deu no bicho') && jb.includes('extração do dia') && (jb.includes('Você acertou') || (jb.includes('Seu jogo:') && jb.includes('Cachorro'))), 'o resultado do bicho sai no jornal do dia seguinte');
+    await page.click('.jornal .jMore summary').catch(() => {}); check(await page.locator('.jornal .jItem').count() >= 3, 'o jornal inteiro abre com as demais notícias');
+    await page.click('.jornal .jBicho'); check((await page.textContent('#content')).includes('Fazer a fezinha'), 'tocar no quadro do bicho leva às Apostas'); await go('painel');
+  }
 
   console.log('3c. Arte (v1.1)');
   await go('hub');

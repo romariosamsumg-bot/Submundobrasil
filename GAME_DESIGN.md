@@ -300,7 +300,7 @@ serviços. Nenhum layout, nome, texto ou arte de outros jogos foi copiado.
 | Missões | **Quadro de serviços**: ícone do atributo, chance em destaque, botão grande à direita (polegar) | Serviços |
 | Facções | **Dossiê** em pasta parda com emblema próprio | Gangue |
 | Integrantes | Cartinhas com nível, função por cor e XP | Gangue |
-| Registro | **Diário** de caderno pautado | Início |
+| Registro | **Diário** em agenda de folhas gastas; **Jornal do Submundo** na Rua | Início |
 | Virada do dia | Amanhecer de 1 segundo com "Dia N" | Global |
 | Capa | Logo pintado + faixa verde-amarelo-azul sobre a cena do Centro | Tela inicial |
 
@@ -702,8 +702,9 @@ Pedido do autor: a Rua é o lugar da narrativa, da emoção, das decisões e dos
 4. **Capítulo da história**, quando há um à espera, em papel de lambe-lambe: quem fala, o texto e duas decisões com o preço à vista.
 5. **Notícia com decisão** (o sistema que já existia).
 6. **Recados da rua** (até 3): caçado ou na mira, ferido, vício alto, comprador de fora no cais, plano do bando de pé, rival crescendo num bairro seu, reta final do mês. Cada recado leva à tela certa.
-7. **Progresso** numa faixa: patente, quanto falta para a próxima e o ranking do mês (online) ou a temporada (offline).
-8. **Dia** numa linha, com Dormir ou Ir pra casa. **Hoje na cidade** só com o título; o efeito fica em "O que muda". **Diário** com o último registro e "Ver mais". O rodapé ficou só no Perfil.
+7. **Dia** numa linha, com Dormir ou Ir pra casa.
+8. **Jornal do Submundo** (substituiu o "Hoje na cidade" e a faixa de progresso; ver "Jornal do Submundo e Diário em agenda").
+9. **Diário** em forma de agenda. O rodapé ficou só no Perfil.
 
 **Capítulos** (um por patente, no máximo um por dia; a história acompanha o personagem entre temporadas e não se repete). Personagens inventados:
 
@@ -750,6 +751,34 @@ Tela própria de Ranking, sem aba nova. Abre por três caminhos: **tocar na estr
 - **O nome inventado de cada cidade virou o "ponto" dentro da região** (`d.spot`): aparece embaixo da placa ("Região Portuária · Cais da Guanabara · Rio de Janeiro"), no título de Roubar, na ajuda e nas frases da Rua. Assim a região é familiar e o lugar do crime continua fictício.
 - Todos os textos dizem "região" ("Desta região", "Polícia na região", "Comprar passagem e ir").
 - **Fundo com textura pintada por região**, repetida e escurecendo para baixo: paralelepípedo (Central), chapa de contêiner (Portuária), tijolo baiano (Residencial), chapa de aço com faixa zebrada (Industrial) e calçadão em ondas vinho com confete (Boêmia). As imagens ficam em `art/textura-<tipo>.webp` (512 × 512, sem emenda, cerca de 120 KB as cinco). A antiga listra vertical e o brilho colorido no topo saíram; a cor da região continua nas bordas e nos títulos.
+
+### Jornal do Submundo e Diário em agenda (v1.5, pedido do autor)
+
+**O jornal da manhã** fica na Rua, no lugar do "Hoje na cidade". Papel-jornal com cabeçalho (edição da cidade, dia, semana do mês), **manchete com foto** (a pintura da região em preto e branco, com retícula) e notícias em colunas com fio. Cada notícia é um atalho: tocar leva à tela dela.
+
+Visível de cara: a manchete, a **Coluna do respeito** (patente, quanto falta para a próxima e ranking do mês ou temporada), o **quadro do bicho** e as duas notícias mais importantes. O resto fica em "Ler o jornal inteiro".
+
+As notícias saem de `SB.jornal(s)` (motor, só leitura) e o texto de `jornalNews` (`ui.js`). A notícia mais importante vira manchete:
+
+| Seção | Notícia | Peso |
+|---|---|---|
+| Extra | Patente nova agora há pouco; o que o respeito de hoje abriu (carimbo vermelho EXTRA) | 99 / 94 |
+| Carreira · Novidades | Patente nova ontem; o que o respeito de ontem abriu (arma, colete, veículo, casa da noite, mercadoria, esquema, assalto, adversário, lugar) | 98 / 86 |
+| Bicho | Resultado da extração de ontem com o seu jogo (pago ou não) | 97 / 66 |
+| Polícia | Você rodou ontem; você está caçado ou na mira; a região com mais polícia e a mais calma | 90 / 76 / 40 |
+| Gangues | Você tomou ou perdeu uma região; um grupo tomou região de outro; o movimento da noite | 88 / 74 / 34 |
+| Porto | O comprador de fora atracou hoje (sem dizer o que quer nem quanto paga); barco previsto em até 2 dias | 80 / 44 |
+| Hoje · Continua · Previsão | Evento que começou hoje, evento em andamento, evento fixo de amanhã | 78 / 48 / 46 |
+| Ontem | Roubos certos e errados, respeito e patrimônio do dia | 70 ou 52 |
+| Galpão | Mercadoria que mais subiu ou caiu desde ontem (10% ou mais; uma por mercadoria); a rota do dia (onde comprar e onde vender) | 50–60 / 42 |
+| Negócios | Sua casa que fatura alto hoje por evento; o negócio da vez (o que se paga mais rápido e cabe no bolso) | 58 / 38 |
+| Fofoca | O próximo desbloqueio e quanto falta | 30 |
+
+**Foto da manhã:** na virada do dia o motor guarda `paper.cur` (respeito, patrimônio, Procurado, roubos, prisões, líder de cada região e preços do Galpão) e passa a anterior para `paper.prev`. O jornal compara as duas. Saves antigos começam com a foto de agora (sem notícias de "ontem" no primeiro dia).
+
+**Bicho no dia seguinte:** a fezinha vira bilhete (`bicho.tickets`, até 6 por dia) e o dinheiro sai na hora. A extração é feita na virada do dia, com um sorteio para todos os bilhetes daquele dia. Quem acerta recebe 18× (Bicheiro 20×), na mesma conta de antes. O resultado (`bicho.last`) sai no jornal, nas Apostas e no resumo do dia. Sem bilhete, o jornal ainda publica o bicho que deu (sem usar o sorteio do motor). No último dia do mês não há fezinha. A simulação deu os mesmos números de antes, porque os robôs não jogam bicho.
+
+**Diário em agenda:** folha amarelada e gasta, com argolas, margem vermelha, pautas e orelha dobrada. Mostra o dia de hoje aberto (5 anotações e "Mais N") e "Folhear os dias anteriores", com uma página por dia.
 
 ### Sons (v1.5)
 
@@ -1031,7 +1060,7 @@ Bar e Casa de Shows também contam como casas da noite (bônus do Barão e da No
 ### Apostas (Cidade → Apostas, abre com 8 de respeito)
 | Jogo | Chance | Paga | Teto |
 |---|---|---|---|
-| Jogo do bicho | 1 em 25 | 18× (Bicheiro: 20×) | R$ 20.000 |
+| Jogo do bicho (resultado no dia seguinte) | 1 em 25 | 18× (Bicheiro: 20×) | R$ 20.000 |
 | Sinuca valendo dinheiro | 34–49% (Astúcia e Lábia) | 2× | R$ 2.000 |
 | Roleta clandestina | 47% | 2× | R$ 20.000 |
 

@@ -9,7 +9,7 @@ entregue** (`<script id="sb-engine">`), não de uma cópia.
 
 ## 1. Testes do motor — `tests/engine.test.js`
 
-**201 de 201 passaram** (v1.5: ciclo do roubo do autor — 4 travas do iniciante, escada com chance pela proporção, propina, doses sem limite, desintoxicação que custa saúde, UTI e clínica com preço subindo; roubos procedurais, com a escada saindo das fórmulas, os três tipos, repetição livre e os gatilhos do Procurado; despachante várias vezes no dia, com o preço dobrando; meta removida, com a recusa sem mudar o estado e o save antigo no meio do guia; + 1 sobre roubo em sequência com equipamento básico (risco ≤ 5% por tentativa); + 2 sobre feitos do mês e respeito como placar; + 2 sobre equipamento nos roubos e veículo de fuga; + 1 sobre a conta da luta; + 3 sobre itens que são seus e a ficha da temporada; + 14 sobre o relógio do online; + 2 sobre o começo do zero e os preços da Feira; + 4 sobre a trilha de compra; v1.4: + retrato do jogador; + 4 sobre as quatro classes; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
+**203 de 203 passaram** (v1.5: jornal da manhã e bicho com resultado no dia seguinte, com bilhete, extração na virada, recusa no último dia e save adulterado limitado; ciclo do roubo do autor — 4 travas do iniciante, escada com chance pela proporção, propina, doses sem limite, desintoxicação que custa saúde, UTI e clínica com preço subindo; roubos procedurais, com a escada saindo das fórmulas, os três tipos, repetição livre e os gatilhos do Procurado; despachante várias vezes no dia, com o preço dobrando; meta removida, com a recusa sem mudar o estado e o save antigo no meio do guia; + 1 sobre roubo em sequência com equipamento básico (risco ≤ 5% por tentativa); + 2 sobre feitos do mês e respeito como placar; + 2 sobre equipamento nos roubos e veículo de fuga; + 1 sobre a conta da luta; + 3 sobre itens que são seus e a ficha da temporada; + 14 sobre o relógio do online; + 2 sobre o começo do zero e os preços da Feira; + 4 sobre a trilha de compra; v1.4: + retrato do jogador; + 4 sobre as quatro classes; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
 
 | Cenário pedido | Testes |
 |---|---|
@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**131 de 131 verificações passaram** (v1.5: o resultado pula num popup inteiro dentro da tela, some do topo e fecha no OK; nos demais testes o popup deixa os toques passarem; v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
+**166 de 166 verificações passaram** (v1.5: Jornal do Submundo na Rua com manchete e Coluna do respeito, resultado do bicho no jornal do dia seguinte, Diário em agenda; o resultado pula num popup inteiro dentro da tela, some do topo e fecha no OK; nos demais testes o popup deixa os toques passarem; v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
 
 - **Ranking** (v1.5): a estrela do topo abre o ranking do mês com você destacado, quanto falta para passar o de cima, a Galeria da fama, o filtro pela cidade e a sua posição na Rua (servidor simulado).
 - **Nenhum texto cortado** (v1.5): 16 telas (com o Ranking) nas 6 cidades, com nome de 22 letras, R$ 123.456 e a patente mais longa, mais as páginas de "Como jogar". O detector foi conferido contra a versão anterior, onde acusou o corte do topo.
@@ -85,6 +85,8 @@ ausência de cortes).
 
 - `https://romariosamsumg-bot.github.io/Submundobrasil/` responde 200 e entrega exatamente o último build.
 - Teste real pelo site: conta criada, ficha (retrato, vulgo, classe), roubo calculado pelo servidor em 1,5 s (medido de fora do Brasil), ranking com o jogador. Conta de teste apagada; o banco ficou com 0 jogadores.
+
+> **Jornal e bicho (v1.5):** `npm run simulate` rodado antes e depois da mudança deu os mesmos números (ex.: `ciclo` com patrimônio 5.080,4 e respeito 151,7; `aleatorio` 114,9). O bicho mantém a conta (1 em 25, paga 18× ou 20×); só o momento do resultado mudou, e os robôs não jogam bicho.
 
 ## 4. Simulação de balanceamento — `tests/simulate.js`
 

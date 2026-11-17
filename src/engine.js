@@ -601,7 +601,7 @@
   function factionFor(districtId) { return FACTIONS.find(f => f.districts.includes(districtId)) || FACTIONS[0]; }
 
   function defaultState(name, city) {
-    return {
+    const st = {
       schema: SCHEMA, version: VERSION, name, city, season: 1, day: 1,
       cash: START_CASH, bank: 0, energy: 100, heat: 0, respect: 5,
       stats: { astucia: 6, forca: 4, labia: 4, influencia: 3 },
@@ -621,8 +621,11 @@
       labs: Object.fromEntries(LABS.map(l => [l.id, 0])), labDown: {}, exportDeal: { day: 5, good: 'cigarro' }, exportDone: 0, ressaca: 0,
       trade: { sold: 0, spent: 0, exported: 0, blitz: 0 },
       health: 100, hospital: 0, beaten: {}, done: emptyDone(), duelStats: { wins: 0, losses: 0 },
-      heist: null, heistReady: 0, vicio: 0, overdoses: 0, betStats: { won: 0, lost: 0 }
+      heist: null, heistReady: 0, vicio: 0, overdoses: 0, betStats: { won: 0, lost: 0 },
+      bicho: { tickets: [], last: null }, paper: null
     };
+    st.paper = { prev: null, cur: paperSnap(st) };
+    return st;
   }
 
   /**
@@ -843,6 +846,26 @@
     s.turfOwned = Array.isArray(saved.turfOwned) ? DISTRICTS.map(d => d.id).filter(id => saved.turfOwned.includes(id)) : ownedTurf(s);
     if (isNum(saved.ladderMax)) s.ladderMax = toInt(saved.ladderMax, 0, 0, LADDER_TOP);
     else s.ladderMax = s.successful > 0 ? Math.max(1, ...MISSIONS.filter(m => !m.variant && missionChance(s, m) >= 70).map(m => m.n)) : 0;
+    // v1.5: bilhetes do bicho (resultado no dia seguinte) e a foto da manhã do jornal.
+    s.bicho = { tickets: [], last: null };
+    if (saved.bicho && typeof saved.bicho === 'object') {
+      if (Array.isArray(saved.bicho.tickets)) s.bicho.tickets = saved.bicho.tickets.filter(k => k && Number.isInteger(k.pick) && k.pick >= 0 && k.pick <= 24).slice(0, BET_LIMIT)
+        .map(k => ({ pick: k.pick, stake: toInt(k.stake, 10, 10, BET_MAX), pays: toInt(k.pays, 18, 18, 20) }));
+      const l = saved.bicho.last;
+      if (l && typeof l === 'object' && Number.isInteger(l.animal) && l.animal >= 0 && l.animal <= 24) s.bicho.last = { day: toInt(l.day, 1, 1, MAXDAY), animal: l.animal,
+        picks: (Array.isArray(l.picks) ? l.picks : []).filter(k => k && Number.isInteger(k.pick) && k.pick >= 0 && k.pick <= 24).slice(0, BET_LIMIT).map(k => ({ pick: k.pick, stake: toInt(k.stake, 10, 10, BET_MAX), hit: k.hit === true })),
+        won: toInt(l.won, 0, 0, BIG), lost: toInt(l.lost, 0, 0, BIG) };
+    }
+    const snap = x => {
+      if (!x || typeof x !== 'object') return null;
+      const now = paperSnap(s), lead = x.leaders && typeof x.leaders === 'object' ? x.leaders : {}, mk = x.market && typeof x.market === 'object' ? x.market : {};
+      return { day: toInt(x.day, s.day, 1, MAXDAY), respect: toInt(x.respect, now.respect, 0, BIG), worth: toInt(x.worth, now.worth, 0, BIG), heat: toInt(x.heat, now.heat, 0, 100),
+        ok: toInt(x.ok, now.ok, 0, BIG), fail: toInt(x.fail, now.fail, 0, BIG), arrests: toInt(x.arrests, now.arrests, 0, BIG),
+        leaders: Object.fromEntries(DISTRICTS.map(d => [d.id, lead[d.id] === 'voce' || FACTIONS.some(f => f.id === lead[d.id]) ? lead[d.id] : now.leaders[d.id]])),
+        market: Object.fromEntries(DISTRICTS.map(d => [d.id, Object.fromEntries(GOODS.map(g => [g.id, toInt(mk[d.id] && mk[d.id][g.id], now.market[d.id][g.id], 60, 150)]))])) };
+    };
+    const sp = saved.paper && typeof saved.paper === 'object' ? saved.paper : {};
+    s.paper = { prev: snap(sp.prev), cur: snap(sp.cur) || paperSnap(s) };
     s.schema = SCHEMA; s.version = VERSION;
     if (!hadFeats) for (const c of CATEGORIES) if (FEAT_CATS.includes(c.id)) s.feats[c.id] = medalFor(c, Math.max(0, categoryValue(s, c.id)));
     return { state: s, notes };
@@ -2088,17 +2111,22 @@
     if (stake > s.cash) return refuse('Você não tem esse dinheiro em mãos.');
     if (s.today.bets >= BET_LIMIT) return refuse(`${BET_LIMIT} apostas por dia. A banca fechou para você.`);
     let odds, mult, label;
-    if (game === 'bicho') { if (!Number.isInteger(pick) || pick < 0 || pick > 24) return refuse('Escolha um dos 25 bichos.'); odds = 4; mult = bichoPays(s); label = `Jogo do bicho (${ANIMALS[pick]})`; }
+    if (game === 'bicho') {
+      // O bicho corre de noite: a fezinha vira bilhete e o resultado sai no jornal da manhã seguinte.
+      if (!Number.isInteger(pick) || pick < 0 || pick > 24) return refuse('Escolha um dos 25 bichos.');
+      if (s.day >= MAXDAY) return refuse('Último dia do mês: não tem extração amanhã.');
+      s.today.bets++; addHeat(s, 1); s.cash -= stake;
+      s.bicho.tickets.push({ pick, stake, pays: bichoPays(s) });
+      log(s, `Jogo do bicho: ${money(stake)} no ${ANIMALS[pick]}. O resultado sai amanhã cedo, no jornal.`);
+      return done(true, `Fezinha feita: ${money(stake)} no ${ANIMALS[pick]}. O resultado sai amanhã, no jornal.`);
+    }
     else if (game === 'roleta') { odds = 47; mult = 2; label = 'Roleta clandestina'; }
     else if (game === 'sinuca') { if (stake > 2000) return refuse('Na sinuca do bar, o teto é R$ 2.000.'); odds = sinucaOdds(s); mult = 2; label = 'Sinuca valendo dinheiro'; }
     else return refuse('Jogo desconhecido.');
     s.today.bets++; addHeat(s, 1);
-    let win;
-    if (game === 'bicho') { const drawn = rand(0, 24); win = drawn === pick; label += win ? '' : `, deu ${ANIMALS[drawn]}`; }
-    else win = roll(odds);
+    const win = roll(odds);
     if (win) {
       const gain = stake * (mult - 1); s.cash += gain; s.betStats.won += gain;
-      if (game === 'bicho') unlock(s, 'deunobicho');
       log(s, `${label}: ganhou ${money(gain)}.`);
       return done(true, `${label}: ganhou ${money(gain)}!`);
     }
@@ -2106,6 +2134,79 @@
     log(s, `${label}: perdeu ${money(stake)}.`);
     return done(false, `${label}: perdeu ${money(stake)}.`);
   }
+
+  /** Extração do bicho: roda na virada do dia, paga os bilhetes de ontem e guarda o resultado para o jornal.
+   *  Sem bilhete, o resultado é só notícia (não gasta o sorteio do motor). */
+  function drawBicho(s, lines) {
+    const t = s.bicho.tickets;
+    const animal = t.length ? rand(0, 24) : (s.day * 7 + s.season * 13 + (s.successful % 25) * 3) % 25;
+    let won = 0, lost = 0;
+    const picks = t.map(k => { const hit = k.pick === animal; if (hit) { const gain = k.stake * (k.pays - 1); s.cash += k.stake * k.pays; won += gain; } else lost += k.stake; return { pick: k.pick, stake: k.stake, hit }; });
+    s.betStats.won += won; s.betStats.lost += lost;
+    if (won) unlock(s, 'deunobicho');
+    s.bicho = { tickets: [], last: { day: Math.max(1, s.day - 1), animal, picks, won, lost } };
+    if (lines && picks.length) lines.push(won ? `Deu ${ANIMALS[animal]} no bicho: você acertou e levou ${money(won)}.` : `Deu ${ANIMALS[animal]} no bicho: sua fezinha não saiu (−${money(lost)}).`);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Jornal do Submundo: a "foto" do começo de cada dia. O jornal da manhã compara a de hoje com a de     */
+  /* ontem e reúne o que importa na cidade. Só leitura: nada aqui muda o estado.                          */
+  /* ------------------------------------------------------------------ */
+  const paperSnap = s => ({ day: s.day, respect: s.respect, worth: Math.max(0, patrimony(s)), heat: s.heat, ok: s.successful, fail: s.failed, arrests: s.seasonStats.arrests,
+    leaders: Object.fromEntries(DISTRICTS.map(d => [d.id, controlled(s, d.id) ? 'voce' : leader(s, d.id).id])),
+    market: Object.fromEntries(DISTRICTS.map(d => [d.id, Object.assign({}, s.market[d.id])])) });
+  /** Tudo o que o respeito abre, com o limiar e a tela onde aparece. */
+  const PLACE_NAMES = { apostas: 'Apostas', duelos: 'Duelos de rua', galpao: 'Galpão', cidade: 'Regiões', gangue: 'Bando' };
+  function unlockCatalog(s) {
+    const out = [];
+    PHASES.forEach((p, i) => { if (i) out.push({ at: p.at, kind: 'patente', id: 'p' + i, name: p.name, view: 'perfil' }); });
+    if (!s.seasonHistory.length) for (const [v, at] of Object.entries(GATES)) out.push({ at, kind: 'lugar', id: v, name: PLACE_NAMES[v] || v, view: v });
+    for (const i of ITEMS) if (i.unlock > 0 && !i.trophy) out.push({ at: i.unlock, kind: i.slot, id: i.id, name: i.name, view: 'feira' });
+    for (const n of NIGHT) if (n.unlock > 0) out.push({ at: n.unlock, kind: 'noite', id: n.id, name: n.name, view: 'noite' });
+    for (const g of GOODS) if (g.unlock > 0) out.push({ at: g.unlock, kind: 'mercadoria', id: g.id, name: g.name, view: 'galpao' });
+    for (const l of LABS) if (l.unlock > 0) out.push({ at: l.unlock, kind: 'esquema', id: l.id, name: l.name, view: 'negocios' });
+    for (const h of HEISTS) if (h.unlock > 0) out.push({ at: h.unlock, kind: 'assalto', id: h.id, name: h.name, view: 'assaltos' });
+    for (const r of RIVALS) if (r.unlock > 0) out.push({ at: r.unlock, kind: 'duelo', id: r.id, name: r.name, view: 'duelos' });
+    return out.sort((a, b) => a.at - b.at);
+  }
+  /** Os fatos do jornal de hoje (dados puros; o texto fica na interface). */
+  function jornal(s) {
+    const p = s.paper || {}, cur = p.cur && p.cur.day === s.day ? p.cur : null, prev = cur && p.prev && p.prev.day === s.day - 1 ? p.prev : null;
+    const start = cur ? Math.min(cur.respect, s.respect) : s.respect, before = prev ? Math.min(prev.respect, start) : start;
+    const cat = unlockCatalog(s);
+    const ontem = cat.filter(u => u.at > before && u.at <= start), agora = cat.filter(u => u.at > start && u.at <= s.respect);
+    const proximo = cat.filter(u => u.at > s.respect && u.kind !== 'patente')[0] || null;
+    const yd = prev ? { respect: cur.respect - prev.respect, worth: cur.worth - prev.worth, ok: cur.ok - prev.ok, fail: cur.fail - prev.fail, arrests: cur.arrests - prev.arrests, heat: cur.heat - prev.heat } : null;
+    const viradas = prev ? DISTRICTS.filter(d => prev.leaders[d.id] !== cur.leaders[d.id]).map(d => ({ district: d.id, from: prev.leaders[d.id], to: cur.leaders[d.id] })) : [];
+    const goods = GOODS.filter(g => g.unlock <= s.respect);
+    const movers = [];
+    if (prev) for (const d of DISTRICTS) for (const g of goods) { const a = prev.market[d.id][g.id], b = cur.market[d.id][g.id], dv = b - a; if (Math.abs(dv) >= 10) movers.push({ good: g.id, district: d.id, from: Math.max(1, Math.round(g.base * a / 100)), price: Math.max(1, Math.round(g.base * b / 100)), pct: Math.round(dv / a * 100) }); }
+    movers.sort((x, y) => Math.abs(y.pct) - Math.abs(x.pct));
+    let spread = null;
+    for (const g of goods) {
+      const ds = DISTRICTS.map(d => ({ id: d.id, v: s.market[d.id][g.id] })).sort((a, b) => a.v - b.v), lo = ds[0], hi = ds[ds.length - 1];
+      const gain = goodPrice(s, g, hi.id) * SELL_SPREAD - goodPrice(s, g, lo.id);
+      if (gain > 0 && (!spread || gain > spread.gain)) spread = { good: g.id, buy: lo.id, buyPrice: goodPrice(s, g, lo.id), sell: hi.id, sellPrice: Math.floor(goodPrice(s, g, hi.id) * SELL_SPREAD), gain: Math.round(gain) };
+    }
+    const vig = DISTRICTS.map(d => ({ id: d.id, v: s.dstate[d.id].vigil })).sort((a, b) => b.v - a.v);
+    const events = activeEvents(s).filter(e => e.id !== 'rotina').map(e => ({ id: e.id, title: eventTitle(e), desc: eventDesc(e), until: e.until, fresh: e.start === s.day, district: e.district || null }));
+    const amanha = s.day < MAXDAY ? Object.entries(EVENTS).filter(([id, def]) => (def.fixed === s.day + 1 || (def.fixedDays && def.fixedDays.includes(s.day + 1))) && !s.events.some(e => e.id === id && e.until > s.day)).map(([id, def]) => ({ id, title: def.title.replace('{d}', '') })) : [];
+    // Negócio da vez: o melhor retorno que cabe no bolso (ou o próximo a juntar dinheiro).
+    const loja = BUSINESSES.filter(b => !s.businesses.includes(b.id) && !chainLock(s, 'biz', b.id)).map(b => ({ id: b.id, cost: buyCost(s, b), day: Math.round(businessIncome(s, b)) })).filter(x => x.day > 0).map(x => Object.assign(x, { payback: Math.ceil(x.cost / x.day) })).sort((a, b) => a.payback - b.payback);
+    const negocio = loja.find(x => x.cost <= s.cash + s.bank) || loja.sort((a, b) => a.cost - b.cost)[0] || null;
+    const boom = s.businesses.map(business).map(b => ({ id: b.id, mult: eventMod(s, 'bizMult', { biz: b, district: b.district }) })).filter(x => x.mult >= 1.2).sort((a, b) => b.mult - a.mult)[0] || null;
+    const bl = s.bicho && s.bicho.last && s.bicho.last.day === s.day - 1 ? s.bicho.last : null;
+    return {
+      day: s.day, week: week(s), yesterday: yd, unlocked: ontem, extra: agora, next: proximo,
+      phase: PHASES[phaseIndex(s)], nextPhase: PHASES[phaseIndex(s) + 1] || null, phaseUp: prev ? phaseIndexOf(cur.respect) > phaseIndexOf(prev.respect) : false,
+      turf: viradas, movers: movers.slice(0, 3), spread, export: { day: s.exportDeal.day, good: s.exportDeal.good, open: exportOpen(s), today: s.exportDeal.day === s.day },
+      police: { heat: s.heat, tier: HEAT_TIERS[heatTier(s)].name, hot: vig[0], calm: vig[vig.length - 1] },
+      events, tomorrow: amanha, bicho: bl, tickets: s.bicho ? s.bicho.tickets.slice() : [],
+      moves: FACTIONS.map(f => ({ id: f.id, text: s.factions[f.id].lastMove || '' })).filter(m => m.text),
+      business: negocio, boom
+    };
+  }
+  const phaseIndexOf = r => PHASES.filter(p => r >= p.at).length - 1;
 
   /** Retratos que o jogador pode escolher no Perfil (só aparência; não mudam regras). */
   const AVATARS = [
@@ -2472,6 +2573,7 @@
     if (s.hospital > 0) { if (!rt) { hospitalStep(s, lines); if (s.hospital) lines.push(s.uti ? 'Na UTI: mais 1 dia.' : 'Internado: mais 1 dia de recuperação.'); } }
     else if (s.health < 100) { const h = s.jail > 0 ? 6 : 10; s.health = clamp(s.health + h, 0, 100); }
     s.today = emptyToday();
+    drawBicho(s, lines);
     if (s.tip > 0) s.tip--;
     tickEvents(s, lines);
 
@@ -2604,6 +2706,7 @@
       s.newsPending = { id: pick(pool).id, day: s.day, faction: null };
     }
     afterAction(s);
+    s.paper = { prev: s.paper && s.paper.cur && s.paper.cur.day === s.day - 1 ? s.paper.cur : null, cur: paperSnap(s) };
     log(s, `Dia ${s.day}. ` + (lines.length ? lines.join(' ') : 'Dia tranquilo.'));
     return done(true, `Dia ${s.day} iniciado.`, { lines });
   }
@@ -2754,7 +2857,7 @@
     STATS, MISSIONS, DISTRICTS, BUSINESSES, HEISTS, HEIST_MAX_HIRES, HEIST_WINDOW, HEIST_COOLDOWN, HEIST_CUT, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, AVATARS, CAREERS, OLD_CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
-    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, drawBicho, jornal, unlockCatalog, paperSnap, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
     missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, GIG_PAY, LOCAL_MISSIONS, localMission, missionName, DISTRICT_VIBE, districtTraits, STORY, storyPending, storyCost, streetScene, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, SORO_VICIO, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
