@@ -64,7 +64,7 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 ## Arte
 
 - Ilustrações em SVG ficam em `src/art.js` (lugares, adversários, assaltos), geradas em código e sem arquivos externos.
-- Imagens pintadas opcionais: `art/<chave>.(webp|jpg|png)` com prefixo `place-`, `rival-`, `heist-`, `avatar-`, `bairro-`, `item-` (Feira), `roubo-`, `casa-` (noite), `esquema-` (Galpão) ou `capa-entrada` e `grupo-<cidade>-<esquina|docas|aurora>` (dossiê das facções); a cadeia usa `place-cadeia`, até 400 KB cada; o build embute e elas substituem o SVG da mesma chave. Prompts e nomes em `PROMPTS_ARTE.md`.
+- Imagens pintadas opcionais: `art/<chave>.(webp|jpg|png)` com prefixo `place-`, `rival-`, `heist-`, `avatar-`, `bairro-`, `item-` (Feira), `roubo-`, `casa-` (noite), `esquema-` (Galpão), `textura-<tipo>` (fundo da região, quadrada e sem emenda) ou `capa-entrada` e `grupo-<cidade>-<esquina|docas|aurora>` (dossiê das facções); a cadeia usa `place-cadeia`, até 400 KB cada; o build embute e elas substituem o SVG da mesma chave. Prompts e nomes em `PROMPTS_ARTE.md`.
 - Lugar, adversário ou assalto novo → desenho em `src/art.js` **e** linha de prompt em `PROMPTS_ARTE.md`.
 
 ## História e Rua
@@ -72,8 +72,9 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 - A Rua é a tela da narrativa (GAME_DESIGN.md, "A Rua conta a história"): cena do momento (`streetScene`), capítulos com decisão (`STORY`, `storyPending`, ação `story`) e recados (`recados` em `ui.js`). Capítulo novo → entrada em `STORY` com duas escolhas, cada uma com custo ou consequência e a frase `after`; personagens sempre inventados. Mecânica nova que pede atenção do jogador → um recado.
 - Texto de história é narrativa, não regra: curto, em segunda pessoa, sem números fora da linha de custo da escolha.
 
-## Bairros
+## Bairros (regiões)
 
+- Na tela, os bairros se chamam **regiões** com nome fixo (`REGION_NAMES`: Região Central, Portuária, Residencial, Industrial e da Boêmia); o nome inventado de cada cidade é o **ponto** dentro da região (`d.spot`). Texto ao jogador diz "região" (feminino: "na região", "desta região"); use `d.name` para a região e `d.spot` para o ponto. Ids internos (`centro`, `cais`...) e o atributo `data-bairro` não mudam.
 - Cada tipo de bairro tem cor (`DISTRICT_VIBE`), frase de chegada, nomes locais dos 13 roubos (`LOCAL_MISSIONS`) e ficha de risco (`districtTraits`, a partir de `bonus`, `police` e `danger` em `DISTRICTS`). Roubo novo na escada → nome local nos 4 tipos de bairro além do Centro. Use `missionName(s, m)` em qualquer texto que cite um roubo.
 
 ## Texto na tela

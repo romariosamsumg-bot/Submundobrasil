@@ -678,7 +678,7 @@ Logo depois de criar o personagem (no jogo local e no online), abre uma apresent
 
 ### Bairros com identidade (v1.5, desenho com o autor)
 
-- **Cor própria:** a cor do bairro onde você está tinge o fundo da tela, a borda da cena, os cartões de roubo, o dia e o título das telas. Centro âmbar (#e0a040), Cais azul de porto (#4a8fc0), Jardim verde (#5aa36a), Industrial cinza de fábrica (#8a949a) e Vila **vinho bordô** (#8a2a3a, pedido do autor).
+- **Cor própria:** a cor da região onde você está tinge a borda da cena, os cartões de roubo, o dia e o título das telas. Centro âmbar (#e0a040), Cais azul de porto (#4a8fc0), Jardim verde (#5aa36a), Industrial cinza de fábrica (#8a949a) e Vila **vinho bordô** (#8a2a3a, pedido do autor).
 - **Roubos com nome do lugar:** a escada é a mesma (degraus e números iguais), mas nome e texto mudam com o tipo de bairro. Exemplos: Bater carteira vira "Rapa no terminal das barcas" no Cais, "Rapa no meio do baile" na Vila, "Rapa na saída do turno" no Industrial e "Bolsa no ponto do ônibus" no Jardim. O Centro usa os nomes padrão. São 13 nomes por tipo de bairro (`LOCAL_MISSIONS`), válidos nas 6 cidades.
 - **Personalidade de risco e recompensa,** com ficha curta no topo de Roubar e em cada bairro:
 
@@ -743,6 +743,13 @@ Tela própria de Ranking, sem aba nova. Abre por três caminhos: **tocar na estr
 - **Galeria da fama:** os 3 primeiros de cada mês que passou (últimos 6 meses), para sempre.
 - **Offline:** sem ranking de jogadores (não se inventa jogador falso); a tela mostra os seus recordes por temporada e o convite para jogar com conta.
 - Servidor: migração `0003_ranking.sql` (funções `ranking_mes`, `minha_posicao` e `galeria`, tabela `historico`). A função `jogar` grava o respeito final de cada mês quando o save vira para o mês seguinte; quem não voltou entra na galeria pelo próprio save.
+
+### Regiões e fundo com textura (v1.5, pedido do autor)
+
+- **Bairro virou região.** As cinco áreas de toda cidade agora têm nome fixo, para o jogador se localizar na hora: **Região Central** (centro), **Região Portuária** (cais), **Região Residencial** (jardim), **Região Industrial** (industrial) e **Região da Boêmia** (vila). Regras, números, cores e ids internos não mudaram, então os saves continuam valendo.
+- **O nome inventado de cada cidade virou o "ponto" dentro da região** (`d.spot`): aparece embaixo da placa ("Região Portuária · Cais da Guanabara · Rio de Janeiro"), no título de Roubar, na ajuda e nas frases da Rua. Assim a região é familiar e o lugar do crime continua fictício.
+- Todos os textos dizem "região" ("Desta região", "Polícia na região", "Comprar passagem e ir").
+- **Fundo com textura pintada por região**, repetida e escurecendo para baixo: paralelepípedo (Central), chapa de contêiner (Portuária), tijolo baiano (Residencial), chapa de aço com faixa zebrada (Industrial) e calçadão em ondas vinho com confete (Boêmia). As imagens ficam em `art/textura-<tipo>.webp` (512 × 512, sem emenda, cerca de 120 KB as cinco). A antiga listra vertical e o brilho colorido no topo saíram; a cor da região continua nas bordas e nos títulos.
 
 ### Sons (v1.5)
 

@@ -75,6 +75,20 @@ Já no jogo (v1.5), reduzidas para 880 px. Aparecem atrás da placa do bairro na
 | `bairro-industrial.webp` | Distrito industrial à noite: fábricas com chaminés soltando fumaça, muros altos com arame farpado, portões de galpão, caminhões parados, luz de giroflex ao fundo. Sem monumentos reconhecíveis. |
 | `bairro-vila.webp` | Rua boêmia de bairro à noite: bares com mesas de plástico na calçada, palmeiras, bandeirinhas, letreiros sem texto legível, gente conversando, motos estacionadas. Sem monumentos reconhecíveis. |
 
+## Texturas de fundo das regiões (já no jogo na v1.5)
+
+Quadradas 1:1, **sem emenda** (repetem lado a lado), sem o bloco de estilo: são chão ou parede vistos de frente, muito escuros e uniformes, porque ficam atrás do texto. O jogo usa 512 × 512.
+
+| Arquivo | Prompt |
+|---|---|
+| `textura-centro.webp` | Textura quadrada 1:1, SEM EMENDA (seamless, tileable), vista de cima, perfeitamente plana e frontal, sem perspectiva. Rua de paralelepípedos de centro histórico brasileiro, blocos de granito retangulares e irregulares, assentados em fileiras, gastos e arredondados pelo tempo, com terra e musgo nas juntas, molhados de chuva à noite. Muito escura: granito em cinza grafite quase preto, juntas pretas profundas, leve reflexo âmbar de poste na superfície molhada. Contraste baixo e uniforme, sem poças grandes, sem ponto de luz forte, sem objetos, sem texto, sem pessoas. Pintura digital com traço de graphic novel. |
+| `textura-cais.webp` | Textura quadrada 1:1, SEM EMENDA, vista de frente, plana, sem perspectiva. Chapa ondulada de contêiner de navio, frisos verticais, tinta azul petróleo descascada, ferrugem nas bordas, respingos de maresia, à noite. Muito escura, leve brilho azul aço nos frisos. Contraste baixo e uniforme, sem números, letras ou logotipos, sem objetos, sem pessoas. Pintura digital com traço de graphic novel. |
+| `textura-jardim.webp` | Textura quadrada 1:1, SEM EMENDA, vista de frente, plana, sem perspectiva. Parede de tijolo baiano sem reboco de casa de bairro brasileiro, argamassa escorrida, tijolos lascados, à noite. Muito escura: marrom avermelhado apagado, juntas fundas, leve verde musgo de umidade. Sem janelas, sem pichação legível, sem objetos, sem texto, sem pessoas. Pintura digital com traço de graphic novel. |
+| `textura-industrial.webp` | Textura quadrada 1:1, SEM EMENDA, vista de frente, plana, sem perspectiva. Chapa de aço industrial com rebites, riscos, manchas de óleo e uma faixa diagonal zebrada amarela e preta bem desbotada, à noite. Muito escura: cinza aço quase preto, amarelo apagado. Sem texto, sem logotipos, sem objetos, sem pessoas. Pintura digital com traço de graphic novel. |
+| `textura-vila.webp` | Textura quadrada 1:1, SEM EMENDA, vista de cima, plana, sem perspectiva. Calçadão de praia brasileiro com ondas largas de pedra portuguesa, à noite, molhado de chuva fina, com confete e serpentina gastos aqui e ali. Muito escuro: ondas vinho bordô e preto, leve reflexo âmbar e rosado de bar. Sem objetos, sem texto, sem pessoas. Pintura digital com traço de graphic novel. |
+
+Ao trocar uma textura: confira a emenda repetindo 2 × 4 e iguale manchas de luz que se repetem (fizemos isso na Central, na Boêmia e na emenda da Portuária).
+
 ## Itens da Feira (grades, já no jogo na v1.5)
 
 Feitas em três grades (armas 4 × 4, proteções 3 × 2, veículos 3 × 2), fundo cinza liso, sem texto. O corte é automático pelas bordas pretas de cada quadro e cada item vira `art/item-<id>.webp` (192 px). Ordem das armas: porrete, soco, vergalhao, peixeira, maquita, trezoitao, pistola, doze, uzi, submetra, fuzil, ar15, ponto50, mag, rojao, dourado. Proteções: lista, jaqueta, colete, kevlar, tatico, traje. Veículos: bike, cinquentinha, moto, opala, blindado.

@@ -762,7 +762,9 @@ button.hudResp:focus-visible{outline:2px solid var(--ambar);outline-offset:2px}
 
 /* Identidade dos bairros: a cor do bairro onde você está tinge a tela (Vila em vinho bordô) */
 :root{--bairro:#e0a040}
-body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(--bairro) 20%,transparent),transparent 70%)!important;background-attachment:fixed}
+/* Fundo: textura pintada de cada região (Central paralelepípedo, Portuária contêiner, Residencial tijolo,
+   Industrial chapa com faixa zebrada, Boêmia calçadão), repetida e escurecendo para baixo. */
+body.textured:not(.atCover){background:linear-gradient(180deg,#0b0f1200,#0b0f1200 50%,#0b0f1266),var(--textura) 0 0/256px 256px repeat,#0b0f12!important;background-attachment:fixed!important}
 .locale{box-shadow:0 0 0 2px color-mix(in srgb,var(--bairro) 70%,#05080a),3px 4px 0 #05080a}
 .sceneCard{border-left-color:var(--bairro)}
 .rob{border-left-color:var(--bairro)}

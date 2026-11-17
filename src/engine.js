@@ -74,11 +74,11 @@
     { id: 'astucia', name: 'Astúcia', desc: 'Planejamento e leitura de situação. Base das operações discretas.' },
     { id: 'forca', name: 'Força', desc: 'Preparo físico e presença. Base das ações de cobrança e escolta.' },
     { id: 'labia', name: 'Lábia', desc: 'Negociação e convencimento. Base dos acordos e da diplomacia.' },
-    { id: 'influencia', name: 'Influência', desc: 'Rede de contatos. Base da disputa por bairros e da gangue.' }
+    { id: 'influencia', name: 'Influência', desc: 'Rede de contatos. Base da disputa por regiões e da gangue.' }
   ];
 
   /* Escada de roubos (v1.5, desenhada com o autor). 13 degraus de rua, do mais fácil ao mais difícil,
-   * mais 5 variações que só existem num bairro (mesmo degrau, saque +15%). Tipos:
+   * mais 5 variações que só existem numa região (mesmo degrau, saque +15%). Tipos:
    *  - gen (genérico): soma dos atributos + 3 por ponto de arsenal;
    *  - golpe:          3 por ponto do atributo principal + 1 por ponto de arsenal;
    *  - assalto:        metade da soma dos atributos + 3 por ponto de arsenal (+ bando).
@@ -141,15 +141,18 @@
     mkMission({ id: 'cofre', name: 'Cofre da joalheria', desc: 'O serviço solo mais pesado da temporada. Uma vez por dia.', n: 13, kind: 'golpe', stat: 'astucia', req: { escape: 6, power: 9, oncePerDay: true } })
   ];
 
+  /* As regiões têm nome genérico (o jogador se localiza na hora); o nome inventado de cada cidade
+   * vira o "ponto" dentro da região (d.spot), para não associar crime a lugares reais. */
+  const REGION_NAMES = { centro: 'Região Central', cais: 'Região Portuária', jardim: 'Região Residencial', industrial: 'Região Industrial', vila: 'Região da Boêmia' };
   const DISTRICTS = [
-    { id: 'centro', name: 'Centro Antigo', desc: 'Comércio intenso e circulação constante de gente.', risk: 3, bonus: 8, police: 1, danger: 1, tribute: 110, advantage: 'Diálogos com facções +8 e criar contatos 20% mais barato.' },
-    { id: 'cais', name: 'Cais do Norte', desc: 'Galpões, armazéns e uma região portuária em transformação.', risk: 0, bonus: 18, police: .6, danger: 1.6, tribute: 140, advantage: 'Operações coletivas rendem +20%.' },
-    { id: 'jardim', name: 'Jardim União', desc: 'Bairro residencial de trabalhadores e pequenos negócios.', risk: -6, bonus: -12, police: .6, danger: .7, tribute: 70, advantage: 'Recrutar custa 25% menos e a equipe ganha +2 de ânimo por dia.' },
-    { id: 'industrial', name: 'Distrito Industrial', desc: 'Grandes empresas e patrulhamento reforçado.', risk: 12, bonus: 28, police: 1.5, danger: 1, tribute: 160, advantage: 'Todos os seus negócios rendem +12%.' },
-    { id: 'vila', name: 'Vila das Palmeiras', desc: 'Ruas movimentadas e comércio de bairro.', risk: 4, bonus: 5, police: 1, danger: 1.3, tribute: 90, advantage: 'Seu Procurado cai 5 pontos extras por dia.' }
+    { id: 'centro', name: 'Região Central', spot: 'Centro Antigo', desc: 'Comércio intenso e circulação constante de gente.', risk: 3, bonus: 8, police: 1, danger: 1, tribute: 110, advantage: 'Diálogos com facções +8 e criar contatos 20% mais barato.' },
+    { id: 'cais', name: 'Região Portuária', spot: 'Cais do Norte', desc: 'Galpões, armazéns e uma região portuária em transformação.', risk: 0, bonus: 18, police: .6, danger: 1.6, tribute: 140, advantage: 'Operações coletivas rendem +20%.' },
+    { id: 'jardim', name: 'Região Residencial', spot: 'Jardim União', desc: 'Bairro residencial de trabalhadores e pequenos negócios.', risk: -6, bonus: -12, police: .6, danger: .7, tribute: 70, advantage: 'Recrutar custa 25% menos e a equipe ganha +2 de ânimo por dia.' },
+    { id: 'industrial', name: 'Região Industrial', spot: 'Distrito Industrial', desc: 'Grandes empresas e patrulhamento reforçado.', risk: 12, bonus: 28, police: 1.5, danger: 1, tribute: 160, advantage: 'Todos os seus negócios rendem +12%.' },
+    { id: 'vila', name: 'Região da Boêmia', spot: 'Vila das Palmeiras', desc: 'Ruas movimentadas e comércio de bairro.', risk: 4, bonus: 5, police: 1, danger: 1.3, tribute: 90, advantage: 'Seu Procurado cai 5 pontos extras por dia.' }
   ];
 
-  /* Negócios: cada um fica em um bairro e sofre a economia e as facções locais. */
+  /* Negócios: cada um fica em uma região e sofre a economia e as facções locais. */
   const BUSINESSES = [
     { id: 'bar', name: 'Bar da Esquina', district: 'vila', desc: 'Ponto de encontro. Lucra muito em festas e jogos.', cost: 1250, net: 70, respect: 3, tags: ['festa', 'jogo', 'noite'] },
     { id: 'oficina', name: 'Oficina de Motos', district: 'jardim', desc: 'Clientela recorrente e estável.', cost: 2850, net: 150, respect: 6, tags: [] },
@@ -157,7 +160,7 @@
     { id: 'logistica', name: 'Depósito de Logística', district: 'industrial', desc: 'Armazenagem para o comércio. Retorno alto, patrulha forte.', cost: 7400, net: 380, respect: 12, tags: [] },
     { id: 'show', name: 'Casa de Shows', district: 'cais', desc: 'Maior investimento. Explode no Carnaval.', cost: 9700, net: 500, respect: 17, tags: ['festa', 'noite'] }
     ,{ id: 'pensao', name: 'Pensão de beira de estrada', district: 'industrial', desc: 'Quartos por hora e nenhuma pergunta. O primeiro tijolo do império.', cost: 900, net: 48, respect: 2, tags: ['noite'] },
-    { id: 'bicho', name: 'Banca do bicho', district: 'centro', desc: 'O dinheiro miúdo do bairro inteiro, todo dia.', cost: 3000, net: 165, respect: 6, tags: ['jogo'] },
+    { id: 'bicho', name: 'Banca do bicho', district: 'centro', desc: 'O dinheiro miúdo da região inteira, todo dia.', cost: 3000, net: 165, respect: 6, tags: ['jogo'] },
     { id: 'inferninho', name: 'Inferninho da Luz Vermelha', district: 'centro', desc: 'Casa fechada que fatura até o sol nascer. Dobra na Noite de fluxo.', cost: 4200, net: 230, respect: 8, tags: ['noite'] },
     { id: 'termas', name: 'Termas VIP', district: 'cais', desc: 'Sua própria casa executiva: uma recarga cheia e limpa por dia, sem vício, sem batida, e ainda dá lucro.', cost: 15000, net: 620, respect: 22, tags: ['noite'] }
   ];
@@ -194,7 +197,7 @@
   const GOALS = [
     { id: 'capital', name: 'Patrimônio', desc: 'Alcançar R$ 9.000 de patrimônio (caixa, banco e valor de revenda dos negócios).' },
     { id: 'renome', name: 'Renome', desc: 'Alcançar 130 de respeito e 25 missões concluídas.' },
-    { id: 'dominio', name: 'Territórios', desc: 'Somar 12 dias liderando bairros (um bairro por 12 dias ou vários ao mesmo tempo).' },
+    { id: 'dominio', name: 'Territórios', desc: 'Somar 12 dias liderando regiões (uma região por 12 dias ou vários ao mesmo tempo).' },
     { id: 'diplomacia', name: 'Diplomacia', desc: 'Firmar 3 acordos (tréguas ou aliança) e terminar com relação +50 com 2 grupos.' },
     { id: 'bonde', name: 'Bonde forte', desc: 'Ter 5 integrantes e concluir 8 operações coletivas.' }
   ];
@@ -225,7 +228,7 @@
    * Cidades. A cidade de origem define nomes de bairros, grupos, negócios
    * e festas, além de uma vantagem própria. As cidades são reais; bairros
    * e grupos são INVENTADOS (inspirados na paisagem de cada cidade) para
-   * não associar comunidades reais ao crime. Os ids dos bairros são fixos
+   * não associar comunidades reais ao crime. Os ids das regiões são fixos
    * (centro, cais, jardim, industrial, vila) e valem para todas as cidades.
    * ------------------------------------------------------------------ */
   const CITIES = [
@@ -249,7 +252,7 @@
       factions: { esquina: ['Irmandade das Ladeiras', 'Irmandade'], docas: ['Estiva da Baía', 'Estiva'], aurora: ['Rede do Dendê', 'Dendê'] },
       biz: { bar: 'Barraca da Orla', oficina: 'Oficina de Motos', mercado: 'Mercadinho do Largo', logistica: 'Armazém do Polo', show: 'Casa de Axé' },
       carnaval: 'Carnaval dos trios', classico: 'Clássico baiano', baile: 'Bastidores do pagodão' },
-    { id: 'recife', name: 'Recife', trait: 'Cidade das pontes', traitDesc: 'Viajar entre bairros custa metade do dinheiro e nenhuma energia.',
+    { id: 'recife', name: 'Recife', trait: 'Cidade das pontes', traitDesc: 'Viajar entre regiões custa metade do dinheiro e nenhuma energia.',
       districts: { centro: ['Pátio dos Sobrados', 'Sobrados antigos, mascates e orquestra de frevo ensaiando.'], cais: ['Cais das Pontes', 'Armazéns entre rios e pontes, com barcos atracados.'], jardim: ['Beira do Mangue', 'Palafitas, pescadores e ruas que alagam na maré cheia.'], industrial: ['Galpões da BR', 'Depósitos e fábricas à beira da rodovia, bem vigiados.'], vila: ['Ladeira dos Bonecos', 'Ateliês, bonecos gigantes e bares na ladeira.'] },
       factions: { esquina: ['Clube do Pátio', 'Clube'], docas: ['Frente das Pontes', 'Pontes'], aurora: ['Maré Mansa', 'Maré'] },
       biz: { bar: 'Bar do Caldinho', oficina: 'Oficina de Motos', mercado: 'Mercadinho do Pátio', logistica: 'Galpão da BR', show: 'Casa de Frevo' },
@@ -305,7 +308,7 @@
   /** v1.5: começa sem dinheiro nenhum (só o legado, a partir da 2ª temporada). */
   const START_CASH = 0;
   const ITEM_RESALE = 0.5;
-  /* Mercadorias: preço = base × fator do bairro (60–150%). `risk` pesa na vigilância e nas blitze. */
+  /* Mercadorias: preço = base × fator da região (60–150%). `risk` pesa na vigilância e nas blitze. */
   const GOODS = [
     { id: 'cigarro', name: 'Cigarro da fronteira', unit: 'pacote', base: 20, risk: 1, unlock: 0 },
     { id: 'bebida', name: 'Whisky falsificado', unit: 'caixa', base: 45, risk: 1, unlock: 10 },
@@ -327,7 +330,7 @@
     { id: 'alambique', name: 'Depósito de bebida falsa', good: 'bebida', cost: 2000, unlock: 15, out: 7, desc: 'Rótulo importado, procedência nenhuma. Vende no mercado ou abastece o seu Inferninho.' },
     { id: 'gatonet', name: 'Central de internet (gatonet)', cash: 200, cost: 3200, unlock: 25, desc: 'Clientes pendurados nos postes pagam a mensalidade em dia. Dinheiro limpo direto no banco, sem estoque e sem batida.' },
     { id: 'plantacao', name: 'Plantação de maconha', good: 'erva', cost: 3600, unlock: 35, out: 6, desc: 'Terreno escondido e vigia contra batida. Fardos de valor alto para o mercado.' },
-    { id: 'laboratorio', name: 'Laboratório químico', good: 'bala', out: 4, good2: 'lolo', out2: 3, cost: 7000, unlock: 80, bribe: 60, desc: 'Loló e bala em escala. A fiscalização do bairro olha para o outro lado.' },
+    { id: 'laboratorio', name: 'Laboratório químico', good: 'bala', out: 4, good2: 'lolo', out2: 3, cost: 7000, unlock: 80, bribe: 60, desc: 'Loló e bala em escala. A fiscalização da região olha para o outro lado.' },
     { id: 'refinaria', name: 'Refinaria do pó', good: 'po', cost: 25000, unlock: 150, out: 3, bribe: 150, desc: 'O topo do império. Cada lote vendido no Navio vale uma fortuna e dispara o respeito.' }
   ];
   const LAB_MULT = [0, 1, 1.8, 2.6];
@@ -413,7 +416,7 @@
     const c = cityOf(name);
     if (appliedCity === c.id) return c;
     appliedCity = c.id;
-    for (const d of DISTRICTS) { d.name = c.districts[d.id][0]; d.desc = c.districts[d.id][1]; }
+    for (const d of DISTRICTS) { d.name = REGION_NAMES[d.id]; d.spot = c.districts[d.id][0]; d.desc = c.districts[d.id][1]; }
     for (const f of FACTIONS) { f.name = c.factions[f.id][0]; f.short = c.factions[f.id][1]; }
     for (const b of BUSINESSES) if (c.biz[b.id]) b.name = c.biz[b.id];
     EVENTS.carnaval.title = c.carnaval; EVENTS.classico.title = c.classico;
@@ -437,8 +440,8 @@
   const week = s => WEEKS.find(w => s.day <= w.until) || WEEKS[3];
   const PHASES = [
     { at: 0, name: 'Pé de chinelo', desc: 'Sobrevivência e improviso: roube, recarregue na noite, compre a primeira arma.' },
-    { at: 30, name: 'Rato de pista', desc: 'Bando, negócios, mercadoria e bairros: o dinheiro de verdade.' },
-    { at: 90, name: 'Linha de frente', desc: 'Assaltos grandes, arma pesada e guerra pelos bairros.' },
+    { at: 30, name: 'Rato de pista', desc: 'Bando, negócios, mercadoria e regiões: o dinheiro de verdade.' },
+    { at: 90, name: 'Linha de frente', desc: 'Assaltos grandes, arma pesada e guerra pelas regiões.' },
     { at: 150, name: 'Gerente do movimento', desc: 'Império montado: os maiores golpes da temporada.' },
     { at: 230, name: 'Dono do morro', desc: 'O topo da cidade.' }
   ];
@@ -469,21 +472,21 @@
     festival: { title: 'Festival de rua', desc: 'Missões +9%, risco +4. {bar} e {show} lucram +30%.', dur: [1, 1], weight: 2, mods: { reward: 9, risk: 4, bizMult: c => c.biz && c.biz.tags.includes('festa') ? 1.3 : 1 } },
     patrulhas: { title: 'Patrulhas reduzidas', desc: 'Risco -7 nas missões e Procurado cai 5 extras.', dur: [1, 1], weight: 2, mods: { risk: -7, heatDecay: 5 } },
     comercio: { title: 'Semana de comércio', desc: 'Missões +6% e todos os negócios +12% por 3 dias.', dur: [3, 3], weight: 2, mods: { reward: 6, bizMult: 1.12 } },
-    carnaval: { title: 'Carnaval', desc: 'Blocos nas ruas: missões em {centro} e {vila} +25% (demais +8%), risco +4, multidões escondem (Procurado gerado -10%). {bar} +60% e {show} +80%. Equipe +3 de ânimo por dia.', dur: [3, 3], fixed: 9, weight: 0,
+    carnaval: { title: 'Carnaval', desc: 'Blocos nas ruas: missões na {centro} e na {vila} +25% (demais +8%), risco +4, multidões escondem (Procurado gerado -10%). {bar} +60% e {show} +80%. Equipe +3 de ânimo por dia.', dur: [3, 3], fixed: 9, weight: 0,
       mods: { reward: c => (c.district === 'centro' || c.district === 'vila') ? 25 : 8, risk: 4, heatMult: .9, morale: 3, bizMult: c => c.biz ? (c.biz.id === 'show' ? 1.8 : c.biz.id === 'bar' ? 1.6 : 1) : 1, festive: 1 } },
-    classico: { title: 'Clássico no estádio', desc: 'A cidade para pelo futebol: {bar} +100%, {show} +40%, risco +8 em {centro} e equipe +5 de ânimo.', dur: [1, 1], fixed: 20, weight: 0,
+    classico: { title: 'Clássico no estádio', desc: 'A cidade para pelo futebol: {bar} +100%, {show} +40%, risco +8 na {centro} e equipe +5 de ânimo.', dur: [1, 1], fixed: 20, weight: 0,
       mods: { risk: c => c.district === 'centro' ? 8 : 0, morale: 5, bizMult: c => c.biz ? (c.biz.id === 'bar' ? 2 : c.biz.id === 'show' ? 1.4 : 1) : 1 } },
-    saojoao: { title: 'Arraial em {d}', desc: 'Festa junina: missões em {jardim} +20%, economia local em alta, {oficina} +20% e equipe +2 de ânimo.', dur: [2, 2], weight: 1, district: 'jardim',
+    saojoao: { title: 'Arraial na {d}', desc: 'Festa junina: missões na {jardim} +20%, economia local em alta, {oficina} +20% e equipe +2 de ânimo.', dur: [2, 2], weight: 1, district: 'jardim',
       mods: { reward: (c, e) => inD(e, c, 20), econ: (c, e) => inD(e, c, .15), morale: 2, bizMult: c => c.biz && c.biz.id === 'oficina' ? 1.2 : 1, festive: 1 } },
     crise: { title: 'Crise no comércio', desc: 'Economia em queda por 4 dias: negócios -25%, missões -8%, bicos -20%. Em compensação, recrutar custa 30% menos.', dur: [4, 4], weight: 1,
       mods: { econ: -.2, bizMult: .75, reward: -8, recruitMult: .7, gigMult: .8, crisis: 1 } },
-    operacao: { title: 'Operação policial em {d}', desc: 'Polícia no bairro +35 ao começar e risco +15 no bairro por 2 dias.', dur: [2, 2], weight: 2, randomDistrict: true,
+    operacao: { title: 'Operação policial na {d}', desc: 'Polícia na região +35 ao começar e risco +15 na região por 2 dias.', dur: [2, 2], weight: 2, randomDistrict: true,
       onStart: (s, e) => { s.dstate[e.district].vigil = clamp(s.dstate[e.district].vigil + 35, 0, 100); },
       mods: { risk: (c, e) => inD(e, c, 15), heatMult: 1 } },
-    greve: { title: 'Greve em {d}', desc: '{cais} com economia -30% e missões -20% por 3 dias. {docas} perde força.', dur: [3, 3], weight: 1, district: 'cais',
+    greve: { title: 'Greve na {d}', desc: 'A {cais} com economia -30% e missões -20% por 3 dias. {docas} perde força.', dur: [3, 3], weight: 1, district: 'cais',
       onStart: s => { s.factions.docas.power = clamp(s.factions.docas.power - 8, 10, 100); },
       mods: { econ: (c, e) => inD(e, c, -.3), reward: (c, e) => inD(e, c, -20) } },
-    guerra: { title: 'Guerra entre facções em {d}', desc: 'Facções se enfrentam: disputas e confrontos no bairro +12, risco local +6.', dur: [2, 2], weight: 0,
+    guerra: { title: 'Guerra entre facções na {d}', desc: 'Facções se enfrentam: disputas e confrontos na região +12, risco local +6.', dur: [2, 2], weight: 0,
       mods: { dispute: (c, e) => inD(e, c, 12), risk: (c, e) => inD(e, c, 6) } },
     feriadao: { title: 'Feriadão prolongado', desc: 'Por 3 dias: +15 de energia ao amanhecer e negócios +15%. Missões -5%.', dur: [3, 3], weight: 1, mods: { energy: 15, bizMult: 1.15, reward: -5 } },
     eleicao: { title: 'Eleição municipal', desc: 'Por 4 dias: risco +5 e ações de influência +40%.', dur: [4, 4], weight: 1, mods: { risk: 5, influenceMult: 1.4 } },
@@ -497,13 +500,13 @@
 
   /* Notícias com decisões. `when` limita quando podem aparecer. */
   const NEWS = [
-    { id: 'feira', name: 'Feira do bairro', desc: 'O comércio local organiza uma feira. Seu apoio pode melhorar seus contatos.', choices: [
+    { id: 'feira', name: 'Feira da região', desc: 'O comércio local organiza uma feira. Seu apoio pode melhorar seus contatos.', choices: [
       { label: 'Patrocinar a feira', desc: 'R$ 180 · +14 influência local · +2 respeito', cash: 180, influence: 14, respect: 2 },
       { label: 'Ajudar na montagem', desc: '25 energia · +R$ 90 · +7 influência local', energy: 25, influence: 7, money: 90 }] },
     { id: 'fiscalizacao', name: 'Boletim de fiscalização', desc: 'A cidade intensificou a fiscalização. Há caminhos para reduzir sua exposição.', choices: [
       { label: 'Contratar assessoria jurídica', desc: 'R$ 260 · -24 de Procurado', cash: 260, heat: -24 },
       { label: 'Diminuir o ritmo', desc: '18 energia · -12 de Procurado', energy: 18, heat: -12 }] },
-    { id: 'boatos', name: 'Rumores na vizinhança', desc: 'O grupo que lidera o bairro espalha boatos sobre você.', choices: [
+    { id: 'boatos', name: 'Rumores na vizinhança', desc: 'O grupo que lidera a região espalha boatos sobre você.', choices: [
       { label: 'Organizar reunião', desc: 'R$ 160 e 12 energia · +12 influência · presença rival -8 · relação +6', cash: 160, energy: 12, influence: 12, rival: -8, relation: 6 },
       { label: 'Responder publicamente', desc: '18 energia · +4 respeito · +10 de Procurado · presença rival +6 · tensão +8', energy: 18, respect: 4, heat: 10, rival: 6, tension: 8 }] },
     { id: 'festival', name: 'Festival da cidade', desc: 'Um festival movimenta clientes e abre oportunidades.', choices: [
@@ -532,7 +535,7 @@
   const CATEGORIES = [
     { id: 'fortuna', name: 'Fortuna', desc: 'Patrimônio final (caixa, banco e revenda dos negócios).', unit: 'money', tiers: [6000, 9000, 13000] },
     { id: 'fama', name: 'Fama', desc: 'Respeito acumulado na temporada.', unit: 'num', tiers: [95, 135, 185] },
-    { id: 'territorio', name: 'Território', desc: 'Soma dos dias liderando bairros.', unit: 'num', tiers: [10, 25, 45] },
+    { id: 'territorio', name: 'Território', desc: 'Soma dos dias liderando regiões.', unit: 'num', tiers: [10, 25, 45] },
     { id: 'diplomacia', name: 'Diplomacia', desc: 'Acordos, alianças, diálogos e boas relações.', unit: 'num', tiers: [35, 70, 110] },
     { id: 'gangue', name: 'Gangue', desc: 'Operações coletivas, confrontos vencidos e experiência da equipe.', unit: 'num', tiers: [40, 90, 140] },
     { id: 'comercio', name: 'Comércio', desc: 'Lucro com mercadorias: vendas e remessas menos compras.', unit: 'money', tiers: [3500, 8000, 14000] }
@@ -540,7 +543,7 @@
   const MEDALS = ['—', 'Bronze', 'Prata', 'Ouro'];
   /* v1.5: um placar só. As medalhas viram "feitos do mês" que pagam respeito na hora (a Fama sai:
    * ela já era o próprio respeito). */
-  // Território saiu dos feitos: agora paga pelas faixas de influência (TURF_RESPECT), uma vez por bairro na temporada.
+  // Território saiu dos feitos: agora paga pelas faixas de influência (TURF_RESPECT), uma vez por região na temporada.
   const FEAT_CATS = ['fortuna', 'diplomacia', 'gangue', 'comercio'];
   const TURF_RESPECT = [0, 3, 5, 10]; // Conhecido, Respeitado, Dono do pedaço
   const TURF_LOSS = 5;
@@ -549,8 +552,8 @@
   const ACHIEVEMENTS = [
     { id: 'primeira', name: 'Primeiro passo', desc: 'Concluir a primeira missão.' },
     { id: 'cofre', name: 'O grande golpe', desc: 'Concluir “Cofre da joalheria”.' },
-    { id: 'dono', name: 'Dono do pedaço', desc: 'Liderar um bairro.' },
-    { id: 'tres', name: 'Três bandeiras', desc: 'Liderar 3 bairros ao mesmo tempo.' },
+    { id: 'dono', name: 'Dono do pedaço', desc: 'Liderar uma região.' },
+    { id: 'tres', name: 'Três bandeiras', desc: 'Liderar 3 regiões ao mesmo tempo.' },
     { id: 'diplomata', name: 'Diplomata', desc: 'Firmar 3 tréguas na mesma temporada.' },
     { id: 'alianca', name: 'Palavra empenhada', desc: 'Formar uma aliança.' },
     { id: 'traidor', name: 'Sem palavra', desc: 'Romper um acordo com uma facção.' },
@@ -585,7 +588,7 @@
   }]));
   const startGangStats = () => ({ heists: 0, heistFails: 0, confrontWins: 0, confrontLosses: 0, pacts: 0, dialogs: 0, retaliations: 0, groupWins: 0, alliances: 0, betrayals: 0 });
   const initialInfluence = () => Object.fromEntries(DISTRICTS.map(d => [d.id, d.id === 'centro' ? 8 : 0]));
-  /** Presença das facções por bairro. O dono herda o antigo "rival" da 0.4. */
+  /** Presença das facções por região. O dono herda o antigo "rival" da 0.4. */
   const initialPresence = (legacyRivals) => Object.fromEntries(DISTRICTS.map((d, i) => {
     const owner = factionFor(d.id).id;
     return [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, f.id === owner ? (legacyRivals && isNum(legacyRivals[d.id]) ? clamp(Math.round(legacyRivals[d.id]), 0, 100) : 22 + i * 3) : (f.id === 'aurora' ? 4 : 2)]))];
@@ -896,7 +899,7 @@
     return total;
   }
 
-  /** Líder de um bairro entre as facções. */
+  /** Líder de uma região entre as facções. */
   function leader(s, did) {
     let best = null;
     for (const f of FACTIONS) { const v = s.presence[did][f.id]; if (!best || v > best.value) best = { id: f.id, value: v }; }
@@ -914,16 +917,16 @@
   }
   const controlled = (s, did) => turfReady(s, did) && ownedTurf(s).includes(did);
   const controls = s => DISTRICTS.filter(d => controlled(s, d.id));
-  /* Influência com nome (v1.5): faixas como as do Procurado. "Dono do pedaço" = mandar no bairro
+  /* Influência com nome (v1.5): faixas como as do Procurado. "Dono do pedaço" = mandar na região
    * (60 de influência e 10 acima do grupo que lidera). */
   const INF_TIERS = [
     { at: 0, name: 'Desconhecido', desc: 'Ninguém te conhece aqui.' },
-    { at: 20, name: 'Conhecido', desc: 'pode disputar o bairro.' },
+    { at: 20, name: 'Conhecido', desc: 'pode disputar a região.' },
     { at: 40, name: 'Respeitado', desc: 'libera o Leilão; contatos mais baratos.' },
-    { at: 60, name: 'Dono do pedaço', desc: 'o bairro é seu: roubos e negócios rendem mais e a propina sai mais barata.' }
+    { at: 60, name: 'Dono do pedaço', desc: 'a região é seu: roubos e negócios rendem mais e a propina sai mais barata.' }
   ];
   const infTier = (s, did = s.district) => controlled(s, did) ? 3 : s.influence[did] >= 40 ? 2 : s.influence[did] >= 20 ? 1 : 0;
-  /** Influência que um roubo bem-sucedido rende no bairro (degrau 4 em diante): golpe 2, genérico e assalto 1,
+  /** Influência que um roubo bem-sucedido rende na região (degrau 4 em diante): golpe 2, genérico e assalto 1,
    *  cada vez menos conforme a barra enche. Valor fracionário; doMission sorteia o arredondamento. */
   const robberyInfluence = (s, m) => m.n < 4 ? 0 : (m.kind === 'golpe' ? 2 : 1) * (1 - s.influence[s.district] / 100) * (s.career === 'articulador' ? 1.3 : 1);
   const allyTurf = (s, did) => { const l = leader(s, did); return l.value >= 10 && s.factions[l.id].allied; };
@@ -943,7 +946,7 @@
   /* Missões */
   const missionCost = (s, m) => s.career === 'operador' ? Math.round(m.cost * .9) : m.cost;
   /* Poder no roubo: depende do tipo (ver KINDS). O Procurado tira poder em porcentagem
-   * (com 50, −20%); a polícia do bairro pesa metade disso. */
+   * (com 50, −20%); a polícia da região pesa metade disso. */
   const arsenal = s => Math.round((armPower(s, true) + armDef(s) + gearVal(s, 'escape')) * 10) / 10;
   const statSum = s => s.stats.astucia + s.stats.forca + s.stats.labia + s.stats.influencia;
   function scoreParts(s, m) {
@@ -955,13 +958,13 @@
   const missionScore = (s, m) => sum(scoreParts(s, m).map(p => p[1]));
   /** Quanto do seu poder neste roubo vem do equipamento. */
   const gearBonus = (s, m) => (scoreParts(s, m).find(p => p[0] === 'Arsenal') || [0, 0])[1];
-  /** Pressão da polícia (0–1): o quanto o Procurado e a polícia do bairro tiram do seu poder. */
+  /** Pressão da polícia (0–1): o quanto o Procurado e a polícia da região tiram do seu poder. */
   function heatDrag(s) {
     let press = s.heat + s.dstate[s.district].vigil * .5;
     if (hasPerk(s, 'operador', 3)) press /= 2;
     return clamp(press / 250, 0, .8);
   }
-  /** Poder efetivo (com Procurado, saúde e dica) e dificuldade efetiva (com o risco do bairro e dos eventos). */
+  /** Poder efetivo (com Procurado, saúde e dica) e dificuldade efetiva (com o risco da região e dos eventos). */
   function missionOdds(s, m) {
     let p = missionScore(s, m) * (1 - heatDrag(s)) * (1 - healthPenalty(s) / 100);
     if (s.tip > 0) p *= 1.15;
@@ -990,14 +993,14 @@
   const failLoss = (s, m) => m.loss;
   /** Motivo de bloqueio ('' se pode executar). */
   function missionLock(s, m) {
-    if (m.district && m.district !== s.district) return 'Disponível somente em ' + district(s, m.district).name + '.';
+    if (m.district && m.district !== s.district) return 'Disponível somente na ' + district(s, m.district).name + '.';
     { const c = chainLock(s, 'missions', m.id); if (c) return c; }
     if (s.respect < m.unlock) return `Requer ${m.unlock} de respeito.`;
     const r = m.req || {};
     if (r.gang && !s.gangName) return 'Requer uma gangue fundada.';
     if (r.power && gearVal(s, 'power') < r.power) return `Requer arma de poder ${r.power} ou mais (Feira do Rolo).`;
     if (r.escape && gearVal(s, 'escape') < r.escape) return `Requer veículo de fuga: ${(ITEMS.find(x => x.slot === 'veiculo' && x.escape >= r.escape) || {}).name} ou melhor (Feira do Rolo).`;
-    if (r.influence && s.influence[s.district] < r.influence) return `Requer ${r.influence} de influência no bairro.`;
+    if (r.influence && s.influence[s.district] < r.influence) return `Requer ${r.influence} de influência na região.`;
     if (r.stat) { const need = (m.id === 'cofre' && hasPerk(s, 'operador', 3)) ? 18 : r.stat[1]; if (s.stats[r.stat[0]] < need) return `Requer ${STATS.find(x => x.id === r.stat[0]).name} ${need}.`; }
     if (r.oncePerDay && s.today.missions[m.id]) return 'Já realizada hoje.';
     if (s.jail > 0) return 'Você está detido.';
@@ -1279,8 +1282,8 @@
       if (m.level >= 5) m.xp = 0;
     }
   }
-  /** Atrito com a facção que lidera o bairro quando você age no território dela. */
-  /* Identidade dos bairros (v1.5): o mesmo degrau ganha nome e texto do lugar. O Centro usa os nomes padrão.
+  /** Atrito com a facção que lidera a região quando você age no território dela. */
+  /* Identidade das regiões (v1.5): o mesmo degrau ganha nome e texto do lugar. O Centro usa os nomes padrão.
    * Chaves por TIPO de bairro (centro, cais, jardim, industrial, vila), iguais em todas as cidades. */
   const LOCAL_MISSIONS = {
     cais: {
@@ -1311,7 +1314,7 @@
       caixa: ['Caixa eletrônico do posto', 'Posto afastado, frentista dormindo, barulho alto.'],
       loterica: ['Lotérica da praça', 'Fila de aposentado e um segurança que já passou dos sessenta.'],
       comboio: ['Caminhão do supermercado', 'Entrega de madrugada na rua sem saída.'],
-      cofre: ['Cofre da joalheria do bairro', 'Pequena, antiga e cheia de ouro de família.']
+      cofre: ['Cofre da joalheria da região', 'Pequena, antiga e cheia de ouro de família.']
     },
     industrial: {
       correria: ['Rapa na saída do turno', 'Sirene da fábrica, gente cansada, carteira no bolso.'],
@@ -1344,10 +1347,10 @@
       cofre: ['Cofre do dono da quadra', 'Quem promove o baile guarda o lucro em casa.']
     }
   };
-  /** Nome e texto do roubo no bairro onde você está. */
+  /** Nome e texto do roubo na região onde você está. */
   const localMission = (s, m, did = s.district) => { const l = (LOCAL_MISSIONS[did] || {})[m.id]; return l ? { name: l[0], desc: l[1] } : { name: m.name, desc: m.desc }; };
   const missionName = (s, m) => localMission(s, m).name;
-  /** Clima de cada bairro: uma frase de chegada e a cor da tela (a Vila em vinho bordô, pedido do autor). */
+  /** Clima de cada região: uma frase de chegada e a cor da tela (a Vila em vinho bordô, pedido do autor). */
   const DISTRICT_VIBE = {
     centro: { color: '#e0a040', line: 'O Centro nunca dorme: camelô, buzina e gente com pressa. Aqui todo mundo tem um preço, e todo mundo está à venda.' },
     cais: { color: '#4a8fc0', line: 'Cheiro de maresia e diesel. No Cais, todo mundo carrega alguma coisa e ninguém pergunta o quê.' },
@@ -1355,7 +1358,7 @@
     industrial: { color: '#8a949a', line: 'Sirene de turno, poeira de ferro e viatura na porta de toda fábrica. Aqui o dinheiro é grande e a polícia também.' },
     vila: { color: '#8a2a3a', line: 'O grave do baile treme as janelas da Vila. Festa, confusão e muita gente que não esquece um rosto.' }
   };
-  /** Ficha curta do bairro: quanto paga, a polícia e o perigo do grupo que manda. */
+  /** Ficha curta da região: quanto paga, a polícia e o perigo do grupo que manda. */
   function districtTraits(d) {
     const pay = d.bonus >= 15 ? 'Paga muito' : d.bonus >= 5 ? 'Paga bem' : d.bonus > -5 ? 'Paga o normal' : 'Paga pouco';
     const pol = d.police >= 1.4 ? 'Polícia forte' : d.police <= .7 ? 'Polícia fraca' : 'Polícia média';
@@ -1387,7 +1390,7 @@
     s.energy -= missionCost(s, m);
     s.today.missions[m.id] = (s.today.missions[m.id] || 0) + 1;
     if (s.tip > 0) s.tip = 0;
-    s.dstate[d].vigil = clamp(s.dstate[d].vigil + Math.ceil(m.vigil * (district(s).police || 1) * (controlled(s, d) ? .5 : 1)), 0, 100); // no seu bairro, a polícia sobe pela metade
+    s.dstate[d].vigil = clamp(s.dstate[d].vigil + Math.ceil(m.vigil * (district(s).police || 1) * (controlled(s, d) ? .5 : 1)), 0, 100); // na sua região, a polícia sobe pela metade
     if (roll(odds)) {
       const reward = Math.max(1, Math.round(rand(m.low, m.high) * mult));
       // Gatilho "Caçado" (Procurado 85+): mesmo dando certo, a polícia pode enquadrar na saída.
@@ -1450,12 +1453,12 @@
         let lost = 0;
         for (const g of GOODS) { const q = Math.ceil(s.goods[g.id] / 2); s.goods[g.id] -= q; lost += q * g.base; }
         addHeat(s, 10); s.trade.blitz++;
-        log(s, `Blitz no caminho para ${d.name}: metade da carga apreendida (cerca de ${money(lost)}).`);
+        log(s, `Blitz no caminho para a ${d.name}: metade da carga apreendida (cerca de ${money(lost)}).`);
         return done(false, `Blitz no caminho! Metade da carga apreendida (${money(lost)}).`);
       }
     }
-    log(s, `Você foi para ${d.name}.`);
-    return done(true, `Agora você está em ${d.name}.`);
+    log(s, `Você foi para a ${d.name}.`);
+    return done(true, `Agora você está na ${d.name}.`);
   }
 
   /* Bico: dinheiro pequeno e sem risco, que esfria o Procurado. Paga MENOS por energia que o 1º degrau da
@@ -1474,7 +1477,7 @@
     if (blocked(s)) return refuse(blocked(s));
     if (s.energy < 18 || s.heat === 0) return refuse('Não é necessário reduzir exposição agora.');
     s.energy -= 18; addHeat(s, -20); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil - 10, 0, 100);
-    log(s, 'Você ficou longe dos holofotes: -20 de Procurado e -10 de polícia no bairro.');
+    log(s, 'Você ficou longe dos holofotes: -20 de Procurado e -10 de polícia na região.');
     return done(true, 'Procurado reduzido.');
   }
   function doBail(s) {
@@ -1549,20 +1552,20 @@
   function doContact(s) {
     if (blocked(s)) return refuse(blocked(s));
     const d = s.district, cost = contactCost(s), used = s.today.contacts[d] || 0;
-    if (used >= 2) return refuse('Você já fez 2 contatos neste bairro hoje.');
+    if (used >= 2) return refuse('Você já fez 2 contatos nesta região hoje.');
     if (s.energy < 22 || s.cash < cost) return refuse('Energia ou dinheiro insuficiente.');
     s.energy -= 22; s.cash -= cost; s.today.contacts[d] = used + 1;
     const boost = Math.max(1, Math.round((10 + Math.floor(s.stats.influencia / 5) + roleLevels(s, 'negociador')) * (s.career === 'articulador' ? 1.3 : 1) * eventMod(s, 'influenceMult') * (used ? .5 : 1)));
     addInf(s, d, boost); s.respect += 1; addHeat(s, 2); s.tutorial.contacted = true;
     addXP(s, 'articulador', 1);
-    log(s, `Contatos em ${district(s).name}: +${boost} de influência.`);
-    return done(true, `+${boost} influência em ${district(s).name}.`);
+    log(s, `Contatos na ${district(s).name}: +${boost} de influência.`);
+    return done(true, `+${boost} influência na ${district(s).name}.`);
   }
 
   function doDispute(s) {
     if (blocked(s)) return refuse(blocked(s));
     const d = s.district, l = leader(s, d), fs = s.factions[l.id];
-    if (s.influence[d] < 20) return refuse('Construa pelo menos 20 de influência no bairro antes de disputar.');
+    if (s.influence[d] < 20) return refuse('Construa pelo menos 20 de influência na região antes de disputar.');
     if (agreement(s, l.id)) return refuse(`Você tem um acordo com ${faction(l.id).short}. Rompa-o na tela Gangue se quiser disputar.`);
     if (fs.lastActionDay === s.day) return refuse('Você já agiu contra esta facção hoje.');
     if (s.energy < 33 || s.cash < 320) return refuse('Energia ou dinheiro insuficiente.');
@@ -1571,11 +1574,11 @@
     s.dstate[d].econ = clamp(s.dstate[d].econ - .03, .6, 1.4);
     if (roll(odds)) {
       addInf(s, d, 15); addPres(s, d, l.id, -12); s.respect += 5; addHeat(s, 8); addXP(s, 'articulador', 1);
-      log(s, `Disputa vencida em ${district(s).name} (${odds}%). ${faction(l.id).short} perdeu espaço.`);
+      log(s, `Disputa vencida na ${district(s).name} (${odds}%). ${faction(l.id).short} perdeu espaço.`);
       return done(true, `Disputa vencida! (${odds}%)`);
     }
     addInf(s, d, -6); addPres(s, d, l.id, 8); addHeat(s, 11);
-    log(s, `Disputa perdida em ${district(s).name} (${odds}%). ${faction(l.id).short} avançou.`);
+    log(s, `Disputa perdida na ${district(s).name} (${odds}%). ${faction(l.id).short} avançou.`);
     return done(false, 'Disputa perdida. O rival avançou.');
   }
 
@@ -1662,8 +1665,8 @@
     if (!s.gangName) return refuse('Confrontos exigem uma gangue.');
     if (s.jail > 0) return refuse('Você está detido.');
     const r = s.factions[fid], d = s.district;
-    if (leader(s, d).id !== fid) return refuse(`${f.short} não lidera este bairro.`);
-    if (s.influence[d] < 20) return refuse('Você precisa de 20 de influência no bairro.');
+    if (leader(s, d).id !== fid) return refuse(`${f.short} não lidera esta região.`);
+    if (s.influence[d] < 20) return refuse('Você precisa de 20 de influência na região.');
     if (s.hospital > 0) return refuse('Você está internado.');
     if (injured(s)) return refuse('Você está ferido demais para um confronto. Cuide da saúde.');
     if (agreement(s, fid)) return refuse('Há um acordo ativo. Rompa-o antes de confrontar.');
@@ -1677,12 +1680,12 @@
       addInf(s, d, 16); addPres(s, d, fid, -14); r.power = clamp(r.power - 6, 10, 100);
       s.respect += 6; addHeat(s, 9); addMorale(s, 5); s.gangStats.confrontWins++; memberXP(s, 2, 'musculo'); memberXP(s, 1);
       if (odds <= 40) unlock(s, 'virada');
-      log(s, `${s.gangName} venceu ${f.name} em ${district(s).name} (${odds}%).`);
+      log(s, `${s.gangName} venceu ${f.name} na ${district(s).name} (${odds}%).`);
       return done(true, `Confronto vencido! (${odds}%)`);
     }
     addInf(s, d, -9); addPres(s, d, fid, 11); addHeat(s, 16); addMorale(s, -10); s.gangStats.confrontLosses++; memberXP(s, 1, 'musculo');
     const wound = hurt(s, rand(12, 22));
-    log(s, `${s.gangName} perdeu para ${f.name} em ${district(s).name} (${odds}%). A equipe ficou abalada.${wound}`);
+    log(s, `${s.gangName} perdeu para ${f.name} na ${district(s).name} (${odds}%). A equipe ficou abalada.${wound}`);
     return done(false, `Confronto perdido: influência e ânimo reduzidos.${wound}`);
   }
 
@@ -1801,7 +1804,7 @@
     s.cash -= total; s.energy -= 3; s.goods[g.id] += qty; s.trade.spent += total;
     s.market[d][g.id] = clamp(s.market[d][g.id] + imp, 60, 150);
     addHeat(s, Math.ceil(qty * g.risk / 12 * (s.career === 'traficante' ? 1.6 : 1)));
-    log(s, `Galpão: comprou ${qty} × ${g.name} por ${money(total)} em ${district(s).name}.`);
+    log(s, `Galpão: comprou ${qty} × ${g.name} por ${money(total)} na ${district(s).name}.`);
     return done(true, `Comprou ${qty} × ${g.name} por ${money(total)}.`);
   }
   function doSellGood(s, id, qty) {
@@ -1819,7 +1822,7 @@
     s.dstate[d].vigil = clamp(s.dstate[d].vigil + Math.ceil(qty * g.risk / 10), 0, 100);
     turfFriction(s, d, g.risk >= 2 ? 2 : 1); // vender na área de outro grupo incomoda
     if (s.trade.sold >= 20000) unlock(s, 'atacadista');
-    log(s, `Galpão: vendeu ${qty} × ${g.name} por ${money(total)} em ${district(s).name}.`);
+    log(s, `Galpão: vendeu ${qty} × ${g.name} por ${money(total)} na ${district(s).name}.`);
     return done(true, `Vendeu ${qty} × ${g.name} por ${money(total)}.`);
   }
   const exportOpen = s => s.exportDeal.day === s.day && s.district === 'cais';
@@ -1827,7 +1830,7 @@
     const g = good(s.exportDeal.good);
     if (blocked(s)) return refuse(blocked(s));
     if (s.exportDeal.day !== s.day) return refuse(`O comprador de fora só chega no dia ${s.exportDeal.day}.`);
-    if (s.district !== 'cais') return refuse(`O comprador espera em ${district(s, 'cais').name}.`);
+    if (s.district !== 'cais') return refuse(`O comprador espera na ${district(s, 'cais').name}.`);
     const qty = Math.min(exportLimit(s), s.goods[g.id]);
     if (qty <= 0) return refuse(`Você não tem ${g.name} para entregar.`);
     if (s.exportDone === s.day) return refuse('O comprador já fechou negócio com você hoje.');
@@ -1873,7 +1876,7 @@
     if (n.heat) addHeat(s, n.heat);
     let extra = '';
     if (own) { s.today.termas = true; s.tutorial.nighted = true; s.energy = Math.max(s.energy, 100); extra += ' Na sua casa: energia cheia, sem vício e sem conta.'; }
-    if (n.contact && roll(n.contact)) { const b = 3 + Math.floor(s.stats.labia / 8); addInf(s, s.district, b); extra += ` Você firmou contatos: +${b} de influência em ${district(s).name}.`; }
+    if (n.contact && roll(n.contact)) { const b = 3 + Math.floor(s.stats.labia / 8); addInf(s, s.district, b); extra += ` Você firmou contatos: +${b} de influência na ${district(s).name}.`; }
     if (n.brawl && !nightSafe(s, n) && !barao2 && roll(n.brawl)) { addHeat(s, 5); extra += ` Cruzou com gente de outra gangue e saiu na mão:${hurt(s, rand(8, 16))}`; }
     if (n.raid && !barao2 && !s.hospital && roll(Math.round(n.raid * eventMod(s, 'nightRiskMult')))) { const fine = Math.min(s.cash, 500, Math.ceil(s.cash * .05)); s.cash -= fine; addHeat(s, 8); extra += ` Batida policial: ${money(fine)} de "cafezinho" e +8 de Procurado.`; }
     if (n.boss) { const l = leader(s, s.district); addRel(s, l.id, 5); extra += ` Negócio fechado com ${faction(l.id).short}: relação +5.`; }
@@ -2066,7 +2069,7 @@
    *  saque médio de 1 roubo do maior degrau que você já fez; cada nova no mesmo dia, +50%. Sem teto. */
   const PROPINA = 25;
   const ladderAvg = n => { const m = MISSIONS.find(x => x.n === clamp(n || 1, 1, LADDER_TOP) && !x.variant); return Math.round((m.low + m.high) / 2); };
-  const cleanCost = s => Math.round(ladderAvg(s.ladderMax) * Math.pow(1.5, Math.min(40, s.today.despachante || 0)) * (controlled(s, s.district) ? .75 : 1)); // no seu bairro, 25% mais barata
+  const cleanCost = s => Math.round(ladderAvg(s.ladderMax) * Math.pow(1.5, Math.min(40, s.today.despachante || 0)) * (controlled(s, s.district) ? .75 : 1)); // na sua região, 25% mais barata
   function doCleanRecord(s) {
     if (s.jail > 0) return refuse('Você está detido.');
     if (s.heat <= 0) return refuse('Ninguém está te procurando.');
@@ -2152,10 +2155,10 @@
     { id: 'quarto', at: 0, need: s => s.successful >= 1, who: 'Dona Zefa', title: 'O quarto dos fundos',
       text: 'Dona Zefa te entrega a chave do quartinho atrás da pensão sem perguntar de onde você veio. "Paga quando puder. Só não me traz polícia pra porta, que eu já enterrei um filho." O colchão é fino, mas é o primeiro teto que alguém te dá em muito tempo.',
       choices: [
-        { label: 'Dar a sua palavra', desc: '+4 de influência no bairro', influence: 4, after: 'Você deu a palavra. Dona Zefa fez o sinal da cruz e voltou pro fogão.' },
+        { label: 'Dar a sua palavra', desc: '+4 de influência na região', influence: 4, after: 'Você deu a palavra. Dona Zefa fez o sinal da cruz e voltou pro fogão.' },
         { label: 'Pedir um trocado emprestado', desc: '+R$ 40 · −1 de respeito', money: 40, respect: -1, after: 'Ela tirou duas notas do sutiã, sem olhar na sua cara. Você ficou devendo mais que dinheiro.' }] },
     { id: 'miudo', at: 1, who: 'Miúdo', title: 'O entregador',
-      text: 'Miúdo tem dezenove anos, uma moto financiada e a mãe doente. Ele encosta do seu lado no ponto: "Eu rodo o bairro inteiro, chefe. Vejo onde a viatura para, que horas troca o turno. Me bota na fita." Os olhos dele brilham do jeito que os seus brilhavam.',
+      text: 'Miúdo tem dezenove anos, uma moto financiada e a mãe doente. Ele encosta do seu lado no ponto: "Eu rodo a região inteira, chefe. Vejo onde a viatura para, que horas troca o turno. Me bota na fita." Os olhos dele brilham do jeito que os seus brilhavam.',
       choices: [
         { label: 'Botar o Miúdo na fita', desc: 'R$ 60 · −10 de Procurado', cash: 60, heat: -10, after: 'Miúdo agora roda de olho na polícia por você. A mãe dele acha que o dinheiro é gorjeta.' },
         { label: 'Mandar ele ficar longe disso', desc: '+3 de respeito', respect: 3, after: 'Miúdo foi embora xingando. A rua ficou sabendo que você não queima moleque. Isso também é respeito.' }] },
@@ -2165,15 +2168,15 @@
         { label: 'Pagar o condomínio', desc: 'R$ 400 · −25 de Procurado', cash: 400, heat: -25, after: 'O envelope sumiu no porta-luvas. O Corsa foi embora, mas você sabe que ele volta todo mês.' },
         { label: 'Mandar ele trabalhar direito', desc: '+6 de respeito · +15 de Procurado', respect: 6, heat: 15, after: 'O vidro subiu devagar. No dia seguinte tinha viatura em toda esquina, e gente te cumprimentando de longe.' }] },
     { id: 'doutor', at: 3, who: 'O Doutor', title: 'A proposta',
-      text: 'O Doutor te recebe de roupão, com vista para a cidade inteira. Nunca sujou a mão e manda em quem suja. "Você tem futuro. Só precisa me dizer onde o pessoal que manda no seu bairro guarda o dinheiro. Eles caem, você sobe, e eu fico com a minha parte."',
+      text: 'O Doutor te recebe de roupão, com vista para a cidade inteira. Nunca sujou a mão e manda em quem suja. "Você tem futuro. Só precisa me dizer onde o pessoal que manda na sua região guarda o dinheiro. Eles caem, você sobe, e eu fico com a minha parte."',
       choices: [
-        { label: 'Entregar o esquema deles', desc: '+R$ 1.500 · o grupo do bairro vira inimigo', money: 1500, relation: -25, tension: 20, after: 'Você falou. Na mesma semana o bairro amanheceu com gente nova na esquina, e gente antiga te procurando.' },
+        { label: 'Entregar o esquema deles', desc: '+R$ 1.500 · o grupo da região vira inimigo', money: 1500, relation: -25, tension: 20, after: 'Você falou. Na mesma semana a região amanheceu com gente nova na esquina, e gente antiga te procurando.' },
         { label: 'Dizer que não entrega ninguém', desc: '+8 de respeito · +8 de influência', respect: 8, influence: 8, after: 'O Doutor sorriu, fechou o roupão e mandou te levarem até a porta. Na rua, a história chegou antes de você.' }] },
     { id: 'topo', at: 4, who: 'Dona Zefa', title: 'O topo é frio',
       text: 'Você volta ao quartinho dos fundos de carro novo. Dona Zefa está na mesma cadeira, mais magra. "Então é você o tal dono do morro. Meu filho também quis ser." Ela aponta a goteira no teto da pensão. "Tudo que sobe aqui, um dia desce. Só muda o que deixa."',
       choices: [
         { label: 'Reformar a pensão inteira', desc: 'R$ 2.000 · +15 de respeito', cash: 2000, respect: 15, after: 'Os pedreiros chegaram na segunda. Dona Zefa não agradeceu. Só voltou a deixar o seu prato feito na janela.' },
-        { label: 'Dizer que não deve nada a ninguém', desc: '+3 de respeito · −10 de influência no bairro', respect: 3, influence: -10, after: 'Você saiu sem olhar para trás. A goteira continuou. O bairro reparou.' }] }
+        { label: 'Dizer que não deve nada a ninguém', desc: '+3 de respeito · −10 de influência na região', respect: 3, influence: -10, after: 'Você saiu sem olhar para trás. A goteira continuou. A região reparou.' }] }
   ];
   /** Capítulo à espera de decisão (ou null). No máximo um por dia. */
   function storyPending(s) {
@@ -2199,7 +2202,7 @@
   }
   /** Cena da rua: um parágrafo curto sobre o momento do personagem. Pura e estável dentro do mesmo dia. */
   function streetScene(s) {
-    const b = district(s).name, pick2 = (...v) => v[(s.day + s.successful) % v.length], pi = phaseIndex(s);
+    const b = district(s).spot || district(s).name, pick2 = (...v) => v[(s.day + s.successful) % v.length], pi = phaseIndex(s);
     if (s.uti) return 'O bipe do monitor marca o tempo. Do corredor vem cheiro de éter e café requentado. Lá fora a cidade continua sem você.';
     if (s.hospital > 0) return 'Teto de hospital é tudo igual. Você conta as manchas de infiltração e pensa em quem ficou feliz de te ver aqui.';
     if (s.jail > 0) return pick2('A cela cheira a suor e água sanitária. Alguém canta baixinho um pagode antigo. Lá fora, a sua esquina já tem outro dono por hoje.', 'O carcereiro passa batendo a chave na grade. Cada batida é uma hora da sua vida que alguém lá fora está aproveitando.');
@@ -2208,7 +2211,7 @@
     if (s.health < 40) return 'Cada passo dói num lugar diferente. Na farmácia, a balconista te olha e nem pergunta nada. Só empurra a gaze no balcão.';
     if (s.heat >= 60) return `Tem um carro parado na esquina que não é de ninguém de ${b}. O rapaz do bar faz sinal com o queixo: hoje estão de olho.`;
     if (s.energy < 16) return 'As pernas pesam. A rua continua acordada, mas você não. O corpo pede boteco ou cama, nessa ordem.';
-    if (controlled(s, s.district)) return pick2(`Em ${b}, o pessoal da padaria já separa o seu pão sem você pedir. Mandar num bairro é isso: ninguém fala o seu nome alto.`, `Um moleque pinta o seu vulgo no muro de ${b}. A tinta ainda escorre. Amanhã alguém vai querer apagar.`);
+    if (controlled(s, s.district)) return pick2(`Em ${b}, o pessoal da padaria já separa o seu pão sem você pedir. Mandar numa região é isso: ninguém fala o seu nome alto.`, `Um moleque pinta o seu vulgo no muro de ${b}. A tinta ainda escorre. Amanhã alguém vai querer apagar.`);
     if ((s.day + s.successful) % 3 === 0 && DISTRICT_VIBE[s.district]) return DISTRICT_VIBE[s.district].line;
     return [
       pick2(`${b} acorda cedo e não te conhece. Você é só mais um de chinelo olhando o movimento, contando quem tem e quem não tem.`, 'O estômago ronca mais alto que o ônibus. Todo mundo começa do mesmo jeito: de olho na carteira dos outros.'),
@@ -2340,7 +2343,7 @@
     }
     if (choice === 'pressure') {
       ctx.pressured = true; s.gangStats.retaliations++;
-      if (hasPerk(s, 'articulador', 3) && roll(50)) return `${f.short} tentou retaliar, mas sua rede no bairro avisou a tempo.`;
+      if (hasPerk(s, 'articulador', 3) && roll(50)) return `${f.short} tentou retaliar, mas sua rede na região avisou a tempo.`;
       addTen(s, f.id, -8);
       if (P.pressure === 'extorsao') {
         const target = s.businesses.map(business).filter(b => s.presence[b.district][f.id] >= 10).sort((a, b) => b.net - a.net)[0];
@@ -2348,7 +2351,7 @@
       }
       if (P.pressure === 'denuncia') {
         addHeat(s, 10); s.dstate[s.district].vigil = clamp(s.dstate[s.district].vigil + 10, 0, 100);
-        return `Retaliação de ${f.short}: denúncia anônima. +10 de Procurado e +10 de polícia no bairro.`;
+        return `Retaliação de ${f.short}: denúncia anônima. +10 de Procurado e +10 de polícia na região.`;
       }
       const best = DISTRICTS.filter(d => s.presence[d.id][f.id] > 0).sort((a, b) => s.influence[b.id] - s.influence[a.id])[0] || district(s);
       const removed = Math.min(rand(5, 9), s.influence[best.id]);
@@ -2499,7 +2502,7 @@
     const bonus = s.nextBonus; s.nextBonus = 0;
     s.cash += biz + trib + contracts + bonus; s.bank += interest;
     if (biz) lines.push(`Negócios: +${money(biz)}.`);
-    if (trib) lines.push(`Tributo de ${ctrl.length} bairro(s) liderado(s): +${money(trib)}.`);
+    if (trib) lines.push(`Tributo de ${ctrl.length} região(ões) liderada(s): +${money(trib)}.`);
     if (contracts) lines.push(`Sociedades: +${money(contracts)}.`);
     if (bonus) lines.push(`Bônus do festival: +${money(bonus)}.`);
     if (interest) lines.push(`Rendimento bancário: +${money(interest)}.`);
@@ -2567,7 +2570,7 @@
       const pool = GOODS.filter(g => g.unlock <= s.respect + 40);
       s.exportDeal = { day: Math.min(MAXDAY, (Math.floor((s.day - 1) / 5) + 1) * 5), good: pick(pool).id };
     }
-    if (s.exportDeal.day === s.day) lines.push(`O comprador de fora chegou em ${district(s, 'cais').name}: paga ${money(exportPrice(good(s.exportDeal.good), s))} por ${good(s.exportDeal.good).name}.`);
+    if (s.exportDeal.day === s.day) lines.push(`O comprador de fora chegou na ${district(s, 'cais').name}: paga ${money(exportPrice(good(s.exportDeal.good), s))} por ${good(s.exportDeal.good).name}.`);
 
     // Influência se dissipa onde você não está
     for (const d of DISTRICTS) if (d.id !== s.district) addInf(s, d.id, -1);
@@ -2622,10 +2625,10 @@
   /** Executado após cada ação: paga feitos do mês em respeito, verifica conquistas. Devolve as linhas para o resultado. */
   function afterAction(s) {
     const out = [];
-    // Território: perder um bairro custa respeito (só se a influência caiu, não por limite de patente).
-    for (const did of s.turfOwned || []) if (!turfReady(s, did)) { const r = Math.min(s.respect, TURF_LOSS); s.respect -= r; const m = `Você perdeu o comando de ${district(s, did).name}: −${r} de respeito.`; log(s, m); out.push(m); }
+    // Território: perder uma região custa respeito (só se a influência caiu, não por limite de patente).
+    for (const did of s.turfOwned || []) if (!turfReady(s, did)) { const r = Math.min(s.respect, TURF_LOSS); s.respect -= r; const m = `Você perdeu o comando da ${district(s, did).name}: −${r} de respeito.`; log(s, m); out.push(m); }
     s.turfOwned = ownedTurf(s);
-    // Subir de faixa num bairro paga respeito, uma vez por bairro na temporada.
+    // Subir de faixa numa região paga respeito, uma vez por região na temporada.
     for (const d of DISTRICTS) {
       const ti = infTier(s, d.id), paid = s.turfPaid[d.id] || 0;
       if (ti > paid) { let r = 0; for (let k = paid + 1; k <= ti; k++) r += TURF_RESPECT[k]; s.turfPaid[d.id] = ti; s.respect += r; const m = `${d.name}: você agora é ${INF_TIERS[ti].name}. +${r} de respeito.`; log(s, m); out.push(m); }
