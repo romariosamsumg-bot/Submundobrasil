@@ -205,6 +205,10 @@ await page.click('[data-action=duel][data-id=marrento]');
   await go('hospital');
   await page.click('[data-action=detox][data-id=soro]');
   check((await st()).vicio === 0, 'soro na veia: −50 de vício (40 → 0), de graça');
+  { const keep = await page.evaluate(() => localStorage.getItem('submundo_brasil_v01')); await page.evaluate(() => { const k = 'submundo_brasil_v01', s = JSON.parse(localStorage.getItem(k)); s.vicio = 100; s.health = 10; s.cash = 9000; s.jail = 0; localStorage.setItem(k, JSON.stringify(s)); }); await page.reload(); await go('hospital');
+    await page.click('[data-action=detox][data-id=clinica]');
+    check(await page.evaluate(() => document.querySelector('#content').classList.contains('shake-hard')) && (await st()).uti === true, 'ir para a UTI faz a tela tremer (forte)');
+    await page.evaluate(x => localStorage.setItem('submundo_brasil_v01', x), keep); await page.reload(); await go('hospital'); }
   await go('acoes');
   await page.click('[data-action=clean-record]');
   check((await st()).heat === 26, 'propina: -25 de Procurado (50 + 1 da aposta - 25)');

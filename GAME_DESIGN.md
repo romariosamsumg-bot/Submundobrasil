@@ -641,6 +641,10 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
+### Tremor de tela (v1.5)
+
+A tela inteira (topo e conteúdo) treme **forte** quando você é preso, enquadrado ou vai para a UTI, e **leve** quando a ação te fere (assalto que dá errado, briga na noite, overdose, desintoxicação). Meio segundo no máximo; no celular que permite, vibra junto. Não acontece com "reduzir movimento" ligado. O cupom de resultado com "DEU RUIM" continua com o seu tremor próprio.
+
 ### Apresentação para personagem novo (v1.5)
 
 Logo depois de criar o personagem (no jogo local e no online), abre uma apresentação de 3 telas, sem contas: **Você chegou** (a cidade, o mês e o objetivo: respeito, patente e ranking), **A rua gira assim** (roubar do fácil ao difícil, a noite dá energia, a Feira abre roubos maiores, os negócios pagam todo dia) e **A rua cobra** (polícia, vício, saúde e a história na Rua). "Começar" fecha e o guia de primeiros passos segue. Não abre na virada de temporada. As páginas completas continuam em "Como jogar".

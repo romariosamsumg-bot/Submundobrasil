@@ -277,6 +277,19 @@
   /* Sons (src/sound.js): cada ação toca o seu efeito; o botão do topo e o Perfil ligam, desligam e ajustam o volume. */
   const sfx = (...n) => { try { return window.SBSound && window.SBSound.play(...n); } catch (e) { return false; } };
   const MONEY_ACTIONS = ['buyItem', 'buy', 'buyGood', 'sellGood', 'bank', 'cleanRecord', 'bail', 'bribe', 'exportGoods', 'bet', 'gig'];
+  /** Tremor de tela (screen shake): forte na prisão e na UTI, leve quando você se fere. Respeita "reduzir movimento". */
+  function screenShake(kind) {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    for (const el of [$('#hud'), $('#content')]) { if (!el) continue; el.classList.remove('shake-hard', 'shake-soft'); void el.offsetWidth; el.classList.add('shake-' + kind); setTimeout(() => el.classList.remove('shake-' + kind), 600); }
+    if (navigator.vibrate) try { navigator.vibrate(kind === 'hard' ? [60, 40, 90] : 40); } catch (e) { /* sem vibração */ }
+  }
+  /** Decide o tremor de cada resultado. */
+  function actionShake(name, r, hpBefore) {
+    const s = state, all = [r.msg || '', ...(r.lines || [])].join(' ');
+    if (!s) return;
+    if ((s.uti && /UTI/.test(all)) || (s.jail > 0 && !r.good && ['mission', 'duel', 'bribe', 'story'].includes(name)) || /enquadrado|Enquadrado/.test(all)) return screenShake('hard');
+    if (typeof hpBefore === 'number' && s.health < hpBefore) return screenShake('soft');
+  }
   function actionSound(name, r) {
     const s = state, all = [r.msg || '', ...(r.lines || [])].join(' ');
     const extra = /\+\d+ de respeito/.test((r.lines || []).join(' ')) && /(Feito do mês|você agora é|Primeiros passos|Conquista)/.test(all) ? [['fanfare', .55]] : [];
@@ -305,7 +318,7 @@
       result = { good: true, msg: r.msg, lines: [`Respeito final: ${rec.score} · ${rec.title}.`, ...SB.CATEGORIES.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`)], deltas: [], fresh: true };
     } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()), fresh: true, stamp: STAMPED.includes(name) };
     if (name === 'nextDay') dawn();
-    save(); render(); actionSound(name, r);
+    save(); render(); actionSound(name, r); actionShake(name, r, before && before.health);
     $('#toast').hidden = true; // o popup já informa
     return r;
   }

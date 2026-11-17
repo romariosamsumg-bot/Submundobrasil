@@ -782,3 +782,10 @@ body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(
 .loaderSpin{width:34px;height:34px;border-radius:50%;border:3px solid #2c3a3e;border-top-color:var(--ambar);animation:spin .9s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.loaderSpin{animation:none;border-top-color:#2c3a3e;border-right-color:var(--ambar)}}
+
+/* Tremor de tela (screen shake): forte na prisão e na UTI, leve ao se ferir */
+@keyframes shakeHard{0%,100%{transform:translate(0,0)}10%{transform:translate(-7px,2px)}20%{transform:translate(6px,-3px)}30%{transform:translate(-5px,3px)}40%{transform:translate(5px,-1px)}55%{transform:translate(-3px,2px)}70%{transform:translate(2px,-1px)}85%{transform:translate(-1px,1px)}}
+@keyframes shakeSoft{0%,100%{transform:translate(0,0)}20%{transform:translate(-3px,0)}40%{transform:translate(3px,0)}60%{transform:translate(-2px,0)}80%{transform:translate(1px,0)}}
+.shake-hard{animation:shakeHard .5s cubic-bezier(.36,.07,.19,.97) both}
+.shake-soft{animation:shakeSoft .32s ease-out both}
+@media(prefers-reduced-motion:reduce){.shake-hard,.shake-soft{animation:none!important}}
