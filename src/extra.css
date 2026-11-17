@@ -789,3 +789,21 @@ body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(
 .shake-hard{animation:shakeHard .5s cubic-bezier(.36,.07,.19,.97) both}
 .shake-soft{animation:shakeSoft .32s ease-out both}
 @media(prefers-reduced-motion:reduce){.shake-hard,.shake-soft{animation:none!important}}
+
+/* Topo: barras viram atalhos, energia acima de 100 em dourado, faixas do Procurado e rodapé com o bairro */
+.hudwrap{grid-template-areas:"who money" "bars bars" "foot foot"}
+button.hudBar{appearance:none;-webkit-appearance:none;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;width:100%;text-align:left;border-radius:0}
+button.hudBar:focus-visible{outline:2px solid var(--ambar);outline-offset:2px}
+button.hudBar:active{filter:brightness(1.25)}
+.hudBar i.over{left:0;background:repeating-linear-gradient(90deg,#f0c14b 0 7px,#d6a431 7px 8px);z-index:1}
+.hudBar .hudIco,.hudBar b{z-index:2}
+.hudBar.en.boost{border-color:#f0c14b}
+.hudBar.ht{background-image:linear-gradient(90deg,transparent calc(30% - 1px),#ffffff55 30%,transparent calc(30% + 1px),transparent calc(60% - 1px),#ffffff55 60%,transparent calc(60% + 1px),transparent calc(85% - 1px),#ffffff77 85%,transparent calc(85% + 1px));background-color:#05080a}
+.hudFoot{grid-area:foot;display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;margin-top:-1px}
+.hudPlace{font:700 10px/1.2 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#f5ecd9;padding-left:8px;border-left:3px solid var(--bairro);overflow-wrap:anywhere}
+.hudFoot #topDay{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#8f9c9f}
+.hudTier{font:800 9px/1 ui-monospace,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase;padding:3px 6px;border-radius:2px}
+.hudTier[hidden]{display:none}
+.hudTier.t1{background:#3a2f17;color:#f0c06e}.hudTier.t2{background:#3e2616;color:#f29b63}.hudTier.t3{background:#431d1a;color:#ff9d8f}
+.hudFoot .soundBtn{margin-left:auto;width:24px;height:24px}
+@media(min-width:701px){.hudwrap{grid-template-areas:"who bars money" "foot foot foot"}}

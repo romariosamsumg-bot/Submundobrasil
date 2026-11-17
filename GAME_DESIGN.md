@@ -641,6 +641,14 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
+### Topo: bairro, atalhos e leitura das barras (v1.5)
+
+- **Rodapé do topo:** bairro atual (com a cor dele), dia e o botão de som. Quando o Procurado passa de 30, aparece a faixa (De olho, Na mira, Caçado).
+- **Barras são atalhos:** Energia → Noite; Saúde e Vício → Hospital; Procurado → Roubar (onde ficam a propina e o "ficar na sua").
+- **Energia acima de 100** (com doses): trecho dourado por cima da barra e borda dourada.
+- **Procurado:** marcas nas faixas 30, 60 e 85. Procurado e Vício ficam discretos quando baixos e acendem na zona de risco.
+- Patente e classe continuam em duas linhas (escolha do autor).
+
 ### Ajustes de tela e do Galpão (v1.5, pedidos do autor)
 
 - **Roubar:** roubo sem especialidade não mostra mais "Genérico"; só golpes (com o atributo) e assaltos (arsenal) levam etiqueta.

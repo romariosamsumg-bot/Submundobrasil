@@ -871,18 +871,37 @@ body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(
 .shake-soft{animation:shakeSoft .32s ease-out both}
 @media(prefers-reduced-motion:reduce){.shake-hard,.shake-soft{animation:none!important}}
 
+/* Topo: barras viram atalhos, energia acima de 100 em dourado, faixas do Procurado e rodapé com o bairro */
+.hudwrap{grid-template-areas:"who money" "bars bars" "foot foot"}
+button.hudBar{appearance:none;-webkit-appearance:none;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;width:100%;text-align:left;border-radius:0}
+button.hudBar:focus-visible{outline:2px solid var(--ambar);outline-offset:2px}
+button.hudBar:active{filter:brightness(1.25)}
+.hudBar i.over{left:0;background:repeating-linear-gradient(90deg,#f0c14b 0 7px,#d6a431 7px 8px);z-index:1}
+.hudBar .hudIco,.hudBar b{z-index:2}
+.hudBar.en.boost{border-color:#f0c14b}
+.hudBar.ht{background-image:linear-gradient(90deg,transparent calc(30% - 1px),#ffffff55 30%,transparent calc(30% + 1px),transparent calc(60% - 1px),#ffffff55 60%,transparent calc(60% + 1px),transparent calc(85% - 1px),#ffffff77 85%,transparent calc(85% + 1px));background-color:#05080a}
+.hudFoot{grid-area:foot;display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;margin-top:-1px}
+.hudPlace{font:700 10px/1.2 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#f5ecd9;padding-left:8px;border-left:3px solid var(--bairro);overflow-wrap:anywhere}
+.hudFoot #topDay{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#8f9c9f}
+.hudTier{font:800 9px/1 ui-monospace,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase;padding:3px 6px;border-radius:2px}
+.hudTier[hidden]{display:none}
+.hudTier.t1{background:#3a2f17;color:#f0c06e}.hudTier.t2{background:#3e2616;color:#f29b63}.hudTier.t3{background:#431d1a;color:#ff9d8f}
+.hudFoot .soundBtn{margin-left:auto;width:24px;height:24px}
+@media(min-width:701px){.hudwrap{grid-template-areas:"who bars money" "foot foot foot"}}
+
   </style>
 </head>
 <body>
   <header class="topbar hud" id="hud"><div class="topwrap hudwrap">
     <button type="button" class="hudWho" data-view="perfil" aria-label="Abrir perfil"><span class="hudAvatar" id="hudAvatar" aria-hidden="true"></span><div class="hudId"><strong id="hudName">SUBMUNDO BRASIL</strong><small id="hudSub">v1.3</small></div></button>
-    <div class="hudMoney"><strong id="topCash" title="Dinheiro em mãos">R$ 0</strong><button type="button" class="hudResp" data-view="ranking" title="Respeito: é o que conta no ranking (tocar abre o ranking)" aria-label="Respeito e ranking"><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0l1.8 3.8 4.2.5-3.1 2.9.8 4.1L6 9.3 2.3 11.3l.8-4.1L0 4.3l4.2-.5z"/></svg><b id="hudRespect">0</b> respeito</button><span class="hudDayRow"><small id="topDay">Dia 1</small><button type="button" class="soundBtn" id="soundToggle" data-action="sound-toggle" aria-pressed="true" aria-label="Som"></button></span></div>
+    <div class="hudMoney"><strong id="topCash" title="Dinheiro em mãos">R$ 0</strong><button type="button" class="hudResp" data-view="ranking" title="Respeito: é o que conta no ranking (tocar abre o ranking)" aria-label="Respeito e ranking"><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0l1.8 3.8 4.2.5-3.1 2.9.8 4.1L6 9.3 2.3 11.3l.8-4.1L0 4.3l4.2-.5z"/></svg><b id="hudRespect">0</b> respeito</button></div>
     <div class="hudBars">
-      <div class="hudBar en" role="img" id="hudEnergyBox" aria-label="Energia"><i id="hudEnergy"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M7 0 1 7h4l-1 5 6-7H6z"/></svg><b id="hudEnergyTxt">Energia</b></div>
-      <div class="hudBar hp" role="img" id="hudHealthBox" aria-label="Saúde"><i id="hudHealth"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 11 1.2 6.3A3 3 0 0 1 6 2.4a3 3 0 0 1 4.8 3.9z"/></svg><b id="hudHealthTxt">Saúde</b></div>
-      <div class="hudBar ht" role="img" id="hudHeatBox" aria-label="Procurado"><i id="hudHeat"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9V6a3 3 0 0 1 6 0v3zM1 10h10v2H1zM5.4 0h1.2v2H5.4zM1 2.2l.9-.8 1.4 1.4-.8.9zm10 0-.9-.8-1.4 1.4.8.9z"/></svg><b id="hudHeatTxt">Procurado</b></div>
-      <div class="hudBar vc" role="img" id="hudVicioBox" aria-label="Vício"><i id="hudVicio"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.2 1.4a3 3 0 0 1 4.2 0l2.2 2.2a3 3 0 0 1 0 4.2L7.8 10.6a3 3 0 0 1-4.2 0L1.4 8.4a3 3 0 0 1 0-4.2zM3.5 4.9l3.6 3.6 1.4-1.4-3.6-3.6z"/></svg><b id="hudVicioTxt">Vício</b></div>
+      <button type="button" class="hudBar en" data-view="noite" id="hudEnergyBox" aria-label="Energia"><i id="hudEnergy"></i><i id="hudEnergyOver" class="over"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M7 0 1 7h4l-1 5 6-7H6z"/></svg><b id="hudEnergyTxt">Energia</b></button>
+      <button type="button" class="hudBar hp" data-view="hospital" id="hudHealthBox" aria-label="Saúde"><i id="hudHealth"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 11 1.2 6.3A3 3 0 0 1 6 2.4a3 3 0 0 1 4.8 3.9z"/></svg><b id="hudHealthTxt">Saúde</b></button>
+      <button type="button" class="hudBar ht" data-view="acoes" id="hudHeatBox" aria-label="Procurado"><i id="hudHeat"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9V6a3 3 0 0 1 6 0v3zM1 10h10v2H1zM5.4 0h1.2v2H5.4zM1 2.2l.9-.8 1.4 1.4-.8.9zm10 0-.9-.8-1.4 1.4.8.9z"/></svg><b id="hudHeatTxt">Procurado</b></button>
+      <button type="button" class="hudBar vc" data-view="hospital" id="hudVicioBox" aria-label="Vício"><i id="hudVicio"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.2 1.4a3 3 0 0 1 4.2 0l2.2 2.2a3 3 0 0 1 0 4.2L7.8 10.6a3 3 0 0 1-4.2 0L1.4 8.4a3 3 0 0 1 0-4.2zM3.5 4.9l3.6 3.6 1.4-1.4-3.6-3.6z"/></svg><b id="hudVicioTxt">Vício</b></button>
     </div>
+    <div class="hudFoot"><span class="hudPlace" id="hudPlace"></span><small id="topDay">Dia 1</small><span class="hudTier" id="hudTier" hidden></span><button type="button" class="soundBtn" id="soundToggle" data-action="sound-toggle" aria-pressed="true" aria-label="Som"></button></div>
     <button id="menuToggle" class="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">Menu</button>
   </div></header>
   <div class="layout"><aside class="sidebar" id="sidebar"><div class="sidehead">Submundo Brasil</div><nav class="nav" aria-label="Navegação principal">
@@ -4152,17 +4171,19 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const pk = s.career + '|' + s.avatar; if ($('#hudAvatar').dataset.pic !== pk) { $('#hudAvatar').innerHTML = portrait(s); $('#hudAvatar').dataset.pic = pk; }
     $('#hudName').textContent = s.name; $('#hudSub').innerHTML = `<span>${esc(SB.phase(s).name)}</span><span>${esc(c)}</span>`;
     $('#hudRespect').textContent = num(s.respect);
-    $('#hudEnergy').style.width = s.energy + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`;
+    $('#hudEnergy').style.width = Math.min(100, s.energy) + '%'; $('#hudEnergyOver').style.width = Math.max(0, Math.min(100, s.energy - 100)) + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`; $('#hudEnergyBox').classList.toggle('boost', s.energy > 100);
     $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Procurado ${s.heat}`;
-    $('#hudEnergyBox').setAttribute('aria-label', `Energia ${s.energy} de 100`); $('#hudHeatBox').setAttribute('aria-label', `Procurado ${s.heat} de 100`);
-    $('#hudVicio').style.width = s.vicio + '%'; $('#hudVicioTxt').textContent = `Vício ${s.vicio}`; $('#hudVicioBox').setAttribute('aria-label', `Vício ${s.vicio} de 100`); $('#hudVicioBox').classList.toggle('alert', s.vicio >= 70);
+    $('#hudEnergyBox').setAttribute('aria-label', `Energia ${s.energy}. Abrir a Noite`); $('#hudHeatBox').setAttribute('aria-label', `Procurado ${s.heat} de 100, ${SB.HEAT_TIERS[SB.heatTier(s)].name}. Abrir Roubar`);
+    $('#hudVicio').style.width = s.vicio + '%'; $('#hudVicioTxt').textContent = `Vício ${s.vicio}`; $('#hudVicioBox').setAttribute('aria-label', `Vício ${s.vicio} de 100. Abrir o Hospital`); $('#hudVicioBox').classList.toggle('alert', s.vicio >= 70);
     $('#hudHeatBox').classList.toggle('alert', s.heat >= 60); $('#hudHeatBox').classList.toggle('warm', s.heat >= 30 && s.heat < 60); $('#hudVicioBox').classList.toggle('warm', s.vicio >= 40 && s.vicio < 70);
     $('#hudHealth').style.width = s.health + '%'; $('#hudHealthTxt').textContent = s.hospital ? 'Internado' : `Saúde ${s.health}`;
-    $('#hudHealthBox').setAttribute('aria-label', `Saúde ${s.health} de 100`); $('#hudHealthBox').classList.toggle('alert', s.health < 25);
+    $('#hudHealthBox').setAttribute('aria-label', `Saúde ${s.health} de 100. Abrir o Hospital`); $('#hudHealthBox').classList.toggle('alert', s.health < 25);
     const cash = $('#topCash'); cash.textContent = fmt(s.cash);
     if (lastCash !== null && lastCash !== s.cash) { cash.classList.remove('up', 'down'); void cash.offsetWidth; cash.classList.add(s.cash > lastCash ? 'up' : 'down'); }
     lastCash = s.cash;
     $('#topDay').textContent = `Dia ${s.day}/${MAXDAY}`;
+    $('#hudPlace').textContent = D().name;
+    { const ti = SB.heatTier(s), el = $('#hudTier'); el.hidden = ti === 0; el.textContent = SB.HEAT_TIERS[ti].name; el.className = 'hudTier t' + ti; }
     document.body.classList.toggle('jailed', s.jail > 0);
   }
   /** Executa uma ação do motor, registra o resultado e redesenha. */

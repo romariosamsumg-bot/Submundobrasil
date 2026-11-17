@@ -250,17 +250,19 @@
     const pk = s.career + '|' + s.avatar; if ($('#hudAvatar').dataset.pic !== pk) { $('#hudAvatar').innerHTML = portrait(s); $('#hudAvatar').dataset.pic = pk; }
     $('#hudName').textContent = s.name; $('#hudSub').innerHTML = `<span>${esc(SB.phase(s).name)}</span><span>${esc(c)}</span>`;
     $('#hudRespect').textContent = num(s.respect);
-    $('#hudEnergy').style.width = s.energy + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`;
+    $('#hudEnergy').style.width = Math.min(100, s.energy) + '%'; $('#hudEnergyOver').style.width = Math.max(0, Math.min(100, s.energy - 100)) + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`; $('#hudEnergyBox').classList.toggle('boost', s.energy > 100);
     $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Procurado ${s.heat}`;
-    $('#hudEnergyBox').setAttribute('aria-label', `Energia ${s.energy} de 100`); $('#hudHeatBox').setAttribute('aria-label', `Procurado ${s.heat} de 100`);
-    $('#hudVicio').style.width = s.vicio + '%'; $('#hudVicioTxt').textContent = `Vício ${s.vicio}`; $('#hudVicioBox').setAttribute('aria-label', `Vício ${s.vicio} de 100`); $('#hudVicioBox').classList.toggle('alert', s.vicio >= 70);
+    $('#hudEnergyBox').setAttribute('aria-label', `Energia ${s.energy}. Abrir a Noite`); $('#hudHeatBox').setAttribute('aria-label', `Procurado ${s.heat} de 100, ${SB.HEAT_TIERS[SB.heatTier(s)].name}. Abrir Roubar`);
+    $('#hudVicio').style.width = s.vicio + '%'; $('#hudVicioTxt').textContent = `Vício ${s.vicio}`; $('#hudVicioBox').setAttribute('aria-label', `Vício ${s.vicio} de 100. Abrir o Hospital`); $('#hudVicioBox').classList.toggle('alert', s.vicio >= 70);
     $('#hudHeatBox').classList.toggle('alert', s.heat >= 60); $('#hudHeatBox').classList.toggle('warm', s.heat >= 30 && s.heat < 60); $('#hudVicioBox').classList.toggle('warm', s.vicio >= 40 && s.vicio < 70);
     $('#hudHealth').style.width = s.health + '%'; $('#hudHealthTxt').textContent = s.hospital ? 'Internado' : `Saúde ${s.health}`;
-    $('#hudHealthBox').setAttribute('aria-label', `Saúde ${s.health} de 100`); $('#hudHealthBox').classList.toggle('alert', s.health < 25);
+    $('#hudHealthBox').setAttribute('aria-label', `Saúde ${s.health} de 100. Abrir o Hospital`); $('#hudHealthBox').classList.toggle('alert', s.health < 25);
     const cash = $('#topCash'); cash.textContent = fmt(s.cash);
     if (lastCash !== null && lastCash !== s.cash) { cash.classList.remove('up', 'down'); void cash.offsetWidth; cash.classList.add(s.cash > lastCash ? 'up' : 'down'); }
     lastCash = s.cash;
     $('#topDay').textContent = `Dia ${s.day}/${MAXDAY}`;
+    $('#hudPlace').textContent = D().name;
+    { const ti = SB.heatTier(s), el = $('#hudTier'); el.hidden = ti === 0; el.textContent = SB.HEAT_TIERS[ti].name; el.className = 'hudTier t' + ti; }
     document.body.classList.toggle('jailed', s.jail > 0);
   }
   /** Executa uma ação do motor, registra o resultado e redesenha. */
