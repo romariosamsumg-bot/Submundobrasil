@@ -241,6 +241,10 @@ await page.click('[data-action=duel][data-id=marrento]');
     for (const c of R.CRONICAS) { const t = c.t(v) + c.x(v); n++; if (/undefined|NaN/.test(t)) return t; }
     return n > 250 && R.CRONICAS.length >= 40 && R.FRASES.length >= 40 && R.CLASSIFICADOS.length >= 20 ? true : 'poucos textos: ' + n; }) === true, 'redação do jornal: todos os textos montam sem buraco, com autor da equipe, e há variedade (250+ modelos, 40 crônicas, 40 frases)');
   check(await page.evaluate(() => { const t = document.querySelector('.jornal').textContent; return !/undefined|NaN|\$\{/.test(t) && /por [A-ZÁÉ]/.test(t) && !!document.querySelector('.jornal .jQuote') && !!document.querySelector('.jornal .jExp'); }), 'jornal publicado com assinaturas, frase do dia e expediente, sem texto quebrado');
+  await go('perfil');
+  check(await page.locator('.evoCard .evoCol').count() === 5 && (await page.textContent('.evoCard')).includes('Negócios'), 'Perfil mostra a Evolução em 5 barras (Roubos, Armas, Proteção, Veículo, Negócios)');
+  await page.click('[data-action=evo-pick][data-id=armas]'); check((await page.textContent('.evoDetail')).includes('Armas') && await page.locator('.evoCol.on[data-id=armas]').count() === 1, 'tocar numa barra mostra o detalhe dela');
+  await go('painel');
   { // Diário: só o histórico do jogador
     await page.evaluate(() => { const k = 'submundo_brasil_v01', SB = window.SB, s = JSON.parse(localStorage.getItem(k)); SB.applyCity(s.city); const f = SB.FACTIONS[0], g = SB.FACTIONS[1];
       s.log.unshift({ day: s.day, msg: `Dia ${s.day}. Ressaca: -5 de energia ao acordar. ${f.short} ampliou presença na Região Industrial (+3). ${g.short} reorganizou suas fileiras (força 60). Evento: Dia movimentado. Retaliação de ${f.short}: -4 de influência sua na Região Central.` });

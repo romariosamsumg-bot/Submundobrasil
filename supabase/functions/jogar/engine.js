@@ -622,7 +622,8 @@
       trade: { sold: 0, spent: 0, exported: 0, blitz: 0 },
       health: 100, hospital: 0, beaten: {}, done: emptyDone(), duelStats: { wins: 0, losses: 0 },
       heist: null, heistReady: 0, vicio: 0, overdoses: 0, betStats: { won: 0, lost: 0 },
-      bicho: { tickets: [], last: null }, paper: null
+      bicho: { tickets: [], last: null }, paper: null,
+      ledger: { biz: 0, prod: 0 }, made: Object.fromEntries(GOODS.map(g => [g.id, 0]))
     };
     st.paper = { prev: null, cur: paperSnap(st) };
     return st;
@@ -867,6 +868,9 @@
       for (const k of PAPER_NUMS) out[k] = toInt(x[k], now[k], 0, k === 'heat' || k === 'vicio' || k === 'health' ? 100 : BIG); // campo ausente (save antigo) = valor de agora: sem notícia falsa
       return Object.fromEntries(Object.keys(now).map(k => [k, out[k]])); // mesma ordem da foto original (ida e volta estável)
     };
+    // v1.5: faturamento acumulado dos negócios e da produção (Evolução no Perfil) e o estoque que veio dos esquemas.
+    s.ledger = { biz: toInt(saved.ledger && saved.ledger.biz, 0, 0, BIG), prod: toInt(saved.ledger && saved.ledger.prod, 0, 0, BIG) };
+    for (const g of GOODS) s.made[g.id] = Math.min(s.goods[g.id], toInt(saved.made && saved.made[g.id], 0, 0, 9999));
     const sp = saved.paper && typeof saved.paper === 'object' ? saved.paper : {};
     s.paper = { prev: snap(sp.prev), cur: snap(sp.cur) || paperSnap(s) };
     s.schema = SCHEMA; s.version = VERSION;
@@ -1833,6 +1837,8 @@
     log(s, `Galpão: comprou ${qty} × ${g.name} por ${money(total)} na ${district(s).name}.`);
     return done(true, `Comprou ${qty} × ${g.name} por ${money(total)}.`);
   }
+  /** Parte de uma venda que saiu dos seus esquemas (produção própria): vira faturamento de Negócios. */
+  function soldMade(s, id, qty, total) { const p = Math.min(qty, s.made[id] || 0); if (p > 0) { s.made[id] -= p; s.ledger.prod += Math.round(total * p / qty); } }
   function doSellGood(s, id, qty) {
     const g = good(id); if (!g) return refuse('Mercadoria desconhecida.');
     if (!Number.isSafeInteger(qty) || qty <= 0) return refuse('Quantidade inválida.');
@@ -1841,7 +1847,7 @@
     if (s.energy < 3) return refuse('Negociar exige 3 de energia.');
     const d = s.district, imp = priceImpact(g, qty);
     const total = sellTotal(s, g, qty);
-    s.cash += total; s.energy -= 3; s.goods[g.id] -= qty; s.trade.sold += total;
+    s.cash += total; s.energy -= 3; s.goods[g.id] -= qty; s.trade.sold += total; soldMade(s, g.id, qty, total);
     if (total >= 300) addXP(s, 'traficante', 1);
     s.market[d][g.id] = clamp(s.market[d][g.id] - imp, 60, 150);
     addHeat(s, Math.ceil(qty * g.risk / 12 * (s.career === 'traficante' ? 1.6 : 1)));
@@ -1861,7 +1867,7 @@
     if (qty <= 0) return refuse(`Você não tem ${g.name} para entregar.`);
     if (s.exportDone === s.day) return refuse('O comprador já fechou negócio com você hoje.');
     const total = exportPrice(g, s) * qty;
-    s.cash += total; s.goods[g.id] -= qty; s.trade.sold += total; s.trade.exported += qty; s.exportDone = s.day;
+    s.cash += total; s.goods[g.id] -= qty; s.trade.sold += total; s.trade.exported += qty; s.exportDone = s.day; soldMade(s, g.id, qty, total);
     addXP(s, 'traficante', 3);
     s.respect += Math.ceil(qty / 10) * (g.id === 'po' ? 3 : 1); addHeat(s, 6);
     unlock(s, 'exportador');
@@ -2224,6 +2230,30 @@
     };
   }
   const phaseIndexOf = r => PHASES.filter(p => r >= p.at).length - 1;
+
+  /* ------------------------------------------------------------------ */
+  /* Evolução (Perfil): cinco escadas de nível. Só leitura.                                               */
+  /* ------------------------------------------------------------------ */
+  /** Negócios: faturamento acumulado (diárias dos estabelecimentos + vendas da produção dos esquemas). */
+  const EVO_BIZ = [250, 600, 1200, 2000, 3000, 4500, 6500, 9000, 12500, 17000]; // calibrado na simulação: quem vive de negócio fica entre os níveis 5 e 6 (p50) e chega a 9 no topo (p90)
+  function gearTrack(s, slot, key) {
+    const list = ITEMS.filter(i => i.slot === slot && !i.trophy).sort((a, b) => a[key] - b[key]);
+    const best = Math.max(0, ...s.owned.map(item).filter(i => i && i.slot === slot).map(i => i[key]), ...(s.gear[slot] ? [item(s.gear[slot])[key]] : []));
+    const level = list.filter(i => i[key] <= best).length, have = list[level - 1] || null, next = list[level] || null;
+    return { level, max: list.length, label: have ? have.name : 'nada ainda', next: next ? { name: next.name, cost: next.cost, respect: next.unlock } : null };
+  }
+  function evolution(s) {
+    const top = MISSIONS.filter(m => !m.variant).sort((a, b) => a.n - b.n), lm = s.ladderMax || 0;
+    const cur = top.find(m => m.n === lm), nxt = top.find(m => m.n === lm + 1);
+    const earned = (s.ledger ? s.ledger.biz + s.ledger.prod : 0), bl = EVO_BIZ.filter(v => earned >= v).length;
+    return [
+      { id: 'roubos', name: 'Roubos', level: lm, max: LADDER_TOP, label: cur ? missionName(s, cur) : 'nenhum ainda', next: nxt ? { name: missionName(s, nxt) } : null },
+      Object.assign({ id: 'armas', name: 'Armas' }, gearTrack(s, 'arma', 'power')),
+      Object.assign({ id: 'protecao', name: 'Proteção' }, gearTrack(s, 'protecao', 'def')),
+      Object.assign({ id: 'veiculo', name: 'Veículo' }, gearTrack(s, 'veiculo', 'escape')),
+      { id: 'negocios', name: 'Negócios', level: bl, max: EVO_BIZ.length, label: money(earned), earned, biz: s.ledger ? s.ledger.biz : 0, prod: s.ledger ? s.ledger.prod : 0, next: bl < EVO_BIZ.length ? { goal: EVO_BIZ[bl], left: EVO_BIZ[bl] - earned } : null }
+    ];
+  }
 
   /** Retratos que o jogador pode escolher no Perfil (só aparência; não mudam regras). */
   const AVATARS = [
@@ -2619,7 +2649,7 @@
     s.contracts = s.contracts.filter(c => c.days > 0);
     let interest = 0; if (hasPerk(s, 'empreendedor', 3)) interest = Math.min(120, Math.floor(s.bank * .004));
     const bonus = s.nextBonus; s.nextBonus = 0;
-    s.cash += biz + trib + contracts + bonus; s.bank += interest;
+    s.cash += biz + trib + contracts + bonus; s.bank += interest; s.ledger.biz += biz;
     if (biz) lines.push(`Negócios: +${money(biz)}.`);
     if (trib) lines.push(`Tributo de ${ctrl.length} região(ões) liderada(s): +${money(trib)}.`);
     if (contracts) lines.push(`Sociedades: +${money(contracts)}.`);
@@ -2668,12 +2698,12 @@
         continue;
       }
       if (!labPaid) continue;
-      if (l.cash) { const v = labCash(s, l); s.bank += v; lines.push(`${l.name}: +${money(v)} de mensalidades no banco.`); continue; }
+      if (l.cash) { const v = labCash(s, l); s.bank += v; s.ledger.prod += v; lines.push(`${l.name}: +${money(v)} de mensalidades no banco.`); continue; }
       const made = [];
       for (const [gid, n] of [[l.good, l.out], [l.good2, l.out2]]) {
         if (!gid) continue;
         const q = Math.min(labOutput(s, l, n), Math.max(0, cargoCap(s) - cargoUsed(s)));
-        if (q > 0) { s.goods[gid] += q; made.push(`+${q} × ${good(gid).name}`); }
+        if (q > 0) { s.goods[gid] += q; s.made[gid] += q; made.push(`+${q} × ${good(gid).name}`); }
       }
       lines.push(made.length ? `${l.name}: ${made.join(', ')}.` : `${l.name} parado: galpão cheio.`);
     }
@@ -2682,7 +2712,7 @@
       const use = supplyPlan(s, sp); if (!use) continue;
       const b = business(sp.biz), v = Math.round(b.net * s.dstate[b.district].econ * SUPPLY_BONUS); // renda base, sem somar bônus de classe
       for (const g in use) s.goods[g] -= use[g];
-      s.cash += v;
+      s.cash += v; s.ledger.biz += v;
       lines.push(`${business(sp.biz).name} abastecido com a sua produção (${Object.entries(use).map(([g, q]) => `${q} × ${good(g).name}`).join(', ')}): +${money(v)}.`);
     }
     if (s.exportDeal.day < s.day) {
@@ -2745,6 +2775,7 @@
   /** Executado após cada ação: paga feitos do mês em respeito, verifica conquistas. Devolve as linhas para o resultado. */
   function afterAction(s) {
     const out = [];
+    for (const g of GOODS) if (s.made[g.id] > s.goods[g.id]) s.made[g.id] = s.goods[g.id]; // blitz, batida, dose ou abastecimento levaram parte
     // Território: perder uma região custa respeito (só se a influência caiu, não por limite de patente).
     for (const did of s.turfOwned || []) if (!turfReady(s, did)) { const r = Math.min(s.respect, TURF_LOSS); s.respect -= r; const m = `Você perdeu o comando da ${district(s, did).name}: −${r} de respeito.`; log(s, m); out.push(m); }
     s.turfOwned = ownedTurf(s);
@@ -2874,7 +2905,7 @@
     STATS, MISSIONS, DISTRICTS, BUSINESSES, HEISTS, HEIST_MAX_HIRES, HEIST_WINDOW, HEIST_COOLDOWN, HEIST_CUT, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, AVATARS, CAREERS, OLD_CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
-    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, drawBicho, jornal, unlockCatalog, paperSnap, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, drawBicho, jornal, unlockCatalog, paperSnap, evolution, EVO_BIZ, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
     missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, GIG_PAY, LOCAL_MISSIONS, localMission, missionName, DISTRICT_VIBE, districtTraits, STORY, storyPending, storyCost, streetScene, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, SORO_VICIO, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,

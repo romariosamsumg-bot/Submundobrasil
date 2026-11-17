@@ -808,6 +808,22 @@ As notícias saem de `SB.jornal(s)` (motor, só leitura) e o texto de `jornalNew
 - **A cidade vive sem você:** em 4 de cada 5 dias sai uma **crônica** (40 histórias da vida da cidade, com região, grupo e boteco da sua cidade). Toda edição traz a **frase ouvida na rua** (40 ditados, com 10 lugares onde foram ouvidos) e, no jornal inteiro, dois **classificados** (24, de brincadeira) e o **expediente**.
 - Ao todo são mais de 250 modelos de texto. Um teste de interface monta todos e recusa texto com buraco.
 
+### Evolução no Perfil (v1.5, pedido do autor)
+
+Gráfico de **barras verticais em escada** no Perfil, logo abaixo da ficha. Cada barra é uma pilha de degraus de concreto: os preenchidos são âmbar, o atual brilha e a barra completa ganha borda dourada. Todas as barras têm a mesma altura, então o que se compara é o quanto falta em cada área. Tocar numa barra mostra o detalhe e um atalho para a tela certa. Em "Como cada nível é contado" há a tabela com os mesmos números.
+
+| Barra | Nível | Máximo |
+|---|---|---|
+| Roubos | o maior degrau já feito com sucesso (`ladderMax`) | 13 |
+| Armas | a melhor arma já comprada, na ordem de poder (a de troféu conta como a mais forte) | 15 |
+| Proteção | a melhor proteção já comprada | 6 |
+| Veículo | o melhor veículo já comprado | 5 |
+| Negócios | faturamento da temporada: diárias dos estabelecimentos (inclusive a casa abastecida com a produção) + venda e remessa do que os esquemas produziram + mensalidades do gatonet | 10 |
+
+Os degraus de **Negócios** são R$ 250, 600, 1.200, 2.000, 3.000, 4.500, 6.500, 9.000, 12.500 e 17.000. Foram calibrados com os robôs da simulação: quem vive de negócio fatura de R$ 3.000 a R$ 5.000 no mês (níveis 5 e 6) e chega a R$ 12.000 no topo (nível 9).
+
+Para separar a produção do que foi comprado no Galpão, o motor guarda `made` (o estoque que veio dos esquemas). Numa venda, a parte produzida entra no faturamento. Blitz, batida, dose e abastecimento nunca deixam `made` passar do estoque. `ledger` guarda as duas somas, e as duas zeram na temporada nova.
+
 ### Sons (v1.5)
 
 Efeitos sintetizados pelo navegador (Web Audio, `src/sound.js`), sem arquivos de áudio e sem licença: roubo certo = caixa registradora + carimbo; roubo errado = som grave + carimbo; preso = sirene; compra, venda, banco, propina, fiança e aposta = moedas; dose = lata abrindo; entrar na noite = batida grave; treino = soco; hospital e desintoxicação = bipe de monitor; UTI = monitor apitando direto; respeito novo (faixa de influência, feito do mês, primeiros passos, conquista) = fanfarra curta; virar o dia = sino; ação recusada = bipe curto. Botão de alto-falante no topo (ao lado do dia) e volume no Perfil; a escolha fica no aparelho. O áudio só começa depois do primeiro toque (regra dos celulares).

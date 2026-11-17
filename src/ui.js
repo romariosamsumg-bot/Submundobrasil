@@ -18,7 +18,7 @@
   const MAXDAY = SB.MAXDAY;
 
   let state = null, view = 'painel', result = null, toastTimer = null;
-  let localeHelp = false, armedNext = false, armTimer = null, missionFilter = 'disponiveis', corrupt = null, saveFailed = false;
+  let evoPick = 'roubos', localeHelp = false, armedNext = false, armTimer = null, missionFilter = 'disponiveis', corrupt = null, saveFailed = false;
 
   /* ---------- utilidades de apresentação ---------- */
   const $ = sel => document.querySelector(sel);
@@ -486,7 +486,7 @@
     const c = state ? SB.cityOf(state.city) : SB.CITIES[0];
     return [
       ['Você chegou', `<p>Você desce na rodoviária de <strong>${esc(c.name)}</strong> sem dinheiro, sem arma e sem nome.</p><p>Até o fim do mês, a cidade vai saber quem você é. O placar é o <strong>respeito</strong>: ele te leva de <em>Pé de chinelo</em> a <em>Dono do morro</em> e decide a sua posição no ranking.</p>`],
-      ['A rua gira assim', `<p><strong>Roube</strong> do mais fácil ao mais difícil: cada roubo mostra a sua chance.</p><p>Acabou a energia? A <strong>noite</strong> vende energia no balcão.</p><p>Com o dinheiro, a <strong>Feira</strong> te arma, protege e leva mais longe, e os roubos maiores se abrem. Subir de degrau é o que traz respeito.</p><p>Quando sobrar dinheiro, compre <strong>negócios</strong>: bar, oficina, banca do bicho… Eles pagam todo dia, até enquanto você dorme.</p><p>Toda manhã, o <strong>Jornal do Submundo</strong> na Rua conta o que mudou: sua patente, o que o respeito abriu, polícia, gangues, preços do Galpão, o comprador de fora e o resultado do bicho, que corre de noite e sai no jornal do dia seguinte. Toque numa notícia para ir à tela dela.</p>`],
+      ['A rua gira assim', `<p><strong>Roube</strong> do mais fácil ao mais difícil: cada roubo mostra a sua chance.</p><p>Acabou a energia? A <strong>noite</strong> vende energia no balcão.</p><p>Com o dinheiro, a <strong>Feira</strong> te arma, protege e leva mais longe, e os roubos maiores se abrem. Subir de degrau é o que traz respeito.</p><p>Quando sobrar dinheiro, compre <strong>negócios</strong>: bar, oficina, banca do bicho… Eles pagam todo dia, até enquanto você dorme.</p><p>Toda manhã, o <strong>Jornal do Submundo</strong> na Rua conta o que mudou: sua patente, o que o respeito abriu, polícia, gangues, preços do Galpão, o comprador de fora e o resultado do bicho, que corre de noite e sai no jornal do dia seguinte. Toque numa notícia para ir à tela dela.</p><p>No <strong>Perfil</strong>, a <strong>Evolução</strong> mostra em barras o seu nível em Roubos (maior degrau feito), Armas, Proteção, Veículo e Negócios (o que os negócios e a produção dos esquemas já faturaram).</p>`],
       ['A rua cobra', `<p>Cada roubo chama a <strong>polícia</strong>. Esfrie antes que ela chegue, ou vai pra cadeia.</p><p>A noite cobra no <strong>vício</strong> e o corpo cobra na <strong>saúde</strong>.</p><p>Na <strong>Rua</strong>, a sua história acontece: gente que aparece, decisões sem volta e avisos do que pede atenção.</p><p>O guia te acompanha nos primeiros passos.</p>`]
     ];
   }
@@ -1091,11 +1091,43 @@
           ${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div>
           <div class="right"><span class="chance ${chanceClass(odds)}">${odds}% <small class="mini">sem reconhecer</small></span>${button('Planejar', 'heist-plan', `data-id="${h.id}"`, off, 'primary small')}</div></section>`; }).join('')}</div>`;
   }
+  /* ------------------------------------------------------------------ */
+  /* Evolução (Perfil): gráfico de barras verticais em escada, um degrau por nível. Os números vêm de SB.evolution. */
+  /* ------------------------------------------------------------------ */
+  const EVO_ICON = {
+    roubos: '<path d="M3 9c0-3 4-5 9-5s9 2 9 5c0 3-2 4-4 4-1.5 0-2.5-1-5-1s-3.5 1-5 1c-2 0-4-1-4-4zm4 0a1.6 1.6 0 1 0 3.2 0A1.6 1.6 0 0 0 7 9zm6.8 0a1.6 1.6 0 1 0 3.2 0 1.6 1.6 0 0 0-3.2 0zM6 16h12l-1 4H7z"/>',
+    armas: '<path d="M2 8h15l1-2h3v4h-4l-1 2h-3l-1 6H7l1-6H2z"/>',
+    protecao: '<path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z"/>',
+    veiculo: '<path d="M4 15l1.5-5A2 2 0 0 1 7.4 8.5h9.2a2 2 0 0 1 1.9 1.5L20 15v4h-2.5v-2h-11v2H4zm2.2-1h11.6l-1.1-3.5H7.3zM7 15.2a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6zm10 0a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6z"/>',
+    negocios: '<path fill-rule="evenodd" d="M2 6h20v12H2zm2 2v8h16V8zm8 1.2a2.8 2.8 0 1 1 0 5.6 2.8 2.8 0 0 1 0-5.6zM5 9.5h2v1.5H5zm12 3.5h2v1.5h-2z"/>'
+  };
+  const EVO_GO = { roubos: ['acoes', 'Ir roubar'], armas: ['feira', 'Ir à Feira do Rolo'], protecao: ['feira', 'Ir à Feira do Rolo'], veiculo: ['feira', 'Ir à Feira do Rolo'], negocios: ['negocios', 'Ver negócios'] };
+  function evoCard() {
+    const s = state, evo = SB.evolution(s), sel = evo.find(e => e.id === evoPick) || evo[0];
+    const col = e => {
+      const pctv = e.max ? e.level / e.max : 0;
+      const blocks = Array.from({ length: e.max }, (_, k) => k + 1).reverse().map(i => `<i class="${i <= e.level ? 'f' : ''}${i === e.level ? ' top' : ''}"></i>`).join('');
+      return `<button type="button" class="evoCol ${e.id === sel.id ? 'on' : ''} ${e.level >= e.max ? 'max' : ''}" data-action="evo-pick" data-id="${e.id}" aria-pressed="${e.id === sel.id}" aria-label="${esc(e.name)}: nível ${e.level} de ${e.max}">
+        <span class="evoVal"><b>${num(e.level)}</b><small>/${num(e.max)}</small></span>
+        <span class="evoBar" style="--n:${e.max}" aria-hidden="true">${blocks}</span>
+        <span class="evoFoot"><svg class="evoIco" viewBox="0 0 24 24" aria-hidden="true">${EVO_ICON[e.id]}</svg><span class="evoName">${esc(e.name)}</span><span class="evoPct">${Math.round(pctv * 100)}%</span></span></button>`;
+    };
+    let det;
+    if (sel.id === 'roubos') det = `<b>Degrau ${num(sel.level)} de ${num(sel.max)}</b> · maior roubo feito: ${esc(sel.label)}.${sel.next ? ` Próximo degrau: ${esc(sel.next.name)}.` : ' Você chegou ao topo da escada.'}`;
+    else if (sel.id === 'negocios') det = `<b>Nível ${num(sel.level)} de ${num(sel.max)}</b> · ${fmt(sel.earned)} faturados na temporada (${fmt(sel.biz)} nas diárias dos negócios + ${fmt(sel.prod)} na venda da produção dos esquemas).${sel.next ? ` Próximo nível com ${fmt(sel.next.goal)}: faltam ${fmt(sel.next.left)}.` : ' Nível máximo.'}`;
+    else det = `<b>Nível ${num(sel.level)} de ${num(sel.max)}</b> · ${sel.level ? `o melhor que você já teve: ${esc(sel.label)}` : 'você ainda não tem nenhum'}.${sel.next ? ` Próximo: ${esc(sel.next.name)} (${fmt(sel.next.cost)}${sel.next.respect ? ` · ${num(sel.next.respect)} de respeito` : ''}).` : ' Nível máximo.'}`;
+    const [view, label] = EVO_GO[sel.id];
+    return `${stencil('Evolução', 'sua escalada na temporada')}<section class="card evoCard" aria-label="Evolução">
+      <div class="evoChart" role="group" aria-label="Nível em cada área">${evo.map(col).join('')}</div>
+      <div class="evoDetail"><span class="evoTag"><svg class="evoIco" viewBox="0 0 24 24" aria-hidden="true">${EVO_ICON[sel.id]}</svg>${esc(sel.name)}</span><p>${det}</p>${button(label, 'switch', `data-target="${view}"`, false, 'small ghost')}</div>
+      ${more(`<table class="evoTable"><thead><tr><th>Área</th><th>Nível</th><th>Agora</th></tr></thead><tbody>${evo.map(e => `<tr><td>${esc(e.name)}</td><td>${num(e.level)}/${num(e.max)}</td><td>${esc(e.label)}</td></tr>`).join('')}</tbody></table><p class="mini">Roubos: o maior degrau que você já fez com sucesso. Armas, Proteção e Veículo: o melhor item que você já comprou. Negócios: o que as diárias dos estabelecimentos e a venda do que os seus esquemas produziram já renderam na temporada.</p>`, 'Como cada nível é contado')}</section>`;
+  }
   function perfil() {
     const s = state, sc = SB.seasonScore(s), lvl = Math.min(99, Math.floor(s.respect / 35) + 1), c = s.career ? SB.CAREERS.find(x => x.id === s.career) : null;
     const top = Math.max(20, ...SB.STATS.map(st => s.stats[st.id]));
     return heading('Perfil', 'Sua ficha no submundo.') + resultCard() + `
       <section class="sheet"><span class="sheetAvatar">${portrait(s)}</span><div><h2>${esc(s.name)}</h2><p>${esc(sc.title)} · nível ${lvl}</p><p class="mini">${esc(s.city)}${c ? ' · ' + c.name + ' ' + SB.careerLevel(s) + '/3' : ''}${s.gangName ? ' · ' + esc(s.gangName) : ''}${s.prestige ? ' · prestígio ' + s.prestige : ''}</p></div></section>
+      ${evoCard()}
       ${c ? `${stencil('Classe', esc(c.name) + ' · ' + esc(c.tag))}<section class="card classCard"><p class="suPitch" style="padding:0">${esc(c.pitch)}</p><ul class="suPros" style="margin-left:0;margin-right:0">${c.pros.map(x => `<li>${esc(x)}</li>`).join('')}</ul><ul class="suCons" style="margin-left:0;margin-right:0">${c.cons.map(x => `<li>${esc(x)}</li>`).join('')}</ul><ul class="perkList">${c.perks.map((p, i) => `<li class="${i < SB.careerLevel(s) ? 'on' : ''}">${i < SB.careerLevel(s) ? '✓' : '○'} Nível ${i + 1} (${SB.CAREER_XP[i]} XP): ${esc(p)}</li>`).join('')}</ul></section>` : ''}
       ${stencil('Luta', 'duelos e assaltos do bando')}<section class="card lutaCard"><div class="lutaHead"><strong>${num(SB.combatRating(s))}</strong><p class="mini">Sua força em duelos e nos assaltos do bando.${s.gangName ? ` Força do bando: <b>${num(SB.heistPower(s, 0))}</b>.` : ''}</p></div>
         <details class="fichaMore"><summary>Como a conta é feita</summary><ul class="lutaParts">${SB.combatParts(s).map(([k, v]) => `<li><span>${k}</span><b>${v ? '+' + (Math.round(v * 10) / 10).toString().replace('.', ',') : '0'}</b></li>`).join('')}</ul>
@@ -1165,6 +1197,7 @@
     switch (a) {
       case 'switch': switchView(btn.dataset.target); break;
       case 'locale-help': localeHelp = !localeHelp; render(); break;
+      case 'evo-pick': evoPick = id; render(); break;
       case 'dismiss-result': result = null; render(); break;
       case 'rank-scope': if (rank.scope !== id) { rank.scope = id; rank.rows = null; rank.me = null; render(); loadRank(true); } break;
       case 'rank-reload': loadRank(true); break;
