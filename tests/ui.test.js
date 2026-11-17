@@ -121,7 +121,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check(await page.locator('.feiraTabs [data-action=feira-tab]').count() === 3 && await page.locator('[data-action=buy-item][data-id=bike]').count() === 0, 'Feira abre na prateleira de armas, com seletor de 3 prateleiras');
   await page.click('[data-action=feira-tab][data-id=veiculo]');
   check(await page.locator('[data-action=buy-item][data-id=porrete]').count() === 0, 'o seletor mostra uma prateleira por vez');
-  check(await page.isDisabled('[data-action=buy-item][data-id=cinquentinha]') && (await page.textContent('.shopRow:has([data-id=cinquentinha])')).includes('Primeiro compre: Bicicleta'), 'trilha: a Cinquentinha pede a bicicleta antes, com o motivo à vista');
+  check(await page.isDisabled('[data-action=buy-item][data-id=cinquentinha]') && await page.locator('.shopRow.locked:has([data-id=cinquentinha])').count() === 1 && !(await page.textContent('.shopRow:has([data-id=cinquentinha])')).includes('Primeiro compre'), 'trilha: a Cinquentinha fica bloqueada até comprar a bicicleta, sem frase explicando');
   await page.click('[data-action=buy-item][data-id=bike]');
   await page.click('[data-action=buy-item][data-id=cinquentinha]');
   check((await st()).gear.veiculo === 'cinquentinha', 'veículo comprado na Feira do Rolo');

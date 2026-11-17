@@ -327,7 +327,7 @@
     { id: 'alambique', name: 'Depósito de bebida falsa', good: 'bebida', cost: 2000, unlock: 15, out: 7, desc: 'Rótulo importado, procedência nenhuma. Vende no mercado ou abastece o seu Inferninho.' },
     { id: 'gatonet', name: 'Central de internet (gatonet)', cash: 200, cost: 3200, unlock: 25, desc: 'Clientes pendurados nos postes pagam a mensalidade em dia. Dinheiro limpo direto no banco, sem estoque e sem batida.' },
     { id: 'plantacao', name: 'Plantação de maconha', good: 'erva', cost: 3600, unlock: 35, out: 6, desc: 'Terreno escondido e vigia contra batida. Fardos de valor alto para o mercado.' },
-    { id: 'laboratorio', name: 'Laboratório químico', good: 'bala', out: 4, good2: 'lolo', out2: 3, cost: 7000, unlock: 80, bribe: 60, desc: 'Loló e bala em escala. Paga propina fixa para a fiscalização olhar para o outro lado.' },
+    { id: 'laboratorio', name: 'Laboratório químico', good: 'bala', out: 4, good2: 'lolo', out2: 3, cost: 7000, unlock: 80, bribe: 60, desc: 'Loló e bala em escala. A fiscalização do bairro olha para o outro lado.' },
     { id: 'refinaria', name: 'Refinaria do pó', good: 'po', cost: 25000, unlock: 150, out: 3, bribe: 150, desc: 'O topo do império. Cada lote vendido no Navio vale uma fortuna e dispara o respeito.' }
   ];
   const LAB_MULT = [0, 1, 1.8, 2.6];
@@ -1089,7 +1089,8 @@
   const labCost = (s, l) => Math.round(l.cost * (s.career === 'traficante' ? .9 : 1) * [1, .8, 1.2][s.labs[l.id]] || 0);
   const labOutput = (s, l, n = l.out) => Math.round((n || 0) * LAB_MULT[s.labs[l.id]] * (s.career === 'traficante' ? 1.25 : s.career === 'operador' ? .9 : 1));
   const labCash = (s, l) => Math.round((l.cash || 0) * LAB_MULT[s.labs[l.id]] * (s.career === 'empreendedor' ? 1.35 : s.career === 'operador' ? .9 : 1));
-  const labUpkeep = s => sum(LABS.map(l => s.labs[l.id] * (30 + (l.bribe || 0))));
+  /** Esquemas não têm custo por dia (pedido do autor): paga-se só para montar e ampliar. */
+  const labUpkeep = () => 0;
   const labRaid = (s, l) => l.cash || good(l.good).risk === 0 ? 0 : Math.round(raidChance(s) * (l.bribe ? .5 : 1));
   const raidChance = s => clamp(Math.round((s.heat - 40) * .5 * (hasPerk(s, 'traficante', 3) ? .5 : 1)), 0, 25);
   const NIGHT_LIMIT = 99; // sem limite de saídas desde a v1.5: a entrada de cada casa é paga uma vez por dia

@@ -1240,7 +1240,7 @@ body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(
     { id: 'alambique', name: 'Depósito de bebida falsa', good: 'bebida', cost: 2000, unlock: 15, out: 7, desc: 'Rótulo importado, procedência nenhuma. Vende no mercado ou abastece o seu Inferninho.' },
     { id: 'gatonet', name: 'Central de internet (gatonet)', cash: 200, cost: 3200, unlock: 25, desc: 'Clientes pendurados nos postes pagam a mensalidade em dia. Dinheiro limpo direto no banco, sem estoque e sem batida.' },
     { id: 'plantacao', name: 'Plantação de maconha', good: 'erva', cost: 3600, unlock: 35, out: 6, desc: 'Terreno escondido e vigia contra batida. Fardos de valor alto para o mercado.' },
-    { id: 'laboratorio', name: 'Laboratório químico', good: 'bala', out: 4, good2: 'lolo', out2: 3, cost: 7000, unlock: 80, bribe: 60, desc: 'Loló e bala em escala. Paga propina fixa para a fiscalização olhar para o outro lado.' },
+    { id: 'laboratorio', name: 'Laboratório químico', good: 'bala', out: 4, good2: 'lolo', out2: 3, cost: 7000, unlock: 80, bribe: 60, desc: 'Loló e bala em escala. A fiscalização do bairro olha para o outro lado.' },
     { id: 'refinaria', name: 'Refinaria do pó', good: 'po', cost: 25000, unlock: 150, out: 3, bribe: 150, desc: 'O topo do império. Cada lote vendido no Navio vale uma fortuna e dispara o respeito.' }
   ];
   const LAB_MULT = [0, 1, 1.8, 2.6];
@@ -2002,7 +2002,8 @@ body{background-image:radial-gradient(120% 340px at 50% 0,color-mix(in srgb,var(
   const labCost = (s, l) => Math.round(l.cost * (s.career === 'traficante' ? .9 : 1) * [1, .8, 1.2][s.labs[l.id]] || 0);
   const labOutput = (s, l, n = l.out) => Math.round((n || 0) * LAB_MULT[s.labs[l.id]] * (s.career === 'traficante' ? 1.25 : s.career === 'operador' ? .9 : 1));
   const labCash = (s, l) => Math.round((l.cash || 0) * LAB_MULT[s.labs[l.id]] * (s.career === 'empreendedor' ? 1.35 : s.career === 'operador' ? .9 : 1));
-  const labUpkeep = s => sum(LABS.map(l => s.labs[l.id] * (30 + (l.bribe || 0))));
+  /** Esquemas não têm custo por dia (pedido do autor): paga-se só para montar e ampliar. */
+  const labUpkeep = () => 0;
   const labRaid = (s, l) => l.cash || good(l.good).risk === 0 ? 0 : Math.round(raidChance(s) * (l.bribe ? .5 : 1));
   const raidChance = s => clamp(Math.round((s.heat - 40) * .5 * (hasPerk(s, 'traficante', 3) ? .5 : 1)), 0, 25);
   const NIGHT_LIMIT = 99; // sem limite de saídas desde a v1.5: a entrada de cada casa é paga uma vez por dia
@@ -4443,7 +4444,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     else if (s.heat >= 60) add('warn', 'A polícia está na sua cola.', 'acoes');
     if (s.health < 40) add('bad', 'Você está ferido. Passe no Hospital.', 'hospital');
     if (s.vicio >= 70) add('bad', 'O vício passou do ponto.', 'hospital');
-    const deal = s.exportDeal; if (SB.placeOpen(s, 'galpao') && deal && deal.day === s.day && s.goods[deal.good] > 0 && s.exportDone !== s.day) add('good', `O comprador de fora está no cais hoje atrás de ${esc(SB.good(deal.good).name)}.`, 'galpao');
+    const deal = s.exportDeal; if (SB.placeOpen(s, 'galpao') && deal && deal.day === s.day && SB.cargoUsed(s) > 0 && s.exportDone !== s.day) add('good', 'O comprador de fora atracou no cais hoje.', 'galpao');
     if (s.heist) add('warn', `O plano do bando (${esc(SB.heist(s.heist.id).name)}) está de pé. Não deixe esfriar.`, 'assaltos');
     for (const d of SB.DISTRICTS) if ((s.turfOwned || []).includes(d.id)) { const l = SB.leader(s, d.id); if (s.influence[d.id] - l.value < 16) { add('warn', `${esc(F(l.id).short)} está crescendo em ${esc(d.name)}. Seu comando ali está em risco.`, 'cidade'); break; } }
     if (s.day >= 25 && s.day < MAXDAY) add('warn', `Reta final: faltam ${MAXDAY - s.day} dia(s) no mês.`, online ? 'ranking' : 'temporada');
@@ -4502,12 +4503,12 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   function missionCard(m) {
     const s = state, lock = SB.missionLock(s, m), p = SB.missionChance(s, m), mult = SB.missionRewardMult(s, m), k = SB.KINDS[m.kind];
     const parts = SB.scoreParts(s, m), odds = SB.missionOdds(s, m), drag = Math.round(SB.heatDrag(s) * 100), rg = SB.respectGain(s, m), inf = SB.robberyInfluence(s, m) > 0;
-    const tag = m.stat ? `${k.name} · ${statName(m.stat)}` : m.kind === 'assalto' ? `${k.name} · arsenal` : k.name, loc = SB.localMission(s, m);
+    const tag = m.stat ? `${k.name} · ${statName(m.stat)}`  : m.kind === 'assalto' ? `${k.name} · arsenal` : '', loc = SB.localMission(s, m);
     const hard = lock && !['Energia insuficiente.', 'Você está detido.', 'Você está internado.'].includes(lock);
     const pic = window.SBArt.roubo(m.id), arrest = SB.arrestChance(s, m);
     return `<section class="rob ${hard ? 'locked' : ''}">
       <div class="robTop"><span class="robPic" aria-hidden="true">${pic || statIcon(m.stat || 'arsenal')}</span>
-        <div class="robTitle"><h3><span class="jobN">${m.n}</span>${esc(loc.name)}</h3><p class="jobKind k-${m.kind}">${esc(tag)}${m.district ? ' · só aqui' : ''}</p></div>
+        <div class="robTitle"><h3><span class="jobN">${m.n}</span>${esc(loc.name)}</h3>${tag || m.district ? `<p class="jobKind k-${m.kind}">${esc([tag, m.district ? 'só aqui' : ''].filter(Boolean).join(' · '))}</p>` : ''}</div>
         <span class="seal ${chanceClass(p)}" aria-label="Chance ${p}%">${p}%</span></div>
       <div class="robStats">${stat('resp', fmt(m.low * mult) + '–' + fmt(m.high * mult).replace('R$ ', ''), 'money noIco')}${stat('en', SB.missionCost(s, m), '', 'Energia')}${stat('heat', '+' + m.heat, 'heat', 'Procurado')}${rg ? stat('resp', '+' + rg, 'resp', 'Respeito') : ''}${inf ? `<span class="st inf">influência +</span>` : ''}${m.safe ? '' : `<span class="st risk">cadeia ${arrest}%</span>`}</div>
       ${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}
@@ -4589,7 +4590,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     return `<section class="card bizCard ${owned ? 'mine' : ''}"><div class="space"><h3>${esc(b.name)}</h3>${owned ? '<span class="pill own">Seu</span>' : `<strong>${fmt(cost)}</strong>`}</div>
       <div class="robStats"><span class="st good">${fmt(today)} por dia</span><span class="st">${esc(D(b.district).name)}</span>${owned ? '' : stat('resp', '+' + b.respect, 'resp', 'Respeito')}</div>
       ${s.extorted[b.id] === s.day ? '<p class="negative mini">Sob extorsão hoje: renda reduzida.</p>' : ''}
-      ${owned ? button('Vender negócio', 'sell', `data-id="${b.id}"`, s.jail > 0, 'block ghost small') : (cl ? `<div class="lockline">${esc(cl)}</div>` : '') + button('Comprar', 'buy', `data-id="${b.id}"`, !!cl || s.cash < cost || s.jail > 0, 'block primary')}</section>`;
+      ${owned ? button('Vender negócio', 'sell', `data-id="${b.id}"`, s.jail > 0, 'block ghost small') : button('Comprar', 'buy', `data-id="${b.id}"`, !!cl || s.cash < cost || s.jail > 0, 'block primary')}</section>`;
   }
 
   function gang() {
@@ -4713,7 +4714,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
         return stencil(sl.name, cur ? 'em uso: ' + esc(cur.name) : 'nada equipado') + `<div class="grid">` + SB.ITEMS.filter(i => i.slot === sl.id).map(it => { const mine = s.gear[sl.id] === it.id, have = SB.owns(s, it.id), cl = it.trophy || have ? '' : SB.chainLock(s, 'items', it.id), locked = !have && (!!cl || s.respect < it.unlock || (it.trophy && !s.achievements[it.trophy]));
           const pic = window.SBArt.item(it.id), small = it.slot === 'veiculo' && have && !mine && SB.cargoUsed(s) > SB.cargoWith(s, it);
           const act = mine ? '' : have ? button('Usar', 'equip', `data-id="${it.id}"`, s.jail > 0 || small, 'small') : button('Comprar', 'buy-item', `data-id="${it.id}"`, locked || s.cash < it.cost || s.jail > 0, 'small primary');
-          return `<section class="card shopRow ${pic ? 'withPic' : ''} ${mine ? 'mine' : ''} ${locked ? 'locked' : ''}">${pic ? `<span class="itemPic" aria-hidden="true">${pic}</span>` : ''}<div><h3>${esc(it.name)}${mine ? ' <span class="pill">Em uso</span>' : have ? ' <span class="pill own">É seu</span>' : ''}</h3><p class="mini">${esc(itemEffect(it))}</p>${locked ? `<div class="lockline">${cl ? esc(cl) : it.trophy && !s.achievements[it.trophy] ? 'Troféu: só para quem venceu o Rei do Pedaço.' : `Requer ${it.unlock} de respeito.`}</div>` : ''}${small ? '<div class="lockline">Sua carga não cabe neste veículo.</div>' : ''}</div>
+          return `<section class="card shopRow ${pic ? 'withPic' : ''} ${mine ? 'mine' : ''} ${locked ? 'locked' : ''}">${pic ? `<span class="itemPic" aria-hidden="true">${pic}</span>` : ''}<div><h3>${esc(it.name)}${mine ? ' <span class="pill">Em uso</span>' : have ? ' <span class="pill own">É seu</span>' : ''}</h3><p class="mini">${esc(itemEffect(it))}</p>${locked && !cl ? `<div class="lockline">${it.trophy && !s.achievements[it.trophy] ? 'Troféu: só para quem venceu o Rei do Pedaço.' : `Requer ${it.unlock} de respeito.`}</div>` : ''}${small ? '<div class="lockline">Sua carga não cabe neste veículo.</div>' : ''}</div>
             <div class="shopAct">${have ? '' : `<strong>${fmt(it.cost)}</strong>`}${act}</div></section>`; }).join('') + `</div>`; }).join('');
   }
   function maxBuy(g) { const s = state; let q = Math.max(0, SB.cargoCap(s) - SB.cargoUsed(s)); while (q > 0 && SB.buyTotal(s, g, q) > s.cash) q = Math.floor(q * .9) - (q < 10 ? 1 : 0); return Math.max(0, q); }
@@ -4729,13 +4730,17 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
         const makes = l.cash ? `${fmt(l.cash)} por dia no banco` : `${l.out} × ${esc(SB.good(l.good).name)}${l.good2 ? ` e ${l.out2} × ${esc(SB.good(l.good2).name)}` : ''} por dia`;
         const pic = window.SBArt.esquema(l.id);
         return `<section class="card shopRow ${pic ? 'withPic' : ''} ${locked ? 'locked' : ''}">${pic ? `<span class="itemPic" aria-hidden="true">${pic}</span>` : ''}<div><h3><span class="tier">${i + 1}</span> ${esc(l.name)} <span class="pill">Nível ${lvl}/3</span></h3><p class="mini">${esc(l.desc)}</p>
-          <p class="mini">${lvl ? `Rende ${esc(SB.labYield(s, l))} por dia` : `Produz ${makes}`} · custo ${fmt(Math.max(1, lvl) * (30 + (l.bribe || 0)))}/dia${l.bribe ? ' com propina' : ''}${l.cash ? '' : ' · +40 de espaço'}${raid ? ` · <span class="negative">${raid}% de batida hoje</span>` : l.cash || SB.good(l.good).risk === 0 ? ' · sem batida' : ''}${sp ? ` · abastece ${esc(SB.business(sp.biz).name)} (+70% de renda)` : ''}${down ? ` · <span class="negative">fechado até o dia ${s.labDown[l.id]}</span>` : ''}</p>${locked ? `<div class="lockline">${cl ? esc(cl) : `Requer ${l.unlock} de respeito.`}</div>` : ''}</div>
+          <p class="mini">${lvl ? `Rende ${esc(SB.labYield(s, l))} por dia` : `Produz ${makes}`}${l.cash ? '' : ' · +40 de espaço'}${raid ? ` · <span class="negative">${raid}% de batida hoje</span>` : l.cash || SB.good(l.good).risk === 0 ? ' · sem batida' : ''}${sp ? ` · abastece ${esc(SB.business(sp.biz).name)} (+70% de renda)` : ''}${down ? ` · <span class="negative">fechado até o dia ${s.labDown[l.id]}</span>` : ''}</p>${locked && !cl ? `<div class="lockline">Requer ${l.unlock} de respeito.</div>` : ''}</div>
           <div class="shopAct">${lvl >= 3 ? '<strong>Máximo</strong>' : `<strong>${fmt(c)}</strong>${button(lvl ? 'Ampliar' : 'Montar', 'build-lab', `data-id="${l.id}"`, locked || s.cash < c || s.jail > 0, 'small primary')}`}</div></section>`; }).join('')}</div>
-      <p class="mini" style="margin-top:6px">Com Procurado acima de 40, a polícia pode estourar um ponto: perde o estoque daquela mercadoria e fica 2 dias fechado. A propina do Laboratório e da Refinaria corta esse risco pela metade. Dono de Inferninho ou de Termas com o esquema certo e estoque abastece a casa e ganha +70% da renda base do dia.</p>`;
+      <p class="mini" style="margin-top:6px">Com o Procurado alto, a polícia pode estourar um ponto: você perde o estoque e ele fica 2 dias fechado.</p>`;
   }
   function galpao() {
     const s = state, deal = s.exportDeal, dg = SB.good(deal.good), used = SB.cargoUsed(s), cap = SB.cargoCap(s), open = SB.exportOpen(s), blitz = SB.blitzChance(s);
-    const dealTxt = deal.day < s.day ? 'O próximo comprador ainda não deu notícia.' : `${deal.day === s.day ? 'Hoje' : (deal.day === MAXDAY ? 'Último Navio, no dia ' : 'No dia ') + deal.day}, em ${esc(D('cais').name)}: paga ${fmt(SB.exportPrice(dg, s))} por ${esc(dg.unit)} de ${esc(dg.name)} (até ${SB.exportLimit(s)}). Você tem ${s.goods[dg.id]}.`;
+    const cais = esc(D('cais').name), today = deal.day === s.day;
+    const dealTxt = deal.day < s.day ? 'Nenhum barco à vista. O próximo comprador ainda não deu notícia.'
+      : open ? `Ele está aqui, de boné e sem pressa. Quer <b>${esc(dg.name)}</b> e paga <b>${fmt(SB.exportPrice(dg, s))}</b> por ${esc(dg.unit)} (leva até ${SB.exportLimit(s)}). Você tem ${s.goods[dg.id]}.`
+      : today ? `O barco atracou hoje em ${cais}. Ele só fala de negócio pessoalmente: vá até lá para saber o que ele quer.`
+      : `${deal.day === MAXDAY ? 'Dizem que o Último Navio atraca' : 'Dizem que um barco atraca'} em ${cais} no dia ${deal.day}. Ninguém sabe o que ele vem buscar nem quanto paga. Quem tiver estoque variado sai na frente.`;
     return heading('Galpão', 'Compre barato num bairro, venda caro em outro e despache para fora. A produção fica em Negócios.') + `<div class="screenArt">${window.SBArt.place('galpao')}</div>` + jailNotice() + resultCard() + `
       <section class="card"><div class="meterlabel"><span>Carga</span><strong>${used}/${cap}</strong></div><div class="meter"><div style="width:${pct(used / cap * 100)}%"></div></div>
         <p class="mini" style="margin-top:7px">Veículos e pontos de produção aumentam o espaço. ${blitz ? `<span class="negative">Viajar com esta carga: ${blitz}% de chance de blitz (perde metade).</span>` : 'Sem carga, sem blitz.'}</p></section>
@@ -4743,7 +4748,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       ${stencil('Mercadorias', 'preço em ' + esc(D().name))}<div class="grid">${SB.GOODS.slice().sort((a, b) => a.unlock - b.unlock).map(g => { const locked = s.respect < g.unlock, f = s.market[s.district][g.id], own = s.goods[g.id], mb = locked ? 0 : maxBuy(g);
         const best = SB.DISTRICTS.reduce((a, d) => SB.goodSellPrice(s, g, d.id) > SB.goodSellPrice(s, g, a.id) ? d : a, SB.DISTRICTS[0]);
         const off = s.jail > 0 || s.energy < 3;
-        return `<section class="card goodRow ${locked ? 'locked' : ''}"><div class="space"><h3>${esc(g.name)} <span class="chip ${f <= 90 ? 'up' : f >= 112 ? 'down' : ''}">${f <= 90 ? 'barato' : f >= 112 ? 'caro' : 'normal'} ${f}%</span></h3><strong>${own} un.</strong></div>
+        return `<section class="card goodRow ${locked ? 'locked' : ''}"><div class="space"><h3>${esc(g.name)} <span class="chip ${f <= 90 ? 'up' : f >= 112 ? 'down' : ''}">${f}%</span></h3><strong>${own} un.</strong></div>
           <p class="mini">Compra ${fmt(SB.goodPrice(s, g))} · venda ${fmt(SB.goodSellPrice(s, g))} por ${esc(g.unit)} · risco ${'●'.repeat(g.risk)}${'○'.repeat(4 - g.risk)} · melhor venda hoje: ${esc(best.name)} (${fmt(SB.goodSellPrice(s, g, best.id))})</p>
           ${locked ? `<div class="lockline">Requer ${g.unlock} de respeito.</div>` : `<div class="tradeBtns">${button(`+5 · ${fmt(SB.buyTotal(s, g, 5))}`, 'buy-good', `data-id="${g.id}" data-qty="5"`, off || mb < 5, 'small')}${button(`+${mb} (máx.)`, 'buy-good', `data-id="${g.id}" data-qty="${mb}"`, off || mb < 1, 'small')}${button(`−5 · ${fmt(SB.sellTotal(s, g, Math.min(5, Math.max(1, own))))}`, 'sell-good', `data-id="${g.id}" data-qty="${Math.min(5, own)}"`, off || own < 1, 'small primary')}${button(`Vender tudo${own ? ' · ' + fmt(SB.sellTotal(s, g, own)) : ''}`, 'sell-good', `data-id="${g.id}" data-qty="${own}"`, off || own < 1, 'small primary')}</div>`}</section>`; }).join('')}</div>
       <p class="mini" style="margin-top:6px">Cada negócio gasta 3 de energia. Comprar muito encarece e vender muito derruba o preço local. Vender na área de outro grupo gera atrito.</p>
@@ -4765,7 +4770,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
       <div class="btnbar venueBar">${button('Sair', 'leave-night', '', false, 'small')}<span class="mini">Entrada de hoje paga.</span></div>
       ${stencil('No balcão', 'peça uma dose')}${why ? `<p class="lockline">${esc(why)}</p>` : ''}<div class="grid">${here.menu.map(id => doseRow(SB.doseOf(id))).join('')}</div>
       ${status}
-      <div class="btnbar" style="margin-top:10px">${button('Sair do ' + esc(here.name), 'leave-night', '', false, 'block')}</div></div>`; }
+      </div>`; }
     return heading('Noite', 'Dinheiro vira energia no balcão.') + `<div class="screenArt">${window.SBArt.place('noite')}</div>` + jailNotice() + resultCard() + `
       ${status}
       ${stencil('Casas da noite', 'entrada paga uma vez por dia')}<div class="grid">${SB.NIGHT.map(n => { const c = SB.nightCost(s, n), own = SB.ownTermas(s, n), cl = own || s.businesses.includes(n.id) ? '' : SB.chainLock(s, 'night', n.id), lock = !!cl || (n.unlock && s.respect < n.unlock && !own), inside = false, paid = (s.today.paid || []).includes(n.id);

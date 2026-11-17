@@ -641,6 +641,15 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
+### Ajustes de tela e do Galpão (v1.5, pedidos do autor)
+
+- **Roubar:** roubo sem especialidade não mostra mais "Genérico"; só golpes (com o atributo) e assaltos (arsenal) levam etiqueta.
+- **Casa da noite:** um botão Sair só.
+- **Trilha de compra:** saiu a frase "Primeiro compre: X" da Feira e dos Negócios; o item bloqueado aparece apagado, na ordem da prateleira. (A exigência de respeito continua escrita.)
+- **Comprador de fora:** não anuncia mais o produto nem o preço. Antes do dia: "Dizem que um barco atraca no cais no dia N. Ninguém sabe o que ele vem buscar nem quanto paga." No dia, fora do cais: "Ele só fala de negócio pessoalmente." Só no cais, no dia, ele diz o que quer e quanto paga. O recado da Rua também não revela o produto.
+- **Mercadorias:** só a porcentagem do preço, com a cor (verde até 90%, vermelho a partir de 112%), sem as palavras barato, normal e caro.
+- **Esquemas sem custo por dia:** paga-se só para montar e ampliar (antes, R$ 30 por nível ao dia, mais a propina do Laboratório e da Refinaria).
+
 ### Bico e treino recalibrados (v1.5, auditoria)
 
 - **Bico:** 28 de energia, **R$ 30–45**, Procurado −4. É o dinheiro seguro de quem precisa esfriar, não uma alternativa ao roubo.
