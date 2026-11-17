@@ -69,7 +69,7 @@ Já no jogo (v1.5), reduzidas para 880 px. Aparecem atrás da placa do bairro na
 
 | Arquivo | Prompt (depois do bloco de estilo) |
 |---|---|
-| `place-esquina.webp` | Esquina de rua de cidade grande brasileira à noite, sob um poste de luz âmbar: um camelô com lona vermelha e mercadoria na banca, dois vultos se encarando no meio da calçada, balões de conversa pintados num muro com lambe-lambes, janelas acesas nos prédios. Sem pessoas reconhecíveis, sem texto legível. |
+| `place-esquina.webp` | Esquina movimentada de cidade grande brasileira à noite, o ponto de encontro do bairro, sob um poste de luz âmbar: boteco de esquina com mesas de plástico na calçada e grupos conversando, rindo e brindando; turma na mureta e encostada numa moto; banca de camelô com lona vermelha e gente negociando; muro com lambe-lambes e grafite, orelhão antigo; prédios com janelas acesas e fios nos postes; paralelepípedo molhado. Clima de encontro, ninguém brigando. Pessoas em meia-sombra, sem rostos reconhecíveis, sem texto legível. |
 | `bairro-centro.webp` | Centro antigo de cidade grande brasileira à noite: sobrados coloniais coloridos e descascados, camelôs com lonas, fios emaranhados nos postes, calçada de pedra portuguesa, gente apressada. Sem monumentos reconhecíveis. |
 | `bairro-cais.webp` | Região portuária à noite: galpões e armazéns antigos, guindastes, contêineres empilhados, trilhos no chão, poças refletindo a luz dos postes, um navio cargueiro ao longe. Sem monumentos reconhecíveis. |
 | `bairro-jardim.webp` | Bairro residencial de trabalhadores à noite: casas simples de tijolo sem reboco subindo o morro, lajes com caixas d'água, varais, escadaria estreita, uma birosca iluminada. Sem monumentos reconhecíveis. |
