@@ -974,3 +974,43 @@ button.hudBar:active{filter:brightness(1.25)}
 .evoTable th,.evoTable td{text-align:left;padding:5px 6px;border-bottom:1px solid #2a3438;color:#cfd6d3;overflow-wrap:anywhere}
 .evoTable th{font:700 10px system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8f9c9f}
 @media (prefers-reduced-motion:no-preference){.evoBar i.f{transition:background .3s}}
+
+/* =====================================================================
+   ESQUINA (online): muro do papo, cartazes de desafio e banca de camelô.
+   ===================================================================== */
+.esqTabs,.esqSalas{margin:10px 0 8px}
+.esqList{margin:6px 0 10px}
+.esqList.papo{max-height:56vh;overflow-y:auto;padding:8px;background:repeating-linear-gradient(0deg,#0000 0 22px,#ffffff06 22px 24px),linear-gradient(180deg,#20282c,#171e21);border:1px solid #2f3a3f;border-left:3px solid var(--bairro)}
+.esqEmpty,.esqErr{margin:8px 2px;font-size:13px;color:#aab4b2;font-style:italic}.esqErr{color:#f3b2a9}
+.esqWall{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.esqMsg{max-width:88%;padding:7px 10px 6px;background:#e9dcc0;color:#1d1a15;border-radius:2px;box-shadow:2px 2px 0 #05080a;transform:rotate(-.4deg);justify-self:start}
+.esqMsg:nth-child(even){transform:rotate(.35deg)}
+.esqMsg.me{justify-self:end;background:#f0c47a}
+.esqHead{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.esqHead b{font:400 13px/1.1 var(--stencil);letter-spacing:.06em;text-transform:uppercase;color:#7c1711;overflow-wrap:anywhere}.esqMsg.me .esqHead b{color:#3b2a0d}
+.esqHead time{font:700 9px system-ui,sans-serif;color:#6b5f4c}
+.esqMsg p{margin:3px 0 0;font:14px/1.4 Georgia,"Times New Roman",serif;overflow-wrap:anywhere}
+.esqMsgAct{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.esqMsgAct button{background:none;border:0;padding:2px 0;min-height:24px;font:700 10px system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6b4a2a;cursor:pointer}
+.esqMsgAct button:focus-visible{outline:2px solid #7c1711;outline-offset:2px}
+.esqForm{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.esqRules{margin:6px 0 0}.linkish{background:none;border:0;padding:0 2px;color:var(--ambar);font:inherit;cursor:pointer;text-decoration:underline}
+.esqChallenge,.esqSell{display:grid;gap:8px}.esqChallenge h3,.esqSell h3{margin:0;font:400 18px/1 var(--stencil);letter-spacing:.06em;text-transform:uppercase;color:#f3e6c9}
+.esqRow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:8px}.esqSell .esqRow{grid-template-columns:minmax(0,1.6fr) minmax(0,.8fr) minmax(0,1fr)}
+.esqH{margin:12px 0 6px;font:400 15px/1 var(--stencil);letter-spacing:.1em;text-transform:uppercase;color:var(--ambar)}
+.esqFight{position:relative;margin:0 0 10px;padding:12px 12px 10px;background:linear-gradient(180deg,var(--papel),var(--papel2));color:var(--tinta);box-shadow:4px 5px 0 #05080acc;transform:rotate(-.6deg)}
+.esqFight h4{margin:6px 0 8px;font:700 17px/1.2 Georgia,serif}
+.esqFight .st{background:#1b171214;color:var(--tinta);border-color:#1b171244}
+.esqStamp{display:inline-block;padding:3px 7px 2px;background:#a8231b;color:#fbf3df;font:400 12px/1 var(--stencil);letter-spacing:.14em;text-transform:uppercase;transform:rotate(-3deg)}
+.esqPeople,.esqHist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.esqPeople li,.esqHist li{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;background:#141b1e;border:1px solid #2a3438}
+.esqPeople b{display:block;color:#f3e6c9;overflow-wrap:anywhere}.esqPeople small{color:#8f9c9f}
+.esqHist li span{font-size:13px;color:#cfd6d3;overflow-wrap:anywhere}.esqHist li b{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#a9b4b6}
+.esqHist li.good b{color:#8fd19e}.esqHist li.bad b{color:#f3a49a}
+.esqBanca{display:grid;gap:8px}
+.esqOffer{display:grid;gap:8px;padding:10px 12px;background:linear-gradient(180deg,#232b2f,#1a2124);border:1px solid #33403f;border-top:4px solid #a8231b}
+.esqOffer.mine{border-top-color:var(--ambar)}
+.esqOffer h4{margin:0;font:700 16px/1.2 Georgia,serif;color:#f3e6c9;overflow-wrap:anywhere}
+.esqOffer .btn{justify-self:start}
+@media (min-width:560px){.esqBanca{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){.esqMsg,.esqFight{transform:none}}

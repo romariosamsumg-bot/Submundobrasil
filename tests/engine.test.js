@@ -189,6 +189,27 @@ t('Evolução: roubos pelo maior degrau, equipamento pelo melhor item já compra
   const t = fresh(); t.cash = 50000; t.respect = 40; SB.perform(t, 'buy', 'pensao'); const b0 = t.ledger.biz; SB.perform(t, 'nextDay'); ok(t.ledger.biz > b0, 'a diária dos negócios soma');
   const u = fresh(); u.ledger = { biz: 2000, prod: 1000 }; eq(SB.evolution(u)[4].level, SB.EVO_BIZ.filter(v => 3000 >= v).length);
   const n = SB.normalizeSave(JSON.parse(JSON.stringify(Object.assign(fresh(), { ledger: { biz: -5, prod: 'x' }, made: { cigarro: 999 } })))).state; eq(n.ledger.biz, 0); eq(n.ledger.prod, 0); eq(n.made.cigarro, 0, 'estoque produzido nunca passa do estoque'); });
+t('Esquina: desafio com aposta (limites, recusa sem mudar nada) e fora de SB.act', () => { ok(!SB.act.pvp && !Object.keys(SB.act).some(k => /pvp|settle|challenge/i.test(k)), 'jogador não chama a Esquina direto');
+  const off = fresh(); off.cash = 5000; eq(SB.pvp.challenge(off, 100, 'X').ok, false, 'sem relógio (offline) não tem Esquina');
+  const s = SB.startClock(fresh(), Date.UTC(2026, 10, 13, 15)); s.cash = 5000; s.respect = 5; const before = JSON.stringify(s);
+  for (const v of [10, 1.5, NaN, SB.stakeMax(s) + 1, 6000]) { eq(SB.pvp.challenge(s, v, 'X').ok, false, String(v)); eq(JSON.stringify(s), before); }
+  s.health = 20; eq(SB.pvp.challenge(s, 100, 'X').ok, false); s.health = 100;
+  const r = SB.pvp.challenge(s, 200, 'Rival'); ok(r.ok); eq(s.cash, 4800); ok(r.power > 0 && r.respect === 5); });
+t('Esquina: a briga e o resultado (pote menos 10%, respeito com teto diário, nada de respeito batendo em iniciante)', () => {
+  eq(SB.pvpOdds(10, 10), 50); ok(SB.pvpOdds(40, 10) <= 90 && SB.pvpOdds(1, 99) >= 10); ok(SB.pvp.fight({ power: 30 }, { power: 10 }, 0.01).aWins); ok(!SB.pvp.fight({ power: 30 }, { power: 10 }, 0.99).aWins);
+  const o = SB.pvp.outcome(500, { respect: 100 }, { respect: 80 }); eq(o.win.cash, 900); eq(o.win.respect, 3); eq(o.lose.respect, -2); ok(o.lose.health > 0);
+  eq(SB.pvp.outcome(500, { respect: 100 }, { respect: 40 }).win.respect, 0, 'contra quem tem menos da metade do seu respeito');
+  const w = SB.startClock(fresh(), Date.UTC(2026, 10, 13, 15)); w.respect = 50; const c0 = w.cash;
+  for (let i = 0; i < 4; i++) SB.pvp.settle(w, o.win); eq(w.cash, c0 + 3600); eq(w.respect, 56, 'teto de 6 de respeito por dia'); eq(w.pvp.wins, 4);
+  const l = SB.startClock(fresh(), Date.UTC(2026, 10, 13, 15)); l.respect = 1; SB.pvp.settle(l, o.lose); eq(l.respect, 0); ok(l.health < 100); eq(l.pvp.losses, 1);
+  const d = SB.startClock(fresh(), Date.UTC(2026, 10, 13, 15)); const k = d.cash; SB.pvp.settle(d, { kind: 'devolve', cash: 300, why: 'recusado' }); eq(d.cash, k + 300); eq(SB.pvp.settle(d, { kind: 'hack', cash: 1e9 }), ''); eq(d.cash, k + 300); });
+t('Esquina: mercado só com produção própria, preço na faixa (50% a 300%) e taxa de 5%', () => { const s = SB.startClock(fresh(), Date.UTC(2026, 10, 13, 15)); s.goods.erva = 20; s.made.erva = 8; const g = SB.good('erva'), [lo, hi] = SB.priceBand(g);
+  eq(lo, 35); eq(hi, 210); const before = JSON.stringify(s);
+  for (const [q, p] of [[9, 100], [0, 100], [5, lo - 1], [5, hi + 1], [5, 1.5]]) { eq(SB.pvp.list(s, 'erva', q, p).ok, false, q + '/' + p); eq(JSON.stringify(s), before); }
+  const r = SB.pvp.list(s, 'erva', 5, 100); ok(r.ok); eq(s.goods.erva, 15); eq(s.made.erva, 3); eq(r.qty, 5); eq(r.price, 100);
+  SB.pvp.unlist(s, { good: 'erva', qty: 5 }); eq(s.goods.erva, 20); eq(s.made.erva, 8);
+  const cr = SB.pvp.saleCredit({ good: 'erva', qty: 5, price: 100, buyer: 'B' }); eq(cr.cash, 475); const p0 = s.ledger.prod; SB.pvp.settle(s, cr); eq(s.ledger.prod, p0 + 475, 'venda na Esquina conta no faturamento de Negócios');
+  const b = SB.startClock(fresh(), Date.UTC(2026, 10, 13, 15)); b.cash = 400; ok(SB.pvp.buyBlock(b, { good: 'erva', qty: 5, price: 100 }).includes('precisa')); b.cash = 600; ok(SB.pvp.buy(b, { good: 'erva', qty: 5, price: 100, seller: 'A' }).ok); eq(b.cash, 100); eq(b.goods.erva, 5); eq(b.made.erva, 0, 'comprado não vira produção (não dá para revender na Esquina)'); });
 t('a banca sempre tem vantagem (10 mil apostas de cada jogo)', () => { SB.setRandom(SB.seeded(42)); for (const [g, pick] of [['roleta'], ['sinuca'], ['bicho', 7]]) { const s = fresh(); s.cash = 1e9; s.stats.astucia = 99; s.stats.labia = 99; s.career = 'empreendedor'; const c = s.cash; for (let i = 0; i < 10000; i++) { s.today.bets = 0; SB.perform(s, 'bet', g, 100, pick); if (g === 'bicho') SB.drawBicho(s, []); } ok(s.cash < c, g + ' deu lucro'); } });
 t('colete segura a trocação no roubo armado que falha', () => { const dmg = prot => { SB.setRandom(SB.seeded(11)); let t2 = 0, n = 0; for (let i = 0; i < 400; i++) { const s = fresh(); s.respect = 100; s.gear.arma = 'trezoitao'; s.gear.veiculo = 'opala'; s.gear.protecao = prot; s.stats.forca = 1; s.heat = 80; SB.perform(s, 'mission', 'loterica'); if (s.failed) { n++; t2 += 100 - s.health; } } return t2 / n; }; const semColete = dmg(null), comColete = dmg('tatico'); ok(semColete > 15, String(semColete)); ok(comColete < semColete - 5, `${comColete} x ${semColete}`); });
 t('ser preso custa respeito', () => { let seen = false; for (let i = 0; i < 80 && !seen; i++) { const s = fresh(); s.successful = 1; s.respect = 100; s.heat = 80; s.stats.astucia = 1; SB.perform(s, 'mission', 'mercadoria'); if (s.jail > 0) { eq(s.respect, 96); seen = true; } } ok(seen); });

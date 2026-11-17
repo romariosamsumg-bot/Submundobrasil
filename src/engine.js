@@ -594,7 +594,7 @@
     return [d.id, Object.fromEntries(FACTIONS.map(f => [f.id, f.id === owner ? (legacyRivals && isNum(legacyRivals[d.id]) ? clamp(Math.round(legacyRivals[d.id]), 0, 100) : 22 + i * 3) : (f.id === 'aurora' ? 4 : 2)]))];
   }));
   const initialDistrictState = () => Object.fromEntries(DISTRICTS.map(d => [d.id, { vigil: 0, econ: 1 }]));
-  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false, bribe: false, bets: 0, detox: false, despachante: 0, clinicPaid: 0, paid: [], termas: false, venue: null, doses: 0, dose: {}, chem: 0, home: 0 });
+  const emptyToday = () => ({ missions: {}, contacts: {}, op: false, training: 0, night: 0, duels: 0, clinic: false, bribe: false, bets: 0, detox: false, despachante: 0, clinicPaid: 0, paid: [], termas: false, venue: null, doses: 0, dose: {}, chem: 0, home: 0, pvpResp: 0 });
   const startMarket = () => Object.fromEntries(DISTRICTS.map((d, i) => [d.id, Object.fromEntries(GOODS.map((g, j) => [g.id, 85 + ((i * 7 + j * 11) % 5) * 8]))]));
   const emptySeasonStats = () => ({ arrests: 0, startRespect: 5, bailPaid: 0, controlDays: Object.fromEntries(DISTRICTS.map(d => [d.id, 0])), bestCash: 0 });
 
@@ -623,7 +623,8 @@
       health: 100, hospital: 0, beaten: {}, done: emptyDone(), duelStats: { wins: 0, losses: 0 },
       heist: null, heistReady: 0, vicio: 0, overdoses: 0, betStats: { won: 0, lost: 0 },
       bicho: { tickets: [], last: null }, paper: null,
-      ledger: { biz: 0, prod: 0 }, made: Object.fromEntries(GOODS.map(g => [g.id, 0]))
+      ledger: { biz: 0, prod: 0 }, made: Object.fromEntries(GOODS.map(g => [g.id, 0])),
+      pvp: { wins: 0, losses: 0, sold: 0, bought: 0 }
     };
     st.paper = { prev: null, cur: paperSnap(st) };
     return st;
@@ -788,6 +789,7 @@
       s.today.doses = toInt(saved.today.doses, 0, 0, 99);
       s.today.chem = toInt(saved.today.chem, 0, 0, CHEM_CAP);
       s.today.home = toInt(saved.today.home, 0, 0, 9);
+      s.today.pvpResp = toInt(saved.today.pvpResp, 0, 0, 99);
       for (const d of DOSES) if (isNum(saved.today.dose && saved.today.dose[d.id])) s.today.dose[d.id] = toInt(saved.today.dose[d.id], 0, 0, 99);
     }
     const ss = saved.seasonStats || {};
@@ -871,6 +873,7 @@
     // v1.5: faturamento acumulado dos negócios e da produção (Evolução no Perfil) e o estoque que veio dos esquemas.
     s.ledger = { biz: toInt(saved.ledger && saved.ledger.biz, 0, 0, BIG), prod: toInt(saved.ledger && saved.ledger.prod, 0, 0, BIG) };
     for (const g of GOODS) s.made[g.id] = Math.min(s.goods[g.id], toInt(saved.made && saved.made[g.id], 0, 0, 9999));
+    s.pvp = Object.fromEntries(['wins', 'losses', 'sold', 'bought'].map(k => [k, toInt(saved.pvp && saved.pvp[k], 0, 0, BIG)]));
     const sp = saved.paper && typeof saved.paper === 'object' ? saved.paper : {};
     s.paper = { prev: snap(sp.prev), cur: snap(sp.cur) || paperSnap(s) };
     s.schema = SCHEMA; s.version = VERSION;
@@ -2255,6 +2258,114 @@
     ];
   }
 
+  /* ------------------------------------------------------------------ */
+  /* Esquina (só online): desafios de combate entre jogadores e mercado negro da produção.                 */
+  /* As regras ficam aqui (mesmo motor do servidor); o servidor só guarda ofertas e desafios e entrega a   */
+  /* cada lado o efeito. Estas funções NÃO estão em SB.act: o jogador não consegue chamá-las direto.        */
+  /* ------------------------------------------------------------------ */
+  const PVP = {
+    STAKE_MIN: 50, STAKE_MAX: [300, 1500, 4000, 10000, 25000], // aposta máxima por patente
+    HOUSE: .10, RESP_WIN: 3, RESP_LOSS: 2, RESP_DAY: 6, HEALTH_LOSS: 18, MIN_HEALTH: 30,
+    DAILY: 3, EXPIRE_H: 24, // desafios lançados por dia (e um por rival por dia, no servidor)
+    FEE: .05, PRICE_MIN: .5, PRICE_MAX: 3, LISTINGS: 5, QTY_MAX: 500
+  };
+  const stakeMax = s => PVP.STAKE_MAX[phaseIndex(s)] || PVP.STAKE_MAX[0];
+  /** Chance do desafiante (força de luta contra força de luta), de 10% a 90%. */
+  const pvpOdds = (a, b) => { const x = Math.pow(Math.max(1, a), 1.4), y = Math.pow(Math.max(1, b), 1.4); return clamp(Math.round(100 * x / (x + y)), 10, 90); };
+  const priceBand = g => [Math.max(1, Math.ceil(g.base * PVP.PRICE_MIN)), Math.max(1, Math.floor(g.base * PVP.PRICE_MAX))];
+  function pvpBlock(s, stake) {
+    if (!s.clock) return 'A Esquina é só no modo online.';
+    if (blocked(s)) return blocked(s);
+    if (!Number.isSafeInteger(stake) || stake < PVP.STAKE_MIN) return `A aposta mínima é ${money(PVP.STAKE_MIN)}.`;
+    if (stake > stakeMax(s)) return `Na sua patente, a aposta vai até ${money(stakeMax(s))}.`;
+    if (s.cash < stake) return 'Você não tem esse dinheiro em mãos.';
+    if (s.health < PVP.MIN_HEALTH) return `Saúde abaixo de ${PVP.MIN_HEALTH}: cuide-se antes de sair na mão.`;
+    return '';
+  }
+  const pvp = {
+    /** Lançar desafio: a aposta sai do bolso e fica na mesa. Devolve a força e o respeito do desafiante. */
+    challenge(s, stake, alvo) {
+      const e = pvpBlock(s, stake); if (e) return refuse(e);
+      s.cash -= stake;
+      log(s, `Você desafiou ${cleanText(alvo, 22)} na Esquina: ${money(stake)} na mesa.`);
+      return done(true, `Desafio lançado: ${money(stake)} na mesa. Agora é esperar a resposta.`, { power: combatRating(s), respect: s.respect });
+    },
+    /** Quem foi desafiado pode aceitar? ('' = pode) */
+    acceptBlock: (s, stake) => pvpBlock(s, stake),
+    /** Aceitar: a aposta igual sai do bolso de quem aceitou. Devolve a força e o respeito dele. */
+    accept(s, stake, rival) {
+      const e = pvpBlock(s, stake); if (e) return refuse(e);
+      s.cash -= stake;
+      log(s, `Você aceitou o desafio de ${cleanText(rival, 22)}: ${money(stake)} na mesa.`);
+      return done(true, 'Desafio aceito.', { power: combatRating(s), respect: s.respect });
+    },
+    /** A briga: `r` é um número de 0 a 1 sorteado pelo servidor. */
+    fight(a, b, r) { const odds = pvpOdds(a.power, b.power); return { odds, aWins: r * 100 < odds }; },
+    /** O que cada lado recebe. Vencedor leva o pote menos a banca e ganha respeito (nada de respeito se o
+     *  perdedor tiver menos da metade do respeito dele: bater em iniciante não vale); perdedor perde respeito e saúde. */
+    outcome(stake, win, lose) {
+      const pot = stake * 2, prize = pot - Math.round(pot * PVP.HOUSE);
+      return { win: { kind: 'duelo', won: true, cash: prize, respect: lose.respect * 2 < win.respect ? 0 : PVP.RESP_WIN },
+        lose: { kind: 'duelo', won: false, cash: 0, respect: -PVP.RESP_LOSS, health: PVP.HEALTH_LOSS } };
+    },
+    /** Põe à venda: só o que os seus esquemas produziram, dentro da faixa de preço. */
+    list(s, gid, qty, price) {
+      const g = good(gid);
+      if (!s.clock) return refuse('A Esquina é só no modo online.');
+      if (!g) return refuse('Mercadoria desconhecida.');
+      if (blocked(s)) return refuse(blocked(s));
+      if (!Number.isSafeInteger(qty) || qty < 1 || qty > PVP.QTY_MAX) return refuse('Quantidade inválida.');
+      if ((s.made[g.id] || 0) < qty) return refuse('No mercado da Esquina só entra o que os seus esquemas produziram.');
+      const [lo, hi] = priceBand(g);
+      if (!Number.isSafeInteger(price) || price < lo || price > hi) return refuse(`Preço de ${g.name}: de ${money(lo)} a ${money(hi)} por ${g.unit}.`);
+      s.goods[g.id] -= qty; s.made[g.id] -= qty;
+      log(s, `Esquina: ${qty} × ${g.name} à venda por ${money(price)} cada.`);
+      return done(true, `${qty} × ${g.name} na banca por ${money(price)} cada.`, { good: g.id, qty, price });
+    },
+    /** Tira da banca: a mercadoria volta (como produção sua). */
+    unlist(s, l) { const g = good(l.good); if (!g) return refuse('Oferta inválida.'); const q = toInt(l.qty, 0, 0, PVP.QTY_MAX); s.goods[g.id] += q; s.made[g.id] += q; log(s, `Esquina: você recolheu ${q} × ${g.name} da banca.`); return done(true, `${q} × ${g.name} voltaram para o seu galpão.`); },
+    /** Comprar de outro jogador. */
+    buyBlock(s, l) {
+      const g = good(l.good); if (!g) return 'Oferta inválida.';
+      if (!s.clock) return 'A Esquina é só no modo online.';
+      if (blocked(s)) return blocked(s);
+      const total = l.qty * l.price;
+      if (s.cash < total) return `Você precisa de ${money(total)} em mãos.`;
+      if (cargoUsed(s) + l.qty > cargoCap(s)) return `Falta espaço no galpão: cabem mais ${Math.max(0, cargoCap(s) - cargoUsed(s))}.`;
+      return '';
+    },
+    buy(s, l) {
+      const e = pvp.buyBlock(s, l); if (e) return refuse(e);
+      const g = good(l.good), total = l.qty * l.price;
+      s.cash -= total; s.goods[g.id] += l.qty; s.trade.spent += total; s.pvp.bought += total;
+      log(s, `Esquina: comprou ${l.qty} × ${g.name} de ${cleanText(l.seller || 'um jogador', 22)} por ${money(total)}.`);
+      return done(true, `Comprou ${l.qty} × ${g.name} por ${money(total)}.`);
+    },
+    /** O que o vendedor recebe quando alguém compra (menos a taxa da banca). */
+    saleCredit: l => ({ kind: 'venda', good: l.good, qty: l.qty, cash: Math.round(l.qty * l.price * (1 - PVP.FEE)), buyer: l.buyer || '' }),
+    /** Entrega um efeito que veio de outro jogador (vitória, derrota, venda paga, aposta devolvida). */
+    settle(s, ev) {
+      if (!ev || typeof ev !== 'object') return '';
+      const cash = toInt(ev.cash, 0, 0, 1e9); let msg = '';
+      if (ev.kind === 'venda') {
+        const g = good(ev.good); s.cash += cash; s.ledger.prod += cash; s.trade.sold += cash; s.pvp.sold += cash;
+        msg = `Esquina: ${cleanText(ev.buyer || 'alguém', 22)} comprou ${toInt(ev.qty, 0, 0, PVP.QTY_MAX)} × ${g ? g.name : 'mercadoria'} da sua banca. +${money(cash)} (já sem a taxa).`;
+      } else if (ev.kind === 'devolve') { s.cash += cash; msg = `Esquina: ${money(cash)} da aposta voltaram para o seu bolso (${cleanText(ev.why || 'desafio encerrado', 60)}).`; }
+      else if (ev.kind === 'duelo') {
+        const rival = cleanText(ev.rival || 'o rival', 22);
+        if (ev.won) {
+          s.cash += cash; s.pvp.wins++;
+          const want = toInt(ev.respect, 0, 0, 10), r = Math.min(want, Math.max(0, PVP.RESP_DAY - s.today.pvpResp)); s.respect += r; s.today.pvpResp += r;
+          msg = `Esquina: você venceu ${rival}. +${money(cash)}${r ? ` e +${r} de respeito` : want ? ' (respeito de desafio já no teto de hoje)' : ' (bater em iniciante não dá respeito)'}.`;
+        } else {
+          s.pvp.losses++; const r = Math.min(s.respect, toInt(-ev.respect, 0, 0, 10)); s.respect -= r;
+          msg = `Esquina: você perdeu para ${rival}. −${r} de respeito.` + hurt(s, toInt(ev.health, 0, 0, 60));
+        }
+      } else return '';
+      log(s, msg); return msg;
+    }
+  };
+
   /** Retratos que o jogador pode escolher no Perfil (só aparência; não mudam regras). */
   const AVATARS = [
     { id: 'malandro', name: 'Malandro' }, { id: 'funkeira', name: 'Funkeira' }, { id: 'motoboy', name: 'Motoboy' },
@@ -2905,7 +3016,7 @@
     STATS, MISSIONS, DISTRICTS, BUSINESSES, HEISTS, HEIST_MAX_HIRES, HEIST_WINDOW, HEIST_COOLDOWN, HEIST_CUT, RIVALS, DUEL_LIMIT, DUEL_ENERGY, ITEMS, SLOTS, GOODS, LABS, NIGHT, ITEM_RESALE, EXPORT_LIMIT, CITIES, TUTORIAL, TITLES, AVATARS, CAREERS, OLD_CAREERS, GOALS, ROLES, FACTIONS, FACTION_ENEMY, EVENTS, NEWS, CATEGORIES, MEDALS, ACHIEVEMENTS,
     setRandom, seeded, rand, clamp, money,
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
-    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, drawBicho, jornal, unlockCatalog, paperSnap, evolution, EVO_BIZ, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
+    district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, drawBicho, jornal, unlockCatalog, paperSnap, evolution, EVO_BIZ, PVP, pvp, pvpOdds, stakeMax, priceBand, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
     missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, GIG_PAY, LOCAL_MISSIONS, localMission, missionName, DISTRICT_VIBE, districtTraits, STORY, storyPending, storyCost, streetScene, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, SORO_VICIO, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,

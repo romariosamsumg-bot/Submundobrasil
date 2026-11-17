@@ -54,7 +54,7 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 
 ## Ciclo e organização das telas
 
-- **Sem PvP**: a disputa é contra a polícia, o vício, a falência e o calendário do mês (GAME_DESIGN.md §20). Risco novo deve vir do sistema, não de outro jogador.
+- **Jogador contra jogador só na Esquina** (pedido do autor; ver "Esquina" abaixo). Fora dela, a disputa continua contra a polícia, o vício, a falência e o calendário do mês (GAME_DESIGN.md §20).
 - Toda fonte de energia ou dinheiro fácil precisa de um freio medido na simulação (vício na noite, vantagem da banca nas apostas).
 - O jogo gira em torno de **Roubar → Noite → Feira → Dormir** (GAME_DESIGN.md §19). As abas seguem essa ordem; não acrescente aba sem tirar outra.
 - Lugar novo entra na tela Cidade, com fase de abertura em `GATES` quando não for para iniciante.
@@ -87,6 +87,14 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 ## Evolução (Perfil)
 
 - `SB.evolution(s)` (motor, puro) dá o nível de Roubos, Armas, Proteção, Veículo e Negócios; o gráfico é `evoCard` (`ui.js`). Item novo em `ITEMS` entra sozinho na escada do seu espaço, pela ordem de poder, defesa ou fuga. Nova fonte de dinheiro de negócio ou de produção → somar em `s.ledger` (`biz` ou `prod`); mercadoria produzida → somar em `s.made` e vender com `soldMade`.
+
+## Esquina (online: chat, desafios e mercado entre jogadores)
+
+- **Regras no motor**, em `SB.pvp` (`PVP` com os números): desafio com aposta (`challenge`, `accept`, `fight`, `outcome`), mercado (`list`, `unlist`, `buyBlock`, `buy`, `saleCredit`) e a entrega de efeitos vindos de outro jogador (`settle`). **Nada disso entra em `SB.act`**: o jogador não chama direto (há teste). O servidor (`supabase/functions/jogar/index.ts`) só guarda ofertas, desafios e mensagens e chama essas funções.
+- **Um jogador nunca grava o save do outro.** O que é do outro lado fica na linha do banco (`efeito_a` no desafio, `pago = false` na venda) e é entregue por `entregar()` na próxima vez que ele entra. Toda disputa por um registro é por **reivindicação atômica** (`update ... where status = 'aberto'`), para nada ser comprado ou aceito duas vezes.
+- **Anti-trapaça (contas falsas):** aposta com teto por patente, 3 desafios por dia, 1 por rival por dia, teto de respeito de desafio por dia, nada de respeito batendo em quem tem menos da metade do seu respeito; preço do mercado entre 50% e 300% do preço base e só o que os seus esquemas produziram (`made`). Mudou um desses números → atualize GAME_DESIGN e os testes.
+- **Chat:** sala geral e a da própria cidade. Filtro em `supabase/functions/jogar/esquina.js` (sem link, telefone/documento, ódio ou ameaça; palavrão passa, o jogo é 18+), freio de mensagens, denúncia (3 denúncias ocultam) e bloqueio no aparelho. As funções de leitura (`chat_ler`, `mercado_listar`, `meus_desafios`, `esquina_presentes`) devolvem só vulgo, cidade e números; as tabelas têm RLS sem política.
+- Teste ao vivo com contas `teste-automatico-*@example.com` e **apague as contas no fim** (o `delete from auth.users` apaga em cascata).
 
 ## Diário
 

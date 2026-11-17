@@ -115,7 +115,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   console.log('3b. Cidade, Feira do Rolo, Galpão, noite e Perfil (v0.7)');
   await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('submundo_brasil_v01')); s.cash = 6000; s.respect = 50; s.jail = 0; s.energy = 60; s.heat = 0; localStorage.setItem('submundo_brasil_v01', JSON.stringify(s)); });
   await page.reload(); await go('hub');
-  check(await page.locator('.place').count() === 10, 'tela Cidade mostra 10 lugares (Banco e Negócios separados, e o Mural do respeito)');
+  check(await page.locator('.place').count() === 11, 'tela Cidade mostra 11 lugares (Banco e Negócios separados, Mural do respeito e Esquina)');
   check(await page.locator('.place.locked').count() === 0, 'com 50 de respeito nada fica trancado');
   await page.click('.mobileNav [data-view=feira]');
   check(await page.locator('.feiraTabs [data-action=feira-tab]').count() === 3 && await page.locator('[data-action=buy-item][data-id=bike]').count() === 0, 'Feira abre na prateleira de armas, com seletor de 3 prateleiras');
@@ -245,6 +245,9 @@ await page.click('[data-action=duel][data-id=marrento]');
   check(await page.locator('.evoCard .evoCol').count() === 5 && (await page.textContent('.evoCard')).includes('Negócios'), 'Perfil mostra a Evolução em 5 barras (Roubos, Armas, Proteção, Veículo, Negócios)');
   await page.click('[data-action=evo-pick][data-id=armas]'); check((await page.textContent('.evoDetail')).includes('Armas') && await page.locator('.evoCol.on[data-id=armas]').count() === 1, 'tocar numa barra mostra o detalhe dela');
   await go('painel');
+  await go('hub'); check((await page.textContent('#content')).includes('Esquina'), 'a Esquina aparece no menu Cidade');
+  await go('esquina'); check((await page.textContent('#content')).includes('só funciona no') && await page.locator('#esqMsg').count() === 0, 'fora do modo online, a Esquina explica que é só online (sem chat)');
+  await go('painel');
   { // Diário: só o histórico do jogador
     await page.evaluate(() => { const k = 'submundo_brasil_v01', SB = window.SB, s = JSON.parse(localStorage.getItem(k)); SB.applyCity(s.city); const f = SB.FACTIONS[0], g = SB.FACTIONS[1];
       s.log.unshift({ day: s.day, msg: `Dia ${s.day}. Ressaca: -5 de energia ao acordar. ${f.short} ampliou presença na Região Industrial (+3). ${g.short} reorganizou suas fileiras (força 60). Evento: Dia movimentado. Retaliação de ${f.short}: -4 de influência sua na Região Central.` });
@@ -265,10 +268,10 @@ await page.click('[data-action=duel][data-id=marrento]');
 
   console.log('3c. Arte (v1.1)');
   await go('hub');
-  check(await page.locator('.place .placeScene .art').count() === 10, 'os 10 lugares da Cidade têm cena ilustrada');
+  check(await page.locator('.place .placeScene .art').count() === 11, 'os 11 lugares da Cidade têm cena ilustrada');
   check(await page.evaluate(() => { window.__ART = window.SB_ART; window.SB_ART = { 'place-galpao': 'data:image/png;base64,iVBORw0KGgo=' }; return window.SBArt.place('galpao').startsWith('<img') && window.SBArt.place('feira').startsWith('<svg'); }), 'imagem pintada substitui só a chave correspondente');
   await page.evaluate(() => { window.SB_ART = window.__ART; });
-  check(await page.evaluate(() => window.SBArt.keys().length) === 25, '25 chaves de arte (11 lugares, 8 adversários, 6 assaltos)');
+  check(await page.evaluate(() => window.SBArt.keys().length) === 26, '26 chaves de arte (12 lugares, 8 adversários, 6 assaltos)');
 
   await go('perfil');
   check(await page.locator('#content .avatarPick, #content [data-action=avatar]').count() === 0, 'Perfil não troca mais o retrato');

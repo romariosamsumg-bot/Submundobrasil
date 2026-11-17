@@ -11,9 +11,9 @@
   const KEY = SB.STORAGE_KEY;
   const CORRUPT_KEY = 'submundo_brasil_corrupt_backup';
   const V04_BACKUP_KEY = 'submundo_brasil_v04_backup';
-  const VIEWS = ['painel', 'acoes', 'hub', 'cidade', 'gestao', 'negocios', 'feira', 'galpao', 'noite', 'duelos', 'apostas', 'hospital', 'gangue', 'assaltos', 'perfil', 'temporada', 'ranking'];
+  const VIEWS = ['painel', 'acoes', 'hub', 'cidade', 'gestao', 'negocios', 'feira', 'galpao', 'noite', 'duelos', 'apostas', 'hospital', 'gangue', 'assaltos', 'perfil', 'temporada', 'ranking', 'esquina'];
   /* Telas que ficam "dentro" de uma aba da navegação. */
-  const PARENT = { cidade: 'hub', gestao: 'hub', negocios: 'hub', galpao: 'hub', duelos: 'hub', apostas: 'hub', hospital: 'hub', gangue: 'hub', assaltos: 'gangue', perfil: 'hub', temporada: 'perfil', ranking: 'hub' };
+  const PARENT = { cidade: 'hub', gestao: 'hub', negocios: 'hub', galpao: 'hub', duelos: 'hub', apostas: 'hub', hospital: 'hub', gangue: 'hub', assaltos: 'gangue', perfil: 'hub', temporada: 'perfil', ranking: 'hub', esquina: 'hub' };
   const tabOf = v => { while (PARENT[v]) v = PARENT[v]; return v; };
   const MAXDAY = SB.MAXDAY;
 
@@ -371,7 +371,7 @@
       if (SB.atHome(s)) return b('Sair de casa', 'leave-home', '', false);
       if (s.jail > 0 || s.hospital > 0) return '';
       const ci = SB.clockInfo(s), full = s.energy >= 100 && !s.today.doses;
-      return b(ci.homesLeft ? 'Ir pra casa · 3 h' : 'Casa: 2× por dia', 'go-home', '', !ci.homesLeft || full, s.energy < 16 ? 'hot' : '');
+      return b(ci.homesLeft ? 'Casa · 3 h' : 'Casa: 2×/dia', 'go-home', '', !ci.homesLeft || full, s.energy < 16 ? 'hot' : '');
     }
     if (s.day >= MAXDAY) return b('Encerrar', 'switch', 'data-target="temporada"', false, 'hot');
     return b(armedNext ? `Dormir com ${num(s.energy)}?` : 'Dormir', 'next-day', '', false, armedNext ? 'armed' : s.energy < 16 ? 'hot' : '');
@@ -486,7 +486,7 @@
     const c = state ? SB.cityOf(state.city) : SB.CITIES[0];
     return [
       ['Você chegou', `<p>Você desce na rodoviária de <strong>${esc(c.name)}</strong> sem dinheiro, sem arma e sem nome.</p><p>Até o fim do mês, a cidade vai saber quem você é. O placar é o <strong>respeito</strong>: ele te leva de <em>Pé de chinelo</em> a <em>Dono do morro</em> e decide a sua posição no ranking.</p>`],
-      ['A rua gira assim', `<p><strong>Roube</strong> do mais fácil ao mais difícil: cada roubo mostra a sua chance.</p><p>Acabou a energia? A <strong>noite</strong> vende energia no balcão.</p><p>Com o dinheiro, a <strong>Feira</strong> te arma, protege e leva mais longe, e os roubos maiores se abrem. Subir de degrau é o que traz respeito.</p><p>Quando sobrar dinheiro, compre <strong>negócios</strong>: bar, oficina, banca do bicho… Eles pagam todo dia, até enquanto você dorme.</p><p>Toda manhã, o <strong>Jornal do Submundo</strong> na Rua conta o que mudou: sua patente, o que o respeito abriu, polícia, gangues, preços do Galpão, o comprador de fora e o resultado do bicho, que corre de noite e sai no jornal do dia seguinte. Toque numa notícia para ir à tela dela.</p><p>No <strong>Perfil</strong>, a <strong>Evolução</strong> mostra em barras o seu nível em Roubos (maior degrau feito), Armas, Proteção, Veículo e Negócios (o que os negócios e a produção dos esquemas já faturaram).</p>`],
+      ['A rua gira assim', `<p><strong>Roube</strong> do mais fácil ao mais difícil: cada roubo mostra a sua chance.</p><p>Acabou a energia? A <strong>noite</strong> vende energia no balcão.</p><p>Com o dinheiro, a <strong>Feira</strong> te arma, protege e leva mais longe, e os roubos maiores se abrem. Subir de degrau é o que traz respeito.</p><p>Quando sobrar dinheiro, compre <strong>negócios</strong>: bar, oficina, banca do bicho… Eles pagam todo dia, até enquanto você dorme.</p><p>Toda manhã, o <strong>Jornal do Submundo</strong> na Rua conta o que mudou: sua patente, o que o respeito abriu, polícia, gangues, preços do Galpão, o comprador de fora e o resultado do bicho, que corre de noite e sai no jornal do dia seguinte. Toque numa notícia para ir à tela dela.</p><p>No <strong>Perfil</strong>, a <strong>Evolução</strong> mostra em barras o seu nível em Roubos (maior degrau feito), Armas, Proteção, Veículo e Negócios (o que os negócios e a produção dos esquemas já faturaram).</p><p>No modo online, a <strong>Esquina</strong> (Cidade) junta os jogadores: papo da cidade e geral, desafios de combate com aposta (vencedor leva o pote menos 10%) e o mercado negro, onde você vende a produção dos seus esquemas pelo preço que escolher, dentro de uma faixa.</p>`],
       ['A rua cobra', `<p>Cada roubo chama a <strong>polícia</strong>. Esfrie antes que ela chegue, ou vai pra cadeia.</p><p>A noite cobra no <strong>vício</strong> e o corpo cobra na <strong>saúde</strong>.</p><p>Na <strong>Rua</strong>, a sua história acontece: gente que aparece, decisões sem volta e avisos do que pede atenção.</p><p>O guia te acompanha nos primeiros passos.</p>`]
     ];
   }
@@ -718,7 +718,8 @@
   /* Ícones pequenos das fichas (energia, Procurado, respeito, cadeia). */
   const ST_ICO = {
     en: 'M7 0 1 7h4l-1 5 6-7H6z', heat: 'M3 9V6a3 3 0 0 1 6 0v3zM1 10h10v2H1zM5.4 0h1.2v2H5.4z',
-    resp: 'M6 0l1.8 3.8 4.2.5-3.1 2.9.8 4.1L6 9.3 2.3 11.3l.8-4.1L0 4.3l4.2-.5z', jail: 'M1 1h10v10H1zM4 1v10M8 1v10', inf: 'M6 1a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM2 11c0-3 2-4 4-4s4 1 4 4z'
+    resp: 'M6 0l1.8 3.8 4.2.5-3.1 2.9.8 4.1L6 9.3 2.3 11.3l.8-4.1L0 4.3l4.2-.5z', jail: 'M1 1h10v10H1zM4 1v10M8 1v10', inf: 'M6 1a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM2 11c0-3 2-4 4-4s4 1 4 4z',
+    money: 'M1 3h10v6H1zm5 1.2a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6z', chance: 'M2 1h8v10H2zm2 2v2h2V3zm2 4v2h2V7z', fight: 'M1 9l4-4 1 1-4 4zm10 0L7 5 6 6l4 4zM4 1h4v3H4z'
   };
   const stat = (k, txt, cls = '', label = '') => `<span class="st ${cls}"${label ? ` title="${label}" aria-label="${label}: ${txt}"` : ''}><svg class="stIco" viewBox="0 0 12 12" aria-hidden="true"><path d="${ST_ICO[k]}"/></svg>${txt}</span>`;
   /** Bloco "Detalhes": a conta e a explicação ficam a um toque, fora do caminho. */
@@ -931,6 +932,7 @@
       ${gated('apostas', 'apostas', 'Apostas', `Bicho, sinuca e roleta · hoje ${s.today.bets}/${SB.BET_LIMIT}`)}
       ${gated('duelos', 'duelos', 'Duelos de rua', `Hoje ${s.today.duels}/${SB.DUEL_LIMIT} · ${s.duelStats.wins} vitória(s)`)}
       ${place('hospital', 'Hospital', s.hospital ? `${s.uti ? 'UTI' : 'Internado'} · ${s.hospital} ${s.clock ? 'período(s)' : 'dia(s)'}` : `Saúde ${s.health}/100`, s.health < 50 ? 'Ferido' : '')}
+      ${place('esquina', 'Esquina', online ? 'Papo, desafios e mercado negro entre jogadores' : 'Ponto de encontro dos jogadores (só no modo online)', online ? 'Ao vivo' : '', 'esquina')}
       ${place('ranking', 'Mural do respeito', online ? (rank.me ? `Você é o ${num(rank.me.posicao)}º de ${num(rank.me.total)} no mês` : 'Ranking do mês e Galeria da fama') : 'Ranking (só no modo online)', '', 'temporada')}
       ${place('perfil', 'Perfil e temporada', `Dia ${s.day}/${MAXDAY} · ★ ${num(s.respect)} respeito`, '', 'temporada')}
     </div>`;
@@ -1154,7 +1156,7 @@
       // Foto da manchete do jornal: a pintura da região, em preto e branco.
       const ft = window.SB_ART && window.SB_ART['bairro-' + state.district];
       if (ft !== lastFoto) { lastFoto = ft; document.documentElement.style.setProperty('--foto', ft ? `url("${ft}")` : 'none'); } }
-    const pages = { painel: panel, acoes: actions, hub, cidade: city, gestao: management, negocios, feira, galpao, noite, duelos, apostas, hospital, gangue: gang, assaltos, perfil, temporada: seasons, ranking: rankingView };
+    const pages = { painel: panel, acoes: actions, hub, cidade: city, gestao: management, negocios, feira, galpao, noite, duelos, apostas, hospital, gangue: gang, assaltos, perfil, temporada: seasons, ranking: rankingView, esquina };
     try {
       $('#content').innerHTML = (pages[view] || panel)() + (view !== 'perfil' ? '' : `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • 18+ • Cidades reais, pontos e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`);
     } catch (e) {
@@ -1172,6 +1174,7 @@
     if (target !== view) result = null;
     view = target; disarm(); $('#toast').hidden = true;
     if (target === 'ranking') loadRank(true);
+    if (target === 'esquina') loadEsq(true);
     $('#sidebar').classList.remove('open'); $('#menuToggle').setAttribute('aria-expanded', 'false');
     render(); window.scrollTo({ top: 0, behavior: 'instant' });
   }
@@ -1198,6 +1201,20 @@
       case 'switch': switchView(btn.dataset.target); break;
       case 'locale-help': localeHelp = !localeHelp; render(); break;
       case 'evo-pick': evoPick = id; render(); break;
+      case 'esq-tab': if (esq.tab !== id) { esq.tab = id; render(); loadEsq(true); } break;
+      case 'esq-sala': if (esq.sala !== id) { esq.sala = id; render(); loadEsq(true); } break;
+      case 'esq-send': { const el = $('#esqMsg'); const t = el ? el.value.trim() : ''; if (t) esqAct({ acao: 'chat', sala: esqSala(), texto: t }, () => { if ($('#esqMsg')) $('#esqMsg').value = ''; }); break; }
+      case 'esq-bloq': if (id && !bloq.includes(id)) { bloq.push(id); saveBloq(); notify(`${id} bloqueado: as mensagens dele somem para você.`); paintEsq(); } break;
+      case 'esq-desbloq': bloq = bloq.filter(x => x !== id); saveBloq(); render(); break;
+      case 'esq-denunciar': esqAct({ acao: 'denunciar', id: Number(id) }); break;
+      case 'esq-alvo': { esq.tab = 'desafios'; esq.alvo = id; render(); loadEsq(true); const el = $('#esqAlvo'); if (el) { el.value = id; el.scrollIntoView({ block: 'center' }); } break; }
+      case 'esq-desafiar': { const alvo = ($('#esqAlvo') || {}).value || '', ap = Math.round(Number(($('#esqAposta') || {}).value)); esqAct({ acao: 'desafiar', alvo: alvo.trim(), aposta: ap }); break; }
+      case 'esq-aceitar': esqAct({ acao: 'responder', id: Number(id), aceitar: true }); break;
+      case 'esq-recusar': esqAct({ acao: 'responder', id: Number(id), aceitar: false }); break;
+      case 'esq-cancelar': esqAct({ acao: 'cancelar_desafio', id: Number(id) }); break;
+      case 'esq-vender': { const g = ($('#esqGood') || {}).value, q = Math.round(Number(($('#esqQtd') || {}).value)), p = Math.round(Number(($('#esqPreco') || {}).value)); esqAct({ acao: 'vender', mercadoria: g, qtd: q, preco: p }); break; }
+      case 'esq-comprar': esqAct({ acao: 'comprar', id: Number(id) }); break;
+      case 'esq-recolher': esqAct({ acao: 'cancelar_venda', id: Number(id) }); break;
       case 'dismiss-result': result = null; render(); break;
       case 'rank-scope': if (rank.scope !== id) { rank.scope = id; rank.rows = null; rank.me = null; render(); loadRank(true); } break;
       case 'rank-reload': loadRank(true); break;
@@ -1268,6 +1285,7 @@
     }
   });
   document.addEventListener('change', e => { if (e.target.id === 'importFile') importFile(e.target.files && e.target.files[0], false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'esqMsg') { e.preventDefault(); const b = $('[data-action=esq-send]'); if (b) b.click(); } });
   document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'bankAmount') { e.preventDefault(); run('bank', 'deposit', Number(e.target.value)); } });
   // Notícias do jornal e o quadro do bicho são atalhos: Enter ou espaço abrem a tela da notícia.
   document.addEventListener('keydown', e => { const t = e.target; if ((e.key === 'Enter' || e.key === ' ') && t && t.matches && t.matches('[role=button][data-view]')) { e.preventDefault(); switchView(t.dataset.view); } });
@@ -1454,6 +1472,114 @@
     const r = await fetch(ON.url + '/rest/v1/rpc/' + fn, { method: 'POST', headers: h, body: JSON.stringify(body || {}) });
     if (!r.ok) throw new Error(fn);
     return r.json();
+  }
+  /* ---------- Esquina (online): papo, desafios de combate e mercado negro ---------- */
+  const esq = { tab: 'papo', sala: 'cidade', msgs: { cidade: null, geral: null }, pres: null, des: null, merc: null, loading: false, at: 0, err: '', alvo: '' };
+  const BLOQ_KEY = 'sb_bloqueados';
+  let bloq = (() => { try { const v = JSON.parse(localStorage.getItem(BLOQ_KEY) || '[]'); return Array.isArray(v) ? v.filter(x => typeof x === 'string').slice(0, 200) : []; } catch (e) { return []; } })();
+  const saveBloq = () => { try { localStorage.setItem(BLOQ_KEY, JSON.stringify(bloq.slice(0, 200))); } catch (e) { /* sem armazenamento */ } };
+  const esqSala = () => esq.sala === 'geral' ? 'geral' : state.city;
+  let esqTimer = null;
+  async function loadEsq(force) {
+    if (!online || !ON || !state || esq.loading || (!force && Date.now() - esq.at < 4000)) return;
+    esq.loading = true;
+    try {
+      if (esq.tab === 'papo') { const rows = await rpc('chat_ler', { sala_f: esqSala(), depois: 0 }, true); esq.msgs[esq.sala] = Array.isArray(rows) ? rows.slice().reverse() : []; }
+      else if (esq.tab === 'desafios') { const [p, d] = await Promise.all([rpc('esquina_presentes', { cidade_f: null }, true), rpc('meus_desafios', {}, true)]); esq.pres = Array.isArray(p) ? p : []; esq.des = Array.isArray(d) ? d : []; }
+      else { const m = await rpc('mercado_listar', {}, true); esq.merc = Array.isArray(m) ? m : []; }
+      esq.err = ''; esq.at = Date.now();
+    } catch (e) { esq.err = 'Sem conexão com a Esquina agora. Tentando de novo…'; }
+    esq.loading = false;
+    if (view === 'esquina') paintEsq();
+    if (!esqTimer) esqTimer = setInterval(() => { if (view === 'esquina' && !document.hidden && !busy) loadEsq(true); }, 6000);
+  }
+  /** Redesenha só a lista (mensagens, desafios ou banca), sem apagar o que o jogador está digitando. */
+  function paintEsq() {
+    const el = $('#esqList'); if (!el) return;
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+    el.innerHTML = esqList();
+    if (esq.tab === 'papo' && (atBottom || !el.dataset.seen)) { el.scrollTop = el.scrollHeight; el.dataset.seen = '1'; }
+  }
+  /** Ação da Esquina no servidor: o resultado vem como qualquer ação (cartão ou aviso) e a lista se atualiza. */
+  async function esqAct(body, onOk) {
+    if (busy || !online) return;
+    busy = true; document.body.classList.add('busy');
+    const before = snap();
+    try {
+      const tk = await accessToken(); if (!tk) throw new Error('Sua sessão expirou. Entre de novo.');
+      const r = await fetch(ON.url + '/functions/v1/jogar', { method: 'POST', headers: { apikey: ON.anonKey, Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const d = await r.json().catch(() => ({ erro: 'Resposta inválida do servidor.' }));
+      if (typeof d.agora === 'number') skew = d.agora - Date.now();
+      if (d.estado) state = fromServer(d.estado);
+      const res = d.resultado || { ok: false, msg: d.erro || 'Erro no servidor do jogo.' };
+      if (Array.isArray(d.avisos) && d.avisos.length) awayCard(d.avisos);
+      if (!res.ok) { notify(res.msg, true); sfx('deny'); render(); }
+      else {
+        if (onOk) onOk();
+        if (body.acao === 'chat') { sfx('tick'); render(); }
+        else { const fin = { ok: true, good: res.good !== false && res.venceu !== false, msg: res.msg, lines: [] }; finish(body.acao === 'responder' ? 'duel' : 'esquina', fin, before); }
+      }
+    } catch (e) { notify(e.message, true); }
+    finally { busy = false; document.body.classList.remove('busy'); }
+    loadEsq(true);
+  }
+  const hhmm = t => { const d = new Date(t); return isNaN(d) ? '' : d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }); };
+  function esqList() {
+    const s = state;
+    if (esq.err) return `<p class="esqErr">${esc(esq.err)}</p>`;
+    if (esq.tab === 'papo') {
+      const rows = esq.msgs[esq.sala];
+      if (!rows) return '<p class="esqEmpty">Chegando na esquina…</p>';
+      const vis = rows.filter(m => !bloq.includes(m.codinome));
+      if (!vis.length) return `<p class="esqEmpty">Ninguém falou nada ${esq.sala === 'geral' ? 'na sala geral' : 'em ' + esc(s.city)} nos últimos dias. Puxa o assunto.</p>`;
+      return `<ol class="esqWall">${vis.map(m => `<li class="esqMsg ${m.eu ? 'me' : ''}"><div class="esqHead"><b>${esc(m.codinome)}</b><time>${hhmm(m.criado_em)}</time></div><p>${esc(m.texto)}</p>${m.eu ? '' : `<div class="esqMsgAct"><button type="button" data-action="esq-alvo" data-id="${esc(m.codinome)}">Desafiar</button><button type="button" data-action="esq-bloq" data-id="${esc(m.codinome)}">Bloquear</button><button type="button" data-action="esq-denunciar" data-id="${Number(m.id)}">Denunciar</button></div>`}</li>`).join('')}</ol>`;
+    }
+    if (esq.tab === 'desafios') {
+      if (!esq.des) return '<p class="esqEmpty">Chegando na esquina…</p>';
+      const my = SB.combatRating(s), rec = esq.des.filter(d => !d.eu_desafiei && d.status === 'aberto'), meus = esq.des.filter(d => d.eu_desafiei), velhos = esq.des.filter(d => !d.eu_desafiei && d.status !== 'aberto');
+      const statusTxt = d => d.status === 'aberto' ? 'esperando resposta' : d.status === 'aceito' ? ((d.venceu === 'desafiante') === d.eu_desafiei ? 'você venceu' : 'você perdeu') : d.status === 'recusado' ? 'recusado' : d.status === 'cancelado' ? 'cancelado' : 'ninguém respondeu';
+      const tone = d => d.status === 'aceito' ? ((d.venceu === 'desafiante') === d.eu_desafiei ? 'good' : 'bad') : '';
+      const recCards = rec.map(d => { const ch = 100 - SB.pvpOdds(d.poder_a, my), blk = SB.pvp.acceptBlock(s, d.aposta); return `<article class="esqFight"><span class="esqStamp">Desafio</span><h4>${esc(d.desafiante_nome)} te chamou pra trocação</h4><div class="robStats">${stat('money', fmt(d.aposta) + ' cada', 'money', 'Aposta')}${stat('chance', ch + '% sua chance', ch >= 50 ? 'good' : 'risky', 'Sua chance')}</div><div class="inlineBtns">${button(`Aceitar · ${fmt(d.aposta)}`, 'esq-aceitar', `data-id="${d.id}"`, !!blk, 'small primary')}${button('Recusar', 'esq-recusar', `data-id="${d.id}"`, false, 'small ghost')}</div>${blk ? `<p class="mini negative">${esc(blk)}</p>` : ''}</article>`; }).join('');
+      const histo = [...meus, ...velhos].map(d => `<li class="${tone(d)}"><span>${d.eu_desafiei ? `Você → ${esc(d.alvo_nome)}` : `${esc(d.desafiante_nome)} → você`} · ${fmt(d.aposta)}</span><b>${statusTxt(d)}</b>${d.eu_desafiei && d.status === 'aberto' ? button('Cancelar', 'esq-cancelar', `data-id="${d.id}"`, false, 'small ghost') : ''}</li>`).join('');
+      const pres = (esq.pres || []).filter(p => !bloq.includes(p.codinome));
+      return `${rec.length ? `<h3 class="esqH">Chamaram você</h3>${recCards}` : ''}
+        <h3 class="esqH">Na rua agora</h3>${pres.length ? `<ul class="esqPeople">${pres.map(p => `<li><span><b>${esc(p.codinome)}</b><small>${esc(p.cidade)} · ★ ${num(p.respeito)}</small></span>${button('Desafiar', 'esq-alvo', `data-id="${esc(p.codinome)}"`, false, 'small ghost')}</li>`).join('')}</ul>` : '<p class="esqEmpty">Ninguém passou pela rua nos últimos 20 minutos. Você ainda pode desafiar pelo vulgo.</p>'}
+        ${histo ? `<h3 class="esqH">Seus desafios (3 dias)</h3><ul class="esqHist">${histo}</ul>` : ''}`;
+    }
+    if (!esq.merc) return '<p class="esqEmpty">Chegando na esquina…</p>';
+    const vis = esq.merc.filter(m => m.meu || !bloq.includes(m.vendedor_nome));
+    if (!vis.length) return '<p class="esqEmpty">Banca vazia. Seja o primeiro a vender a sua produção.</p>';
+    return `<div class="esqBanca">${vis.map(m => { const g = SB.good(m.mercadoria); if (!g) return ''; const total = m.qtd * m.preco, blk = m.meu ? '' : SB.pvp.buyBlock(s, { good: m.mercadoria, qty: m.qtd, price: m.preco }), ref = SB.goodPrice(s, g), pc = Math.round((m.preco / ref - 1) * 100);
+      return `<article class="esqOffer ${m.meu ? 'mine' : ''}"><div><h4>${num(m.qtd)} × ${esc(g.name)}</h4><p class="mini">${m.meu ? 'Sua oferta' : `de ${esc(m.vendedor_nome)} · ${esc(m.cidade)}`}</p></div>
+        <div class="robStats">${stat('money', fmt(m.preco) + ' / ' + esc(g.unit), 'money', 'Preço')}${stat('chance', (pc > 0 ? '+' : '') + pc + '% do Galpão', pc <= 0 ? 'good' : pc > 40 ? 'risky' : '', 'Comparado ao Galpão daqui')}</div>
+        ${m.meu ? button('Recolher', 'esq-recolher', `data-id="${m.id}"`, false, 'small ghost') : button(`Comprar · ${fmt(total)}`, 'esq-comprar', `data-id="${m.id}"`, !!blk, 'small primary')}${blk ? `<p class="mini negative">${esc(blk)}</p>` : ''}</article>`; }).join('')}</div>`;
+  }
+  function esquina() {
+    const s = state;
+    const head = heading('Esquina', 'Onde os jogadores se encontram: papo, desafio e mercado negro.') + `<div class="screenArt">${window.SBArt.place('esquina')}</div>` + jailNotice() + resultCard();
+    if (!online) return head + `<section class="card"><p>A Esquina é o ponto de encontro dos jogadores e só funciona no <b>modo online</b>. Entre com a sua conta para conversar, desafiar e negociar.</p></section>`;
+    if (!esq.at && !esq.loading) setTimeout(() => loadEsq(true), 0);
+    const tabs = [['papo', 'Papo'], ['desafios', 'Desafios'], ['mercado', 'Mercado negro']];
+    let top = '', foot = '';
+    if (esq.tab === 'papo') {
+      top = `<div class="filterbar esqSalas" role="tablist" aria-label="Salas">${[['cidade', esc(s.city)], ['geral', 'Geral']].map(([id, l]) => `<button type="button" role="tab" class="btn ghost ${esq.sala === id ? 'on' : ''}" data-action="esq-sala" data-id="${id}" aria-selected="${esq.sala === id}">${l}</button>`).join('')}</div>`;
+      foot = `<div class="esqForm"><input class="input" id="esqMsg" aria-label="Mensagem" maxlength="200" autocomplete="off" placeholder="Manda a real (até 200 letras)">${button('Mandar', 'esq-send', '', false, 'primary')}</div>
+        <p class="mini esqRules">Palavrão faz parte da rua. Ódio, preconceito, ameaça, link e telefone não passam. Toque em Denunciar ou Bloquear embaixo de qualquer mensagem.${bloq.length ? ` Bloqueados: ${bloq.map(b => `<button type="button" class="linkish" data-action="esq-desbloq" data-id="${esc(b)}">${esc(b)} ✕</button>`).join(' ')}` : ''}</p>`;
+    } else if (esq.tab === 'desafios') {
+      const mx = SB.stakeMax(s), blk = SB.pvp.acceptBlock(s, SB.PVP.STAKE_MIN);
+      top = `<section class="card esqChallenge"><h3>Chamar pra trocação</h3><div class="esqRow"><input class="input" id="esqAlvo" maxlength="22" placeholder="Vulgo do rival" value="${esc(esq.alvo || '')}"><input class="input" id="esqAposta" type="number" inputmode="numeric" min="${SB.PVP.STAKE_MIN}" max="${mx}" step="10" value="${Math.min(mx, Math.max(SB.PVP.STAKE_MIN, 100))}" aria-label="Aposta"></div>
+        <div class="robStats">${stat('money', `${fmt(SB.PVP.STAKE_MIN)}–${fmt(mx)}`, 'money', 'Aposta da sua patente')}${stat('fight', `Sua força ${num(SB.combatRating(s))}`, '', 'Força de luta')}${stat('resp', `+${SB.PVP.RESP_WIN} / −${SB.PVP.RESP_LOSS}`, 'resp', 'Respeito')}</div>
+        ${button('Desafiar', 'esq-desafiar', '', !!blk, 'primary')}${blk ? `<p class="mini negative">${esc(blk)}</p>` : ''}
+        ${more(`<p>Os dois põem o mesmo valor. A chance vem da força de luta de cada um (Força, Astúcia, arma, proteção e bando). Quem vence leva o pote menos 10% da banca e ganha ${SB.PVP.RESP_WIN} de respeito (até ${SB.PVP.RESP_DAY} por dia; nada de respeito batendo em quem tem menos da metade do seu). Quem perde fica sem a aposta, perde ${SB.PVP.RESP_LOSS} de respeito e leva um golpe na saúde (o colete ajuda). São ${SB.PVP.DAILY} desafios por dia, um por rival, e o desafio vence em ${SB.PVP.EXPIRE_H} horas: se ninguém responder, a aposta volta.</p>`, 'Como funciona')}</section>`;
+    } else {
+      const mine = SB.GOODS.filter(g => (s.made[g.id] || 0) > 0);
+      const g0 = mine[0], band = g0 ? SB.priceBand(g0) : [0, 0];
+      top = `<section class="card esqSell"><h3>Vender a sua produção</h3>${mine.length ? `<div class="esqRow"><select class="input" id="esqGood" aria-label="Mercadoria">${mine.map(g => { const b = SB.priceBand(g); return `<option value="${g.id}" data-lo="${b[0]}" data-hi="${b[1]}">${esc(g.name)} (${num(s.made[g.id])})</option>`; }).join('')}</select><input class="input" id="esqQtd" type="number" inputmode="numeric" min="1" max="${SB.PVP.QTY_MAX}" value="${Math.min(10, s.made[g0.id])}" aria-label="Quantidade"><input class="input" id="esqPreco" type="number" inputmode="numeric" min="${band[0]}" max="${band[1]}" value="${SB.goodPrice(s, g0)}" aria-label="Preço por unidade"></div>
+        <div class="robStats">${stat('money', `${fmt(band[0])}–${fmt(band[1])} por ${esc(g0.unit)}`, 'money', 'Faixa de preço')}${stat('chance', `Taxa ${Math.round(SB.PVP.FEE * 100)}%`, '', 'Taxa da banca')}</div>${button('Pôr na banca', 'esq-vender', '', false, 'primary')}` : '<p class="mini">Só entra aqui o que os seus esquemas produziram. Monte um esquema em Negócios e volte com a produção.</p>'}
+        ${more(`<p>Você escolhe o preço entre metade e o triplo do preço base de cada mercadoria (a faixa impede passar dinheiro entre contas). Quem compra paga na hora; o dinheiro cai no seu bolso, menos ${Math.round(SB.PVP.FEE * 100)}% da banca, da próxima vez que você entrar, e conta no seu faturamento de Negócios. Até ${SB.PVP.LISTINGS} ofertas por vez; recolher devolve a mercadoria.</p>`, 'Como funciona')}</section>`;
+    }
+    return head + `<div class="filterbar esqTabs" role="tablist" aria-label="Esquina">${tabs.map(([id, l]) => `<button type="button" role="tab" class="btn ghost ${esq.tab === id ? 'on' : ''}" data-action="esq-tab" data-id="${id}" aria-selected="${esq.tab === id}">${l}</button>`).join('')}</div>
+      ${top}<div class="esqList ${esq.tab}" id="esqList" aria-live="polite">${esqList()}</div>${foot}`;
   }
   /** Carrega o ranking do mês, a sua posição e a Galeria da fama (no máximo a cada minuto, salvo se forçado). */
   async function loadRank(force) {

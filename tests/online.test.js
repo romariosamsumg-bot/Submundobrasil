@@ -61,5 +61,29 @@ const ok = (c, m) => { if (!c) throw new Error(m || 'condição falsa'); };
     eq(r.corpo.resultado.ok, true); eq(r.renomear, 'Novo Vulgo');
     const r2 = aplicar(SB, r.salvar, { acao: 'agir', nome: 'mission', args: ['correria'] }, T0 + 1000); eq(r2.renomear, undefined);
   });
+  console.log('Esquina: verificações do servidor');
+  const E = await import(path.join(__dirname, '..', 'supabase', 'functions', 'jogar', 'esquina.js'));
+  await t('chat: palavrão passa (jogo 18+); ódio, link, telefone, vazio e texto longo não', () => {
+    eq(E.limparMensagem('  caralho,   que   porra de dia  ').texto, 'caralho, que porra de dia');
+    for (const x of ['', '   ', 'a'.repeat(201), 'entra em www.golpe.com', 'https://x.io', 'me chama 11 98765-4321', 'cpf 123.456.789-00', 'seu V1AD0', 'cRiOuLo', 'vou estuprar', 'viva hitler'])
+      ok(E.limparMensagem(x).erro, 'devia barrar: ' + x);
+    ok(E.limparMensagem('deu Macaco no bicho, 3 vezes').texto, 'bicho do jogo não é ofensa');
+    ok(E.limparMensagem('linha\u0000com\u202econtrole').texto.indexOf('\u0000') < 0);
+  });
+  await t('chat: só a sala geral ou a da própria cidade', () => { ok(E.salaValida('geral', 'Recife')); ok(E.salaValida('Recife', 'Recife')); ok(!E.salaValida('Salvador', 'Recife')); ok(!E.salaValida(null, 'Recife')); });
+  await t('pedidos da Esquina são conferidos antes de tocar no banco', () => {
+    eq(E.conferir({ acao: 'chat', sala: 'geral', texto: 'oi' }), ''); eq(E.conferir({ acao: 'vender', mercadoria: 'erva', qtd: 5, preco: 100 }), ''); eq(E.conferir({ acao: 'desafiar', alvo: 'Zé do Morro', aposta: 200 }), '');
+    eq(E.conferir({ acao: 'responder', id: 3, aceitar: true }), '');
+    for (const p of [null, {}, { acao: 'x' }, { acao: 'chat', sala: {}, texto: 'oi' }, { acao: 'vender', mercadoria: 'erva', qtd: 0, preco: 1 }, { acao: 'vender', mercadoria: 'erva', qtd: 1.5, preco: 1 },
+      { acao: 'comprar', id: -1 }, { acao: 'comprar', id: '1' }, { acao: 'desafiar', alvo: '<b>', aposta: 1 }, { acao: 'desafiar', alvo: 'Zé', aposta: 1e9 }, { acao: 'responder', id: 1, aceitar: 'sim' }])
+      ok(E.conferir(p), JSON.stringify(p));
+    ok(E.ESQUINA_ACOES.every(a => !Object.prototype.hasOwnProperty.call(SB.act, a)), 'as ações da Esquina não existem no motor do jogador');
+  });
+  await t('o servidor da Esquina usa as regras do motor (nada de regra só no servidor)', () => {
+    const src = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'functions', 'jogar', 'index.ts'), 'utf8');
+    for (const f of ['SB.pvp.challenge', 'SB.pvp.accept', 'SB.pvp.fight', 'SB.pvp.outcome', 'SB.pvp.settle', 'SB.pvp.list', 'SB.pvp.buy', 'SB.pvp.unlist']) ok(src.includes(f), f);
+    { const i = src.indexOf("update({ status: 'vendido'"); ok(i > 0 && src.slice(i, i + 260).includes(".eq('id', p.id).eq('status', 'aberto')"), 'compra por reivindicação atômica'); }
+    { const i = src.indexOf("update({ status: 'aceito'"); ok(i > 0 && src.slice(i, i + 160).includes(".eq('status', 'aberto')"), 'aceite por reivindicação atômica'); }
+  });
   console.log(`\n${pass} passaram, ${fail} falharam.`); process.exit(fail ? 1 : 0);
 })();

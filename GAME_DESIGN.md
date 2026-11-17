@@ -824,6 +824,31 @@ Os degraus de **Negócios** são R$ 250, 600, 1.200, 2.000, 3.000, 4.500, 6.500,
 
 Para separar a produção do que foi comprado no Galpão, o motor guarda `made` (o estoque que veio dos esquemas). Numa venda, a parte produzida entra no faturamento. Blitz, batida, dose e abastecimento nunca deixam `made` passar do estoque. `ledger` guarda as duas somas, e as duas zeram na temporada nova.
 
+### Esquina: os jogadores se encontram (v1.5, online, pedido do autor)
+
+Lugar novo no menu Cidade, **só no modo online** (offline, a tela explica e não abre o chat). Três abas:
+
+**Papo.** Duas salas: a da sua cidade e a Geral. As mensagens aparecem como bilhetes colados num muro, se atualizam a cada 6 segundos e ficam visíveis por 3 dias. Embaixo de cada uma: **Desafiar**, **Bloquear** (só no seu aparelho) e **Denunciar** (com 3 denúncias, a mensagem some).
+- Regras do chat: até 200 letras e um intervalo de 2,5 s entre mensagens (no máximo 12 por minuto).
+- Palavrão passa, porque o jogo é 18+. Não passam ódio e preconceito, ameaça de violência sexual, link nem telefone ou documento.
+
+**Desafios** (combate entre jogadores):
+- Você chama alguém pelo vulgo ou pela lista "Na rua agora" (quem jogou nos últimos 20 minutos).
+- **Aposta igual dos dois**, de R$ 50 até o teto da patente: Pé de chinelo R$ 300, Rato de pista R$ 1.500, Linha de frente R$ 4.000, Gerente R$ 10.000, Dono do morro R$ 25.000.
+- **Chance pela força de luta** (Força, Astúcia, arma, proteção e bando), de 10% a 90%, sorteada no servidor. Quem recebe o desafio vê a própria chance antes de aceitar.
+- **Vencedor:** leva o pote menos 10% da banca e ganha +3 de respeito, com teto de 6 por dia vindo de desafios. Bater em quem tem menos da metade do seu respeito não dá respeito.
+- **Perdedor:** fica sem a aposta, perde 2 de respeito e leva um golpe de 18 na saúde (a proteção reduz).
+- **Limites:** 3 desafios lançados por dia, 1 por rival por dia, no máximo 5 esperando resposta para a mesma pessoa, e saúde de pelo menos 30.
+- O desafio vence em 24 horas; recusado, cancelado ou vencido, a aposta volta.
+
+**Mercado negro:**
+- Só entra o que os seus esquemas produziram (a mercadoria comprada no Galpão ou de outro jogador não pode ser revendida aqui).
+- **Preço livre na faixa** de 50% a 300% do preço base, o que impede passar dinheiro entre contas. A banca mostra quanto a oferta está acima ou abaixo do Galpão de onde você está.
+- Até 5 ofertas por vez; recolher devolve a mercadoria.
+- Quem compra paga na hora. O vendedor recebe, menos 5%, da próxima vez que entrar, e o valor conta no faturamento de **Negócios** (Evolução no Perfil).
+
+**Como funciona por dentro:** as regras ficam no motor (`SB.pvp`) e o servidor só guarda as ofertas, os desafios e as mensagens. O que cabe ao outro jogador (venda paga, resultado, aposta devolvida) é entregue quando ele entra, com aviso em "Enquanto você esteve fora" e no Diário. Ninguém grava o save de outro jogador, e nada é comprado ou aceito duas vezes.
+
 ### Sons (v1.5)
 
 Efeitos sintetizados pelo navegador (Web Audio, `src/sound.js`), sem arquivos de áudio e sem licença: roubo certo = caixa registradora + carimbo; roubo errado = som grave + carimbo; preso = sirene; compra, venda, banco, propina, fiança e aposta = moedas; dose = lata abrindo; entrar na noite = batida grave; treino = soco; hospital e desintoxicação = bipe de monitor; UTI = monitor apitando direto; respeito novo (faixa de influência, feito do mês, primeiros passos, conquista) = fanfarra curta; virar o dia = sino; ação recusada = bipe curto. Botão de alto-falante no topo (ao lado do dia) e volume no Perfil; a escolha fica no aparelho. O áudio só começa depois do primeiro toque (regra dos celulares).
