@@ -1112,6 +1112,55 @@ button.hudBar:active{filter:brightness(1.25)}
 .robAct>.more{grid-column:1;grid-row:1;margin:0}
 .robAct>.more[open]{grid-column:1 / -1;grid-row:2}
 
+/* =====================================================================
+   CARTÕES DE CHAPA (pedido do autor, opção B): metal escovado com um
+   parafuso enferrujado em cada canto e um fio de ferrugem escorrendo.
+   Trancados: na sombra (escuros, sem transparência) e com uma tábua de
+   madeira pregada na foto, escrito TRANCADO.
+   ===================================================================== */
+:root{
+  --parafuso:radial-gradient(circle,#c27a3a 0 1.4px,#7a3f1a 2.2px,#2a160a 3px,#00000000 3.6px);
+  --fenda:linear-gradient(45deg,#00000000 44%,#2a160acc 44% 56%,#00000000 56%);
+  --chapa:
+    var(--fenda) 4px 4px/8px 8px no-repeat, var(--parafuso) 4px 4px/8px 8px no-repeat,
+    var(--fenda) calc(100% - 4px) 4px/8px 8px no-repeat, var(--parafuso) calc(100% - 4px) 4px/8px 8px no-repeat,
+    var(--fenda) 4px calc(100% - 4px)/8px 8px no-repeat, var(--parafuso) 4px calc(100% - 4px)/8px 8px no-repeat,
+    var(--fenda) calc(100% - 4px) calc(100% - 4px)/8px 8px no-repeat, var(--parafuso) calc(100% - 4px) calc(100% - 4px)/8px 8px no-repeat,
+    linear-gradient(180deg,#8a4a2240,#8a4a2200) 7px 12px/2px 22px no-repeat,
+    linear-gradient(180deg,#8a4a2233,#8a4a2200) calc(100% - 7px) 12px/2px 16px no-repeat,
+    repeating-linear-gradient(0deg,#ffffff05 0 1px,#00000000 1px 3px),
+    linear-gradient(160deg,#252e33 0%,#1a2125 45%,#141a1d 100%);
+}
+.card,.rob,.esqOffer{background:var(--chapa);box-shadow:inset 0 1px 0 #ffffff14,inset 0 -2px 0 #0000004d,2px 3px 0 #05080a;border-color:#3a464b}
+.shopRow.mine{background:linear-gradient(#e4b26614,#e4b26614),var(--chapa)}
+
+/* Trancado: na sombra, sem transparência */
+.card.locked,.rob.locked,.shopRow.locked,.goodRow.locked,.mission.locked,.job.locked,.place.locked{opacity:1;background:linear-gradient(#05080aa8,#05080aa8),var(--chapa);border-color:#262f33;box-shadow:inset 0 0 24px #000c,2px 3px 0 #05080a}
+.locked h3,.locked h4,.locked .robTitle h3,.place.locked b{color:#8f9895}
+.locked .seal,.locked .st,.locked .jobN{filter:brightness(.6) saturate(.5)}
+.locked :is(.robPic,.itemPic,.placeScene,.heistPic,.rivalPic,.jobPic){filter:none!important;position:relative}
+.locked :is(.robPic,.itemPic,.placeScene,.heistPic,.rivalPic,.jobPic)>:not(.plank){filter:grayscale(.75) brightness(.4)}
+/* A tábua pregada atravessando a foto */
+.locked :is(.robPic,.itemPic,.placeScene,.heistPic,.rivalPic,.jobPic)::after{content:"TRANCADO";position:absolute;z-index:2;left:-10%;right:-10%;top:50%;height:clamp(13px,26%,30px);transform:translateY(-50%) rotate(-13deg);
+  display:grid;place-items:center;font:400 8px/1 var(--stencil);letter-spacing:.14em;color:#2b1709;text-shadow:0 1px 0 #c08a5280;white-space:nowrap;
+  background:
+    radial-gradient(circle at 14% 50%,#d6d0c2 0 1.3px,#3b3b3b 1.8px,#00000000 2.4px),
+    radial-gradient(circle at 86% 50%,#d6d0c2 0 1.3px,#3b3b3b 1.8px,#00000000 2.4px),
+    repeating-linear-gradient(90deg,#00000000 0 9px,#0000001f 9px 10px,#00000000 10px 23px,#ffffff12 23px 24px),
+    repeating-linear-gradient(0deg,#8f5e30 0 2px,#7d5027 2px 3px,#996633 3px 5px),#875729;
+  border-top:1px solid #b9834a;border-bottom:2px solid #3e2410;box-shadow:0 3px 4px #000b}
+.locked .robPic::after{font-size:11px}
+.place.locked .placeScene::after,.locked .heistPic::after{font-size:15px;height:24%;left:-4%;right:-4%}
+/* tábua nas fotos pequenas (Feira, adversários): letra menor para a palavra caber inteira */
+.locked :is(.itemPic,.rivalPic,.jobPic)::after{font-size:7px;letter-spacing:.02em;left:-3%;right:-3%;transform:translateY(-50%) rotate(-10deg)}
+.place.locked .placeBadge.lock{display:none} /* a tábua já diz que está trancado */
+.locked :is(.itemPic,.rivalPic,.jobPic)::after{background:
+    radial-gradient(circle at 5% 50%,#d6d0c2 0 1.1px,#3b3b3b 1.5px,#00000000 2px),
+    radial-gradient(circle at 95% 50%,#d6d0c2 0 1.1px,#3b3b3b 1.5px,#00000000 2px),
+    repeating-linear-gradient(90deg,#00000000 0 9px,#0000001f 9px 10px,#00000000 10px 23px,#ffffff12 23px 24px),
+    repeating-linear-gradient(0deg,#8f5e30 0 2px,#7d5027 2px 3px,#996633 3px 5px),#875729}
+.place:not(.locked){background:var(--chapa);box-shadow:inset 0 1px 0 #ffffff14,2px 3px 0 #05080a}
+
   </style>
 </head>
 <body>
