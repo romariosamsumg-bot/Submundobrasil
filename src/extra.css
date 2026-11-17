@@ -1014,3 +1014,18 @@ button.hudBar:active{filter:brightness(1.25)}
 .esqOffer .btn{justify-self:start}
 @media (min-width:560px){.esqBanca{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (prefers-reduced-motion:reduce){.esqMsg,.esqFight{transform:none}}
+
+/* Cartão de roubo (v1.5, opção B do autor): foto grande à esquerda (96 px), nome, chance e fichas ao lado,
+   e o botão Roubar compacto à direita, na linha de Detalhes. */
+.robTop{grid-template-columns:96px minmax(0,1fr) auto!important;align-items:start!important;column-gap:10px}
+.robPic{width:96px!important;height:96px!important;grid-row:span 2;border-radius:5px!important;border:2px solid #3a4a4f!important;box-shadow:2px 2px 0 #05080a}
+.robPic .ico{width:34px!important;height:34px!important}
+.robTitle h3{font-size:17px!important}
+.robSide{grid-column:2 / 4;min-width:0}
+.robSide .robStats{margin-top:2px}
+.robSide .lockline{margin-top:6px}
+.rob .seal{line-height:1}
+.robAct{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center;gap:6px 10px!important;margin-top:8px!important}
+.robAct>.btn{width:auto!important;min-height:38px!important;padding:6px 20px;font-size:14px;grid-column:2;grid-row:1}
+.robAct>.more{grid-column:1;grid-row:1;margin:0}
+.robAct>.more[open]{grid-column:1 / -1;grid-row:2}

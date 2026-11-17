@@ -849,6 +849,13 @@ Lugar novo no menu Cidade, **só no modo online** (offline, a tela explica e nã
 
 **Como funciona por dentro:** as regras ficam no motor (`SB.pvp`) e o servidor só guarda as ofertas, os desafios e as mensagens. O que cabe ao outro jogador (venda paga, resultado, aposta devolvida) é entregue quando ele entra, com aviso em "Enquanto você esteve fora" e no Diário. Ninguém grava o save de outro jogador, e nada é comprado ou aceito duas vezes.
 
+### Cartão de roubo com foto grande (v1.5, opção B do autor)
+
+- A ilustração do roubo passou de 46 para 96 px, à esquerda, ocupando a altura do nome e das fichas.
+- Nome, chance e fichas (saque, energia, Procurado, respeito) ficam ao lado da foto.
+- O botão virou **Roubar**, compacto (38 px de altura e só do tamanho do texto), à direita, na mesma linha de "Detalhes". Aberto, o Detalhes desce para a linha de baixo.
+- Cabem cerca de 3 cartões por tela, como antes.
+
 ### Sons (v1.5)
 
 Efeitos sintetizados pelo navegador (Web Audio, `src/sound.js`), sem arquivos de áudio e sem licença: roubo certo = caixa registradora + carimbo; roubo errado = som grave + carimbo; preso = sirene; compra, venda, banco, propina, fiança e aposta = moedas; dose = lata abrindo; entrar na noite = batida grave; treino = soco; hospital e desintoxicação = bipe de monitor; UTI = monitor apitando direto; respeito novo (faixa de influência, feito do mês, primeiros passos, conquista) = fanfarra curta; virar o dia = sino; ação recusada = bipe curto. Botão de alto-falante no topo (ao lado do dia) e volume no Perfil; a escolha fica no aparelho. O áudio só começa depois do primeiro toque (regra dos celulares).

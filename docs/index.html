@@ -1097,6 +1097,21 @@ button.hudBar:active{filter:brightness(1.25)}
 @media (min-width:560px){.esqBanca{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (prefers-reduced-motion:reduce){.esqMsg,.esqFight{transform:none}}
 
+/* Cartão de roubo (v1.5, opção B do autor): foto grande à esquerda (96 px), nome, chance e fichas ao lado,
+   e o botão Roubar compacto à direita, na linha de Detalhes. */
+.robTop{grid-template-columns:96px minmax(0,1fr) auto!important;align-items:start!important;column-gap:10px}
+.robPic{width:96px!important;height:96px!important;grid-row:span 2;border-radius:5px!important;border:2px solid #3a4a4f!important;box-shadow:2px 2px 0 #05080a}
+.robPic .ico{width:34px!important;height:34px!important}
+.robTitle h3{font-size:17px!important}
+.robSide{grid-column:2 / 4;min-width:0}
+.robSide .robStats{margin-top:2px}
+.robSide .lockline{margin-top:6px}
+.rob .seal{line-height:1}
+.robAct{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center;gap:6px 10px!important;margin-top:8px!important}
+.robAct>.btn{width:auto!important;min-height:38px!important;padding:6px 20px;font-size:14px;grid-column:2;grid-row:1}
+.robAct>.more{grid-column:1;grid-row:1;margin:0}
+.robAct>.more[open]{grid-column:1 / -1;grid-row:2}
+
   </style>
 </head>
 <body>
@@ -5433,10 +5448,10 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     return `<section class="rob ${hard ? 'locked' : ''}">
       <div class="robTop"><span class="robPic" aria-hidden="true">${pic || statIcon(m.stat || 'arsenal')}</span>
         <div class="robTitle"><h3><span class="jobN">${m.n}</span>${esc(loc.name)}</h3>${tag || m.district ? `<p class="jobKind k-${m.kind}">${esc([tag, m.district ? 'só aqui' : ''].filter(Boolean).join(' · '))}</p>` : ''}</div>
-        <span class="seal ${chanceClass(p)}" aria-label="Chance ${p}%">${p}%</span></div>
-      <div class="robStats">${stat('resp', fmt(m.low * mult) + '–' + fmt(m.high * mult).replace('R$ ', ''), 'money noIco')}${stat('en', SB.missionCost(s, m), '', 'Energia')}${stat('heat', '+' + m.heat, 'heat', 'Procurado')}${rg ? stat('resp', '+' + rg, 'resp', 'Respeito') : ''}${inf ? `<span class="st inf">influência +</span>` : ''}${m.safe ? '' : `<span class="st risk">cadeia ${arrest}%</span>`}</div>
-      ${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}
-      <div class="robAct">${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary')}${more(`<p>${esc(loc.desc)}</p>
+        <span class="seal ${chanceClass(p)}" aria-label="Chance ${p}%">${p}%</span>
+      <div class="robSide"><div class="robStats">${stat('resp', fmt(m.low * mult) + '–' + fmt(m.high * mult).replace('R$ ', ''), 'money noIco')}${stat('en', SB.missionCost(s, m), '', 'Energia')}${stat('heat', '+' + m.heat, 'heat', 'Procurado')}${rg ? stat('resp', '+' + rg, 'resp', 'Respeito') : ''}${inf ? `<span class="st inf">influência +</span>` : ''}${m.safe ? '' : `<span class="st risk">cadeia ${arrest}%</span>`}</div>
+      ${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div></div>
+      <div class="robAct">${button('Roubar', 'mission', `data-id="${m.id}"`, !!lock, 'primary')}${more(`<p>${esc(loc.desc)}</p>
         <p>Seu poder <b>${num(Math.round(odds.power))}</b> contra dificuldade <b>${num(Math.round(odds.diff))}</b>: ${parts.filter(x => x[1] > 0).map(x => `${x[0].toLowerCase()} ${Math.round(x[1])}`).join(' + ')}${drag ? `, Procurado −${drag}%` : ''}.</p>
         <p>${m.safe ? 'Se falhar, só perde a energia.' : `Se falhar: −${Math.round(SB.failLoss(s, m) * 100)}% do caixa em mãos e ${arrest}% de cadeia.`}${rg ? '' : s.respect >= SB.respectCap(m.n) ? ' Este roubo já não dá respeito para você: suba de degrau.' : ' Roubo pequeno demais para dar respeito.'}</p>`)}</div></section>`;
   }

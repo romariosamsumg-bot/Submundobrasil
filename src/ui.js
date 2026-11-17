@@ -745,10 +745,10 @@
     return `<section class="rob ${hard ? 'locked' : ''}">
       <div class="robTop"><span class="robPic" aria-hidden="true">${pic || statIcon(m.stat || 'arsenal')}</span>
         <div class="robTitle"><h3><span class="jobN">${m.n}</span>${esc(loc.name)}</h3>${tag || m.district ? `<p class="jobKind k-${m.kind}">${esc([tag, m.district ? 'só aqui' : ''].filter(Boolean).join(' · '))}</p>` : ''}</div>
-        <span class="seal ${chanceClass(p)}" aria-label="Chance ${p}%">${p}%</span></div>
-      <div class="robStats">${stat('resp', fmt(m.low * mult) + '–' + fmt(m.high * mult).replace('R$ ', ''), 'money noIco')}${stat('en', SB.missionCost(s, m), '', 'Energia')}${stat('heat', '+' + m.heat, 'heat', 'Procurado')}${rg ? stat('resp', '+' + rg, 'resp', 'Respeito') : ''}${inf ? `<span class="st inf">influência +</span>` : ''}${m.safe ? '' : `<span class="st risk">cadeia ${arrest}%</span>`}</div>
-      ${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}
-      <div class="robAct">${button('Executar', 'mission', `data-id="${m.id}"`, !!lock, 'primary')}${more(`<p>${esc(loc.desc)}</p>
+        <span class="seal ${chanceClass(p)}" aria-label="Chance ${p}%">${p}%</span>
+      <div class="robSide"><div class="robStats">${stat('resp', fmt(m.low * mult) + '–' + fmt(m.high * mult).replace('R$ ', ''), 'money noIco')}${stat('en', SB.missionCost(s, m), '', 'Energia')}${stat('heat', '+' + m.heat, 'heat', 'Procurado')}${rg ? stat('resp', '+' + rg, 'resp', 'Respeito') : ''}${inf ? `<span class="st inf">influência +</span>` : ''}${m.safe ? '' : `<span class="st risk">cadeia ${arrest}%</span>`}</div>
+      ${lock ? `<div class="lockline">${esc(lock)}</div>` : ''}</div></div>
+      <div class="robAct">${button('Roubar', 'mission', `data-id="${m.id}"`, !!lock, 'primary')}${more(`<p>${esc(loc.desc)}</p>
         <p>Seu poder <b>${num(Math.round(odds.power))}</b> contra dificuldade <b>${num(Math.round(odds.diff))}</b>: ${parts.filter(x => x[1] > 0).map(x => `${x[0].toLowerCase()} ${Math.round(x[1])}`).join(' + ')}${drag ? `, Procurado −${drag}%` : ''}.</p>
         <p>${m.safe ? 'Se falhar, só perde a energia.' : `Se falhar: −${Math.round(SB.failLoss(s, m) * 100)}% do caixa em mãos e ${arrest}% de cadeia.`}${rg ? '' : s.respect >= SB.respectCap(m.n) ? ' Este roubo já não dá respeito para você: suba de degrau.' : ' Roubo pequeno demais para dar respeito.'}</p>`)}</div></section>`;
   }
