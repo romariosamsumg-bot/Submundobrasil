@@ -164,6 +164,12 @@ Também sugerido: rebelião na cadeia com a gangue.
 - **Diplomacia (77) e Território (119) ficaram para trás:** precisam de respeito por acordos, alianças e domínio que não dependa da escada.
 - [x] Imagem pintada `place-negocios` entregue pelo autor.
 
+## Pendências da auditoria
+
+- [x] Bico, treino e cartão de vício corrigidos.
+- **Pedidos simultâneos no servidor:** gravar o save só se ele não mudou desde a leitura (trava otimista) e pedir nova tentativa.
+- **Brigão (262) lidera** desde a UPA de graça: avaliar +15 de saúde no atendimento.
+
 ## Online (Supabase)
 
 - [x] **Fase 1**: conta com e-mail e senha, servidor de regras (`jogar`), save na nuvem e ranking de respeito no Perfil.

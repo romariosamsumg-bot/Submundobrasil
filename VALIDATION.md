@@ -125,6 +125,13 @@ Bairros com identidade (saque, dificuldade, polícia e atrito por bairro; o Cent
 
 UPA de graça (atendimento +25 de saúde e soro −50 de vício, sem energia, uma vez por dia cada): a maioria das estratégias ficou igual (ciclo 148 → 144, Assaltante farmando 181 → 181, território 118 → 118). Subiram as que usam a UPA: **Brigão 233 → 263** (a saúde de graça deixa duelar mais) e **Dono da Noite 164 → 179** / **Império da noite 155 → 172** (o soro de graça segura o vício e deixa tomar mais doses). Maratona igual (31 roubos por dia; o robô dela usa a clínica paga).
 
+Auditoria (economia, segurança e celular), a partir de um prompt de revisão trazido pelo autor:
+- **Crítico, corrigido — bico.** A R$ 110–170 por 28 de energia, sem risco e com Procurado −4, o bico rendia **R$ 1.691 no dia 1** girando com bebida do Boteco, contra **R$ 293 roubando** (Procurado 62). Agora paga R$ 30–45: menos por energia que o 1º degrau e sem lucro girando com dose. Teste `ECONOMIA:` trava isso.
+- **Importante, corrigido — treino.** O primeiro treino custava R$ 381–533 e travava o guia no passo "Treine um atributo". Fórmula nova: 80 + 30 × nível + 1,6 × nível² (R$ 184–318 no começo; igual à antiga perto do nível 20). Teste `INICIANTE:` trava.
+- **Polimento, corrigido —** cartão de vício da Noite com layout quebrado.
+- **Segurança:** no online, toda ação passa pela lista fechada do motor no servidor, com argumentos validados e o tempo contado só no servidor; nada crítico fica no navegador. Pendente (não explorável para ganho): dois pedidos simultâneos leem o mesmo save e o último grava por cima.
+- Simulação depois dos ajustes: ciclo 144 → 153, Assaltante farmando 181 → 186, demais a até 3 pontos; ritmo da Feira igual (2ª arma no dia 2, Três-oitão no dia 14).
+
 Leitura do ciclo do autor:
 - **Travas do iniciante** (testes `INICIANTE:`): o personagem novo tem 91% no Bater carteira (94% com o Pedaço de pau); a 1ª arma sai em uns 4 roubos; nos degraus 1 a 3 a falha nunca dá cadeia nem tira caixa; no dia 1, começando do zero e bebendo cerveja e pinga, ele faz 15 roubos ou mais.
 - **Os robôs antigos não jogavam o ciclo novo**: só compravam arma quando um roubo a exigia, não usavam a noite para recuperar energia e descontavam R$ 0,40 por ponto de Procurado, que com o saque pequeno do começo os fazia parar após 1 roubo. Corrigi os três comportamentos (não as regras) e criei o robô **ciclo**, que segue exatamente o ciclo do autor e serve de jogador típico.

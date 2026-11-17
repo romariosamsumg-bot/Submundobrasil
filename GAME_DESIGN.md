@@ -641,6 +641,11 @@ Com arma, proteção e veículo, roubar seguido no segundo dia dava 8% a 20% de 
 
 A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do bairro × 0,15 − olheiros − defesa − fuga − 3 (proteção) − 3 (veículo) − perk`, entre 5% e 90%.
 
+### Bico e treino recalibrados (v1.5, auditoria)
+
+- **Bico:** 28 de energia, **R$ 30–45**, Procurado −4. É o dinheiro seguro de quem precisa esfriar, não uma alternativa ao roubo.
+- **Treino:** custo = 80 + 30 × nível + 1,6 × nível² (antes 250 + 40 × nível + 1,2 × nível²). No começo, R$ 184 a R$ 318.
+
 ### Tremor de tela (v1.5)
 
 A tela inteira (topo e conteúdo) treme **forte** quando você é preso, enquadrado ou vai para a UTI, e **leve** quando a ação te fere (assalto que dá errado, briga na noite, overdose, desintoxicação). Meio segundo no máximo; no celular que permite, vibra junto. Não acontece com "reduzir movimento" ligado. O cupom de resultado com "DEU RUIM" continua com o seu tremor próprio.
