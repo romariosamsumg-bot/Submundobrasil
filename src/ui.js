@@ -601,17 +601,29 @@
       ${rest.length ? `<details class="jMore"><summary>Ler o jornal inteiro <small>${rest.length} notícia${rest.length > 1 ? 's' : ''}</small></summary><div class="jGrid">${rest.map(item).join('')}</div></details>` : ''}
     </section>`;
   }
-  /** Diário: agenda de folhas gastas, o dia de hoje aberto e os anteriores para folhear. */
+  /** Diário: agenda de folhas gastas, escrita à caneta. Cada fato vira uma linha; a virada do dia fica em "Madrugada"
+   *  e as ações em "Durante o dia", em ordem de acontecimento. */
+  const noteSplit = m => m.replace(/^Dia \d+\.\s*/, '').split(/(?<=[.!])\s+(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ+−-])/).map(x => x.trim()).filter(Boolean);
+  const noteTone = m => /(perdeu|preso|não saiu|enquadr|overdose|apreendid|Batida|abandonou|−R\$|-R\$|sem resposta|falhou|deu errado|desfez|não pagou|Ressaca)/i.test(m) ? 'bad'
+    : /(ganhou|acertou|\+R\$|lucro|subiu|venceu|\+\d+ de respeito|Conquista|Feito do mês|agora é)/i.test(m) ? 'good' : '';
+  const noteLi = m => `<li class="${noteTone(m)}">${esc(m)}</li>`;
+  function agendaPage(d, msgs, today) {
+    const turn = msgs.filter(m => /^Dia \d+\./.test(m)), acts = msgs.filter(m => !/^Dia \d+\./.test(m)).reverse(); // o log vem do mais novo
+    const night = turn.flatMap(noteSplit), max = 6, hid = acts.length > max ? acts.slice(0, acts.length - max) : [], vis = acts.slice(-max);
+    const rel = today ? 'hoje' : `${num(state.day - d)} dia${state.day - d > 1 ? 's' : ''} atrás`;
+    return `<div class="agPage"><h4 class="agDay"><b>Dia ${num(d)}</b><span>${rel}</span></h4>
+      ${night.length ? `<p class="agSec">Madrugada</p><ul class="agList">${night.map(noteLi).join('')}</ul>` : ''}
+      ${acts.length ? `<p class="agSec">Durante o dia</p>${hid.length ? more(`<ul class="agList">${hid.map(noteLi).join('')}</ul>`, `${hid.length} anotaç${hid.length > 1 ? 'ões' : 'ão'} mais cedo`) : ''}<ul class="agList">${vis.map(noteLi).join('')}</ul>` : ''}
+      ${!night.length && !acts.length ? '<ul class="agList"><li>Nada anotado ainda.</li></ul>' : ''}</div>`;
+  }
   function agenda() {
     const s = state, byDay = new Map();
     for (const i of state.log) { if (!byDay.has(i.day)) byDay.set(i.day, []); byDay.get(i.day).push(i.msg); }
-    const days = [...byDay.keys()].sort((a, b) => b - a), hoje = byDay.get(s.day) || [], wk = SB.week(s).name.split('·')[0].trim();
-    const page = (d, msgs, max) => `<div class="agPage"><h4 class="agDay"><b>Dia ${num(d)}</b>${d === s.day ? '<span>hoje</span>' : `<span>${num(s.day - d)} dia${s.day - d > 1 ? 's' : ''} atrás</span>`}</h4><ul class="agList">${msgs.slice(0, max).map(m => `<li>${esc(m)}</li>`).join('')}</ul>${msgs.length > max ? more(`<ul class="agList">${msgs.slice(max).map(m => `<li>${esc(m)}</li>`).join('')}</ul>`, `Mais ${msgs.length - max} anotaç${msgs.length - max > 1 ? 'ões' : 'ão'}`) : ''}</div>`;
-    const old = days.filter(d => d !== s.day);
+    const old = [...byDay.keys()].filter(d => d !== s.day).sort((a, b) => b - a), wk = SB.week(s).name.split('·')[0].trim();
     return `<section class="agenda" aria-label="Diário"><div class="agRings" aria-hidden="true"></div>
       <div class="agHead"><b>Diário</b><span>${esc(wk)} · ${esc(s.city)}</span></div>
-      ${page(s.day, hoje.length ? hoje : ['Nada anotado ainda hoje.'], 5)}
-      ${old.length ? `<details class="agBack"><summary>Folhear os dias anteriores</summary>${old.map(d => page(d, byDay.get(d), 4)).join('')}</details>` : ''}</section>`;
+      ${agendaPage(s.day, byDay.get(s.day) || [], true)}
+      ${old.length ? `<details class="agBack"><summary>Folhear os dias anteriores</summary>${old.map(d => agendaPage(d, byDay.get(d), false)).join('')}</details>` : ''}</section>`;
   }
   /** Capítulo da história à espera de decisão: quem fala, o que diz e as duas saídas. */
   function storyCard() {

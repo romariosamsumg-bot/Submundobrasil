@@ -17,6 +17,10 @@ if (fs.existsSync(artDir)) for (const f of fs.readdirSync(artDir).sort()) {
   if (buf.length > 400 * 1024) { console.warn(`Aviso: ${f} tem ${Math.round(buf.length / 1024)} KB; comprima para menos de 400 KB.`); continue; }
   art[key] = `data:${MIME[ext]};base64,${buf.toString('base64')}`;
 }
+/* Fontes embutidas (licença OFL em fonts/): Caveat, letra de caneta do Diário. Nada é baixado da internet. */
+const fontDir = path.join(__dirname, 'fonts');
+const fontFaces = [['Caveat', 'caveat-500.woff2', 500]].filter(([, f]) => fs.existsSync(path.join(fontDir, f)))
+  .map(([n, f, w]) => `@font-face{font-family:"${n}";font-weight:${w};font-display:swap;src:url(data:font/woff2;base64,${fs.readFileSync(path.join(fontDir, f)).toString('base64')}) format("woff2")}`).join('\n');
 if (engine.includes('</script')) throw new Error('engine.js não pode conter </script');
 // Modo online opcional: endereço do projeto e chave pública (anon), que é feita para ficar no cliente.
 const onlineFile = path.join(__dirname, 'online.json');
@@ -30,6 +34,7 @@ const html = `<!DOCTYPE html>
   <meta name="description" content="Submundo Brasil — RPG urbano brasileiro de estratégia por turnos para navegador.">
   <title>Submundo Brasil | Jogo de estratégia 1.5</title>
   <style>
+${fontFaces}
 ${src('style.css')}
 ${src('extra.css')}
   </style>

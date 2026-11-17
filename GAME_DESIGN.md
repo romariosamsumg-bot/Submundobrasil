@@ -778,7 +778,7 @@ As notícias saem de `SB.jornal(s)` (motor, só leitura) e o texto de `jornalNew
 
 **Bicho no dia seguinte:** a fezinha vira bilhete (`bicho.tickets`, até 6 por dia) e o dinheiro sai na hora. A extração é feita na virada do dia, com um sorteio para todos os bilhetes daquele dia. Quem acerta recebe 18× (Bicheiro 20×), na mesma conta de antes. O resultado (`bicho.last`) sai no jornal, nas Apostas e no resumo do dia. Sem bilhete, o jornal ainda publica o bicho que deu (sem usar o sorteio do motor). No último dia do mês não há fezinha. A simulação deu os mesmos números de antes, porque os robôs não jogam bicho.
 
-**Diário em agenda:** folha amarelada e gasta, com argolas, margem vermelha, pautas e orelha dobrada. Mostra o dia de hoje aberto (5 anotações e "Mais N") e "Folhear os dias anteriores", com uma página por dia.
+**Diário em agenda:** folha amarelada e gasta, com argolas, margem vermelha, pautas e orelha dobrada, escrita à caneta azul com a fonte **Caveat** (OFL, embutida no arquivo: `fonts/`, cerca de 49 KB, nada é baixado). Cada fato vira uma linha: a virada do dia fica em **Madrugada** e as ações em **Durante o dia**, em ordem de acontecimento (as 6 últimas visíveis e as mais cedo em "N anotações mais cedo"). Uma marca na margem mostra o tom: ✓ ganho, ✗ perda, – neutro. "Folhear os dias anteriores" abre uma página por dia.
 
 ### Sons (v1.5)
 

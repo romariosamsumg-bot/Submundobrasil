@@ -83,6 +83,10 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 - A comparação com ontem usa a foto da manhã (`paper.cur`/`paper.prev`, gravada em `turnDay`). Campo novo nessa foto → leitura com limite em `normalizeSave`.
 - O comprador de fora nunca revela no jornal o que quer nem quanto paga. O bicho só se resolve na virada do dia (`drawBicho`).
 
+## Fontes
+
+- Fonte só embutida pelo `build.js` a partir de `fonts/` (woff2 com licença livre ao lado, como `fonts/OFL-Caveat.txt`); nunca carregue fonte da internet. A Caveat (letra de caneta) é só do Diário: o resto do jogo segue com as fontes do sistema.
+
 ## Texto na tela
 
 - Pedido do autor: nada de explicar todas as contas. Cada cartão mostra só o que serve para decidir (preço, chance, ganho, risco), em fichas curtas (`stat()` e `.st` em `ui.js`). A conta e a explicação vão em `more(...)` ("Detalhes") ou em "Como jogar". Não acrescente parágrafos de regra às telas.
