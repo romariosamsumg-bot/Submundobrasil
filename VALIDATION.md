@@ -132,6 +132,8 @@ Auditoria (economia, segurança e celular), a partir de um prompt de revisão tr
 - **Segurança:** no online, toda ação passa pela lista fechada do motor no servidor, com argumentos validados e o tempo contado só no servidor; nada crítico fica no navegador. Pendente (não explorável para ganho): dois pedidos simultâneos leem o mesmo save e o último grava por cima.
 - Simulação depois dos ajustes: ciclo 144 → 153, Assaltante farmando 181 → 186, demais a até 3 pontos; ritmo da Feira igual (2ª arma no dia 2, Três-oitão no dia 14).
 
+Esquemas sem custo por dia (pedido do autor), mesma simulação: Traficante 139 → **151** de respeito e patrimônio R$ 8.915 → **R$ 11.027**; Comerciante 133 → **140** (R$ 7.911 → R$ 9.377); as demais estratégias não mudaram (ciclo 153 → 152, Assaltante farmando 186 → 186). O Traficante segue abaixo do Assaltante e do Dono da Noite.
+
 Leitura do ciclo do autor:
 - **Travas do iniciante** (testes `INICIANTE:`): o personagem novo tem 91% no Bater carteira (94% com o Pedaço de pau); a 1ª arma sai em uns 4 roubos; nos degraus 1 a 3 a falha nunca dá cadeia nem tira caixa; no dia 1, começando do zero e bebendo cerveja e pinga, ele faz 15 roubos ou mais.
 - **Os robôs antigos não jogavam o ciclo novo**: só compravam arma quando um roubo a exigia, não usavam a noite para recuperar energia e descontavam R$ 0,40 por ponto de Procurado, que com o saque pequeno do começo os fazia parar após 1 roubo. Corrigi os três comportamentos (não as regras) e criei o robô **ciclo**, que segue exatamente o ciclo do autor e serve de jogador típico.
