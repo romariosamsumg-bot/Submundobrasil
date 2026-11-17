@@ -636,7 +636,7 @@
   }
   function safeJobs() {
     const s = state, g = SB.eventMod(s, 'gigMult');
-    return `${stencil('Bico', 'sem risco')}<section class="card shopRow"><div><h3>Bico de ocasião</h3><p class="mini">28 energia · ${fmt(110 * g)}–${fmt(170 * g).replace('R$ ', '')} · Procurado −4</p></div><div class="shopAct">${button('Fazer bico', 'gig', '', s.energy < 28 || s.jail > 0, 'small')}</div></section>`;
+    return `${stencil('Bico', 'sem risco')}<section class="card shopRow"><div><h3>Bico de ocasião</h3><p class="mini">28 energia · ${fmt(SB.GIG_PAY[0] * g)}–${fmt(SB.GIG_PAY[1] * g).replace('R$ ', '')} · Procurado −4</p></div><div class="shopAct">${button('Fazer bico', 'gig', '', s.energy < 28 || s.jail > 0, 'small')}</div></section>`;
   }
 
   function city() {
@@ -856,7 +856,7 @@
         <div class="robStats">${stat('en', '+' + Math.min(SB.nightEnergy(s, d), SB.ENERGY_MAX - s.energy), 'good', 'Energia')}${SB.doseVicio(s, d) ? `<span class="st vic">vício +${SB.doseVicio(s, d)}</span>` : ''}${s.today.dose[d.id] ? `<span class="st risk">rende ${Math.round(SB.doseTolerance(s, d) * 100)}%</span>` : ''}</div></div>
         <div class="shopAct"><strong>${fmt(c)}</strong>${button('Pedir', 'dose', `data-id="${d.id}"`, off || s.cash < c, 'small primary')}${own ? button(`Do estoque (${own})`, 'dose', `data-id="${d.id}" data-stock="1"`, off, 'small') : ''}</div></section>`; };
     const status = `<section class="card vicioCard">
-        <div class="meterlabel"><span>Vício</span>        <div class="meterlabel" style="margin-top:10px"><span>Vício</span><strong>${s.vicio}/100</strong></div><div class="meter red"><div style="width:${s.vicio}%"></div></div>
+        <div class="meterlabel"><span>Vício</span><strong>${s.vicio}/100</strong></div><div class="meter red"><div style="width:${s.vicio}%"></div></div>
         ${s.ressaca ? `<p class="mini" style="margin-top:6px">Ressaca amanhã: −${s.ressaca} de energia.</p>` : ''}${more(`<p>Dose forte dá mais energia e mais vício. A mesma dose rende menos a cada vez no dia, e o vício alto enfraquece todas. Acima de 70 de vício, loló, bala e pó podem dar overdose. O Hospital tira o vício, mas custa saúde.</p>`, 'Como funciona')}</section>`;
     // Dentro de uma casa: ambiente só dela, com o cardápio e o botão Sair.
     if (here) { const pic = window.SBArt.casa(here.id);
@@ -891,7 +891,7 @@
   }
   function hospital() {
     const s = state, c = SB.clinicCost(s);
-    return heading('Hospital', 'Saúde baixa derruba suas chances em tudo. Abaixo de 25 você não confronta, não lidera operações e não duela.') + `<div class="screenArt">${window.SBArt.place('hospital')}</div>` + jailNotice() + resultCard() + `
+    return heading('Hospital', 'Saúde baixa derruba as suas chances.') + `<div class="screenArt">${window.SBArt.place('hospital')}</div>` + jailNotice() + resultCard() + `
       <section class="card"><div class="meterlabel"><span>Saúde</span><strong>${s.health}/100</strong></div><div class="meter green"><div style="width:${s.health}%"></div></div>
         <p class="mini" style="margin-top:7px">Volta sozinha +10 por dia (+6 se detido). Se chegar a zero: <strong>UTI</strong>, ${s.clock ? '24 horas' : 'o resto de hoje e amanhã'} sem jogar, e você sai com 40 de saúde e o vício zerado.${SB.healthPenalty(s) ? ` <span class="negative">Agora: -${SB.healthPenalty(s)} de chance nas ações.</span>` : ''}</p></section>
       <div class="grid" style="margin-top:10px">

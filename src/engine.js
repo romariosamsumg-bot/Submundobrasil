@@ -1054,7 +1054,7 @@
   const depositRate = s => hasPerk(s, 'empreendedor', 1) ? .0075 : s.career === 'empreendedor' ? .015 : .03;
   const depositFee = (s, amount) => Math.max(1, Math.ceil(amount * depositRate(s)));
   const buyCost = (s, b) => Math.round(b.cost * (s.career === 'barao' && b.tags.includes('noite') ? .8 : s.career === 'empreendedor' ? .88 : 1));
-  const trainCost = (s, id) => { const l = s.stats[id]; return Math.round((250 + l * 40 + l * l * 1.2) * (cityIs(s, 'poa') ? .9 : 1) * (s.career === 'empreendedor' && id === 'forca' ? 1.25 : 1)); };
+  const trainCost = (s, id) => { const l = s.stats[id]; return Math.round((80 + l * 30 + l * l * 1.6) * (cityIs(s, 'poa') ? .9 : 1) * (s.career === 'empreendedor' && id === 'forca' ? 1.25 : 1)); };
   const travelCost = s => ({ cash: cityIs(s, 'recife') ? 45 : 90, energy: cityIs(s, 'recife') || gearVal(s, 'freeRide') ? 0 : 5 });
   const bailCost = s => s.jail > 0 ? Math.round((250 + s.jail * 250 + Math.floor(s.respect * 1.5)) * (s.career === 'empreendedor' ? .7 : 1)) : 0;
   const contactCost = s => Math.round(180 * (hasPerk(s, 'articulador', 1) ? .7 : 1) * (controlled(s, 'centro') ? .8 : 1) * (s.influence[s.district] >= 40 ? .8 : 1));
@@ -1457,10 +1457,14 @@
     return done(true, `Agora você está em ${d.name}.`);
   }
 
+  /* Bico: dinheiro pequeno e sem risco, que esfria o Procurado. Paga MENOS por energia que o 1º degrau da
+   * escada (R$ 3) e perto do que a dose barata custa (R$ 1,2 a 1,4): não dá para girar bico com bebida.
+   * (Auditoria: a R$ 110–170 ele rendia R$ 1.691 no dia 1, contra R$ 293 roubando.) */
+  const GIG_PAY = [30, 45];
   function doGig(s) {
     if (blocked(s)) return refuse(blocked(s));
     if (s.energy < 28) return refuse('O bico exige 28 de energia.');
-    const pay = Math.round(rand(110, 170) * eventMod(s, 'gigMult'));
+    const pay = Math.round(rand(GIG_PAY[0], GIG_PAY[1]) * eventMod(s, 'gigMult'));
     s.energy -= 28; s.cash += pay; addHeat(s, -4);
     log(s, `Bico realizado: ${money(pay)} recebidos.`);
     return done(true, `Bico concluído. +${money(pay)}`);
@@ -2748,7 +2752,7 @@
     defaultState, validate, structuralProblem, normalizeSave, parseSave, checksum, exportPayload,
     district, faction, business, mission, factionFor, careerLevel, hasPerk, pactActive, agreement, activeEvents, eventTitle, eventDesc, eventMod, cityOf, applyCity, travelCost, tutorialStep, item, good, gearVal, cargoUsed, cargoCap, goodPrice, goodSellPrice, exportPrice, exportOpen, labCost, labOutput, labUpkeep, raidChance, nightCost, nightSafe, nightEnergy, doseCost, doseVicio, doseOf, doseTolerance, chemLeft, TOLERANCE, CHEM_CAP, DOSES, DOSE_LIMIT, SUPPLY, supplyPlan, labCash, labYield, labRaid, ownTermas, overdoseChance, detoxCost, cleanCost, sinucaOdds, bichoPays, exportLimit, week, WEEKS, ANIMALS, BET_LIMIT, BET_MAX, NIGHT_LIMIT, PHASES, GATES, phase, phaseIndex, placeOpen, stockValue, assetValue, bribeCost, heist, heistHires, heistPlanCost, heistPower, heistOdds, heistLock, rival, healthPenalty, injured, combatRating, duelOdds, clinicCost, blocked, buyTotal, sellTotal, blitzChance,
     leader, controlled, controls, allyTurf, crewSize, groupUpkeep, memberUpkeep, recruitCost, roleLevels,
-    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, LOCAL_MISSIONS, localMission, missionName, DISTRICT_VIBE, districtTraits, STORY, storyPending, storyCost, streetScene, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, SORO_VICIO, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
+    missionScore, scoreParts, arsenal, KINDS, HEAT_TIERS, heatTier, enquadroChance, missionHeat, GIG_PAY, LOCAL_MISSIONS, localMission, missionName, DISTRICT_VIBE, districtTraits, STORY, storyPending, storyCost, streetScene, respectCap, RESPECT_STEP, INF_TIERS, infTier, robberyInfluence, ladderDiff, ladderCost, ladderPay, chanceCurve, missionOdds, heatDrag, statSum, kindPower, TYPICAL, LADDER_DAY, LADDER_TOP, SAFE_TIER, ENERGY_MAX, DETOX_HEALTH, SORO_VICIO, ladderAvg, uti: goUTI, gearBonus, combatParts, owns, cargoWith, nameOk, missionCost, missionChance, armPower, armDef, depositRate, missionRewardMult, missionLock, arrestChance, failLoss, respectGain,
     businessIncome, income, tribute, resaleValue, patrimony, depositFee, maxDeposit, buyCost, trainCost, bailCost, contactCost, allianceCost, allianceFee, upgradeCost, pactCost,
     gangOdds, clashOdds, disputeOdds, dialogueOdds, factionStatus, strength, cityPower, factionCityPower,
     FEAT_CATS, FEAT_RESPECT, TURF_SLOTS, TURF_RESPECT, TURF_LOSS, turfSlots, turfReady, ownedTurf, currentNews, newsChoiceBlocked, newsChoiceCost, goalProgress, seasonScore, seasonRanking, categoryValue,
