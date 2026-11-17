@@ -987,6 +987,43 @@ button.hudBar:active{filter:brightness(1.25)}
 .agBack>summary:focus-visible{outline:2px solid #b03a2e;outline-offset:2px}
 .agBack .agPage{padding-top:8px;border-top:1px dashed #6b4a2a55;margin-top:8px}
 
+/* Topo v1.5b: foto 20% maior; nome, classe e patente em três linhas; as quatro barras do mesmo tamanho;
+   Dormir/Ir pra casa ao lado do dia. */
+.hudAvatar{width:53px!important;height:53px!important}
+.hudId small{display:flex!important;flex-direction:column;gap:1px;margin-top:2px}
+.hudId small .hudClass{display:block!important;color:#e4c58a;font-weight:700;letter-spacing:.05em}
+.hudId small .hudPat{display:block!important;color:#a9b4b6;letter-spacing:.05em}
+.hudBar.ht,.hudBar.vc{height:18px!important;opacity:1;border-color:#39464b}
+.hudBar.ht b,.hudBar.vc b{font-size:11px!important;line-height:16px!important;letter-spacing:.07em}
+.hudBar.ht .hudIco,.hudBar.vc .hudIco{width:11px;height:11px}
+.hudSleep{display:inline-flex}
+.hudSleepBtn{display:inline-flex;align-items:center;gap:5px;min-height:24px;padding:2px 9px;background:#141b1f;border:1px solid #4a5559;border-radius:3px;color:#e9dfc8;font:700 10px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.hudSleepBtn .hudIco{width:11px;height:11px;fill:#e4b266}
+.hudSleepBtn.hot{background:#e4b266;border-color:#e4b266;color:#1b1712}.hudSleepBtn.hot .hudIco{fill:#1b1712}
+.hudSleepBtn.armed{background:repeating-linear-gradient(-45deg,#e4b266 0 8px,#15120c 8px 16px);color:#fff;text-shadow:0 1px 2px #000}
+.hudSleepBtn:disabled{opacity:.45;cursor:not-allowed}
+.hudSleepBtn:focus-visible{outline:2px solid var(--ambar);outline-offset:2px}
+
+/* Rua: o texto do momento vira a legenda da cena, colado na moldura da região. */
+.streetBlock{margin:0 0 14px}
+.streetBlock .locale{margin-bottom:0}
+.streetCap{position:relative;margin:0 2px;padding:9px 14px 11px 40px;background:linear-gradient(180deg,#151c20,#11171a);border:2px solid color-mix(in srgb,var(--bairro) 70%,#05080a);border-top:0;box-shadow:3px 4px 0 #05080a}
+.streetCap::before{content:"\201C";position:absolute;left:10px;top:2px;font:700 40px/1 Georgia,serif;color:var(--bairro);opacity:.8}
+.streetLbl{display:block;font:400 10px/1 var(--stencil);letter-spacing:.18em;text-transform:uppercase;color:var(--bairro);margin-bottom:5px}
+.streetCap p{margin:0;font:italic 400 15px/1.5 Georgia,serif;color:#ece2cc}
+
+/* Jornal: assinaturas, crédito da foto, "Ouvido na rua", classificados e expediente. */
+.jBy{display:block;margin:0 0 3px;font:italic 11px/1.3 Georgia,"Times New Roman",serif;color:#6b5f4c}
+.jFig{margin:0}.jFig figcaption{margin-top:2px;text-align:right;font:italic 9.5px/1.2 Georgia,serif;color:#6b5f4c}
+.jQuote{margin:8px 0 2px;padding:7px 10px 6px;border-top:1px solid #1d1a1540;border-bottom:1px solid #1d1a1540;text-align:center}
+.jQuote p{margin:0;font:italic 700 15px/1.35 Georgia,"Times New Roman",serif;color:var(--ink)}
+.jQuote cite{display:block;margin-top:3px;font:italic 11px/1.3 Georgia,serif;color:#6b5f4c}
+.jAds{margin:8px 0 4px;padding:8px 10px;border:1.5px solid var(--ink);background:#efe7d2;columns:1}
+.jAds p{margin:5px 0 0;padding-top:5px;border-top:1px dotted #1d1a1566;font:12px/1.4 Georgia,serif;color:var(--ink2)}
+.jAds p:first-of-type{border-top:0;padding-top:0}
+.jExp{margin:8px 0 2px;font:10.5px/1.5 Georgia,serif;color:#5d5444}.jExp b{font:400 10px/1 var(--stencil);letter-spacing:.14em;text-transform:uppercase;color:#8e1c17;margin-right:4px}
+.jExp small{font-size:.92em;color:#7a6e5a}
+
   </style>
 </head>
 <body>
@@ -999,7 +1036,7 @@ button.hudBar:active{filter:brightness(1.25)}
       <button type="button" class="hudBar ht" data-view="acoes" id="hudHeatBox" aria-label="Procurado"><i id="hudHeat"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9V6a3 3 0 0 1 6 0v3zM1 10h10v2H1zM5.4 0h1.2v2H5.4zM1 2.2l.9-.8 1.4 1.4-.8.9zm10 0-.9-.8-1.4 1.4.8.9z"/></svg><b id="hudHeatTxt">Procurado</b></button>
       <button type="button" class="hudBar vc" data-view="hospital" id="hudVicioBox" aria-label="Vício"><i id="hudVicio"></i><svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.2 1.4a3 3 0 0 1 4.2 0l2.2 2.2a3 3 0 0 1 0 4.2L7.8 10.6a3 3 0 0 1-4.2 0L1.4 8.4a3 3 0 0 1 0-4.2zM3.5 4.9l3.6 3.6 1.4-1.4-3.6-3.6z"/></svg><b id="hudVicioTxt">Vício</b></button>
     </div>
-    <div class="hudFoot"><span class="hudPlace" id="hudPlace"></span><small id="topDay">Dia 1</small><span class="hudTier" id="hudTier" hidden></span><button type="button" class="soundBtn" id="soundToggle" data-action="sound-toggle" aria-pressed="true" aria-label="Som"></button></div>
+    <div class="hudFoot"><span class="hudPlace" id="hudPlace"></span><small id="topDay">Dia 1</small><span class="hudSleep" id="hudSleep"></span><span class="hudTier" id="hudTier" hidden></span><button type="button" class="soundBtn" id="soundToggle" data-action="sound-toggle" aria-pressed="true" aria-label="Som"></button></div>
     <button id="menuToggle" class="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">Menu</button>
   </div></header>
   <div class="layout"><aside class="sidebar" id="sidebar"><div class="sidehead">Submundo Brasil</div><nav class="nav" aria-label="Navegação principal">
@@ -1172,14 +1209,14 @@ button.hudBar:active{filter:brightness(1.25)}
   ];
 
   /* As regiões têm nome genérico (o jogador se localiza na hora); o nome inventado de cada cidade
-   * vira o "ponto" dentro da região (d.spot), para não associar crime a lugares reais. */
+   * ficou só na tabela CITIES (não aparece na tela), para não associar crime a lugares reais. */
   const REGION_NAMES = { centro: 'Região Central', cais: 'Região Portuária', jardim: 'Região Residencial', industrial: 'Região Industrial', vila: 'Região da Boêmia' };
   const DISTRICTS = [
-    { id: 'centro', name: 'Região Central', spot: 'Centro Antigo', desc: 'Comércio intenso e circulação constante de gente.', risk: 3, bonus: 8, police: 1, danger: 1, tribute: 110, advantage: 'Diálogos com facções +8 e criar contatos 20% mais barato.' },
-    { id: 'cais', name: 'Região Portuária', spot: 'Cais do Norte', desc: 'Galpões, armazéns e uma região portuária em transformação.', risk: 0, bonus: 18, police: .6, danger: 1.6, tribute: 140, advantage: 'Operações coletivas rendem +20%.' },
-    { id: 'jardim', name: 'Região Residencial', spot: 'Jardim União', desc: 'Bairro residencial de trabalhadores e pequenos negócios.', risk: -6, bonus: -12, police: .6, danger: .7, tribute: 70, advantage: 'Recrutar custa 25% menos e a equipe ganha +2 de ânimo por dia.' },
-    { id: 'industrial', name: 'Região Industrial', spot: 'Distrito Industrial', desc: 'Grandes empresas e patrulhamento reforçado.', risk: 12, bonus: 28, police: 1.5, danger: 1, tribute: 160, advantage: 'Todos os seus negócios rendem +12%.' },
-    { id: 'vila', name: 'Região da Boêmia', spot: 'Vila das Palmeiras', desc: 'Ruas movimentadas e comércio de bairro.', risk: 4, bonus: 5, police: 1, danger: 1.3, tribute: 90, advantage: 'Seu Procurado cai 5 pontos extras por dia.' }
+    { id: 'centro', name: 'Região Central', desc: 'Comércio intenso e circulação constante de gente.', risk: 3, bonus: 8, police: 1, danger: 1, tribute: 110, advantage: 'Diálogos com facções +8 e criar contatos 20% mais barato.' },
+    { id: 'cais', name: 'Região Portuária', desc: 'Galpões, armazéns e uma região portuária em transformação.', risk: 0, bonus: 18, police: .6, danger: 1.6, tribute: 140, advantage: 'Operações coletivas rendem +20%.' },
+    { id: 'jardim', name: 'Região Residencial', desc: 'Bairro residencial de trabalhadores e pequenos negócios.', risk: -6, bonus: -12, police: .6, danger: .7, tribute: 70, advantage: 'Recrutar custa 25% menos e a equipe ganha +2 de ânimo por dia.' },
+    { id: 'industrial', name: 'Região Industrial', desc: 'Grandes empresas e patrulhamento reforçado.', risk: 12, bonus: 28, police: 1.5, danger: 1, tribute: 160, advantage: 'Todos os seus negócios rendem +12%.' },
+    { id: 'vila', name: 'Região da Boêmia', desc: 'Ruas movimentadas e comércio de bairro.', risk: 4, bonus: 5, police: 1, danger: 1.3, tribute: 90, advantage: 'Seu Procurado cai 5 pontos extras por dia.' }
   ];
 
   /* Negócios: cada um fica em uma região e sofre a economia e as facções locais. */
@@ -1446,7 +1483,7 @@ button.hudBar:active{filter:brightness(1.25)}
     const c = cityOf(name);
     if (appliedCity === c.id) return c;
     appliedCity = c.id;
-    for (const d of DISTRICTS) { d.name = REGION_NAMES[d.id]; d.spot = c.districts[d.id][0]; d.desc = c.districts[d.id][1]; }
+    for (const d of DISTRICTS) { d.name = REGION_NAMES[d.id]; d.desc = c.districts[d.id][1]; } // o nome inventado do ponto não aparece mais (pedido do autor)
     for (const f of FACTIONS) { f.name = c.factions[f.id][0]; f.short = c.factions[f.id][1]; }
     for (const b of BUSINESSES) if (c.biz[b.id]) b.name = c.biz[b.id];
     EVENTS.carnaval.title = c.carnaval; EVENTS.classico.title = c.classico;
@@ -1889,10 +1926,13 @@ button.hudBar:active{filter:brightness(1.25)}
     const snap = x => {
       if (!x || typeof x !== 'object') return null;
       const now = paperSnap(s), lead = x.leaders && typeof x.leaders === 'object' ? x.leaders : {}, mk = x.market && typeof x.market === 'object' ? x.market : {};
-      return { day: toInt(x.day, s.day, 1, MAXDAY), respect: toInt(x.respect, now.respect, 0, BIG), worth: toInt(x.worth, now.worth, 0, BIG), heat: toInt(x.heat, now.heat, 0, 100),
-        ok: toInt(x.ok, now.ok, 0, BIG), fail: toInt(x.fail, now.fail, 0, BIG), arrests: toInt(x.arrests, now.arrests, 0, BIG),
+      const out = { day: toInt(x.day, s.day, 1, MAXDAY), gang: x.gang === 1 || x.gang === 0 ? x.gang : now.gang,
+        biz: Array.isArray(x.biz) ? [...new Set(x.biz.filter(id => BUSINESSES.some(b => b.id === id)))] : now.biz,
+        gear: Object.fromEntries(SLOTS.map(o => o.id).map(sl => [sl, x.gear && typeof x.gear === 'object' && ITEMS.some(i => i.id === x.gear[sl] && i.slot === sl) ? x.gear[sl] : x.gear && x.gear[sl] === null ? null : now.gear[sl]])),
         leaders: Object.fromEntries(DISTRICTS.map(d => [d.id, lead[d.id] === 'voce' || FACTIONS.some(f => f.id === lead[d.id]) ? lead[d.id] : now.leaders[d.id]])),
         market: Object.fromEntries(DISTRICTS.map(d => [d.id, Object.fromEntries(GOODS.map(g => [g.id, toInt(mk[d.id] && mk[d.id][g.id], now.market[d.id][g.id], 60, 150)]))])) };
+      for (const k of PAPER_NUMS) out[k] = toInt(x[k], now[k], 0, k === 'heat' || k === 'vicio' || k === 'health' ? 100 : BIG); // campo ausente (save antigo) = valor de agora: sem notícia falsa
+      return Object.fromEntries(Object.keys(now).map(k => [k, out[k]])); // mesma ordem da foto original (ida e volta estável)
     };
     const sp = saved.paper && typeof saved.paper === 'object' ? saved.paper : {};
     s.paper = { prev: snap(sp.prev), cur: snap(sp.cur) || paperSnap(s) };
@@ -2405,11 +2445,11 @@ button.hudBar:active{filter:brightness(1.25)}
   const missionName = (s, m) => localMission(s, m).name;
   /** Clima de cada região: uma frase de chegada e a cor da tela (a Vila em vinho bordô, pedido do autor). */
   const DISTRICT_VIBE = {
-    centro: { color: '#e0a040', line: 'O Centro nunca dorme: camelô, buzina e gente com pressa. Aqui todo mundo tem um preço, e todo mundo está à venda.' },
-    cais: { color: '#4a8fc0', line: 'Cheiro de maresia e diesel. No Cais, todo mundo carrega alguma coisa e ninguém pergunta o quê.' },
-    jardim: { color: '#5aa36a', line: 'Varal na laje, criança jogando bola na rua. O Jardim é calmo até alguém de fora chamar atenção.' },
+    centro: { color: '#e0a040', line: 'A Região Central nunca dorme: camelô, buzina e gente com pressa. Aqui todo mundo tem um preço, e todo mundo está à venda.' },
+    cais: { color: '#4a8fc0', line: 'Cheiro de maresia e diesel. Na Região Portuária, todo mundo carrega alguma coisa e ninguém pergunta o quê.' },
+    jardim: { color: '#5aa36a', line: 'Varal na laje, criança jogando bola na rua. A Região Residencial é calma até alguém de fora chamar atenção.' },
     industrial: { color: '#8a949a', line: 'Sirene de turno, poeira de ferro e viatura na porta de toda fábrica. Aqui o dinheiro é grande e a polícia também.' },
-    vila: { color: '#8a2a3a', line: 'O grave do baile treme as janelas da Vila. Festa, confusão e muita gente que não esquece um rosto.' }
+    vila: { color: '#8a2a3a', line: 'O grave do baile treme as janelas da Região da Boêmia. Festa, confusão e muita gente que não esquece um rosto.' }
   };
   /** Ficha curta da região: quanto paga, a polícia e o perigo do grupo que manda. */
   function districtTraits(d) {
@@ -3182,7 +3222,11 @@ button.hudBar:active{filter:brightness(1.25)}
   /* Jornal do Submundo: a "foto" do começo de cada dia. O jornal da manhã compara a de hoje com a de     */
   /* ontem e reúne o que importa na cidade. Só leitura: nada aqui muda o estado.                          */
   /* ------------------------------------------------------------------ */
+  const PAPER_NUMS = ['respect', 'worth', 'heat', 'ok', 'fail', 'arrests', 'duelW', 'duelL', 'overdoses', 'crew', 'ach', 'ladder', 'sold', 'exported', 'blitz', 'bank', 'story', 'vicio', 'health', 'betWon'];
   const paperSnap = s => ({ day: s.day, respect: s.respect, worth: Math.max(0, patrimony(s)), heat: s.heat, ok: s.successful, fail: s.failed, arrests: s.seasonStats.arrests,
+    duelW: s.duelStats.wins, duelL: s.duelStats.losses, overdoses: s.overdoses, crew: s.crew.length, ach: Object.keys(s.achievements).length, ladder: s.ladderMax || 0,
+    sold: s.trade.sold, exported: s.trade.exported, blitz: s.trade.blitz, bank: s.bank, story: Object.keys(s.story.done).length, vicio: s.vicio, health: s.health, betWon: s.betStats.won,
+    gang: s.gangName ? 1 : 0, biz: s.businesses.slice(), gear: Object.assign({}, s.gear),
     leaders: Object.fromEntries(DISTRICTS.map(d => [d.id, controlled(s, d.id) ? 'voce' : leader(s, d.id).id])),
     market: Object.fromEntries(DISTRICTS.map(d => [d.id, Object.assign({}, s.market[d.id])])) });
   /** Tudo o que o respeito abre, com o limiar e a tela onde aparece. */
@@ -3226,7 +3270,17 @@ button.hudBar:active{filter:brightness(1.25)}
     const negocio = loja.find(x => x.cost <= s.cash + s.bank) || loja.sort((a, b) => a.cost - b.cost)[0] || null;
     const boom = s.businesses.map(business).map(b => ({ id: b.id, mult: eventMod(s, 'bizMult', { biz: b, district: b.district }) })).filter(x => x.mult >= 1.2).sort((a, b) => b.mult - a.mult)[0] || null;
     const bl = s.bicho && s.bicho.last && s.bicho.last.day === s.day - 1 ? s.bicho.last : null;
+    // O que você fez ontem (da foto de ontem para a de hoje).
+    let acts = null;
+    if (prev) {
+      const dv = k => (cur[k] || 0) - (prev[k] || 0);
+      acts = { duelW: dv('duelW'), duelL: dv('duelL'), overdoses: dv('overdoses'), crew: dv('crew'), ach: dv('ach'), sold: dv('sold'), exported: dv('exported'), blitz: dv('blitz'), bank: dv('bank'), story: dv('story'), betWon: dv('betWon'),
+        ladder: cur.ladder > prev.ladder ? cur.ladder : 0, gang: !prev.gang && cur.gang, biz: cur.biz.filter(id => !prev.biz.includes(id)),
+        gear: SLOTS.map(o => o.id).filter(sl => cur.gear[sl] && cur.gear[sl] !== prev.gear[sl]).map(sl => cur.gear[sl]), vicio: cur.vicio, health: cur.health, heatPrev: prev.heat };
+    }
+    const ladderMission = acts && acts.ladder ? (MISSIONS.find(m => m.n === acts.ladder && !m.variant) || null) : null;
     return {
+      seed: s.day * 97 + s.season * 131 + [...s.name].reduce((a, ch) => a + ch.charCodeAt(0), 0), acts, ladderMission: ladderMission ? ladderMission.id : null,
       day: s.day, week: week(s), yesterday: yd, unlocked: ontem, extra: agora, next: proximo,
       phase: PHASES[phaseIndex(s)], nextPhase: PHASES[phaseIndex(s) + 1] || null, phaseUp: prev ? phaseIndexOf(cur.respect) > phaseIndexOf(prev.respect) : false,
       turf: viradas, movers: movers.slice(0, 3), spread, export: { day: s.exportDeal.day, good: s.exportDeal.good, open: exportOpen(s), today: s.exportDeal.day === s.day },
@@ -3333,22 +3387,22 @@ button.hudBar:active{filter:brightness(1.25)}
   }
   /** Cena da rua: um parágrafo curto sobre o momento do personagem. Pura e estável dentro do mesmo dia. */
   function streetScene(s) {
-    const b = district(s).spot || district(s).name, pick2 = (...v) => v[(s.day + s.successful) % v.length], pi = phaseIndex(s);
+    const rg = district(s).name, pick2 = (...v) => v[(s.day + s.successful) % v.length], pi = phaseIndex(s);
     if (s.uti) return 'O bipe do monitor marca o tempo. Do corredor vem cheiro de éter e café requentado. Lá fora a cidade continua sem você.';
     if (s.hospital > 0) return 'Teto de hospital é tudo igual. Você conta as manchas de infiltração e pensa em quem ficou feliz de te ver aqui.';
     if (s.jail > 0) return pick2('A cela cheira a suor e água sanitária. Alguém canta baixinho um pagode antigo. Lá fora, a sua esquina já tem outro dono por hoje.', 'O carcereiro passa batendo a chave na grade. Cada batida é uma hora da sua vida que alguém lá fora está aproveitando.');
-    if (s.heat >= 85) return `Toda sirene parece ser pra você. Em ${b}, as janelas fecham quando você passa. Hoje não é dia de dar bobeira.`;
+    if (s.heat >= 85) return `Toda sirene parece ser pra você. Na ${rg}, as janelas fecham quando você passa. Hoje não é dia de dar bobeira.`;
     if (s.vicio >= 70) return 'A mão treme segurando o copo. Faz tempo que a noite deixou de ser festa e virou combustível. O corpo cobra, e cobra com juros.';
     if (s.health < 40) return 'Cada passo dói num lugar diferente. Na farmácia, a balconista te olha e nem pergunta nada. Só empurra a gaze no balcão.';
-    if (s.heat >= 60) return `Tem um carro parado na esquina que não é de ninguém de ${b}. O rapaz do bar faz sinal com o queixo: hoje estão de olho.`;
+    if (s.heat >= 60) return `Tem um carro parado na esquina que não é de ninguém da ${rg}. O rapaz do bar faz sinal com o queixo: hoje estão de olho.`;
     if (s.energy < 16) return 'As pernas pesam. A rua continua acordada, mas você não. O corpo pede boteco ou cama, nessa ordem.';
-    if (controlled(s, s.district)) return pick2(`Em ${b}, o pessoal da padaria já separa o seu pão sem você pedir. Mandar numa região é isso: ninguém fala o seu nome alto.`, `Um moleque pinta o seu vulgo no muro de ${b}. A tinta ainda escorre. Amanhã alguém vai querer apagar.`);
+    if (controlled(s, s.district)) return pick2(`Na ${rg}, o pessoal da padaria já separa o seu pão sem você pedir. Mandar numa região é isso: ninguém fala o seu nome alto.`, `Um moleque pinta o seu vulgo no muro da ${rg}. A tinta ainda escorre. Amanhã alguém vai querer apagar.`);
     if ((s.day + s.successful) % 3 === 0 && DISTRICT_VIBE[s.district]) return DISTRICT_VIBE[s.district].line;
     return [
-      pick2(`${b} acorda cedo e não te conhece. Você é só mais um de chinelo olhando o movimento, contando quem tem e quem não tem.`, 'O estômago ronca mais alto que o ônibus. Todo mundo começa do mesmo jeito: de olho na carteira dos outros.'),
-      pick2(`Já tem quem te cumprimente em ${b}. Pouca gente, e de longe, mas cumprimenta. É assim que começa.`, 'O dono do bar te serve sem cobrar adiantado. Pequenas coisas mudam quando o nome começa a circular.'),
-      pick2(`Em ${b}, os mais novos param de falar quando você chega. Não é medo ainda. É atenção.`, 'Sua mãe ligou perguntando se o emprego novo é de carteira assinada. Você disse que sim e mudou de assunto.'),
-      pick2('O telefone não para. Todo mundo quer um favor, um adiantamento, uma palavra sua. O silêncio ficou caro.', `Você passa por ${b} de vidro fechado. Lá fora, um pé de chinelo te encara do jeito que você encarava os outros.`),
+      pick2(`A ${rg} acorda cedo e não te conhece. Você é só mais um de chinelo olhando o movimento, contando quem tem e quem não tem.`, 'O estômago ronca mais alto que o ônibus. Todo mundo começa do mesmo jeito: de olho na carteira dos outros.'),
+      pick2(`Já tem quem te cumprimente na ${rg}. Pouca gente, e de longe, mas cumprimenta. É assim que começa.`, 'O dono do bar te serve sem cobrar adiantado. Pequenas coisas mudam quando o nome começa a circular.'),
+      pick2(`Na ${rg}, os mais novos param de falar quando você chega. Não é medo ainda. É atenção.`, 'Sua mãe ligou perguntando se o emprego novo é de carteira assinada. Você disse que sim e mudou de assunto.'),
+      pick2('O telefone não para. Todo mundo quer um favor, um adiantamento, uma palavra sua. O silêncio ficou caro.', `Você passa pela ${rg} de vidro fechado. Lá fora, um pé de chinelo te encara do jeito que você encarava os outros.`),
       pick2('Lá de cima a cidade parece pequena e quieta. Daqui não dá pra ouvir quem está subindo atrás de você.', 'Não sobrou ninguém pra te dizer não. Era isso que você queria. Era?')
     ][pi];
   }
@@ -3432,7 +3486,7 @@ button.hudBar:active{filter:brightness(1.25)}
         fs.allied = false; fs.truceUntil = 0; addRel(s, f.id, -30); addTen(s, f.id, 15);
         const best = DISTRICTS.slice().sort((a, b) => s.influence[b.id] - s.influence[a.id])[0];
         addInf(s, best.id, -8); addPres(s, best.id, f.id, 6);
-        return `Traição! ${f.name} rompeu a ${wasAlly ? 'aliança' : 'trégua'} ao perceber sua fragilidade e avançou em ${best.name}.`;
+        return `Traição! ${f.name} rompeu a ${wasAlly ? 'aliança' : 'trégua'} ao perceber sua fragilidade e avançou na ${best.name}.`;
       }
     }
     const hostile = !truce && !fs.allied && fs.relation <= -30 && fs.tension >= 35;
@@ -3466,7 +3520,7 @@ button.hudBar:active{filter:brightness(1.25)}
       for (const o of FACTIONS) if (o.id !== f.id && !(o.id === enemy)) addPres(s, t.id, o.id, -1);
       if (enemy) addPres(s, t.id, enemy, -1);
       const after = leader(s, t.id).id;
-      return `${f.short} ampliou presença em ${t.name} (+${gain})${s.district !== t.id && s.influence[t.id] > 0 ? ', aproveitando sua ausência' : ''}.${before !== after && after === f.id ? ` Agora lidera ${t.name}!` : ''}`;
+      return `${f.short} ampliou presença na ${t.name} (+${gain})${s.district !== t.id && s.influence[t.id] > 0 ? ', aproveitando sua ausência' : ''}.${before !== after && after === f.id ? ` Agora lidera a ${t.name}!` : ''}`;
     }
     if (choice === 'consolidate') {
       fs.power = clamp(fs.power + rand(2, 5), 10, 100); addTen(s, f.id, -3);
@@ -3487,7 +3541,7 @@ button.hudBar:active{filter:brightness(1.25)}
       const best = DISTRICTS.filter(d => s.presence[d.id][f.id] > 0).sort((a, b) => s.influence[b.id] - s.influence[a.id])[0] || district(s);
       const removed = Math.min(rand(5, 9), s.influence[best.id]);
       addInf(s, best.id, -removed); addPres(s, best.id, f.id, 4); addHeat(s, 4);
-      return `Retaliação de ${f.short}: -${removed} de influência sua em ${best.name}.`;
+      return `Retaliação de ${f.short}: -${removed} de influência sua na ${best.name}.`;
     }
     if (choice === 'war') {
       const field = DISTRICTS.filter(d => s.presence[d.id][enemy] >= 8 && s.presence[d.id][f.id] >= 5).sort((a, b) => s.presence[b.id][enemy] - s.presence[a.id][enemy])[0];
@@ -3495,7 +3549,7 @@ button.hudBar:active{filter:brightness(1.25)}
       addPres(s, field.id, enemy, -rand(4, 8)); addPres(s, field.id, f.id, -rand(1, 4));
       s.factions[enemy].power = clamp(s.factions[enemy].power - 3, 10, 100);
       if (!s.events.some(e => e.id === 'guerra' && e.until >= s.day)) startEvent(s, 'guerra', field.id);
-      return `${f.short} entrou em choque com ${faction(enemy).short} em ${field.name}: brecha para disputas por 2 dias.`;
+      return `${f.short} entrou em choque com ${faction(enemy).short} na ${field.name}: brecha para disputas por 2 dias.`;
     }
     if (choice === 'offer') {
       ctx.offer = f.id;
@@ -4122,6 +4176,295 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
 })();
 
   </script>
+  <script id="sb-redacao">
+/* Redação do Jornal do Submundo: a equipe (inventada) e o banco de textos.
+ * Só texto: as regras e os números vêm do motor (SB.jornal). A interface escolhe uma variação por dia
+ * (semente do dia), então o jornal muda de manhã para manhã sem sortear nada do motor.
+ * Cada modelo recebe `v` com valores JÁ ESCAPADOS (v.nome, v.regiao, v.valor...).
+ * Regras de conteúdo (AGENTS.md): linguagem de rua sim; nomes de pessoas, facções ou comunidades reais não;
+ * nada que ensine a fazer algo no mundo real; violência só sugerida; pessoas não são mercadoria. */
+(function () {
+  'use strict';
+
+  /* ---------------- Expediente ---------------- */
+  const EQUIPE = {
+    kelly: { nome: 'Kelly Manchete', cargo: 'editora-chefe' },
+    tuca: { nome: 'Tuca do Plantão', cargo: 'plantão da madrugada' },
+    ze: { nome: 'Zé da Pauta', cargo: 'repórter de polícia' },
+    lourival: { nome: 'Lourival Pé-de-Ouvido', cargo: 'setorista das gangues' },
+    tiao: { nome: 'Tião Cotação', cargo: 'mercado e Galpão' },
+    bene: { nome: 'Seu Bené da Banca', cargo: 'coluna do bicho' },
+    neide: { nome: 'Dona Neide', cargo: 'fofoca e bastidores' },
+    cida: { nome: 'Cida Previsão', cargo: 'agenda da cidade' },
+    marquinhos: { nome: 'Marquinhos Classificado', cargo: 'negócios' },
+    juca: { nome: 'Juca Crônica', cargo: 'cronista' },
+    bia: { nome: 'Bia Lente', cargo: 'fotografia' },
+    doutora: { nome: 'Doutora Rosinha', cargo: 'saúde e plantão do pronto-socorro' }
+  };
+
+  /* ---------------- Pautas: notícias que dependem do que aconteceu ----------------
+   * t = títulos, x = textos. Uma de cada é escolhida pela semente do dia. */
+  const P = {
+    /* Carreira */
+    patenteAgora: { by: 'tuca', t: [
+      v => `${v.nome} vira ${v.patente}`, v => `Plantão: a rua já chama ${v.nome} de ${v.patente}`, v => `Subiu de posto agora há pouco: ${v.nome}, ${v.patente}`,
+      v => `${v.patente}: é assim que chamam ${v.nome} desde agora`
+    ], x: [
+      v => `A notícia correu mais rápido que moto de entrega. ${v.prox}`, v => `Ninguém anunciou, mas todo mundo ficou sabendo. ${v.prox}`,
+      v => `No balcão do bar já mudaram o tom quando falam o seu nome. ${v.prox}`, v => `Tem gente que levou anos para isso. ${v.prox}`
+    ] },
+    patenteOntem: { by: 'kelly', t: [
+      v => `${v.nome} agora é ${v.patente}`, v => `Promoção na quebrada: ${v.nome} vira ${v.patente}`, v => `A rua mudou o jeito de chamar ${v.nome}`,
+      v => `De nome sussurrado a ${v.patente}`, v => `${v.patente}: o novo posto de ${v.nome}`
+    ], x: [
+      v => `Ontem a cidade passou a te tratar diferente. ${v.prox}`, v => `Respeito não se compra na Feira: se conquista roubo a roubo. ${v.prox}`,
+      v => `Os mais velhos acenam, os mais novos copiam o seu jeito de andar. ${v.prox}`, v => `Na esquina, ninguém mais te chama pelo apelido antigo. ${v.prox}`,
+      v => `Esta redação apurou: a fama chegou antes de você nas outras regiões. ${v.prox}`
+    ] },
+    extra: { by: 'tuca', t: [
+      () => 'Saiu agora na rua', () => 'Acabou de chegar', () => 'Plantão: novidade liberada', () => 'Fresquinho do forno', () => 'Corre que abriu'
+    ], x: [
+      v => `Seu respeito de hoje abriu: ${v.lista}.`, v => `Com o nome crescendo, a rua liberou: ${v.lista}.`, v => `Quem tem moral é atendido: ${v.lista}.`,
+      v => `Foi só o respeito subir e apareceu: ${v.lista}.`
+    ] },
+    novidades: { by: 'kelly', t: [
+      v => v.um ? `${v.item} liberado` : 'Chegou coisa nova pra você', v => v.um ? `Liberado: ${v.item}` : 'A rua abriu as portas',
+      () => 'Novidade na praça', () => 'Novas portas na cidade'
+    ], x: [
+      v => `Com o respeito de ontem, a rua abriu: ${v.lista}.`, v => `Quem chega no seu patamar ganha acesso a ${v.lista}.`,
+      v => `Os contatos certos já sabem do seu nome. Liberado: ${v.lista}.`, v => `Nossa reportagem confirmou: ${v.lista} já estão ao seu alcance.`
+    ] },
+    fofocaProximo: { by: 'neide', t: [
+      v => `Dizem que com ${v.n} de respeito…`, v => `Um passarinho me contou: ${v.n} de respeito`, v => `Fofoca da Neide: falta pouco`, () => 'Escutei atrás da porta'
+    ], x: [
+      v => `…aparece ${v.item} (${v.tipo}). Faltam ${v.falta}.`, v => `Na fila do pão, garantiram que ${v.item} (${v.tipo}) sai para quem chegar a ${v.n}. Faltam ${v.falta}.`,
+      v => `Não espalha, mas ${v.item} (${v.tipo}) está guardado para quem bater ${v.n} de respeito. Faltam ${v.falta}.`,
+      v => `Minha comadre jura que ${v.item} (${v.tipo}) já tem dono. Só falta você chegar a ${v.n}. Faltam ${v.falta}.`
+    ] },
+    degrau: { by: 'ze', t: [
+      v => `${v.nome} sobe de patamar: ${v.roubo}`, v => `Primeira vez no degrau ${v.n}`, v => `Ousadia: ${v.nome} encara ${v.roubo}`, v => `Escada acima: degrau ${v.n}`
+    ], x: [
+      () => 'Ontem foi o maior serviço da sua carreira até aqui. Os roubos pequenos já não pagam respeito como antes.', () => 'A pista notou: quem fazia o miúdo agora faz o graúdo. O respeito vem do degrau novo.',
+      () => 'Fontes da polícia confirmam que o seu nome entrou numa pasta mais grossa. O respeito acompanha.', () => 'Subir dá respeito. Ficar parado no fácil, só dinheiro.'
+    ] },
+
+    /* O dia de ontem */
+    ontemBom: { by: 'kelly', t: [
+      v => `${v.n} roubos na conta de ${v.nome}`, v => `${v.nome} fez a limpa: ${v.n} serviços`, v => `Dia cheio: ${v.n} roubos certos`, v => `A pista não parou: ${v.n} acertos`
+    ], x: [
+      v => `${v.falhas}Respeito ${v.resp}, patrimônio ${v.patr}.`, v => `${v.falhas}No balanço do dia: respeito ${v.resp} e patrimônio ${v.patr}.`,
+      v => `${v.falhas}A contabilidade da rua fechou em respeito ${v.resp} e patrimônio ${v.patr}.`
+    ] },
+    ontemRuim: { by: 'ze', t: [
+      () => 'Dia de vacilo nos roubos', () => 'Nada deu certo ontem', () => 'Deu ruim na pista', () => 'Dia pra esquecer'
+    ], x: [
+      v => `${v.f} roubo(s) deram errado e nenhum saiu. Patrimônio ${v.patr}.`, v => `Foram ${v.f} tentativa(s) e zero acerto. Patrimônio ${v.patr}. Treinar ajuda.`,
+      v => `${v.f} vez(es) a fita não fechou. Patrimônio ${v.patr}. Olhe a chance antes de ir.`
+    ] },
+    preso: { by: 'ze', t: [
+      v => `${v.nome} rodou ontem`, v => `Enquadro: ${v.nome} na viatura`, v => `B.O. com o nome de ${v.nome}`, v => `Algema e foto de perfil: ${v.nome} foi detido`
+    ], x: [
+      v => `Foram ${v.n} detenção(ões) no dia. A polícia comemorou na rede social da corporação.`, v => `${v.n} detenção(ões) ontem. Na delegacia, o café estava frio e a pressa era nenhuma.`,
+      v => `${v.n} detenção(ões). A vizinhança assistiu pela janela e comentou até a novela começar.`
+    ] },
+
+    /* Bicho (quando você tinha jogo) */
+    bichoGanhou: { by: 'bene', t: [
+      v => `Deu ${v.bicho}! ${v.nome} acertou`, v => `${v.nome} cravou no ${v.bicho}`, v => `Sorte grande: ${v.bicho} na cabeça`, v => `A banca chorou: deu ${v.bicho}`
+    ], x: [
+      v => `A banca pagou ${v.valor} de lucro. Seu Bené diz que é sonho bom: "Sonhou com o bicho, joga no bicho".`, v => `Lucro de ${v.valor}. O apontador contou o dinheiro duas vezes e entregou sem sorrir.`,
+      v => `${v.valor} de lucro. Já tem gente perguntando o que você jantou antes de dormir.`
+    ] },
+    bichoPerdeu: { by: 'bene', t: [
+      v => `Deu ${v.bicho}: não foi dessa vez`, v => `O ${v.bicho} passou longe do seu jogo`, () => 'Bilhete amassado no bolso', v => `Deu ${v.bicho}, e a banca agradece`
+    ], x: [
+      v => `Você tinha ${v.jogo}. Perdeu ${v.valor}. Seu Bené avisa: "Banca sempre leva um pouco".`, v => `Seu jogo: ${v.jogo}. Foram ${v.valor} para a banca.`,
+      v => `Jogou em ${v.jogo} e saiu ${v.bicho}. ${v.valor} a menos, sonho para hoje à noite.`
+    ] },
+
+    /* Cidade */
+    eventoNovo: { by: 'cida', t: [v => v.evento, v => `Começa hoje: ${v.evento}`, v => `Na cidade: ${v.evento}`], x: [v => `${v.desc} ${v.ate}`] },
+    eventoSegue: { by: 'cida', t: [v => v.evento, v => `Continua: ${v.evento}`, v => `Segue: ${v.evento}`], x: [v => `${v.desc} ${v.ate}`] },
+    previsao: { by: 'cida', t: [v => `Amanhã: ${v.evento}`, v => `Agenda: amanhã tem ${v.evento}`, v => `Previsão da Cida: ${v.evento}`], x: [
+      () => 'Se prepare hoje.', () => 'Quem se organiza na véspera sai na frente.', () => 'Anote na agenda e chegue cedo.', () => 'Deixe energia e dinheiro guardados.'
+    ] },
+
+    /* Gangues */
+    voceTomou: { by: 'lourival', t: [
+      v => `${v.nome} assume a ${v.regiao}`, v => `Bandeira nova na ${v.regiao}`, v => `A ${v.regiao} tem dono: ${v.nome}`, v => `Troca de comando na ${v.regiao}`
+    ], x: [
+      () => 'Agora quem manda ali é você. O comércio já sabe a quem procurar.', () => 'O recado chegou em todas as esquinas: tem gente nova no comando.',
+      () => 'Quem mandava antes saiu calado. Por enquanto.'
+    ] },
+    vocePerdeu: { by: 'lourival', t: [v => `${v.nome} perde a ${v.regiao}`, v => `A ${v.regiao} escapou da sua mão`, v => `${v.grupo} passa na frente na ${v.regiao}`], x: [
+      v => `${v.grupo} ocupou o espaço. Volte a fazer contatos e roubos por lá.`, v => `Vacilou, perdeu: ${v.grupo} agora dita as regras na região.`,
+      v => `Na madrugada, ${v.grupo} pintou o muro com as cores deles.`
+    ] },
+    gangueToma: { by: 'lourival', t: [v => `${v.grupo} toma a ${v.regiao}`, v => `Virada na ${v.regiao}: ${v.grupo} no comando`, v => `${v.grupo2} perde a ${v.regiao}`], x: [
+      v => `${v.grupo2} perdeu o comando da região durante a noite.`, v => `Foi rápido e sem barulho: ${v.grupo2} recuou e ${v.grupo} avançou.`,
+      v => `Moradores dizem que a mudança foi sentida no preço do pastel.`
+    ] },
+    movimento: { by: 'lourival', t: [() => 'O movimento da noite', () => 'Enquanto você dormia', () => 'Bastidores das gangues', () => 'Quem mexeu as peças'], x: [v => v.lista] },
+
+    /* Polícia */
+    cacado: { by: 'ze', t: [() => 'Caçado: seu retrato está na delegacia', v => `Procura-se: ${v.nome}`, () => 'Cartaz com a sua cara no posto', () => 'A polícia quer você'], x: [
+      v => `Procurado ${v.heat} (${v.tier}). Até roubo que dá certo pode virar enquadro. Esfrie antes de sair.`, v => `Procurado ${v.heat}. O delegado pediu reforço só para te achar.`
+    ] },
+    naMira: { by: 'ze', t: [() => 'A polícia está na sua cola', () => 'Viatura rondando o seu quarteirão', () => 'Os home estão de olho'], x: [
+      v => `Procurado ${v.heat} (${v.tier}). Esfrie antes do próximo roubo.`, v => `Procurado ${v.heat}. Falhar agora dá cadeia com mais facilidade.`, v => `Com ${v.heat} de Procurado, a propina ou o sossego viram amigos.`
+    ] },
+    esfriou: { by: 'ze', t: [() => 'A poeira baixou', () => 'Sumiu da boca da polícia', () => 'Delegacia achou outro assunto'], x: [
+      v => `Seu Procurado caiu para ${v.heat} (${v.tier}). Dá para voltar à pista com calma.`, v => `Procurado ${v.heat}. O cartaz com a sua cara já desbotou.`
+    ] },
+    policiaRegiao: { by: 'ze', t: [v => `Viatura de sobra na ${v.regiao}`, v => `Cerco na ${v.regiao}`, v => `${v.regiao}: polícia em peso`], x: [
+      v => `Polícia ${v.n} por lá. Mais tranquila: ${v.regiao2}.`, v => `Na ${v.regiao}, até o vendedor de água está sendo revistado. A ${v.regiao2} está mais calma.`
+    ] },
+
+    /* Galpão e porto */
+    portoHoje: { by: 'tiao', t: [() => 'O comprador de fora atracou', () => 'Navio no cais', () => 'Barco estrangeiro na Portuária'], x: [
+      v => `Hoje, na ${v.regiao}. Ele só fala de negócio pessoalmente.`, v => `Na ${v.regiao}. Ninguém sabe o que ele quer: só quem for lá descobre.`
+    ] },
+    portoPrevisto: { by: 'tiao', t: [v => `Barco previsto para o dia ${v.dia}`, v => `Dia ${v.dia}: tem navio chegando`], x: [
+      v => `Na ${v.regiao}. Ninguém sabe o que ele vem buscar. Estoque variado sai na frente.`, v => `Na ${v.regiao}. Quem tiver de tudo um pouco no galpão chega preparado.`
+    ] },
+    alta: { by: 'tiao', t: [v => `${v.mercadoria} dispara ${v.pct}% na ${v.regiao}`, v => `Preço do ${v.mercadoria} sobe na ${v.regiao}`, v => `${v.mercadoria} em alta na ${v.regiao}: +${v.pct}%`], x: [
+      v => `De ${v.de} para ${v.para} por ${v.unid}. Quem tem estoque sorri.`, v => `Foi de ${v.de} para ${v.para} por ${v.unid}. Hora de vender, dizem os espertos.`
+    ] },
+    queda: { by: 'tiao', t: [v => `${v.mercadoria} despenca ${v.pct}% na ${v.regiao}`, v => `Liquidação de ${v.mercadoria} na ${v.regiao}`, v => `${v.mercadoria} em baixa na ${v.regiao}`], x: [
+      v => `De ${v.de} para ${v.para} por ${v.unid}. Bom para comprar e esperar.`, v => `Caiu de ${v.de} para ${v.para} por ${v.unid}. Tião recomenda: compra na baixa, vende na alta.`
+    ] },
+    rota: { by: 'tiao', t: [v => `Rota do dia: ${v.mercadoria}`, v => `Dica do Tião: ${v.mercadoria}`], x: [
+      v => `Compre na ${v.compra} por ${v.de} e venda na ${v.venda} por ${v.para}.`, v => `Na ${v.compra} sai a ${v.de}; na ${v.venda}, pagam ${v.para}. A diferença é sua.`
+    ] },
+    vendeu: { by: 'tiao', t: [v => `${v.nome} movimentou o Galpão`, () => 'Mercadoria girando'], x: [
+      v => `Ontem você vendeu ${v.n} unidade(s). O mercado sentiu.`, v => `${v.n} unidade(s) vendidas no dia. Tião anotou no caderninho.`
+    ] },
+    remessa: { by: 'tiao', t: [() => 'Remessa embarcou', v => `${v.nome} fechou com o comprador de fora`], x: [
+      v => `${v.n} unidade(s) seguiram de navio. Ninguém viu, ninguém sabe.`, v => `${v.n} unidade(s) embarcadas. O porto amanheceu como se nada fosse.`
+    ] },
+    blitz: { by: 'ze', t: [() => 'Blitz pegou carga no caminho', () => 'Carga apreendida em blitz'], x: [
+      v => `${v.n} blitz no dia. Veículo melhor e viagens menos carregadas diminuem o risco.`, v => `A polícia parou ${v.n} vez(es) a sua carga ontem.`
+    ] },
+
+    /* Negócios e compras */
+    boom: { by: 'marquinhos', t: [v => `${v.negocio} fatura alto hoje`, v => `Movimento forte no ${v.negocio}`, v => `${v.negocio} lotado`], x: [
+      v => `O movimento da cidade puxa a casa: +${v.pct}% na renda de hoje.`, v => `Fila na porta e caixa cheio: +${v.pct}% hoje.`
+    ] },
+    negocioDaVez: { by: 'marquinhos', t: [v => `Negócio da vez: ${v.negocio}`, v => `Oportunidade: ${v.negocio}`, v => `Classificado: ${v.negocio}`], x: [
+      v => `${v.custo}, rende cerca de ${v.renda} por dia e se paga em ${v.prazo} dias.`, v => `Por ${v.custo}, entra cerca de ${v.renda} por dia. Em ${v.prazo} dias o dinheiro volta.`
+    ] },
+    comprouNegocio: { by: 'marquinhos', t: [v => `${v.nome} é o novo dono do ${v.negocio}`, v => `Inauguração: ${v.negocio}`, v => `${v.negocio} troca de dono`], x: [
+      () => 'A chave mudou de mão ontem. A clientela ainda não sabe quem é o patrão.', () => 'Fita vermelha cortada e porta aberta. Agora é esperar o caixa encher.',
+      () => 'Os vizinhos estranharam o carro novo na porta. Negócio é negócio.'
+    ] },
+    armaNova: { by: 'ze', t: [v => `${v.nome} anda com ${v.item}`, v => `Volume novo na cintura de ${v.nome}`, () => 'Arsenal renovado'], x: [
+      () => 'A Feira do Rolo confirmou a venda. Os roubos maiores ficam mais perto.', () => 'Quem viu disse que o olhar mudou junto com o ferro.'
+    ] },
+    protecaoNova: { by: 'ze', t: [v => `${v.nome} está mais protegido`, v => `Proteção nova: ${v.item}`], x: [() => 'Quando a fita der errado, o estrago é menor.', () => 'A Feira do Rolo vendeu e a rua comentou.'] },
+    veiculoNovo: { by: 'kelly', t: [v => `${v.nome} de ${v.item}`, v => `Garagem nova: ${v.item}`, () => 'Motor roncando na esquina'], x: [
+      () => 'Fuga mais rápida, carga maior e outros roubos ao alcance.', () => 'A vizinhança reconheceu o barulho do motor antes de ver quem dirigia.'
+    ] },
+
+    /* Duelos, bando, saúde */
+    dueloVenceu: { by: 'ze', t: [v => `${v.nome} vence na rua`, () => 'Trocação na esquina: deu você', v => `${v.n} duelo(s), ${v.n} vitória(s)`], x: [
+      v => `Foram ${v.n} vitória(s) ontem. O respeito vem no grito da galera.`, () => 'A roda se abriu, a poeira subiu e quem saiu de pé foi você.'
+    ] },
+    dueloPerdeu: { by: 'ze', t: [() => 'Levou a pior na trocação', () => 'Derrota na roda de rua'], x: [
+      v => `${v.n} derrota(s) ontem. Treinar Força e um colete melhor ajudam.`, () => 'Sai com o orgulho arranhado e a carteira mais leve.'
+    ] },
+    bandoNovo: { by: 'lourival', t: [v => `Nasce o bando de ${v.nome}`, () => 'Bando novo na cidade'], x: [() => 'Mais gente, mais força, mais boca para alimentar.', () => 'As outras gangues já anotaram o nome.'] },
+    bandoCresceu: { by: 'lourival', t: [() => 'O bando cresceu', v => `${v.n} novo(s) no bando`], x: [() => 'Gente nova chegou para somar. Agora é manter o ânimo.', () => 'Mais braço para os assaltos grandes.'] },
+    overdose: { by: 'doutora', t: [() => 'Passou mal na noite', () => 'Overdose: susto no pronto-socorro', () => 'A noite cobrou a conta'], x: [
+      () => 'A Doutora Rosinha avisa: vício alto é bilhete para o hospital. O soro da UPA ajuda.', () => 'Uma noite de exagero e a energia virou internação. Vá com calma no balcão.'
+    ] },
+    vicioAlto: { by: 'doutora', t: [() => 'O vício passou do ponto', () => 'Alerta da Doutora Rosinha'], x: [
+      v => `Vício ${v.n}/100. A noite rende menos e o risco de passar mal sobe. O Hospital desintoxica.`, v => `Com ${v.n} de vício, cada dose é uma roleta. Procure o Hospital.`
+    ] },
+    saudeBaixa: { by: 'doutora', t: [() => 'Ferido, mas de pé', () => 'Saúde no vermelho'], x: [
+      v => `Saúde ${v.n}. Assim as chances caem em tudo. A UPA é de graça.`, v => `Com ${v.n} de saúde, até a escada do ônibus cansa. Passe no Hospital.`
+    ] },
+    conquista: { by: 'kelly', t: [() => 'Feito registrado', v => `${v.nome} entra para a história`], x: [() => 'O nome foi para o mural de feitos da cidade.', () => 'A rua vai lembrar disso por um bom tempo.'] },
+    banco: { by: 'marquinhos', t: [() => 'Dinheiro guardado', v => `${v.nome} fez depósito`], x: [v => `${v.valor} foram para o banco ontem. Dinheiro no banco não some num enquadro.`, v => `O gerente atendeu de terno: ${v.valor} na conta.`] },
+    historia: { by: 'juca', t: [() => 'Uma decisão que vai pesar', () => 'Escolhas da noite'], x: [() => 'Ontem você escolheu um caminho. A cidade ainda está digerindo.', () => 'Toda escolha tem preço. A sua já foi paga.'] }
+  };
+
+  /* ---------------- Crônicas da cidade: a vida acontece sem você ----------------
+   * v.regiao (uma região), v.grupo (um grupo), v.bar (o boteco da cidade), v.cidade. */
+  const CRONICAS = [
+    { t: () => 'Pastel subiu cinquenta centavos', x: v => `Na ${v.regiao}, a barraca mais famosa reajustou o pastel de queijo. A fila diminuiu por uma hora e voltou ao normal antes do almoço.` },
+    { t: () => 'Briga de vizinho por causa do pagode', x: v => `Um morador da ${v.regiao} reclamou do som. O outro aumentou o volume. A rua inteira escolheu um lado.` },
+    { t: () => 'Cachorro caramelo adota a praça', x: v => `Ele não tem dono, mas tem horário: às sete toma café no ${v.bar}, às dez cochila no banco da praça.` },
+    { t: () => 'Falta luz e sobra conversa', x: v => `A ${v.regiao} ficou duas horas no escuro. Teve vela, violão e gente que não se falava há anos dividindo cadeira na calçada.` },
+    { t: () => 'O ônibus atrasou de novo', x: v => `Passageiros da ${v.regiao} esperaram quarenta minutos. Um senhor contou a vida inteira para quem quis ouvir.` },
+    { t: () => 'Torneio de dominó termina em discussão', x: v => `No ${v.bar}, a final foi decidida numa pedra contestada. O juiz era cunhado de um dos jogadores.` },
+    { t: () => 'Mural novo na parede da escola', x: v => `Artistas da ${v.regiao} pintaram um sol enorme. Ninguém sabe quem pagou a tinta, e ninguém perguntou.` },
+    { t: v => `${v.grupo} patrocina time de várzea`, x: v => `O uniforme veio novinho, com o nome de uma loja que ninguém nunca viu aberta. O time perdeu de 4 a 1.` },
+    { t: () => 'Chuva alaga a esquina de sempre', x: v => `A mesma poça de todo ano voltou na ${v.regiao}. Um morador batizou de "lago municipal" e a piada pegou.` },
+    { t: () => 'Camelô inventa capa de celular de pão de forma', x: v => `A novidade da ${v.regiao} vendeu tudo em uma tarde. Ninguém entendeu, todo mundo comprou.` },
+    { t: () => 'Aniversário de cem anos na ladeira', x: v => `Dona Filó completou um século na ${v.regiao}. Disse que o segredo é café forte e nunca dar o endereço certo para estranho.` },
+    { t: () => 'Rádio pirata volta ao ar', x: v => `Depois de uma semana calada, a rádio da ${v.regiao} voltou tocando brega das seis às seis.` },
+    { t: () => 'Gato fica preso em poste por seis horas', x: v => `Os bombeiros não vieram. Quem salvou foi um moleque de bicicleta e uma escada emprestada do ${v.bar}.` },
+    { t: () => 'Feira livre bate recorde de gritaria', x: v => `Na ${v.regiao}, o vendedor de laranja e o de abacaxi disputaram quem grita mais. O de abacaxi ficou rouco.` },
+    { t: () => 'Calor faz sorvete virar moeda', x: v => `Fez tanto calor na ${v.regiao} que um picolé de limão valia mais que uma conversa.` },
+    { t: () => 'Casamento termina às seis da manhã', x: v => `A festa começou no salão e terminou na calçada da ${v.regiao}. O noivo dormiu no carro, de terno e feliz.` },
+    { t: () => 'Padaria lança pão de queijo gigante', x: v => `Na ${v.regiao}, o pão do tamanho de um prato virou atração. Tem gente vindo de outra região só para tirar foto.` },
+    { t: v => `${v.grupo} pinta faixa de pedestre`, x: v => `A prefeitura não veio, eles vieram. A faixa ficou torta, mas os carros passaram a parar na ${v.regiao}.` },
+    { t: () => 'Orelhão volta a funcionar', x: v => `Ninguém sabe como, mas o orelhão da ${v.regiao} deu sinal. Uma fila se formou só para ouvir o tom de discar.` },
+    { t: () => 'Clássico na TV para a cidade', x: v => `Em ${v.cidade}, até o trânsito respeitou o segundo tempo. No ${v.bar}, a TV pequena juntou trinta pessoas.` },
+    { t: () => 'Professor de capoeira abre roda grátis', x: v => `Na praça da ${v.regiao}, a criançada aprendeu ginga e respeito. A roda vai voltar todo sábado.` },
+    { t: () => 'Moto sem placa assusta a vizinhança', x: v => `Passou três vezes na ${v.regiao} e sumiu. Ninguém anotou nada. Todo mundo comentou tudo.` },
+    { t: () => 'Brechó vende jaqueta "da época boa"', x: v => `Na ${v.regiao}, a jaqueta de couro custou caro e veio com uma história de amor que ninguém pediu para ouvir.` },
+    { t: () => 'Cozinheira do bar ganha fã-clube', x: v => `O feijão do ${v.bar} ganhou fama. Já tem gente de terno comendo em pé no balcão.` },
+    { t: () => 'Galo canta às três da manhã', x: v => `Ninguém na ${v.regiao} sabe de onde veio o galo. Ele canta de madrugada e some de dia.` },
+    { t: () => 'Batalha de rima lota a praça', x: v => `Na ${v.regiao}, a final teve rima sobre aluguel, ônibus lotado e o preço do gás. A plateia escolheu o mais novo.` },
+    { t: () => 'Obra que nunca termina faz aniversário', x: v => `A obra da avenida na ${v.regiao} completou mais um ano. Os moradores levaram bolo e cantaram parabéns para o tapume.` },
+    { t: () => 'Bicicleta perdida volta para o dono', x: v => `Sumiu na sexta, apareceu na segunda, lavada e com o pneu cheio, na porta de casa. Na ${v.regiao}, ninguém pergunta.` },
+    { t: () => 'Vendedor de churrasquinho muda de esquina', x: v => `A mudança na ${v.regiao} causou comoção. Os clientes fizeram abaixo-assinado e ele voltou em dois dias.` },
+    { t: () => 'Sereno da madrugada traz neblina', x: v => `Em ${v.cidade}, a neblina cobriu tudo. Até os mais espertos andaram devagar.` },
+    { t: () => 'Bloco ensaia fora de época', x: v => `O bloco da ${v.regiao} ensaiou num dia qualquer. Disseram que é para não perder o ritmo. Ninguém reclamou.` },
+    { t: () => 'Senhora do terceiro andar vê tudo', x: v => `Ela não sai da janela da ${v.regiao}. Sabe quem entrou, quem saiu e quem devia ter ficado em casa.` },
+    { t: () => 'Promoção de gás causa fila', x: v => `O caminhão do gás anunciou desconto na ${v.regiao}. Em dez minutos, a rua parecia dia de pagamento.` },
+    { t: () => 'Escola de samba escolhe o enredo', x: v => `A quadra da ${v.regiao} ferveu. O enredo fala de quem acorda cedo e dorme tarde. Todo mundo se viu ali.` },
+    { t: () => 'Taxista conta a mesma história pela milésima vez', x: v => `Quem pegou corrida na ${v.regiao} ouviu de novo sobre o dia em que ele quase foi jogador de futebol.` },
+    { t: v => `${v.grupo} organiza festa de criança`, x: v => `Pula-pula, algodão-doce e palhaço na ${v.regiao}. Muita gente foi sem perguntar quem pagou.` },
+    { t: () => 'Lan house resiste ao tempo', x: v => `A última da ${v.regiao} ainda abre todo dia. O dono diz que é ponto de encontro, não de internet.` },
+    { t: () => 'Vira-lata ganha nome de jogador', x: v => `Na ${v.regiao}, o cachorro que dribla os carros foi batizado de Craque. Ainda não tem time.` },
+    { t: () => 'Feirão de móveis usados', x: v => `Sofá, geladeira e um piano sem três teclas. Na ${v.regiao}, tudo vendeu antes do meio-dia.` },
+    { t: () => 'Quermesse da paróquia', x: v => `Pescaria, correio elegante e quentão na ${v.regiao}. O correio elegante causou duas brigas e um namoro.` }
+  ];
+
+  /* ---------------- Ouvido na rua: frase do dia ---------------- */
+  const FRASES = [
+    'Na rua, quem fala muito escuta pouco.', 'Malandro que é malandro não corre: anda rápido.', 'Dinheiro na mão é vendaval.', 'Quem não é visto não é lembrado, mas também não é preso.',
+    'Respeito é que nem fiado: demora para pegar e some num vacilo.', 'A esquina tem ouvido e o muro tem olho.', 'Todo mundo é santo até o caixa abrir.', 'Quem planta tâmara não come tâmara, mas quem rouba o caixa come hoje.',
+    'Vacilou, a fila anda.', 'O silêncio é o melhor sócio.', 'Promessa de bêbado e de político, eu anoto a lápis.', 'Fé em Deus e pé no acelerador.',
+    'A noite é uma criança, mas a ressaca é adulta.', 'Quem tem padrinho não morre pagão, mas paga a festa.', 'Cachorro mordido de cobra tem medo de linguiça.', 'O que é do homem o bicho não come.',
+    'Hoje é dia de quê? Dia de corre.', 'De grão em grão a galinha enche o papo, e de roubo em roubo o nome cresce.', 'Na pressa, até o esperto tropeça.', 'Amigo de verdade aparece na hora da fiança.',
+    'Rua sem movimento não paga ninguém.', 'O preço do sossego sobe todo mês.', 'Quem nunca comeu melado, quando come se lambuza.', 'Cada um sabe onde o calo aperta.',
+    'Papo reto: quem guarda tem.', 'Não confunda simpatia com sociedade.', 'O olho do dono engorda o boi e afasta o enquadro.', 'Aqui ninguém viu nada, como sempre.',
+    'Cautela e caldo de galinha não fazem mal a ninguém.', 'Quem avisa amigo é.', 'Tá ruim? Pode piorar. Tá bom? Não conta pra ninguém.', 'A rua ensina, mas cobra a matrícula.',
+    'Uma andorinha só não faz verão, mas faz barulho.', 'Mais vale um na mão do que dois no galpão.', 'Quem dorme no ponto perde o ônibus e a vez.', 'Devagar com o andor que o santo é de barro.',
+    'Água mole em pedra dura, tanto bate até que a polícia vem.', 'Quem tem boca vai a Roma, quem tem moto vai mais rápido.', 'O fácil sai caro.', 'Na dúvida, fica quieto e pede outra.'
+  ];
+  const FRASE_QUEM = ['disse um senhor no ponto de ônibus', 'ouvido na fila do pão', 'falou a dona do bar, enxugando um copo', 'garantiu um taxista', 'gritou o vendedor da feira',
+    'resmungou um vigia de obra', 'ensinou uma avó para o neto', 'comentou alguém na barbearia', 'escrito à caneta na porta do banheiro do bar', 'cantou o pagodeiro no intervalo'];
+
+  /* ---------------- Classificados (de brincadeira, nada de pessoas como mercadoria) ---------------- */
+  const CLASSIFICADOS = [
+    'Vendo fusca 78 sem motor, com muito potencial e um rádio que pega duas estações.', 'Procura-se gato laranja atende por Biscoito. Não é bravo, só é cínico.',
+    'Conserto de geladeira, TV e coração partido. Orçamento grátis.', 'Aulas de violão para quem já desistiu três vezes.', 'Troco bicicleta por videogame que ainda liga.',
+    'Faço bolo de aniversário com o nome certo na primeira tentativa.', 'Alugo vaga de garagem que cabe um carro pequeno e um sonho grande.', 'Vende-se sofá de três lugares que na prática é de dois.',
+    'Benzedeira atende de segunda a sábado. Olho gordo, espinhela caída e azar no bicho.', 'Compro ferro-velho, panela furada e rádio de pilha.', 'Professor particular de matemática para quem só sabe fazer conta de troco.',
+    'Fotógrafo para casamento, batizado e formatura. Não faço foto de perfil para a polícia.', 'Doa-se cachorro grande, carinhoso e que come como gente.', 'Costureira faz bainha em calça de time e de terno, sem preconceito.',
+    'Manicure a domicílio, com fofoca inclusa no preço.', 'Vendo coleção de figurinhas da Copa, faltam só as difíceis.', 'Chaveiro 24 horas. Só abro a porta de quem mostra a conta de luz.',
+    'Mudança e frete: levo tudo, menos problema dos outros.', 'Precisa-se de cozinheira que saiba fazer feijão como a mãe da gente.', 'Vendo terreno na beira do rio, documentação "quase" pronta.',
+    'Bolo de pote, salgado e marmita fitness que ninguém pede.', 'Pastor de bairro oferece conselho grátis e sermão por fora.', 'Dou aula de dança para quem tem dois pés esquerdos.', 'Vendo celular com a tela trincada só num cantinho.'
+  ];
+
+  window.SBRedacao = { EQUIPE, P, CRONICAS, FRASES, FRASE_QUEM, CLASSIFICADOS };
+})();
+
+  </script>
   <script id="sb-ui">
 /* =====================================================================
  * SUBMUNDO BRASIL — INTERFACE v1.5
@@ -4373,7 +4716,8 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   function renderHud() {
     const s = state, lvl = Math.min(99, Math.floor(s.respect / 35) + 1), c = s.career ? SB.CAREERS.find(x => x.id === s.career).name : 'Sem especialização';
     const pk = s.career + '|' + s.avatar; if ($('#hudAvatar').dataset.pic !== pk) { $('#hudAvatar').innerHTML = portrait(s); $('#hudAvatar').dataset.pic = pk; }
-    $('#hudName').textContent = s.name; $('#hudSub').innerHTML = `<span>${esc(SB.phase(s).name)}</span><i aria-hidden="true"> · </i><span>${esc(c)}</span>`;
+    $('#hudName').textContent = s.name; $('#hudSub').innerHTML = `<span class="hudClass">${esc(c)}</span><span class="hudPat">${esc(SB.phase(s).name)}</span>`;
+    $('#hudSleep').innerHTML = hudSleep();
     $('#hudRespect').textContent = num(s.respect);
     $('#hudEnergy').style.width = Math.min(100, s.energy) + '%'; $('#hudEnergyOver').style.width = Math.max(0, Math.min(100, s.energy - 100)) + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`; $('#hudEnergyBox').classList.toggle('boost', s.energy > 100);
     $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Procurado ${s.heat}`;
@@ -4487,6 +4831,19 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   }
   /** "2 h 13 min" a partir de milissegundos. */
   const dur = ms => { const m = Math.max(1, Math.ceil(ms / 60000)); return m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ' ' + (m % 60) + ' min' : ''}` : `${m} min`; };
+  /** Dormir (ou ir pra casa, no online) fica no topo, ao lado do dia: dá para virar o dia de qualquer tela. */
+  function hudSleep() {
+    const s = state, moon = '<svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M7.6.6a5.6 5.6 0 1 0 3.9 8.8A4.6 4.6 0 0 1 7.6.6z"/></svg>';
+    const b = (label, action, extra, off, cls = '') => `<button type="button" class="hudSleepBtn ${cls}" data-action="${action}" ${extra} ${off ? 'disabled' : ''}>${moon}<b>${label}</b></button>`;
+    if (s.clock) {
+      if (SB.atHome(s)) return b('Sair de casa', 'leave-home', '', false);
+      if (s.jail > 0 || s.hospital > 0) return '';
+      const ci = SB.clockInfo(s), full = s.energy >= 100 && !s.today.doses;
+      return b(ci.homesLeft ? 'Ir pra casa · 3 h' : 'Casa: 2× por dia', 'go-home', '', !ci.homesLeft || full, s.energy < 16 ? 'hot' : '');
+    }
+    if (s.day >= MAXDAY) return b('Encerrar', 'switch', 'data-target="temporada"', false, 'hot');
+    return b(armedNext ? `Dormir com ${num(s.energy)}?` : 'Dormir', 'next-day', '', false, armedNext ? 'armed' : s.energy < 16 ? 'hot' : '');
+  }
   function nextDayButton(cls = '') {
     if (state.clock) { // online: o dia vira sozinho; o descanso é ir pra casa
       const ci = SB.clockInfo(state);
@@ -4518,7 +4875,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const s = state, d = D(), ds = s.dstate[d.id], l = SB.leader(s, d.id);
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
     return `<section class="locale ${tall ? 'tall' : ''}" aria-label="Onde você está">${scene(d.id)}
-      <div class="localeTop">${plate(d.name, d.spot + ' · ' + s.city)}${(flyers ? evs : []).map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
+      <div class="localeTop">${plate(d.name, s.city)}${(flyers ? evs : []).map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
       <button type="button" class="localeBottom" data-action="locale-help" aria-expanded="${localeHelp}" aria-label="Sua influência nesta região; tocar explica"><span class="infTag ${SB.controlled(s, d.id) ? 'mine' : ''}">Sua influência ${num(s.influence[d.id])} · ${esc(SB.INF_TIERS[SB.infTier(s, d.id)].name)}</span><i class="localeQ" aria-hidden="true">?</i></button></section>`;
   }
   const statName = id => SB.STATS.find(x => x.id === id).name;
@@ -4587,7 +4944,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
         <p><strong>Saúde</strong>: tirar o vício custa saúde (meio ponto por ponto de vício). Saúde zero = UTI: ${state && state.clock ? '24 horas' : 'o resto do dia e o seguinte'} sem jogar.</p>
         <p>Os <strong>grupos rivais</strong> reagem: agir no território deles gera atrito, retaliação e extorsão. Dá para conversar, firmar trégua ou aliança.</p>`],
       ['Sua cidade', `<p><strong>${esc(c.name)} — ${esc(c.trait)}.</strong> ${esc(c.traitDesc)}</p>
-        <ul>${SB.DISTRICTS.map(d => `<li><strong>${esc(d.name)}</strong> (ponto: ${esc(d.spot)}): ${esc(d.advantage)}</li>`).join('')}</ul>
+        <ul>${SB.DISTRICTS.map(d => `<li><strong>${esc(d.name)}</strong>: ${esc(d.advantage)}</li>`).join('')}</ul>
         <p>O mês tem quatro semanas com ritmo próprio. Dias de pagamento (5 e 20) engordam lotérica, caixa e assaltos; nas Noites de fluxo suas casas rendem o dobro; nos três últimos dias a polícia aperta e no dia 30 atraca o Último Navio. Fique de olho no calendário: <strong>${esc(SB.EVENTS.carnaval.title)}</strong> começa no dia 9 e o <strong>${esc(SB.EVENTS.classico.title)}</strong> é no dia 20.</p>`]
     ];
   }
@@ -4612,42 +4969,14 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   function closeHelp() { $('#help').classList.add('hidden'); }
 
   /* ---------- telas ---------- */
-  /** "E agora?": o próximo passo do ciclo (roubar → noite → feira → dormir), decidido pelo estado. */
-  function nextMove() {
-    const s = state;
-    if (SB.blocked(s)) return null;
-    const best = suggestion(), lowEnergy = s.energy < 16, canNight = s.energy < 100;
-    const curPow = (SB.item(s.gear.arma) || { power: 0 }).power;
-    const upgrade = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && !SB.owns(s, i.id) && i.power > curPow && s.respect >= i.unlock && !SB.chainLock(s, 'items', i.id) && s.cash >= i.cost * 1.5).pop();
-    const lockedByGun = SB.MISSIONS.find(m => (SB.missionLock(s, m) || '').startsWith('Requer arma'));
-    const lockedByCar = SB.MISSIONS.find(m => (SB.missionLock(s, m) || '').startsWith('Requer veículo'));
-    const car = lockedByCar && SB.ITEMS.find(i => i.slot === 'veiculo' && i.escape >= lockedByCar.req.escape && !SB.owns(s, i.id) && s.respect >= i.unlock && !SB.chainLock(s, 'items', i.id) && s.cash >= i.cost * 1.3);
-    if (s.health < 40) return { tag: 'Saúde baixa', title: 'Passe no Hospital', text: `Com ${s.health} de saúde suas chances caem em tudo.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
-    if (s.vicio >= 70) return { tag: 'Vício alto', title: 'Hora de desintoxicar', text: `Vício ${s.vicio}/100: a noite recarrega menos e há ${SB.overdoseChance(s)}% de chance de overdose a cada saída.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
-    if (s.heat >= 65 && s.energy >= 18) return { tag: 'Procurado alto', title: 'Fique na sua', text: 'A polícia está de olho: cada roubo agora tem mais chance de dar cadeia.', btn: button('Reduzir exposição · 18 energia', 'lay-low', '', false, 'primary') };
-    if (car) return { tag: 'Dinheiro no bolso', title: `Dá para comprar: ${car.name}`, text: `Veículo de fuga abre roubo maior, como “${SB.missionName(s, lockedByCar)}”.`, btn: button('Ir à Feira do Rolo', 'switch', 'data-target="feira"', false, 'primary') };
-    if (upgrade && (lockedByGun || !s.gear.arma)) return { tag: 'Dinheiro no bolso', title: `Dá para comprar: ${upgrade.name}`, text: lockedByGun ? `Arma melhor abre roubo maior, como “${SB.missionName(s, lockedByGun)}”.` : 'Arma é o que abre os roubos maiores.', btn: button('Ir à Feira do Rolo', 'switch', 'data-target="feira"', false, 'primary') };
-    if (lowEnergy && canNight) { const n = SB.NIGHT.filter(x => (!x.unlock || s.respect >= x.unlock) && SB.nightCost(s, x) <= s.cash).pop(); if (n) return { tag: 'Sem energia', title: 'Hora da noitada', text: s.today.venue ? `Você ainda está na casa: peça uma dose e volte a roubar.` : `Entre numa casa e peça uma dose. A entrada é paga uma vez por dia.`, btn: button(s.today.venue ? 'Ir ao balcão' : 'Ir para a noite', 'switch', 'data-target="noite"', false, 'primary') }; }
-    if (lowEnergy && s.clock) return SB.atHome(s) ? { tag: 'Em casa', title: `Descansando: volta em ${dur(SB.clockInfo(s).home)}`, text: 'No fim, energia cheia e o corpo zerado. Banco e compras continuam.', btn: nextDayButton('') } : { tag: 'Sem energia', title: SB.clockInfo(s).homesLeft ? 'Vá pra casa ou espere' : 'Espere a energia voltar', text: `A energia volta +1 a cada 3 minutos (próximo ponto em ${dur(SB.clockInfo(s).nextEnergy)}). Em casa, 3 horas enchem tudo.`, btn: nextDayButton('') };
-    if (lowEnergy) return { tag: 'Sem energia', title: s.day >= MAXDAY ? 'Fim da temporada' : 'Durma e vire o dia', text: s.day >= MAXDAY ? 'Último dia: encerre a temporada.' : '+70 de energia, o Procurado cai e a renda entra.', btn: nextDayButton('') };
-    if (best) { const p = SB.missionChance(s, best); return { tag: 'Roubo da vez', title: SB.missionName(s, best), text: `${best.cost} energia · ${fmt(best.low * SB.missionRewardMult(s, best))}–${fmt(best.high * SB.missionRewardMult(s, best))} · ${p}% de chance`, btn: button('Executar', 'mission', `data-id="${best.id}"`, false, 'primary'), icon: best.stat }; }
-    return { tag: 'Nada com boa chance', title: 'Treine ou mude de ares', text: 'Treine um atributo, baixe o Procurado ou vá a outra região.', btn: button('Ver roubos e treino', 'switch', 'data-target="acoes"', false, 'primary') };
-  }
   function panel() {
-    const s = state, mv = nextMove(), guide = guideCard();
-    const tired = s.energy < 16 || s.day >= MAXDAY;
-    const sleep = s.clock ? nextDayButton('small ' + (tired ? 'primary' : 'ghost')) : s.day >= MAXDAY ? button('Encerrar temporada', 'switch', 'data-target="temporada"', false, 'primary small')
-      : button(armedNext ? `Dormir com ${s.energy} de energia?` : 'Dormir', 'next-day', '', false, (armedNext ? 'armed' : tired ? 'primary' : 'ghost') + ' small');
-    const story = storyCard();
+    const s = state, guide = guideCard(), story = storyCard();
     if (online && !rank.at && !rank.loading) setTimeout(() => loadRank(), 0);
-    return jailNotice() + localeStrip(true, false) + localeInfo() + `
-      <section class="sceneCard" aria-label="A rua agora"><p>${esc(SB.streetScene(s))}</p></section>
+    return jailNotice() + `<div class="streetBlock">${localeStrip(true, false)}<section class="streetCap" aria-label="A rua agora"><span class="streetLbl">A rua agora</span><p>${esc(SB.streetScene(s))}</p></section></div>` + localeInfo() + `
       ${guide}${s.career ? '' : careerCard()}
-      ${mv && !guide ? `<section class="boardLead job nextMove"><div class="jobIcon">${statIcon(mv.icon || 'astucia')}</div><div class="jobMain"><div class="eyebrow">E agora? · ${esc(mv.tag)}</div><h3>${esc(mv.title)}</h3><p class="jobMeta">${esc(mv.text)}</p></div><div class="jobAct">${mv.btn}</div></section>` : ''}
       ${story}
       ${s.career || s.tutorial.done ? newsCard() : ''}
       ${recados()}
-      <section class="dayBar dayStrip"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span>${s.clock ? `<span class="clockLine">O dia vira em ${dur(SB.clockInfo(s).midnight)}</span>` : ''}</div>${sleep}</section>
       ${jornalCard()}
       ${agenda()}`;
   }
@@ -4656,56 +4985,92 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   /* ------------------------------------------------------------------ */
   const KIND_TXT = { arma: 'arma', protecao: 'proteção', veiculo: 'veículo', noite: 'casa da noite', mercadoria: 'mercadoria', esquema: 'esquema', assalto: 'assalto do bando', duelo: 'adversário de duelo', lugar: 'lugar', patente: 'patente' };
   const unlockList = us => { const a = us.slice(0, 3).map(u => `${esc(u.name)} <small>(${KIND_TXT[u.kind] || u.kind})</small>`); return a.join(', ') + (us.length > 3 ? ` e mais ${us.length - 3}` : ''); };
-    /** Lista de notícias do dia, cada uma com prioridade (a maior vira manchete), seção, título, texto e a tela para onde leva. */
+    /** Lista de notícias do dia, cada uma com prioridade (a maior vira manchete). O fato vem de SB.jornal; o texto vem da
+   *  redação (src/redacao.js), numa variação escolhida pela semente do dia. Sem fato, sem notícia. */
+  const RED = () => window.SBRedacao;
+  const seedPick = (seed, key) => { let x = seed >>> 0; for (const ch of key) x = (Math.imul(x, 31) + ch.charCodeAt(0)) >>> 0; return x; };
   function jornalNews(s, j) {
-    const N = [], add = (prio, kick, title, text, view = '', tone = '') => N.push({ prio, kick, title, text, view, tone });
-    const dn = id => esc(D(id).name), fname = id => id === 'voce' ? 'Você' : esc(F(id).short), gal = SB.placeOpen(s, 'galpao');
-    const nx = j.nextPhase, falta = nx ? Math.max(0, nx.at - s.respect) : 0;
-    // Carreira: patente nova e o que o respeito abriu (ontem e agora há pouco).
+    const N = [], R = RED(), pk = (arr, k) => arr[seedPick(j.seed, k) % arr.length];
+    const put = (prio, kick, key, v, view = '', tone = '', sub = '') => { const p = R.P[key]; v = Object.assign({ nome: esc(s.name) }, v); N.push({ prio, kick, title: pk(p.t, key + 't' + sub)(v), text: pk(p.x, key + 'x' + sub)(v), view, tone, by: p.by }); };
+    const dn = id => esc(D(id).name), fname = id => id === 'voce' ? esc(s.name) : esc(F(id).short), gal = SB.placeOpen(s, 'galpao');
+    const nx = j.nextPhase, prox = nx ? `Próximo degrau: ${esc(nx.name)}, com ${num(nx.at)} de respeito (faltam ${num(Math.max(0, nx.at - s.respect))}).` : 'Acima disso, só o topo da cidade.';
+    // Carreira
     const patNow = j.extra.find(u => u.kind === 'patente'), patOld = j.unlocked.find(u => u.kind === 'patente');
-    if (patNow) add(99, 'Extra', `${esc(s.name)} vira ${esc(patNow.name)}`, `Aconteceu agora há pouco: a rua já te chama de ${esc(patNow.name)}.${nx && nx.name !== patNow.name ? ` Próximo degrau: ${esc(nx.name)}, com ${num(nx.at)} de respeito.` : ''}`, 'perfil', 'extra');
-    else if (patOld) add(98, 'Carreira', `${esc(s.name)} agora é ${esc(patOld.name)}`, `Ontem a rua mudou o jeito de te chamar. ${nx ? `Faltam ${num(falta)} de respeito para ${esc(nx.name)}.` : 'Acima disso, só o topo da cidade.'}`, 'perfil');
+    if (patNow) put(99, 'Extra', 'patenteAgora', { patente: esc(patNow.name), prox }, 'perfil', 'extra');
+    else if (patOld) put(98, 'Carreira', 'patenteOntem', { patente: esc(patOld.name), prox }, 'perfil');
     const novo = j.extra.filter(u => u.kind !== 'patente'), velho = j.unlocked.filter(u => u.kind !== 'patente');
-    if (novo.length) add(94, 'Extra', 'Saiu agora na rua', `Seu respeito de hoje abriu: ${unlockList(novo)}.`, novo[0].view, 'extra');
-    if (velho.length) add(86, 'Novidades', velho.length > 1 ? 'Chegou mercadoria nova pra você' : `${esc(velho[0].name)} liberado`, `Com o respeito de ontem, a rua abriu: ${unlockList(velho)}.`, velho[0].view);
-    // O dia de ontem.
-    const y = j.yesterday;
-    if (y && y.arrests > 0) add(90, 'Polícia', `${esc(s.name)} rodou ontem`, `Foram ${num(y.arrests)} enquadro(s) no dia. ${y.fail ? `${num(y.fail)} roubo(s) deram errado.` : ''}`.trim(), 'acoes', 'bad');
-    if (y && (y.ok || y.fail)) add(y.respect >= 20 ? 70 : 52, 'Ontem', y.ok ? `${num(y.ok)} roubo${y.ok > 1 ? 's' : ''} na conta de ${esc(s.name)}` : 'Dia ruim nos roubos', `${y.fail ? `${num(y.fail)} deu errado. ` : ''}Respeito ${y.respect >= 0 ? '+' : ''}${num(y.respect)}, patrimônio ${y.worth >= 0 ? '+' : '−'}${fmt(Math.abs(y.worth))}.`, 'acoes');
-    // Bicho com bilhete seu.
+    if (novo.length) put(94, 'Extra', 'extra', { lista: unlockList(novo) }, novo[0].view, 'extra');
+    if (velho.length) put(86, 'Novidades', 'novidades', { lista: unlockList(velho), um: velho.length === 1, item: esc(velho[0].name) }, velho[0].view);
+    const a = j.acts, y = j.yesterday;
+    if (a && a.ladder && j.ladderMission) put(84, 'Carreira', 'degrau', { n: num(a.ladder), roubo: esc(SB.missionName(s, SB.mission(j.ladderMission))) }, 'acoes');
+    // Ontem
+    if (y && y.arrests > 0) put(90, 'Polícia', 'preso', { n: num(y.arrests) }, 'acoes', 'bad');
+    if (y && y.ok) put(y.respect >= 20 ? 70 : 52, 'Ontem', 'ontemBom', { n: num(y.ok), falhas: y.fail ? `${num(y.fail)} deu errado. ` : '', resp: `${y.respect >= 0 ? '+' : ''}${num(y.respect)}`, patr: `${y.worth >= 0 ? '+' : '−'}${fmt(Math.abs(y.worth))}` }, 'acoes');
+    else if (y && y.fail) put(60, 'Ontem', 'ontemRuim', { f: num(y.fail), patr: `${y.worth >= 0 ? '+' : '−'}${fmt(Math.abs(y.worth))}` }, 'acoes', 'bad');
+    // Bicho com jogo seu
     const b = j.bicho;
-    if (b && b.picks.length) add(b.won ? 97 : 66, 'Bicho', b.won ? `Deu ${esc(SB.ANIMALS[b.animal])}! ${esc(s.name)} acertou` : `Deu ${esc(SB.ANIMALS[b.animal])}: não foi dessa vez`, b.won ? `A banca pagou ${fmt(b.won)} de lucro.` : `Você tinha ${b.picks.map(k => esc(SB.ANIMALS[k.pick])).join(', ')}. Perdeu ${fmt(b.lost)}.`, 'apostas', b.won ? 'good' : '');
-    // Cidade: eventos de hoje e a previsão de amanhã.
-    for (const e of j.events) add(e.fresh ? 78 : 48, e.fresh ? 'Hoje' : 'Continua', esc(e.title), `${esc(e.desc)}${e.until > s.day ? ` Até o dia ${num(e.until)}.` : ' Só hoje.'}`, e.district ? 'cidade' : '', e.id === 'operacao' || e.id === 'fechames' || e.id === 'fiscalizacao' ? 'bad' : '');
-    if (j.tomorrow.length) add(46, 'Previsão', `Amanhã: ${j.tomorrow.map(t => esc(t.title)).join(' e ')}`, 'Se prepare hoje.', '');
-    // Gangues: quem tomou o quê e o que cada grupo fez na noite.
-    for (const t of j.turf) add(t.to === 'voce' || t.from === 'voce' ? 88 : 74, 'Gangues', t.to === 'voce' ? `${esc(s.name)} assume a ${dn(t.district)}` : t.from === 'voce' ? `${esc(s.name)} perde a ${dn(t.district)}` : `${fname(t.to)} toma a ${dn(t.district)}`, t.to === 'voce' ? 'Agora quem manda ali é você.' : t.from === 'voce' ? `${fname(t.to)} passou na frente. Volte a fazer contatos e roubos por lá.` : `${fname(t.from)} perdeu o comando da região durante a noite.`, 'cidade', t.from === 'voce' ? 'bad' : '');
-    if (j.moves.length) add(34, 'Gangues', 'O movimento da noite', j.moves.slice(0, 3).map(m => esc(m.text)).join(' '), 'cidade');
-    // Polícia.
-    const pol = j.police;
-    if (pol.heat >= 60) add(76, 'Polícia', pol.heat >= 85 ? 'Caçado: seu retrato está na delegacia' : 'A polícia está na sua cola', `Procurado ${num(pol.heat)} (${esc(pol.tier)}). Esfrie antes do próximo roubo.`, 'acoes', 'bad');
-    else if (pol.hot.v >= 20) add(40, 'Polícia', `Viatura de sobra na ${dn(pol.hot.id)}`, `Polícia ${num(pol.hot.v)} por lá. Mais tranquila: ${dn(pol.calm.id)} (${num(pol.calm.v)}).`, 'cidade');
-    else add(22, 'Polícia', 'Ronda fraca na cidade', `Nenhuma região com polícia reforçada hoje. Seu Procurado: ${num(pol.heat)} (${esc(pol.tier)}).`, 'acoes');
-    // Galpão: comprador de fora (sem contar o que ele quer), preços que mexeram e a melhor rota.
+    if (b && b.picks.length) put(b.won ? 97 : 66, 'Bicho', b.won ? 'bichoGanhou' : 'bichoPerdeu', { bicho: esc(SB.ANIMALS[b.animal]), valor: fmt(b.won || b.lost), jogo: b.picks.map(k => esc(SB.ANIMALS[k.pick])).join(', ') }, 'apostas', b.won ? 'good' : '');
+    // Compras, duelos, bando, saúde, Galpão do dia de ontem
+    if (a) {
+      for (const id of a.biz) put(82, 'Negócios', 'comprouNegocio', { negocio: esc(SB.business(id).name) }, 'negocios', 'good', id);
+      for (const id of a.gear) { const it = SB.item(id); if (it) put(64, 'Feira do Rolo', it.slot === 'arma' ? 'armaNova' : it.slot === 'protecao' ? 'protecaoNova' : 'veiculoNovo', { item: esc(it.name) }, 'feira', '', id); }
+      if (a.duelW > 0) put(62, 'Duelo', 'dueloVenceu', { n: num(a.duelW) }, 'duelos', 'good');
+      if (a.duelL > 0) put(57, 'Duelo', 'dueloPerdeu', { n: num(a.duelL) }, 'duelos', 'bad');
+      if (a.gang) put(80, 'Gangues', 'bandoNovo', {}, 'gangue', 'good');
+      else if (a.crew > 0) put(54, 'Gangues', 'bandoCresceu', { n: num(a.crew) }, 'gangue');
+      if (a.overdoses > 0) put(87, 'Saúde', 'overdose', {}, 'hospital', 'bad');
+      if (a.ach > 0) put(56, 'Feitos', 'conquista', {}, 'temporada', 'good');
+      if (a.exported > 0) put(68, 'Porto', 'remessa', { n: num(a.exported) }, 'galpao', 'good');
+      else if (a.sold >= 5) put(45, 'Galpão', 'vendeu', { n: num(a.sold) }, 'galpao');
+      if (a.blitz > 0) put(61, 'Polícia', 'blitz', { n: num(a.blitz) }, 'galpao', 'bad');
+      if (a.bank >= 1000) put(36, 'Negócios', 'banco', { valor: fmt(a.bank) }, 'gestao');
+      if (a.story > 0) put(50, 'Crônica', 'historia', {}, 'painel');
+    }
+    if (s.vicio >= 70) put(74, 'Saúde', 'vicioAlto', { n: num(s.vicio) }, 'hospital', 'bad');
+    else if (s.health < 40 && !s.hospital) put(72, 'Saúde', 'saudeBaixa', { n: num(s.health) }, 'hospital', 'bad');
+    // Cidade
+    for (const e of j.events) put(e.fresh ? 78 : 48, e.fresh ? 'Hoje' : 'Continua', e.fresh ? 'eventoNovo' : 'eventoSegue', { evento: esc(e.title), desc: esc(e.desc), ate: e.until > s.day ? `Até o dia ${num(e.until)}.` : 'Só hoje.' }, e.district ? 'cidade' : '', ['operacao', 'fechames', 'fiscalizacao', 'crise'].includes(e.id) ? 'bad' : '', e.id);
+    if (j.tomorrow.length) put(46, 'Previsão', 'previsao', { evento: j.tomorrow.map(t => esc(t.title)).join(' e ') });
+    // Gangues
+    for (const t of j.turf) {
+      if (t.to === 'voce') put(88, 'Gangues', 'voceTomou', { regiao: dn(t.district) }, 'cidade', 'good', t.district);
+      else if (t.from === 'voce') put(88, 'Gangues', 'vocePerdeu', { regiao: dn(t.district), grupo: fname(t.to) }, 'cidade', 'bad', t.district);
+      else put(74, 'Gangues', 'gangueToma', { regiao: dn(t.district), grupo: fname(t.to), grupo2: fname(t.from) }, 'cidade', '', t.district);
+    }
+    if (j.moves.length) put(34, 'Gangues', 'movimento', { lista: j.moves.slice(0, 3).map(m => esc(m.text)).join(' ') }, 'cidade');
+    // Polícia (só quando há o que contar)
+    const pol = j.police, hp = a ? a.heatPrev : pol.heat;
+    if (pol.heat >= 85) put(80, 'Polícia', 'cacado', { heat: num(pol.heat), tier: esc(pol.tier) }, 'acoes', 'bad');
+    else if (pol.heat >= 60) put(76, 'Polícia', 'naMira', { heat: num(pol.heat), tier: esc(pol.tier) }, 'acoes', 'bad');
+    else if (hp >= 60 && pol.heat < 45) put(58, 'Polícia', 'esfriou', { heat: num(pol.heat), tier: esc(pol.tier) }, 'acoes', 'good');
+    if (pol.hot.v >= 35) put(42, 'Polícia', 'policiaRegiao', { regiao: dn(pol.hot.id), regiao2: dn(pol.calm.id), n: num(pol.hot.v) }, 'cidade');
+    // Galpão e porto
     if (gal) {
       const ex = j.export;
-      if (ex.today) add(SB.cargoUsed(s) > 0 ? 80 : 56, 'Porto', 'O comprador de fora atracou', `Hoje, na ${dn('cais')}. Ele só fala de negócio pessoalmente.`, 'galpao', 'good');
-      else if (ex.day > s.day && ex.day - s.day <= 2) add(44, 'Porto', `Barco previsto para o dia ${num(ex.day)}`, `Na ${dn('cais')}. Ninguém sabe o que ele vem buscar.`, 'galpao');
-      for (const m of j.movers.filter((x, i, a) => a.findIndex(y => y.good === x.good) === i).slice(0, 2)) add(50 + Math.min(10, Math.abs(m.pct) / 3), 'Galpão', `${esc(SB.good(m.good).name)} ${m.pct > 0 ? 'dispara' : 'despenca'} ${Math.abs(m.pct)}% na ${dn(m.district)}`, `De ${fmt(m.from)} para ${fmt(m.price)} por ${esc(SB.good(m.good).unit)}.`, 'galpao', m.pct > 0 ? 'good' : 'bad');
-      if (j.spread && j.spread.gain >= 2) add(42, 'Galpão', `Rota do dia: ${esc(SB.good(j.spread.good).name)}`, `Compre na ${dn(j.spread.buy)} por ${fmt(j.spread.buyPrice)} e venda na ${dn(j.spread.sell)} por ${fmt(j.spread.sellPrice)}.`, 'galpao');
+      if (ex.today) put(SB.cargoUsed(s) > 0 ? 80 : 56, 'Porto', 'portoHoje', { regiao: dn('cais') }, 'galpao', 'good');
+      else if (ex.day > s.day && ex.day - s.day <= 2) put(44, 'Porto', 'portoPrevisto', { regiao: dn('cais'), dia: num(ex.day) }, 'galpao');
+      for (const m of j.movers.filter((x, i, l) => l.findIndex(z => z.good === x.good) === i).slice(0, 2)) put(50 + Math.min(10, Math.abs(m.pct) / 3), 'Galpão', m.pct > 0 ? 'alta' : 'queda', { mercadoria: esc(SB.good(m.good).name), pct: num(Math.abs(m.pct)), regiao: dn(m.district), de: fmt(m.from), para: fmt(m.price), unid: esc(SB.good(m.good).unit) }, 'galpao', m.pct > 0 ? 'good' : 'bad', m.good);
+      if (j.spread && j.spread.gain >= Math.max(2, j.spread.buyPrice * .15)) put(40, 'Galpão', 'rota', { mercadoria: esc(SB.good(j.spread.good).name), compra: dn(j.spread.buy), venda: dn(j.spread.sell), de: fmt(j.spread.buyPrice), para: fmt(j.spread.sellPrice) }, 'galpao');
     }
-    // Negócios.
-    if (j.boom) add(58, 'Negócios', `${esc(SB.business(j.boom.id).name)} fatura alto hoje`, `O movimento da cidade puxa a casa: +${Math.round((j.boom.mult - 1) * 100)}% na renda de hoje.`, 'negocios', 'good');
-    if (j.business && SB.placeOpen(s, 'negocios')) { const bz = j.business, cabe = bz.cost <= s.cash + s.bank; add(cabe ? 38 : 26, 'Negócios', `Negócio da vez: ${esc(SB.business(bz.id).name)}`, `${fmt(bz.cost)}, rende cerca de ${fmt(bz.day)} por dia e se paga em ${num(bz.payback)} dias.${cabe ? '' : ' Junte o dinheiro.'}`, 'negocios'); }
-    // Fofoca: o próximo desbloqueio.
-    if (j.next) add(30, 'Fofoca', `Dizem que com ${num(j.next.at)} de respeito…`, `…aparece ${esc(j.next.name)} (${KIND_TXT[j.next.kind] || j.next.kind}). Faltam ${num(j.next.at - s.respect)}.`, j.next.view);
-    return N.sort((a, b) => b.prio - a.prio);
+    // Negócios
+    if (j.boom) put(58, 'Negócios', 'boom', { negocio: esc(SB.business(j.boom.id).name), pct: num(Math.round((j.boom.mult - 1) * 100)) }, 'negocios', 'good');
+    if (j.business && j.business.cost <= s.cash + s.bank) { const bz = j.business; put(38, 'Classificados', 'negocioDaVez', { negocio: esc(SB.business(bz.id).name), custo: fmt(bz.cost), renda: fmt(bz.day), prazo: num(bz.payback) }, 'negocios'); }
+    // Fofoca: só quando o próximo desbloqueio está perto
+    if (j.next && j.next.at - s.respect <= 15) put(30, 'Fofoca', 'fofocaProximo', { n: num(j.next.at), item: esc(j.next.name), tipo: KIND_TXT[j.next.kind] || j.next.kind, falta: num(j.next.at - s.respect) }, j.next.view);
+    // Crônica: a cidade vive mesmo quando você não faz nada (em 4 de cada 5 dias)
+    if (seedPick(j.seed, 'cron?') % 5 !== 0) {
+      const c = pk(R.CRONICAS, 'cron'), reg = SB.DISTRICTS[seedPick(j.seed, 'reg') % SB.DISTRICTS.length], fac = SB.FACTIONS[seedPick(j.seed, 'fac') % SB.FACTIONS.length];
+      const v = { regiao: esc(reg.name), grupo: esc(F(fac.id).short), bar: esc(SB.business('bar').name), cidade: esc(s.city) };
+      N.push({ prio: 28, kick: 'Crônica', title: c.t(v), text: c.x(v), view: '', tone: '', by: 'juca' });
+    }
+    return N.sort((p, q) => q.prio - p.prio);
   }
   function jornalCard() {
-    const s = state, j = SB.jornal(s), c = SB.cityOf(s.city), news = jornalNews(s, j);
-    const lead = news[0] && news[0].prio >= 60 ? news.shift() : { kick: 'Cidade', title: esc(j.week.name.split('·').pop().trim()), text: `${esc(j.week.desc)} ${s.day < MAXDAY ? `Faltam ${num(MAXDAY - s.day)} dias para o fim do mês.` : 'Último dia do mês.'}`, view: '', tone: '' };
-    const go = v => v ? ` data-view="${v}"` : '';
-    const item = n => `<article class="jItem ${n.tone}"${go(n.view)}${n.view ? ' role="button" tabindex="0"' : ''}><span class="jKick">${esc(n.kick)}</span><h4>${n.title}</h4><p>${n.text}</p></article>`;
+    const s = state, j = SB.jornal(s), c = SB.cityOf(s.city), R = RED(), news = jornalNews(s, j);
+    const lead = news[0] && news[0].prio >= 60 ? news.shift() : news.find(n => n.kick === 'Crônica') ? news.splice(news.findIndex(n => n.kick === 'Crônica'), 1)[0]
+      : { kick: 'Cidade', title: esc(j.week.name.split('·').pop().trim()), text: `${esc(j.week.desc)} ${s.day < MAXDAY ? `Faltam ${num(MAXDAY - s.day)} dias para o fim do mês.` : 'Último dia do mês.'}`, view: '', tone: '', by: 'kelly' };
+    const go = v => v ? ` data-view="${v}"` : '', by = k => R.EQUIPE[k] ? `<span class="jBy">por ${esc(R.EQUIPE[k].nome)}</span>` : '';
+    const item = n => `<article class="jItem ${n.tone}"${go(n.view)}${n.view ? ' role="button" tabindex="0"' : ''}><span class="jKick">${esc(n.kick)}</span><h4>${n.title}</h4>${by(n.by)}<p>${n.text}</p></article>`;
     const pi = SB.phaseIndex(s), ph = SB.PHASES[pi], nx = SB.PHASES[pi + 1];
     const ficha = `<section class="rumo ficha jFicha" aria-label="Seu progresso"><span class="jKick">Coluna do respeito</span>
         <div class="progHead"><b>${esc(ph.name)}</b><span>${nx ? `faltam ${num(nx.at - s.respect)} para ${esc(nx.name)}` : 'patente máxima'}</span></div><div class="meter"><div style="width:${pct(nx ? (s.respect - ph.at) / (nx.at - ph.at) * 100 : 100)}%"></div></div>
@@ -4714,16 +5079,23 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const bicho = b || tk.length ? `<section class="jBicho ${b && b.won ? 'paid' : ''}" aria-label="Resultado do bicho"${apostas ? ' data-view="apostas" role="button" tabindex="0"' : ''}><span class="jKick">Deu no bicho</span>
         ${b ? `<div class="jDraw"><b>${String(b.animal + 1).padStart(2, '0')}</b><span>${esc(SB.ANIMALS[b.animal])}<em>grupo ${String(b.animal + 1).padStart(2, '0')} · extração do dia ${num(b.day)}</em></span></div>` : ''}
         ${b && b.picks.length ? `<p class="${b.won ? 'win' : 'lose'}">${b.won ? `Você acertou: +${fmt(b.won)}` : `Seu jogo: ${b.picks.map(k => esc(SB.ANIMALS[k.pick])).join(', ')}. Não deu.`}</p>` : ''}
-        ${tk.length ? `<p class="tick">Hoje à noite: ${tk.map(k => `${esc(SB.ANIMALS[k.pick])} ${fmt(k.stake)}`).join(' · ')}</p>` : ''}</section>` : '';
+        ${tk.length ? `<p class="tick">Hoje à noite: ${tk.map(k => `${esc(SB.ANIMALS[k.pick])} ${fmt(k.stake)}`).join(' · ')}</p>` : ''}<span class="jBy">por ${esc(R.EQUIPE.bene.nome)}</span></section>` : '';
     const list = bicho ? news.filter(n => n.kick !== 'Bicho') : news; // o quadro do bicho já conta o resultado
     const shown = list.slice(0, 2), rest = list.slice(2);
+    const frase = `${esc(R.FRASES[seedPick(j.seed, 'frase') % R.FRASES.length])}`, quem = esc(R.FRASE_QUEM[seedPick(j.seed, 'quem') % R.FRASE_QUEM.length]);
+    const ads = [0, 1].map(k => R.CLASSIFICADOS[(seedPick(j.seed, 'ad') + k * 7) % R.CLASSIFICADOS.length]);
+    const exp = ['kelly', 'tuca', 'ze', 'lourival', 'tiao', 'bene', 'neide', 'cida', 'marquinhos', 'juca', 'doutora', 'bia'].map(k => `${esc(R.EQUIPE[k].nome)} <small>(${esc(R.EQUIPE[k].cargo)})</small>`).join(' · ');
     return `<section class="jornal" aria-label="Jornal do Submundo">
-      <header class="jMast"><div class="jEars"><span>Edição ${esc(c.name)}</span><span>Dia ${num(s.day)} de ${num(MAXDAY)}</span></div>
+      <header class="jMast"><div class="jEars"><span>Edição ${esc(c.name)}</span><span>Dia ${num(s.day)} de ${num(MAXDAY)}${s.clock ? ` · o dia vira em ${dur(SB.clockInfo(s).midnight)}` : ''}</span></div>
         <h2 class="jTitle">Jornal do Submundo</h2>
         <div class="jSub"><span>${esc(j.week.name)}</span><span>O que a polícia não lê</span></div></header>
-      <article class="jLead ${lead.tone}"${go(lead.view)}${lead.view ? ' role="button" tabindex="0"' : ''}><div class="jPhoto" aria-hidden="true"></div><div class="jLeadText"><span class="jKick">${esc(lead.kick)}</span><h3>${lead.title}</h3><p>${lead.text}</p></div></article>
+      <article class="jLead ${lead.tone}"${go(lead.view)}${lead.view ? ' role="button" tabindex="0"' : ''}><figure class="jFig"><div class="jPhoto" aria-hidden="true"></div><figcaption>Foto: ${esc(R.EQUIPE.bia.nome)}</figcaption></figure><div class="jLeadText"><span class="jKick">${esc(lead.kick)}</span><h3>${lead.title}</h3>${by(lead.by)}<p>${lead.text}</p></div></article>
       <div class="jGrid">${ficha}${bicho}${shown.map(item).join('')}</div>
-      ${rest.length ? `<details class="jMore"><summary>Ler o jornal inteiro <small>${rest.length} notícia${rest.length > 1 ? 's' : ''}</small></summary><div class="jGrid">${rest.map(item).join('')}</div></details>` : ''}
+      <blockquote class="jQuote"><p>“${frase}”</p><cite>— ${quem}</cite></blockquote>
+      <details class="jMore"><summary>Ler o jornal inteiro <small>${rest.length ? `${rest.length} notícia${rest.length > 1 ? 's' : ''} e classificados` : 'classificados e expediente'}</small></summary>
+        ${rest.length ? `<div class="jGrid">${rest.map(item).join('')}</div>` : ''}
+        <section class="jAds"><span class="jKick">Classificados</span>${ads.map(t => `<p>${esc(t)}</p>`).join('')}</section>
+        <p class="jExp"><b>Expediente</b> ${exp}</p></details>
     </section>`;
   }
   /** Diário: agenda de folhas gastas, escrita à caneta. Cada fato vira uma linha; a virada do dia fica em "Madrugada"
@@ -4812,7 +5184,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const s = state;
     const list = SB.MISSIONS.filter(m => missionFilter === 'todas' ? true : missionFilter === 'bairro' ? m.district === s.district : ['', 'Energia insuficiente.', 'Você está detido.', 'Você está internado.'].includes(SB.missionLock(s, m))).sort((a, b) => a.n - b.n);
     return heading('Roubar', 'Do mais fácil ao mais difícil.') + jailNotice() + resultCard() + heatCard() + `
-      ${stencil('Roubos', esc(D().spot))}<div class="robStats traits hereTraits">${SB.districtTraits(D()).map((tx, k) => `<span class="st trait t${k}">${esc(tx)}</span>`).join('')}</div>
+      ${stencil('Roubos', esc(D().name))}<div class="robStats traits hereTraits">${SB.districtTraits(D()).map((tx, k) => `<span class="st trait t${k}">${esc(tx)}</span>`).join('')}</div>
       <div class="filterbar" role="group" aria-label="Filtrar missões">${[['disponiveis', 'Disponíveis'], ['bairro', 'Desta região'], ['todas', 'Todas']].map(([id, l]) => `<button type="button" class="btn ghost ${missionFilter === id ? 'on' : ''}" data-action="filter" data-id="${id}" aria-pressed="${missionFilter === id}">${l}</button>`).join('')}</div>
       <div class="jobs">${list.length ? list.map(missionCard).join('') : '<div class="empty">Nenhum roubo neste filtro. Veja “Todas”.</div>'}</div>
       ${stencil('Treino', `hoje ${s.today.training}/3`)}
@@ -4886,7 +5258,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const s = state, l = SB.leader(s, x.id), here = x.id === s.district, ds = s.dstate[x.id];
     const evs = SB.activeEvents(s).filter(e => e.district === x.id);
     const traits = SB.districtTraits(x).map((tx, k) => `<span class="st trait t${k}">${esc(tx)}</span>`).join('');
-    return `<section class="card district ${here ? 'selected' : ''}" style="--bc:${(SB.DISTRICT_VIBE[x.id] || {}).color || '#e0a040'}"><div class="miniScene">${scene(x.id)}${plate(x.name, x.spot)}${here ? '<span class="pill here">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill here">Você lidera</span>' : ''}</div>
+    return `<section class="card district ${here ? 'selected' : ''}" style="--bc:${(SB.DISTRICT_VIBE[x.id] || {}).color || '#e0a040'}"><div class="miniScene">${scene(x.id)}${plate(x.name)}${here ? '<span class="pill here">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill here">Você lidera</span>' : ''}</div>
       <div class="kv"><div><span>Líder</span><strong>${SB.controlled(s, x.id) ? 'Você' : esc(F(l.id).short) + ' ' + l.value}</strong></div><div><span>Sua influência</span><strong>${s.influence[x.id]}</strong></div><div><span>Grana</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Polícia na região</span><strong>${ds.vigil}</strong></div></div>
       <div class="robStats traits">${traits}</div>
       ${evs.length ? `<div class="chips">${evs.map(e => `<span class="chip warn">${esc(SB.eventTitle(e))}</span>`).join('')}</div>` : ''}

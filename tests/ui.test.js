@@ -50,11 +50,11 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check(!(await page.isVisible('#help')), 'Começar fecha a apresentação e segue para o guia');
   check((await page.textContent('.guide')).includes('2/8') && (await page.textContent('.guide')).toLowerCase().includes('roubo'), 'logo em seguida o guia começa, no primeiro roubo');
   await page.click('.guide [data-action=help]'); for (let i = 0; i < 3; i++) await page.click('[data-action=help-next]');
-  check((await page.textContent('#helpBox')).includes('Largo das Ladeiras'), 'ajuda mostra os bairros da cidade escolhida');
+  check((await page.textContent('#helpBox')).includes('Região Central') && !(await page.textContent('#helpBox')).includes('Largo das Ladeiras'), 'ajuda mostra as regiões, sem nome inventado de ponto');
   await page.click('#helpBox .btn.primary');
   check((await page.locator('.mobileNav button').allTextContents()).join('>') === 'Rua>Roubar>Noite>Feira>Cidade', 'abas na ordem do ciclo');
   check((await page.textContent('#hudSub')).includes('Pé de chinelo'), 'fase aparece na barra do personagem');
-  check((await page.textContent('.plate')).includes('Largo das Ladeiras'), 'placa do bairro com nome de Salvador');
+  check((await page.textContent('.plate')).includes('Salvador') && !(await page.textContent('.plate')).includes('Largo das Ladeiras'), 'placa da região com o nome de Salvador e sem ponto inventado');
   check(await page.isVisible('.rumo'), 'cartão "Seu rumo" visível');
   await page.screenshot({ path: path.join(__dirname, 'screens', 'v6-inicio.png'), fullPage: true });
   for (const v of ['painel', 'acoes', 'hub', 'cidade', 'gestao', 'feira', 'galpao', 'noite', 'gangue', 'perfil', 'temporada']) {
@@ -96,7 +96,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   await go('painel');
   await page.click('[data-action=next-day]');
   check((await st()).day === 1, 'primeiro toque em "Avançar dia" pede confirmação');
-  check(await page.isVisible('.btn.armed'), 'botão armado visível');
+  check(await page.isVisible('.hudSleepBtn.armed'), 'botão Dormir do topo fica armado (pede confirmação)');
   await page.click('[data-action=next-day]');
   check((await st()).day === 2, 'segundo toque avança o dia');
   check(await page.isVisible('.resultCard ul'), 'resumo do dia exibido');
@@ -216,8 +216,8 @@ await page.click('[data-action=duel][data-id=marrento]');
   await go('noite');
   check((await page.textContent('#content')).includes('Vício'), 'tela da Noite mostra o vício');
   await go('painel');
-  check((await page.textContent('.dayBar')).includes('Semana'), 'Rua mostra a semana do mês');
-  check(await page.isVisible('.sceneCard') && (await page.textContent('.sceneCard')).length > 40, 'a Rua abre com a cena do momento');
+  check((await page.textContent('.jornal .jSub')).includes('Semana') && (await page.textContent('#topDay')).includes('Dia'), 'a semana do mês está no jornal e o dia no topo');
+  check(await page.isVisible('.streetCap') && (await page.textContent('.streetCap')).length > 40, 'a Rua abre com a cena do momento, como legenda da região');
   { await page.evaluate(() => { const k = 'submundo_brasil_v01', s = JSON.parse(localStorage.getItem(k)); s.successful = Math.max(1, s.successful); s.story = { done: {}, day: 0, season: 0 }; localStorage.setItem(k, JSON.stringify(s)); }); await page.reload(); await go('painel');
     check(await page.isVisible('.storyCard') && (await page.textContent('.storyCard')).includes('Dona Zefa') && await page.locator('.storyChoice').count() === 2, 'capítulo da história aparece com duas decisões');
     await page.click('.storyChoice[data-i="0"]'); const ss = await st(); check(ss.story.done.quarto === 0 && await page.locator('.storyCard').count() === 0, 'a decisão fica gravada e o capítulo some'); }
@@ -236,6 +236,11 @@ await page.click('[data-action=duel][data-id=marrento]');
   check(await page.locator('.jornal .jFicha .progHead').count() === 1 && await page.locator('.jornal .jFicha .progRank').count() === 1, 'a patente e o progresso estão no jornal (Coluna do respeito)');
   check(await page.locator('.jornal .jTitle').count() === 1 && await page.locator('.jornal .jLead h3').count() === 1 && await page.locator('.dayNews').count() === 0, 'Rua: o Hoje na cidade virou o Jornal do Submundo, com manchete');
   check(await page.locator('.agenda .agPage').count() >= 1 && (await page.textContent('.agenda .agDay')).includes('Dia'), 'Diário em forma de agenda, com o dia de hoje aberto');
+  check(await page.evaluate(() => { const R = window.SBRedacao, v = new Proxy({}, { get: (o, k) => k === 'um' ? false : 'X' + String(k) }); let n = 0;
+    for (const [k, p] of Object.entries(R.P)) { if (!R.EQUIPE[p.by]) return 'sem autor: ' + k; for (const f of [...p.t, ...p.x]) { const t = f(v); n++; if (typeof t !== 'string' || /undefined|NaN|\$\{/.test(t) || t.length < 3) return k + ': ' + t; } }
+    for (const c of R.CRONICAS) { const t = c.t(v) + c.x(v); n++; if (/undefined|NaN/.test(t)) return t; }
+    return n > 250 && R.CRONICAS.length >= 40 && R.FRASES.length >= 40 && R.CLASSIFICADOS.length >= 20 ? true : 'poucos textos: ' + n; }) === true, 'redação do jornal: todos os textos montam sem buraco, com autor da equipe, e há variedade (250+ modelos, 40 crônicas, 40 frases)');
+  check(await page.evaluate(() => { const t = document.querySelector('.jornal').textContent; return !/undefined|NaN|\$\{/.test(t) && /por [A-ZÁÉ]/.test(t) && !!document.querySelector('.jornal .jQuote') && !!document.querySelector('.jornal .jExp'); }), 'jornal publicado com assinaturas, frase do dia e expediente, sem texto quebrado');
   { // bicho: aposta hoje, resultado no jornal de amanhã
     await page.evaluate(() => { const k = 'submundo_brasil_v01', SB = window.SB, s = JSON.parse(localStorage.getItem(k)); s.cash = Math.max(s.cash, 500); s.respect = Math.max(s.respect, 10); s.jail = 0; s.hospital = 0; s.today.bets = 0; s.clock = null; s.day = Math.min(s.day, SB.MAXDAY - 2);
       SB.perform(s, 'bet', 'bicho', 100, 4); SB.perform(s, 'nextDay'); localStorage.setItem(k, JSON.stringify(s)); });
@@ -385,7 +390,7 @@ await page.click('[data-action=duel][data-id=marrento]');
     await op.evaluate(() => { window.__SB_UI.state.tutorial.done = true; window.__SB_UI.go('painel'); }); await op.waitForFunction(() => { const e = document.querySelector('.progRank'); return e && e.textContent.includes('2º de 2'); });
     check((await op.textContent('.progRank')).includes('2º de 2'), 'a Rua mostra a sua posição no mês');
     await op.evaluate(() => window.__SB_UI.go('painel'));
-    check(await op.locator('[data-action=next-day]').count() === 0 && (await op.textContent('.dayStrip')).includes('O dia vira em'), 'online: sem Dormir; a faixa do dia mostra quando o dia vira');
+    check(await op.locator('[data-action=next-day]').count() === 0 && (await op.textContent('.jornal .jEars')).includes('o dia vira em'), 'online: sem Dormir; a faixa do dia mostra quando o dia vira');
     await op.click('[data-action=go-home]');
     await op.waitForSelector('.homeNote');
     check((await op.textContent('.homeNote')).includes('volta em 3 h') && saved.clock.home > 0, 'Ir pra casa: aviso com o tempo de volta');

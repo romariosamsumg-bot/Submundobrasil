@@ -142,14 +142,14 @@
   ];
 
   /* As regiões têm nome genérico (o jogador se localiza na hora); o nome inventado de cada cidade
-   * vira o "ponto" dentro da região (d.spot), para não associar crime a lugares reais. */
+   * ficou só na tabela CITIES (não aparece na tela), para não associar crime a lugares reais. */
   const REGION_NAMES = { centro: 'Região Central', cais: 'Região Portuária', jardim: 'Região Residencial', industrial: 'Região Industrial', vila: 'Região da Boêmia' };
   const DISTRICTS = [
-    { id: 'centro', name: 'Região Central', spot: 'Centro Antigo', desc: 'Comércio intenso e circulação constante de gente.', risk: 3, bonus: 8, police: 1, danger: 1, tribute: 110, advantage: 'Diálogos com facções +8 e criar contatos 20% mais barato.' },
-    { id: 'cais', name: 'Região Portuária', spot: 'Cais do Norte', desc: 'Galpões, armazéns e uma região portuária em transformação.', risk: 0, bonus: 18, police: .6, danger: 1.6, tribute: 140, advantage: 'Operações coletivas rendem +20%.' },
-    { id: 'jardim', name: 'Região Residencial', spot: 'Jardim União', desc: 'Bairro residencial de trabalhadores e pequenos negócios.', risk: -6, bonus: -12, police: .6, danger: .7, tribute: 70, advantage: 'Recrutar custa 25% menos e a equipe ganha +2 de ânimo por dia.' },
-    { id: 'industrial', name: 'Região Industrial', spot: 'Distrito Industrial', desc: 'Grandes empresas e patrulhamento reforçado.', risk: 12, bonus: 28, police: 1.5, danger: 1, tribute: 160, advantage: 'Todos os seus negócios rendem +12%.' },
-    { id: 'vila', name: 'Região da Boêmia', spot: 'Vila das Palmeiras', desc: 'Ruas movimentadas e comércio de bairro.', risk: 4, bonus: 5, police: 1, danger: 1.3, tribute: 90, advantage: 'Seu Procurado cai 5 pontos extras por dia.' }
+    { id: 'centro', name: 'Região Central', desc: 'Comércio intenso e circulação constante de gente.', risk: 3, bonus: 8, police: 1, danger: 1, tribute: 110, advantage: 'Diálogos com facções +8 e criar contatos 20% mais barato.' },
+    { id: 'cais', name: 'Região Portuária', desc: 'Galpões, armazéns e uma região portuária em transformação.', risk: 0, bonus: 18, police: .6, danger: 1.6, tribute: 140, advantage: 'Operações coletivas rendem +20%.' },
+    { id: 'jardim', name: 'Região Residencial', desc: 'Bairro residencial de trabalhadores e pequenos negócios.', risk: -6, bonus: -12, police: .6, danger: .7, tribute: 70, advantage: 'Recrutar custa 25% menos e a equipe ganha +2 de ânimo por dia.' },
+    { id: 'industrial', name: 'Região Industrial', desc: 'Grandes empresas e patrulhamento reforçado.', risk: 12, bonus: 28, police: 1.5, danger: 1, tribute: 160, advantage: 'Todos os seus negócios rendem +12%.' },
+    { id: 'vila', name: 'Região da Boêmia', desc: 'Ruas movimentadas e comércio de bairro.', risk: 4, bonus: 5, police: 1, danger: 1.3, tribute: 90, advantage: 'Seu Procurado cai 5 pontos extras por dia.' }
   ];
 
   /* Negócios: cada um fica em uma região e sofre a economia e as facções locais. */
@@ -416,7 +416,7 @@
     const c = cityOf(name);
     if (appliedCity === c.id) return c;
     appliedCity = c.id;
-    for (const d of DISTRICTS) { d.name = REGION_NAMES[d.id]; d.spot = c.districts[d.id][0]; d.desc = c.districts[d.id][1]; }
+    for (const d of DISTRICTS) { d.name = REGION_NAMES[d.id]; d.desc = c.districts[d.id][1]; } // o nome inventado do ponto não aparece mais (pedido do autor)
     for (const f of FACTIONS) { f.name = c.factions[f.id][0]; f.short = c.factions[f.id][1]; }
     for (const b of BUSINESSES) if (c.biz[b.id]) b.name = c.biz[b.id];
     EVENTS.carnaval.title = c.carnaval; EVENTS.classico.title = c.classico;
@@ -859,10 +859,13 @@
     const snap = x => {
       if (!x || typeof x !== 'object') return null;
       const now = paperSnap(s), lead = x.leaders && typeof x.leaders === 'object' ? x.leaders : {}, mk = x.market && typeof x.market === 'object' ? x.market : {};
-      return { day: toInt(x.day, s.day, 1, MAXDAY), respect: toInt(x.respect, now.respect, 0, BIG), worth: toInt(x.worth, now.worth, 0, BIG), heat: toInt(x.heat, now.heat, 0, 100),
-        ok: toInt(x.ok, now.ok, 0, BIG), fail: toInt(x.fail, now.fail, 0, BIG), arrests: toInt(x.arrests, now.arrests, 0, BIG),
+      const out = { day: toInt(x.day, s.day, 1, MAXDAY), gang: x.gang === 1 || x.gang === 0 ? x.gang : now.gang,
+        biz: Array.isArray(x.biz) ? [...new Set(x.biz.filter(id => BUSINESSES.some(b => b.id === id)))] : now.biz,
+        gear: Object.fromEntries(SLOTS.map(o => o.id).map(sl => [sl, x.gear && typeof x.gear === 'object' && ITEMS.some(i => i.id === x.gear[sl] && i.slot === sl) ? x.gear[sl] : x.gear && x.gear[sl] === null ? null : now.gear[sl]])),
         leaders: Object.fromEntries(DISTRICTS.map(d => [d.id, lead[d.id] === 'voce' || FACTIONS.some(f => f.id === lead[d.id]) ? lead[d.id] : now.leaders[d.id]])),
         market: Object.fromEntries(DISTRICTS.map(d => [d.id, Object.fromEntries(GOODS.map(g => [g.id, toInt(mk[d.id] && mk[d.id][g.id], now.market[d.id][g.id], 60, 150)]))])) };
+      for (const k of PAPER_NUMS) out[k] = toInt(x[k], now[k], 0, k === 'heat' || k === 'vicio' || k === 'health' ? 100 : BIG); // campo ausente (save antigo) = valor de agora: sem notícia falsa
+      return Object.fromEntries(Object.keys(now).map(k => [k, out[k]])); // mesma ordem da foto original (ida e volta estável)
     };
     const sp = saved.paper && typeof saved.paper === 'object' ? saved.paper : {};
     s.paper = { prev: snap(sp.prev), cur: snap(sp.cur) || paperSnap(s) };
@@ -1375,11 +1378,11 @@
   const missionName = (s, m) => localMission(s, m).name;
   /** Clima de cada região: uma frase de chegada e a cor da tela (a Vila em vinho bordô, pedido do autor). */
   const DISTRICT_VIBE = {
-    centro: { color: '#e0a040', line: 'O Centro nunca dorme: camelô, buzina e gente com pressa. Aqui todo mundo tem um preço, e todo mundo está à venda.' },
-    cais: { color: '#4a8fc0', line: 'Cheiro de maresia e diesel. No Cais, todo mundo carrega alguma coisa e ninguém pergunta o quê.' },
-    jardim: { color: '#5aa36a', line: 'Varal na laje, criança jogando bola na rua. O Jardim é calmo até alguém de fora chamar atenção.' },
+    centro: { color: '#e0a040', line: 'A Região Central nunca dorme: camelô, buzina e gente com pressa. Aqui todo mundo tem um preço, e todo mundo está à venda.' },
+    cais: { color: '#4a8fc0', line: 'Cheiro de maresia e diesel. Na Região Portuária, todo mundo carrega alguma coisa e ninguém pergunta o quê.' },
+    jardim: { color: '#5aa36a', line: 'Varal na laje, criança jogando bola na rua. A Região Residencial é calma até alguém de fora chamar atenção.' },
     industrial: { color: '#8a949a', line: 'Sirene de turno, poeira de ferro e viatura na porta de toda fábrica. Aqui o dinheiro é grande e a polícia também.' },
-    vila: { color: '#8a2a3a', line: 'O grave do baile treme as janelas da Vila. Festa, confusão e muita gente que não esquece um rosto.' }
+    vila: { color: '#8a2a3a', line: 'O grave do baile treme as janelas da Região da Boêmia. Festa, confusão e muita gente que não esquece um rosto.' }
   };
   /** Ficha curta da região: quanto paga, a polícia e o perigo do grupo que manda. */
   function districtTraits(d) {
@@ -2152,7 +2155,11 @@
   /* Jornal do Submundo: a "foto" do começo de cada dia. O jornal da manhã compara a de hoje com a de     */
   /* ontem e reúne o que importa na cidade. Só leitura: nada aqui muda o estado.                          */
   /* ------------------------------------------------------------------ */
+  const PAPER_NUMS = ['respect', 'worth', 'heat', 'ok', 'fail', 'arrests', 'duelW', 'duelL', 'overdoses', 'crew', 'ach', 'ladder', 'sold', 'exported', 'blitz', 'bank', 'story', 'vicio', 'health', 'betWon'];
   const paperSnap = s => ({ day: s.day, respect: s.respect, worth: Math.max(0, patrimony(s)), heat: s.heat, ok: s.successful, fail: s.failed, arrests: s.seasonStats.arrests,
+    duelW: s.duelStats.wins, duelL: s.duelStats.losses, overdoses: s.overdoses, crew: s.crew.length, ach: Object.keys(s.achievements).length, ladder: s.ladderMax || 0,
+    sold: s.trade.sold, exported: s.trade.exported, blitz: s.trade.blitz, bank: s.bank, story: Object.keys(s.story.done).length, vicio: s.vicio, health: s.health, betWon: s.betStats.won,
+    gang: s.gangName ? 1 : 0, biz: s.businesses.slice(), gear: Object.assign({}, s.gear),
     leaders: Object.fromEntries(DISTRICTS.map(d => [d.id, controlled(s, d.id) ? 'voce' : leader(s, d.id).id])),
     market: Object.fromEntries(DISTRICTS.map(d => [d.id, Object.assign({}, s.market[d.id])])) });
   /** Tudo o que o respeito abre, com o limiar e a tela onde aparece. */
@@ -2196,7 +2203,17 @@
     const negocio = loja.find(x => x.cost <= s.cash + s.bank) || loja.sort((a, b) => a.cost - b.cost)[0] || null;
     const boom = s.businesses.map(business).map(b => ({ id: b.id, mult: eventMod(s, 'bizMult', { biz: b, district: b.district }) })).filter(x => x.mult >= 1.2).sort((a, b) => b.mult - a.mult)[0] || null;
     const bl = s.bicho && s.bicho.last && s.bicho.last.day === s.day - 1 ? s.bicho.last : null;
+    // O que você fez ontem (da foto de ontem para a de hoje).
+    let acts = null;
+    if (prev) {
+      const dv = k => (cur[k] || 0) - (prev[k] || 0);
+      acts = { duelW: dv('duelW'), duelL: dv('duelL'), overdoses: dv('overdoses'), crew: dv('crew'), ach: dv('ach'), sold: dv('sold'), exported: dv('exported'), blitz: dv('blitz'), bank: dv('bank'), story: dv('story'), betWon: dv('betWon'),
+        ladder: cur.ladder > prev.ladder ? cur.ladder : 0, gang: !prev.gang && cur.gang, biz: cur.biz.filter(id => !prev.biz.includes(id)),
+        gear: SLOTS.map(o => o.id).filter(sl => cur.gear[sl] && cur.gear[sl] !== prev.gear[sl]).map(sl => cur.gear[sl]), vicio: cur.vicio, health: cur.health, heatPrev: prev.heat };
+    }
+    const ladderMission = acts && acts.ladder ? (MISSIONS.find(m => m.n === acts.ladder && !m.variant) || null) : null;
     return {
+      seed: s.day * 97 + s.season * 131 + [...s.name].reduce((a, ch) => a + ch.charCodeAt(0), 0), acts, ladderMission: ladderMission ? ladderMission.id : null,
       day: s.day, week: week(s), yesterday: yd, unlocked: ontem, extra: agora, next: proximo,
       phase: PHASES[phaseIndex(s)], nextPhase: PHASES[phaseIndex(s) + 1] || null, phaseUp: prev ? phaseIndexOf(cur.respect) > phaseIndexOf(prev.respect) : false,
       turf: viradas, movers: movers.slice(0, 3), spread, export: { day: s.exportDeal.day, good: s.exportDeal.good, open: exportOpen(s), today: s.exportDeal.day === s.day },
@@ -2303,22 +2320,22 @@
   }
   /** Cena da rua: um parágrafo curto sobre o momento do personagem. Pura e estável dentro do mesmo dia. */
   function streetScene(s) {
-    const b = district(s).spot || district(s).name, pick2 = (...v) => v[(s.day + s.successful) % v.length], pi = phaseIndex(s);
+    const rg = district(s).name, pick2 = (...v) => v[(s.day + s.successful) % v.length], pi = phaseIndex(s);
     if (s.uti) return 'O bipe do monitor marca o tempo. Do corredor vem cheiro de éter e café requentado. Lá fora a cidade continua sem você.';
     if (s.hospital > 0) return 'Teto de hospital é tudo igual. Você conta as manchas de infiltração e pensa em quem ficou feliz de te ver aqui.';
     if (s.jail > 0) return pick2('A cela cheira a suor e água sanitária. Alguém canta baixinho um pagode antigo. Lá fora, a sua esquina já tem outro dono por hoje.', 'O carcereiro passa batendo a chave na grade. Cada batida é uma hora da sua vida que alguém lá fora está aproveitando.');
-    if (s.heat >= 85) return `Toda sirene parece ser pra você. Em ${b}, as janelas fecham quando você passa. Hoje não é dia de dar bobeira.`;
+    if (s.heat >= 85) return `Toda sirene parece ser pra você. Na ${rg}, as janelas fecham quando você passa. Hoje não é dia de dar bobeira.`;
     if (s.vicio >= 70) return 'A mão treme segurando o copo. Faz tempo que a noite deixou de ser festa e virou combustível. O corpo cobra, e cobra com juros.';
     if (s.health < 40) return 'Cada passo dói num lugar diferente. Na farmácia, a balconista te olha e nem pergunta nada. Só empurra a gaze no balcão.';
-    if (s.heat >= 60) return `Tem um carro parado na esquina que não é de ninguém de ${b}. O rapaz do bar faz sinal com o queixo: hoje estão de olho.`;
+    if (s.heat >= 60) return `Tem um carro parado na esquina que não é de ninguém da ${rg}. O rapaz do bar faz sinal com o queixo: hoje estão de olho.`;
     if (s.energy < 16) return 'As pernas pesam. A rua continua acordada, mas você não. O corpo pede boteco ou cama, nessa ordem.';
-    if (controlled(s, s.district)) return pick2(`Em ${b}, o pessoal da padaria já separa o seu pão sem você pedir. Mandar numa região é isso: ninguém fala o seu nome alto.`, `Um moleque pinta o seu vulgo no muro de ${b}. A tinta ainda escorre. Amanhã alguém vai querer apagar.`);
+    if (controlled(s, s.district)) return pick2(`Na ${rg}, o pessoal da padaria já separa o seu pão sem você pedir. Mandar numa região é isso: ninguém fala o seu nome alto.`, `Um moleque pinta o seu vulgo no muro da ${rg}. A tinta ainda escorre. Amanhã alguém vai querer apagar.`);
     if ((s.day + s.successful) % 3 === 0 && DISTRICT_VIBE[s.district]) return DISTRICT_VIBE[s.district].line;
     return [
-      pick2(`${b} acorda cedo e não te conhece. Você é só mais um de chinelo olhando o movimento, contando quem tem e quem não tem.`, 'O estômago ronca mais alto que o ônibus. Todo mundo começa do mesmo jeito: de olho na carteira dos outros.'),
-      pick2(`Já tem quem te cumprimente em ${b}. Pouca gente, e de longe, mas cumprimenta. É assim que começa.`, 'O dono do bar te serve sem cobrar adiantado. Pequenas coisas mudam quando o nome começa a circular.'),
-      pick2(`Em ${b}, os mais novos param de falar quando você chega. Não é medo ainda. É atenção.`, 'Sua mãe ligou perguntando se o emprego novo é de carteira assinada. Você disse que sim e mudou de assunto.'),
-      pick2('O telefone não para. Todo mundo quer um favor, um adiantamento, uma palavra sua. O silêncio ficou caro.', `Você passa por ${b} de vidro fechado. Lá fora, um pé de chinelo te encara do jeito que você encarava os outros.`),
+      pick2(`A ${rg} acorda cedo e não te conhece. Você é só mais um de chinelo olhando o movimento, contando quem tem e quem não tem.`, 'O estômago ronca mais alto que o ônibus. Todo mundo começa do mesmo jeito: de olho na carteira dos outros.'),
+      pick2(`Já tem quem te cumprimente na ${rg}. Pouca gente, e de longe, mas cumprimenta. É assim que começa.`, 'O dono do bar te serve sem cobrar adiantado. Pequenas coisas mudam quando o nome começa a circular.'),
+      pick2(`Na ${rg}, os mais novos param de falar quando você chega. Não é medo ainda. É atenção.`, 'Sua mãe ligou perguntando se o emprego novo é de carteira assinada. Você disse que sim e mudou de assunto.'),
+      pick2('O telefone não para. Todo mundo quer um favor, um adiantamento, uma palavra sua. O silêncio ficou caro.', `Você passa pela ${rg} de vidro fechado. Lá fora, um pé de chinelo te encara do jeito que você encarava os outros.`),
       pick2('Lá de cima a cidade parece pequena e quieta. Daqui não dá pra ouvir quem está subindo atrás de você.', 'Não sobrou ninguém pra te dizer não. Era isso que você queria. Era?')
     ][pi];
   }
@@ -2402,7 +2419,7 @@
         fs.allied = false; fs.truceUntil = 0; addRel(s, f.id, -30); addTen(s, f.id, 15);
         const best = DISTRICTS.slice().sort((a, b) => s.influence[b.id] - s.influence[a.id])[0];
         addInf(s, best.id, -8); addPres(s, best.id, f.id, 6);
-        return `Traição! ${f.name} rompeu a ${wasAlly ? 'aliança' : 'trégua'} ao perceber sua fragilidade e avançou em ${best.name}.`;
+        return `Traição! ${f.name} rompeu a ${wasAlly ? 'aliança' : 'trégua'} ao perceber sua fragilidade e avançou na ${best.name}.`;
       }
     }
     const hostile = !truce && !fs.allied && fs.relation <= -30 && fs.tension >= 35;
@@ -2436,7 +2453,7 @@
       for (const o of FACTIONS) if (o.id !== f.id && !(o.id === enemy)) addPres(s, t.id, o.id, -1);
       if (enemy) addPres(s, t.id, enemy, -1);
       const after = leader(s, t.id).id;
-      return `${f.short} ampliou presença em ${t.name} (+${gain})${s.district !== t.id && s.influence[t.id] > 0 ? ', aproveitando sua ausência' : ''}.${before !== after && after === f.id ? ` Agora lidera ${t.name}!` : ''}`;
+      return `${f.short} ampliou presença na ${t.name} (+${gain})${s.district !== t.id && s.influence[t.id] > 0 ? ', aproveitando sua ausência' : ''}.${before !== after && after === f.id ? ` Agora lidera a ${t.name}!` : ''}`;
     }
     if (choice === 'consolidate') {
       fs.power = clamp(fs.power + rand(2, 5), 10, 100); addTen(s, f.id, -3);
@@ -2457,7 +2474,7 @@
       const best = DISTRICTS.filter(d => s.presence[d.id][f.id] > 0).sort((a, b) => s.influence[b.id] - s.influence[a.id])[0] || district(s);
       const removed = Math.min(rand(5, 9), s.influence[best.id]);
       addInf(s, best.id, -removed); addPres(s, best.id, f.id, 4); addHeat(s, 4);
-      return `Retaliação de ${f.short}: -${removed} de influência sua em ${best.name}.`;
+      return `Retaliação de ${f.short}: -${removed} de influência sua na ${best.name}.`;
     }
     if (choice === 'war') {
       const field = DISTRICTS.filter(d => s.presence[d.id][enemy] >= 8 && s.presence[d.id][f.id] >= 5).sort((a, b) => s.presence[b.id][enemy] - s.presence[a.id][enemy])[0];
@@ -2465,7 +2482,7 @@
       addPres(s, field.id, enemy, -rand(4, 8)); addPres(s, field.id, f.id, -rand(1, 4));
       s.factions[enemy].power = clamp(s.factions[enemy].power - 3, 10, 100);
       if (!s.events.some(e => e.id === 'guerra' && e.until >= s.day)) startEvent(s, 'guerra', field.id);
-      return `${f.short} entrou em choque com ${faction(enemy).short} em ${field.name}: brecha para disputas por 2 dias.`;
+      return `${f.short} entrou em choque com ${faction(enemy).short} na ${field.name}: brecha para disputas por 2 dias.`;
     }
     if (choice === 'offer') {
       ctx.offer = f.id;

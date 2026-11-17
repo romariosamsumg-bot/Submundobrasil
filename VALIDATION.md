@@ -42,7 +42,7 @@ milhares de ações): **0 exceções, 0 violações**.
 
 ## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
 
-**166 de 166 verificações passaram** (v1.5: Jornal do Submundo na Rua com manchete e Coluna do respeito, resultado do bicho no jornal do dia seguinte, Diário em agenda; o resultado pula num popup inteiro dentro da tela, some do topo e fecha no OK; nos demais testes o popup deixa os toques passarem; v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
+**168 de 168 verificações passaram** (v1.5: redação do jornal com todos os modelos de texto conferidos e assinaturas; topo com Dormir; Jornal do Submundo na Rua com manchete e Coluna do respeito, resultado do bicho no jornal do dia seguinte, Diário em agenda; o resultado pula num popup inteiro dentro da tela, some do topo e fecha no OK; nos demais testes o popup deixa os toques passarem; v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
 
 - **Ranking** (v1.5): a estrela do topo abre o ranking do mês com você destacado, quanto falta para passar o de cima, a Galeria da fama, o filtro pela cidade e a sua posição na Rua (servidor simulado).
 - **Nenhum texto cortado** (v1.5): 16 telas (com o Ranking) nas 6 cidades, com nome de 22 letras, R$ 123.456 e a patente mais longa, mais as páginas de "Como jogar". O detector foi conferido contra a versão anterior, onde acusou o corte do topo.

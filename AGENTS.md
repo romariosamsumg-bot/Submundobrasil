@@ -58,7 +58,7 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 - Toda fonte de energia ou dinheiro fácil precisa de um freio medido na simulação (vício na noite, vantagem da banca nas apostas).
 - O jogo gira em torno de **Roubar → Noite → Feira → Dormir** (GAME_DESIGN.md §19). As abas seguem essa ordem; não acrescente aba sem tirar outra.
 - Lugar novo entra na tela Cidade, com fase de abertura em `GATES` quando não for para iniciante.
-- O cartão "E agora?" (`nextMove` em `ui.js`) precisa conhecer qualquer mecânica nova que mude o próximo passo do jogador.
+- O cartão "E agora?" saiu da Rua (pedido do autor). Quem orienta o jogador é o guia (primeiros passos), os recados e o jornal: mecânica nova que muda o próximo passo → recado e/ou notícia.
 - Enquanto os primeiros passos estão ativos, só o guia orienta: não mostre dois conselhos ao mesmo tempo.
 
 ## Arte
@@ -74,7 +74,7 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 
 ## Bairros (regiões)
 
-- Na tela, os bairros se chamam **regiões** com nome fixo (`REGION_NAMES`: Região Central, Portuária, Residencial, Industrial e da Boêmia); o nome inventado de cada cidade é o **ponto** dentro da região (`d.spot`). Texto ao jogador diz "região" (feminino: "na região", "desta região"); use `d.name` para a região e `d.spot` para o ponto. Ids internos (`centro`, `cais`...) e o atributo `data-bairro` não mudam.
+- Na tela, os bairros se chamam **regiões** com nome fixo (`REGION_NAMES`: Região Central, Portuária, Residencial, Industrial e da Boêmia). Pedido do autor: **nenhum nome inventado de ponto aparece no jogo** (o primeiro nome de `CITIES[].districts` ficou só na tabela). Texto ao jogador diz "região" (feminino: "na região", "desta região"); use `d.name`. Ids internos (`centro`, `cais`...) e o atributo `data-bairro` não mudam.
 - Cada tipo de bairro tem cor (`DISTRICT_VIBE`), frase de chegada, nomes locais dos 13 roubos (`LOCAL_MISSIONS`) e ficha de risco (`districtTraits`, a partir de `bonus`, `police` e `danger` em `DISTRICTS`). Roubo novo na escada → nome local nos 4 tipos de bairro além do Centro. Use `missionName(s, m)` em qualquer texto que cite um roubo.
 
 ## Jornal do Submundo (Rua)
@@ -82,6 +82,7 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 - O "Hoje na cidade" é o **Jornal do Submundo**: os fatos vêm de `SB.jornal(s)` (motor, puro) e o texto de `jornalNews` (`ui.js`), cada notícia com peso, seção, título curto, texto e a tela para onde leva. Mecânica nova que muda o dia do jogador → uma notícia no jornal (e, se precisar de ação imediata, um recado).
 - A comparação com ontem usa a foto da manhã (`paper.cur`/`paper.prev`, gravada em `turnDay`). Campo novo nessa foto → leitura com limite em `normalizeSave`.
 - O comprador de fora nunca revela no jornal o que quer nem quanto paga. O bicho só se resolve na virada do dia (`drawBicho`).
+- **Redação** (`src/redacao.js`, só texto): equipe inventada com assinatura (`EQUIPE`), pautas com várias versões de título e texto (`P`), crônicas da cidade (`CRONICAS`), frases ouvidas na rua (`FRASES`) e classificados de brincadeira (`CLASSIFICADOS`). A versão do dia sai de `seedPick(j.seed, ...)`, nunca do sorteio do motor. **O jornal só publica o que aconteceu**: notícia nova precisa de um fato em `SB.jornal` (a crônica é a vida da cidade, que acontece sem o jogador). Pauta nova → pelo menos 3 títulos e 3 textos, com o autor certo; o teste de interface monta todos os modelos e recusa "undefined". Linguagem de rua sim; nada que ensine a fazer algo, nada de nomes reais, pessoas não são mercadoria (vale também para os classificados).
 
 ## Fontes
 

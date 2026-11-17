@@ -248,7 +248,8 @@
   function renderHud() {
     const s = state, lvl = Math.min(99, Math.floor(s.respect / 35) + 1), c = s.career ? SB.CAREERS.find(x => x.id === s.career).name : 'Sem especialização';
     const pk = s.career + '|' + s.avatar; if ($('#hudAvatar').dataset.pic !== pk) { $('#hudAvatar').innerHTML = portrait(s); $('#hudAvatar').dataset.pic = pk; }
-    $('#hudName').textContent = s.name; $('#hudSub').innerHTML = `<span>${esc(SB.phase(s).name)}</span><i aria-hidden="true"> · </i><span>${esc(c)}</span>`;
+    $('#hudName').textContent = s.name; $('#hudSub').innerHTML = `<span class="hudClass">${esc(c)}</span><span class="hudPat">${esc(SB.phase(s).name)}</span>`;
+    $('#hudSleep').innerHTML = hudSleep();
     $('#hudRespect').textContent = num(s.respect);
     $('#hudEnergy').style.width = Math.min(100, s.energy) + '%'; $('#hudEnergyOver').style.width = Math.max(0, Math.min(100, s.energy - 100)) + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`; $('#hudEnergyBox').classList.toggle('boost', s.energy > 100);
     $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Procurado ${s.heat}`;
@@ -362,6 +363,19 @@
   }
   /** "2 h 13 min" a partir de milissegundos. */
   const dur = ms => { const m = Math.max(1, Math.ceil(ms / 60000)); return m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ' ' + (m % 60) + ' min' : ''}` : `${m} min`; };
+  /** Dormir (ou ir pra casa, no online) fica no topo, ao lado do dia: dá para virar o dia de qualquer tela. */
+  function hudSleep() {
+    const s = state, moon = '<svg class="hudIco" viewBox="0 0 12 12" aria-hidden="true"><path d="M7.6.6a5.6 5.6 0 1 0 3.9 8.8A4.6 4.6 0 0 1 7.6.6z"/></svg>';
+    const b = (label, action, extra, off, cls = '') => `<button type="button" class="hudSleepBtn ${cls}" data-action="${action}" ${extra} ${off ? 'disabled' : ''}>${moon}<b>${label}</b></button>`;
+    if (s.clock) {
+      if (SB.atHome(s)) return b('Sair de casa', 'leave-home', '', false);
+      if (s.jail > 0 || s.hospital > 0) return '';
+      const ci = SB.clockInfo(s), full = s.energy >= 100 && !s.today.doses;
+      return b(ci.homesLeft ? 'Ir pra casa · 3 h' : 'Casa: 2× por dia', 'go-home', '', !ci.homesLeft || full, s.energy < 16 ? 'hot' : '');
+    }
+    if (s.day >= MAXDAY) return b('Encerrar', 'switch', 'data-target="temporada"', false, 'hot');
+    return b(armedNext ? `Dormir com ${num(s.energy)}?` : 'Dormir', 'next-day', '', false, armedNext ? 'armed' : s.energy < 16 ? 'hot' : '');
+  }
   function nextDayButton(cls = '') {
     if (state.clock) { // online: o dia vira sozinho; o descanso é ir pra casa
       const ci = SB.clockInfo(state);
@@ -393,7 +407,7 @@
     const s = state, d = D(), ds = s.dstate[d.id], l = SB.leader(s, d.id);
     const evs = SB.activeEvents(s).filter(e => e.id !== 'rotina');
     return `<section class="locale ${tall ? 'tall' : ''}" aria-label="Onde você está">${scene(d.id)}
-      <div class="localeTop">${plate(d.name, d.spot + ' · ' + s.city)}${(flyers ? evs : []).map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
+      <div class="localeTop">${plate(d.name, s.city)}${(flyers ? evs : []).map(e => `<span class="flyer">${esc(SB.eventTitle(e))}</span>`).join('')}</div>
       <button type="button" class="localeBottom" data-action="locale-help" aria-expanded="${localeHelp}" aria-label="Sua influência nesta região; tocar explica"><span class="infTag ${SB.controlled(s, d.id) ? 'mine' : ''}">Sua influência ${num(s.influence[d.id])} · ${esc(SB.INF_TIERS[SB.infTier(s, d.id)].name)}</span><i class="localeQ" aria-hidden="true">?</i></button></section>`;
   }
   const statName = id => SB.STATS.find(x => x.id === id).name;
@@ -462,7 +476,7 @@
         <p><strong>Saúde</strong>: tirar o vício custa saúde (meio ponto por ponto de vício). Saúde zero = UTI: ${state && state.clock ? '24 horas' : 'o resto do dia e o seguinte'} sem jogar.</p>
         <p>Os <strong>grupos rivais</strong> reagem: agir no território deles gera atrito, retaliação e extorsão. Dá para conversar, firmar trégua ou aliança.</p>`],
       ['Sua cidade', `<p><strong>${esc(c.name)} — ${esc(c.trait)}.</strong> ${esc(c.traitDesc)}</p>
-        <ul>${SB.DISTRICTS.map(d => `<li><strong>${esc(d.name)}</strong> (ponto: ${esc(d.spot)}): ${esc(d.advantage)}</li>`).join('')}</ul>
+        <ul>${SB.DISTRICTS.map(d => `<li><strong>${esc(d.name)}</strong>: ${esc(d.advantage)}</li>`).join('')}</ul>
         <p>O mês tem quatro semanas com ritmo próprio. Dias de pagamento (5 e 20) engordam lotérica, caixa e assaltos; nas Noites de fluxo suas casas rendem o dobro; nos três últimos dias a polícia aperta e no dia 30 atraca o Último Navio. Fique de olho no calendário: <strong>${esc(SB.EVENTS.carnaval.title)}</strong> começa no dia 9 e o <strong>${esc(SB.EVENTS.classico.title)}</strong> é no dia 20.</p>`]
     ];
   }
@@ -487,42 +501,14 @@
   function closeHelp() { $('#help').classList.add('hidden'); }
 
   /* ---------- telas ---------- */
-  /** "E agora?": o próximo passo do ciclo (roubar → noite → feira → dormir), decidido pelo estado. */
-  function nextMove() {
-    const s = state;
-    if (SB.blocked(s)) return null;
-    const best = suggestion(), lowEnergy = s.energy < 16, canNight = s.energy < 100;
-    const curPow = (SB.item(s.gear.arma) || { power: 0 }).power;
-    const upgrade = SB.ITEMS.filter(i => i.slot === 'arma' && !i.trophy && !SB.owns(s, i.id) && i.power > curPow && s.respect >= i.unlock && !SB.chainLock(s, 'items', i.id) && s.cash >= i.cost * 1.5).pop();
-    const lockedByGun = SB.MISSIONS.find(m => (SB.missionLock(s, m) || '').startsWith('Requer arma'));
-    const lockedByCar = SB.MISSIONS.find(m => (SB.missionLock(s, m) || '').startsWith('Requer veículo'));
-    const car = lockedByCar && SB.ITEMS.find(i => i.slot === 'veiculo' && i.escape >= lockedByCar.req.escape && !SB.owns(s, i.id) && s.respect >= i.unlock && !SB.chainLock(s, 'items', i.id) && s.cash >= i.cost * 1.3);
-    if (s.health < 40) return { tag: 'Saúde baixa', title: 'Passe no Hospital', text: `Com ${s.health} de saúde suas chances caem em tudo.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
-    if (s.vicio >= 70) return { tag: 'Vício alto', title: 'Hora de desintoxicar', text: `Vício ${s.vicio}/100: a noite recarrega menos e há ${SB.overdoseChance(s)}% de chance de overdose a cada saída.`, btn: button('Ir ao Hospital', 'switch', 'data-target="hospital"', false, 'primary') };
-    if (s.heat >= 65 && s.energy >= 18) return { tag: 'Procurado alto', title: 'Fique na sua', text: 'A polícia está de olho: cada roubo agora tem mais chance de dar cadeia.', btn: button('Reduzir exposição · 18 energia', 'lay-low', '', false, 'primary') };
-    if (car) return { tag: 'Dinheiro no bolso', title: `Dá para comprar: ${car.name}`, text: `Veículo de fuga abre roubo maior, como “${SB.missionName(s, lockedByCar)}”.`, btn: button('Ir à Feira do Rolo', 'switch', 'data-target="feira"', false, 'primary') };
-    if (upgrade && (lockedByGun || !s.gear.arma)) return { tag: 'Dinheiro no bolso', title: `Dá para comprar: ${upgrade.name}`, text: lockedByGun ? `Arma melhor abre roubo maior, como “${SB.missionName(s, lockedByGun)}”.` : 'Arma é o que abre os roubos maiores.', btn: button('Ir à Feira do Rolo', 'switch', 'data-target="feira"', false, 'primary') };
-    if (lowEnergy && canNight) { const n = SB.NIGHT.filter(x => (!x.unlock || s.respect >= x.unlock) && SB.nightCost(s, x) <= s.cash).pop(); if (n) return { tag: 'Sem energia', title: 'Hora da noitada', text: s.today.venue ? `Você ainda está na casa: peça uma dose e volte a roubar.` : `Entre numa casa e peça uma dose. A entrada é paga uma vez por dia.`, btn: button(s.today.venue ? 'Ir ao balcão' : 'Ir para a noite', 'switch', 'data-target="noite"', false, 'primary') }; }
-    if (lowEnergy && s.clock) return SB.atHome(s) ? { tag: 'Em casa', title: `Descansando: volta em ${dur(SB.clockInfo(s).home)}`, text: 'No fim, energia cheia e o corpo zerado. Banco e compras continuam.', btn: nextDayButton('') } : { tag: 'Sem energia', title: SB.clockInfo(s).homesLeft ? 'Vá pra casa ou espere' : 'Espere a energia voltar', text: `A energia volta +1 a cada 3 minutos (próximo ponto em ${dur(SB.clockInfo(s).nextEnergy)}). Em casa, 3 horas enchem tudo.`, btn: nextDayButton('') };
-    if (lowEnergy) return { tag: 'Sem energia', title: s.day >= MAXDAY ? 'Fim da temporada' : 'Durma e vire o dia', text: s.day >= MAXDAY ? 'Último dia: encerre a temporada.' : '+70 de energia, o Procurado cai e a renda entra.', btn: nextDayButton('') };
-    if (best) { const p = SB.missionChance(s, best); return { tag: 'Roubo da vez', title: SB.missionName(s, best), text: `${best.cost} energia · ${fmt(best.low * SB.missionRewardMult(s, best))}–${fmt(best.high * SB.missionRewardMult(s, best))} · ${p}% de chance`, btn: button('Executar', 'mission', `data-id="${best.id}"`, false, 'primary'), icon: best.stat }; }
-    return { tag: 'Nada com boa chance', title: 'Treine ou mude de ares', text: 'Treine um atributo, baixe o Procurado ou vá a outra região.', btn: button('Ver roubos e treino', 'switch', 'data-target="acoes"', false, 'primary') };
-  }
   function panel() {
-    const s = state, mv = nextMove(), guide = guideCard();
-    const tired = s.energy < 16 || s.day >= MAXDAY;
-    const sleep = s.clock ? nextDayButton('small ' + (tired ? 'primary' : 'ghost')) : s.day >= MAXDAY ? button('Encerrar temporada', 'switch', 'data-target="temporada"', false, 'primary small')
-      : button(armedNext ? `Dormir com ${s.energy} de energia?` : 'Dormir', 'next-day', '', false, (armedNext ? 'armed' : tired ? 'primary' : 'ghost') + ' small');
-    const story = storyCard();
+    const s = state, guide = guideCard(), story = storyCard();
     if (online && !rank.at && !rank.loading) setTimeout(() => loadRank(), 0);
-    return jailNotice() + localeStrip(true, false) + localeInfo() + `
-      <section class="sceneCard" aria-label="A rua agora"><p>${esc(SB.streetScene(s))}</p></section>
+    return jailNotice() + `<div class="streetBlock">${localeStrip(true, false)}<section class="streetCap" aria-label="A rua agora"><span class="streetLbl">A rua agora</span><p>${esc(SB.streetScene(s))}</p></section></div>` + localeInfo() + `
       ${guide}${s.career ? '' : careerCard()}
-      ${mv && !guide ? `<section class="boardLead job nextMove"><div class="jobIcon">${statIcon(mv.icon || 'astucia')}</div><div class="jobMain"><div class="eyebrow">E agora? · ${esc(mv.tag)}</div><h3>${esc(mv.title)}</h3><p class="jobMeta">${esc(mv.text)}</p></div><div class="jobAct">${mv.btn}</div></section>` : ''}
       ${story}
       ${s.career || s.tutorial.done ? newsCard() : ''}
       ${recados()}
-      <section class="dayBar dayStrip"><div class="dayInfo"><b>Dia ${s.day}<small>/${MAXDAY}</small></b><span>${esc(SB.week(s).name)}</span>${s.clock ? `<span class="clockLine">O dia vira em ${dur(SB.clockInfo(s).midnight)}</span>` : ''}</div>${sleep}</section>
       ${jornalCard()}
       ${agenda()}`;
   }
@@ -531,56 +517,92 @@
   /* ------------------------------------------------------------------ */
   const KIND_TXT = { arma: 'arma', protecao: 'proteção', veiculo: 'veículo', noite: 'casa da noite', mercadoria: 'mercadoria', esquema: 'esquema', assalto: 'assalto do bando', duelo: 'adversário de duelo', lugar: 'lugar', patente: 'patente' };
   const unlockList = us => { const a = us.slice(0, 3).map(u => `${esc(u.name)} <small>(${KIND_TXT[u.kind] || u.kind})</small>`); return a.join(', ') + (us.length > 3 ? ` e mais ${us.length - 3}` : ''); };
-    /** Lista de notícias do dia, cada uma com prioridade (a maior vira manchete), seção, título, texto e a tela para onde leva. */
+    /** Lista de notícias do dia, cada uma com prioridade (a maior vira manchete). O fato vem de SB.jornal; o texto vem da
+   *  redação (src/redacao.js), numa variação escolhida pela semente do dia. Sem fato, sem notícia. */
+  const RED = () => window.SBRedacao;
+  const seedPick = (seed, key) => { let x = seed >>> 0; for (const ch of key) x = (Math.imul(x, 31) + ch.charCodeAt(0)) >>> 0; return x; };
   function jornalNews(s, j) {
-    const N = [], add = (prio, kick, title, text, view = '', tone = '') => N.push({ prio, kick, title, text, view, tone });
-    const dn = id => esc(D(id).name), fname = id => id === 'voce' ? 'Você' : esc(F(id).short), gal = SB.placeOpen(s, 'galpao');
-    const nx = j.nextPhase, falta = nx ? Math.max(0, nx.at - s.respect) : 0;
-    // Carreira: patente nova e o que o respeito abriu (ontem e agora há pouco).
+    const N = [], R = RED(), pk = (arr, k) => arr[seedPick(j.seed, k) % arr.length];
+    const put = (prio, kick, key, v, view = '', tone = '', sub = '') => { const p = R.P[key]; v = Object.assign({ nome: esc(s.name) }, v); N.push({ prio, kick, title: pk(p.t, key + 't' + sub)(v), text: pk(p.x, key + 'x' + sub)(v), view, tone, by: p.by }); };
+    const dn = id => esc(D(id).name), fname = id => id === 'voce' ? esc(s.name) : esc(F(id).short), gal = SB.placeOpen(s, 'galpao');
+    const nx = j.nextPhase, prox = nx ? `Próximo degrau: ${esc(nx.name)}, com ${num(nx.at)} de respeito (faltam ${num(Math.max(0, nx.at - s.respect))}).` : 'Acima disso, só o topo da cidade.';
+    // Carreira
     const patNow = j.extra.find(u => u.kind === 'patente'), patOld = j.unlocked.find(u => u.kind === 'patente');
-    if (patNow) add(99, 'Extra', `${esc(s.name)} vira ${esc(patNow.name)}`, `Aconteceu agora há pouco: a rua já te chama de ${esc(patNow.name)}.${nx && nx.name !== patNow.name ? ` Próximo degrau: ${esc(nx.name)}, com ${num(nx.at)} de respeito.` : ''}`, 'perfil', 'extra');
-    else if (patOld) add(98, 'Carreira', `${esc(s.name)} agora é ${esc(patOld.name)}`, `Ontem a rua mudou o jeito de te chamar. ${nx ? `Faltam ${num(falta)} de respeito para ${esc(nx.name)}.` : 'Acima disso, só o topo da cidade.'}`, 'perfil');
+    if (patNow) put(99, 'Extra', 'patenteAgora', { patente: esc(patNow.name), prox }, 'perfil', 'extra');
+    else if (patOld) put(98, 'Carreira', 'patenteOntem', { patente: esc(patOld.name), prox }, 'perfil');
     const novo = j.extra.filter(u => u.kind !== 'patente'), velho = j.unlocked.filter(u => u.kind !== 'patente');
-    if (novo.length) add(94, 'Extra', 'Saiu agora na rua', `Seu respeito de hoje abriu: ${unlockList(novo)}.`, novo[0].view, 'extra');
-    if (velho.length) add(86, 'Novidades', velho.length > 1 ? 'Chegou mercadoria nova pra você' : `${esc(velho[0].name)} liberado`, `Com o respeito de ontem, a rua abriu: ${unlockList(velho)}.`, velho[0].view);
-    // O dia de ontem.
-    const y = j.yesterday;
-    if (y && y.arrests > 0) add(90, 'Polícia', `${esc(s.name)} rodou ontem`, `Foram ${num(y.arrests)} enquadro(s) no dia. ${y.fail ? `${num(y.fail)} roubo(s) deram errado.` : ''}`.trim(), 'acoes', 'bad');
-    if (y && (y.ok || y.fail)) add(y.respect >= 20 ? 70 : 52, 'Ontem', y.ok ? `${num(y.ok)} roubo${y.ok > 1 ? 's' : ''} na conta de ${esc(s.name)}` : 'Dia ruim nos roubos', `${y.fail ? `${num(y.fail)} deu errado. ` : ''}Respeito ${y.respect >= 0 ? '+' : ''}${num(y.respect)}, patrimônio ${y.worth >= 0 ? '+' : '−'}${fmt(Math.abs(y.worth))}.`, 'acoes');
-    // Bicho com bilhete seu.
+    if (novo.length) put(94, 'Extra', 'extra', { lista: unlockList(novo) }, novo[0].view, 'extra');
+    if (velho.length) put(86, 'Novidades', 'novidades', { lista: unlockList(velho), um: velho.length === 1, item: esc(velho[0].name) }, velho[0].view);
+    const a = j.acts, y = j.yesterday;
+    if (a && a.ladder && j.ladderMission) put(84, 'Carreira', 'degrau', { n: num(a.ladder), roubo: esc(SB.missionName(s, SB.mission(j.ladderMission))) }, 'acoes');
+    // Ontem
+    if (y && y.arrests > 0) put(90, 'Polícia', 'preso', { n: num(y.arrests) }, 'acoes', 'bad');
+    if (y && y.ok) put(y.respect >= 20 ? 70 : 52, 'Ontem', 'ontemBom', { n: num(y.ok), falhas: y.fail ? `${num(y.fail)} deu errado. ` : '', resp: `${y.respect >= 0 ? '+' : ''}${num(y.respect)}`, patr: `${y.worth >= 0 ? '+' : '−'}${fmt(Math.abs(y.worth))}` }, 'acoes');
+    else if (y && y.fail) put(60, 'Ontem', 'ontemRuim', { f: num(y.fail), patr: `${y.worth >= 0 ? '+' : '−'}${fmt(Math.abs(y.worth))}` }, 'acoes', 'bad');
+    // Bicho com jogo seu
     const b = j.bicho;
-    if (b && b.picks.length) add(b.won ? 97 : 66, 'Bicho', b.won ? `Deu ${esc(SB.ANIMALS[b.animal])}! ${esc(s.name)} acertou` : `Deu ${esc(SB.ANIMALS[b.animal])}: não foi dessa vez`, b.won ? `A banca pagou ${fmt(b.won)} de lucro.` : `Você tinha ${b.picks.map(k => esc(SB.ANIMALS[k.pick])).join(', ')}. Perdeu ${fmt(b.lost)}.`, 'apostas', b.won ? 'good' : '');
-    // Cidade: eventos de hoje e a previsão de amanhã.
-    for (const e of j.events) add(e.fresh ? 78 : 48, e.fresh ? 'Hoje' : 'Continua', esc(e.title), `${esc(e.desc)}${e.until > s.day ? ` Até o dia ${num(e.until)}.` : ' Só hoje.'}`, e.district ? 'cidade' : '', e.id === 'operacao' || e.id === 'fechames' || e.id === 'fiscalizacao' ? 'bad' : '');
-    if (j.tomorrow.length) add(46, 'Previsão', `Amanhã: ${j.tomorrow.map(t => esc(t.title)).join(' e ')}`, 'Se prepare hoje.', '');
-    // Gangues: quem tomou o quê e o que cada grupo fez na noite.
-    for (const t of j.turf) add(t.to === 'voce' || t.from === 'voce' ? 88 : 74, 'Gangues', t.to === 'voce' ? `${esc(s.name)} assume a ${dn(t.district)}` : t.from === 'voce' ? `${esc(s.name)} perde a ${dn(t.district)}` : `${fname(t.to)} toma a ${dn(t.district)}`, t.to === 'voce' ? 'Agora quem manda ali é você.' : t.from === 'voce' ? `${fname(t.to)} passou na frente. Volte a fazer contatos e roubos por lá.` : `${fname(t.from)} perdeu o comando da região durante a noite.`, 'cidade', t.from === 'voce' ? 'bad' : '');
-    if (j.moves.length) add(34, 'Gangues', 'O movimento da noite', j.moves.slice(0, 3).map(m => esc(m.text)).join(' '), 'cidade');
-    // Polícia.
-    const pol = j.police;
-    if (pol.heat >= 60) add(76, 'Polícia', pol.heat >= 85 ? 'Caçado: seu retrato está na delegacia' : 'A polícia está na sua cola', `Procurado ${num(pol.heat)} (${esc(pol.tier)}). Esfrie antes do próximo roubo.`, 'acoes', 'bad');
-    else if (pol.hot.v >= 20) add(40, 'Polícia', `Viatura de sobra na ${dn(pol.hot.id)}`, `Polícia ${num(pol.hot.v)} por lá. Mais tranquila: ${dn(pol.calm.id)} (${num(pol.calm.v)}).`, 'cidade');
-    else add(22, 'Polícia', 'Ronda fraca na cidade', `Nenhuma região com polícia reforçada hoje. Seu Procurado: ${num(pol.heat)} (${esc(pol.tier)}).`, 'acoes');
-    // Galpão: comprador de fora (sem contar o que ele quer), preços que mexeram e a melhor rota.
+    if (b && b.picks.length) put(b.won ? 97 : 66, 'Bicho', b.won ? 'bichoGanhou' : 'bichoPerdeu', { bicho: esc(SB.ANIMALS[b.animal]), valor: fmt(b.won || b.lost), jogo: b.picks.map(k => esc(SB.ANIMALS[k.pick])).join(', ') }, 'apostas', b.won ? 'good' : '');
+    // Compras, duelos, bando, saúde, Galpão do dia de ontem
+    if (a) {
+      for (const id of a.biz) put(82, 'Negócios', 'comprouNegocio', { negocio: esc(SB.business(id).name) }, 'negocios', 'good', id);
+      for (const id of a.gear) { const it = SB.item(id); if (it) put(64, 'Feira do Rolo', it.slot === 'arma' ? 'armaNova' : it.slot === 'protecao' ? 'protecaoNova' : 'veiculoNovo', { item: esc(it.name) }, 'feira', '', id); }
+      if (a.duelW > 0) put(62, 'Duelo', 'dueloVenceu', { n: num(a.duelW) }, 'duelos', 'good');
+      if (a.duelL > 0) put(57, 'Duelo', 'dueloPerdeu', { n: num(a.duelL) }, 'duelos', 'bad');
+      if (a.gang) put(80, 'Gangues', 'bandoNovo', {}, 'gangue', 'good');
+      else if (a.crew > 0) put(54, 'Gangues', 'bandoCresceu', { n: num(a.crew) }, 'gangue');
+      if (a.overdoses > 0) put(87, 'Saúde', 'overdose', {}, 'hospital', 'bad');
+      if (a.ach > 0) put(56, 'Feitos', 'conquista', {}, 'temporada', 'good');
+      if (a.exported > 0) put(68, 'Porto', 'remessa', { n: num(a.exported) }, 'galpao', 'good');
+      else if (a.sold >= 5) put(45, 'Galpão', 'vendeu', { n: num(a.sold) }, 'galpao');
+      if (a.blitz > 0) put(61, 'Polícia', 'blitz', { n: num(a.blitz) }, 'galpao', 'bad');
+      if (a.bank >= 1000) put(36, 'Negócios', 'banco', { valor: fmt(a.bank) }, 'gestao');
+      if (a.story > 0) put(50, 'Crônica', 'historia', {}, 'painel');
+    }
+    if (s.vicio >= 70) put(74, 'Saúde', 'vicioAlto', { n: num(s.vicio) }, 'hospital', 'bad');
+    else if (s.health < 40 && !s.hospital) put(72, 'Saúde', 'saudeBaixa', { n: num(s.health) }, 'hospital', 'bad');
+    // Cidade
+    for (const e of j.events) put(e.fresh ? 78 : 48, e.fresh ? 'Hoje' : 'Continua', e.fresh ? 'eventoNovo' : 'eventoSegue', { evento: esc(e.title), desc: esc(e.desc), ate: e.until > s.day ? `Até o dia ${num(e.until)}.` : 'Só hoje.' }, e.district ? 'cidade' : '', ['operacao', 'fechames', 'fiscalizacao', 'crise'].includes(e.id) ? 'bad' : '', e.id);
+    if (j.tomorrow.length) put(46, 'Previsão', 'previsao', { evento: j.tomorrow.map(t => esc(t.title)).join(' e ') });
+    // Gangues
+    for (const t of j.turf) {
+      if (t.to === 'voce') put(88, 'Gangues', 'voceTomou', { regiao: dn(t.district) }, 'cidade', 'good', t.district);
+      else if (t.from === 'voce') put(88, 'Gangues', 'vocePerdeu', { regiao: dn(t.district), grupo: fname(t.to) }, 'cidade', 'bad', t.district);
+      else put(74, 'Gangues', 'gangueToma', { regiao: dn(t.district), grupo: fname(t.to), grupo2: fname(t.from) }, 'cidade', '', t.district);
+    }
+    if (j.moves.length) put(34, 'Gangues', 'movimento', { lista: j.moves.slice(0, 3).map(m => esc(m.text)).join(' ') }, 'cidade');
+    // Polícia (só quando há o que contar)
+    const pol = j.police, hp = a ? a.heatPrev : pol.heat;
+    if (pol.heat >= 85) put(80, 'Polícia', 'cacado', { heat: num(pol.heat), tier: esc(pol.tier) }, 'acoes', 'bad');
+    else if (pol.heat >= 60) put(76, 'Polícia', 'naMira', { heat: num(pol.heat), tier: esc(pol.tier) }, 'acoes', 'bad');
+    else if (hp >= 60 && pol.heat < 45) put(58, 'Polícia', 'esfriou', { heat: num(pol.heat), tier: esc(pol.tier) }, 'acoes', 'good');
+    if (pol.hot.v >= 35) put(42, 'Polícia', 'policiaRegiao', { regiao: dn(pol.hot.id), regiao2: dn(pol.calm.id), n: num(pol.hot.v) }, 'cidade');
+    // Galpão e porto
     if (gal) {
       const ex = j.export;
-      if (ex.today) add(SB.cargoUsed(s) > 0 ? 80 : 56, 'Porto', 'O comprador de fora atracou', `Hoje, na ${dn('cais')}. Ele só fala de negócio pessoalmente.`, 'galpao', 'good');
-      else if (ex.day > s.day && ex.day - s.day <= 2) add(44, 'Porto', `Barco previsto para o dia ${num(ex.day)}`, `Na ${dn('cais')}. Ninguém sabe o que ele vem buscar.`, 'galpao');
-      for (const m of j.movers.filter((x, i, a) => a.findIndex(y => y.good === x.good) === i).slice(0, 2)) add(50 + Math.min(10, Math.abs(m.pct) / 3), 'Galpão', `${esc(SB.good(m.good).name)} ${m.pct > 0 ? 'dispara' : 'despenca'} ${Math.abs(m.pct)}% na ${dn(m.district)}`, `De ${fmt(m.from)} para ${fmt(m.price)} por ${esc(SB.good(m.good).unit)}.`, 'galpao', m.pct > 0 ? 'good' : 'bad');
-      if (j.spread && j.spread.gain >= 2) add(42, 'Galpão', `Rota do dia: ${esc(SB.good(j.spread.good).name)}`, `Compre na ${dn(j.spread.buy)} por ${fmt(j.spread.buyPrice)} e venda na ${dn(j.spread.sell)} por ${fmt(j.spread.sellPrice)}.`, 'galpao');
+      if (ex.today) put(SB.cargoUsed(s) > 0 ? 80 : 56, 'Porto', 'portoHoje', { regiao: dn('cais') }, 'galpao', 'good');
+      else if (ex.day > s.day && ex.day - s.day <= 2) put(44, 'Porto', 'portoPrevisto', { regiao: dn('cais'), dia: num(ex.day) }, 'galpao');
+      for (const m of j.movers.filter((x, i, l) => l.findIndex(z => z.good === x.good) === i).slice(0, 2)) put(50 + Math.min(10, Math.abs(m.pct) / 3), 'Galpão', m.pct > 0 ? 'alta' : 'queda', { mercadoria: esc(SB.good(m.good).name), pct: num(Math.abs(m.pct)), regiao: dn(m.district), de: fmt(m.from), para: fmt(m.price), unid: esc(SB.good(m.good).unit) }, 'galpao', m.pct > 0 ? 'good' : 'bad', m.good);
+      if (j.spread && j.spread.gain >= Math.max(2, j.spread.buyPrice * .15)) put(40, 'Galpão', 'rota', { mercadoria: esc(SB.good(j.spread.good).name), compra: dn(j.spread.buy), venda: dn(j.spread.sell), de: fmt(j.spread.buyPrice), para: fmt(j.spread.sellPrice) }, 'galpao');
     }
-    // Negócios.
-    if (j.boom) add(58, 'Negócios', `${esc(SB.business(j.boom.id).name)} fatura alto hoje`, `O movimento da cidade puxa a casa: +${Math.round((j.boom.mult - 1) * 100)}% na renda de hoje.`, 'negocios', 'good');
-    if (j.business && SB.placeOpen(s, 'negocios')) { const bz = j.business, cabe = bz.cost <= s.cash + s.bank; add(cabe ? 38 : 26, 'Negócios', `Negócio da vez: ${esc(SB.business(bz.id).name)}`, `${fmt(bz.cost)}, rende cerca de ${fmt(bz.day)} por dia e se paga em ${num(bz.payback)} dias.${cabe ? '' : ' Junte o dinheiro.'}`, 'negocios'); }
-    // Fofoca: o próximo desbloqueio.
-    if (j.next) add(30, 'Fofoca', `Dizem que com ${num(j.next.at)} de respeito…`, `…aparece ${esc(j.next.name)} (${KIND_TXT[j.next.kind] || j.next.kind}). Faltam ${num(j.next.at - s.respect)}.`, j.next.view);
-    return N.sort((a, b) => b.prio - a.prio);
+    // Negócios
+    if (j.boom) put(58, 'Negócios', 'boom', { negocio: esc(SB.business(j.boom.id).name), pct: num(Math.round((j.boom.mult - 1) * 100)) }, 'negocios', 'good');
+    if (j.business && j.business.cost <= s.cash + s.bank) { const bz = j.business; put(38, 'Classificados', 'negocioDaVez', { negocio: esc(SB.business(bz.id).name), custo: fmt(bz.cost), renda: fmt(bz.day), prazo: num(bz.payback) }, 'negocios'); }
+    // Fofoca: só quando o próximo desbloqueio está perto
+    if (j.next && j.next.at - s.respect <= 15) put(30, 'Fofoca', 'fofocaProximo', { n: num(j.next.at), item: esc(j.next.name), tipo: KIND_TXT[j.next.kind] || j.next.kind, falta: num(j.next.at - s.respect) }, j.next.view);
+    // Crônica: a cidade vive mesmo quando você não faz nada (em 4 de cada 5 dias)
+    if (seedPick(j.seed, 'cron?') % 5 !== 0) {
+      const c = pk(R.CRONICAS, 'cron'), reg = SB.DISTRICTS[seedPick(j.seed, 'reg') % SB.DISTRICTS.length], fac = SB.FACTIONS[seedPick(j.seed, 'fac') % SB.FACTIONS.length];
+      const v = { regiao: esc(reg.name), grupo: esc(F(fac.id).short), bar: esc(SB.business('bar').name), cidade: esc(s.city) };
+      N.push({ prio: 28, kick: 'Crônica', title: c.t(v), text: c.x(v), view: '', tone: '', by: 'juca' });
+    }
+    return N.sort((p, q) => q.prio - p.prio);
   }
   function jornalCard() {
-    const s = state, j = SB.jornal(s), c = SB.cityOf(s.city), news = jornalNews(s, j);
-    const lead = news[0] && news[0].prio >= 60 ? news.shift() : { kick: 'Cidade', title: esc(j.week.name.split('·').pop().trim()), text: `${esc(j.week.desc)} ${s.day < MAXDAY ? `Faltam ${num(MAXDAY - s.day)} dias para o fim do mês.` : 'Último dia do mês.'}`, view: '', tone: '' };
-    const go = v => v ? ` data-view="${v}"` : '';
-    const item = n => `<article class="jItem ${n.tone}"${go(n.view)}${n.view ? ' role="button" tabindex="0"' : ''}><span class="jKick">${esc(n.kick)}</span><h4>${n.title}</h4><p>${n.text}</p></article>`;
+    const s = state, j = SB.jornal(s), c = SB.cityOf(s.city), R = RED(), news = jornalNews(s, j);
+    const lead = news[0] && news[0].prio >= 60 ? news.shift() : news.find(n => n.kick === 'Crônica') ? news.splice(news.findIndex(n => n.kick === 'Crônica'), 1)[0]
+      : { kick: 'Cidade', title: esc(j.week.name.split('·').pop().trim()), text: `${esc(j.week.desc)} ${s.day < MAXDAY ? `Faltam ${num(MAXDAY - s.day)} dias para o fim do mês.` : 'Último dia do mês.'}`, view: '', tone: '', by: 'kelly' };
+    const go = v => v ? ` data-view="${v}"` : '', by = k => R.EQUIPE[k] ? `<span class="jBy">por ${esc(R.EQUIPE[k].nome)}</span>` : '';
+    const item = n => `<article class="jItem ${n.tone}"${go(n.view)}${n.view ? ' role="button" tabindex="0"' : ''}><span class="jKick">${esc(n.kick)}</span><h4>${n.title}</h4>${by(n.by)}<p>${n.text}</p></article>`;
     const pi = SB.phaseIndex(s), ph = SB.PHASES[pi], nx = SB.PHASES[pi + 1];
     const ficha = `<section class="rumo ficha jFicha" aria-label="Seu progresso"><span class="jKick">Coluna do respeito</span>
         <div class="progHead"><b>${esc(ph.name)}</b><span>${nx ? `faltam ${num(nx.at - s.respect)} para ${esc(nx.name)}` : 'patente máxima'}</span></div><div class="meter"><div style="width:${pct(nx ? (s.respect - ph.at) / (nx.at - ph.at) * 100 : 100)}%"></div></div>
@@ -589,16 +611,23 @@
     const bicho = b || tk.length ? `<section class="jBicho ${b && b.won ? 'paid' : ''}" aria-label="Resultado do bicho"${apostas ? ' data-view="apostas" role="button" tabindex="0"' : ''}><span class="jKick">Deu no bicho</span>
         ${b ? `<div class="jDraw"><b>${String(b.animal + 1).padStart(2, '0')}</b><span>${esc(SB.ANIMALS[b.animal])}<em>grupo ${String(b.animal + 1).padStart(2, '0')} · extração do dia ${num(b.day)}</em></span></div>` : ''}
         ${b && b.picks.length ? `<p class="${b.won ? 'win' : 'lose'}">${b.won ? `Você acertou: +${fmt(b.won)}` : `Seu jogo: ${b.picks.map(k => esc(SB.ANIMALS[k.pick])).join(', ')}. Não deu.`}</p>` : ''}
-        ${tk.length ? `<p class="tick">Hoje à noite: ${tk.map(k => `${esc(SB.ANIMALS[k.pick])} ${fmt(k.stake)}`).join(' · ')}</p>` : ''}</section>` : '';
+        ${tk.length ? `<p class="tick">Hoje à noite: ${tk.map(k => `${esc(SB.ANIMALS[k.pick])} ${fmt(k.stake)}`).join(' · ')}</p>` : ''}<span class="jBy">por ${esc(R.EQUIPE.bene.nome)}</span></section>` : '';
     const list = bicho ? news.filter(n => n.kick !== 'Bicho') : news; // o quadro do bicho já conta o resultado
     const shown = list.slice(0, 2), rest = list.slice(2);
+    const frase = `${esc(R.FRASES[seedPick(j.seed, 'frase') % R.FRASES.length])}`, quem = esc(R.FRASE_QUEM[seedPick(j.seed, 'quem') % R.FRASE_QUEM.length]);
+    const ads = [0, 1].map(k => R.CLASSIFICADOS[(seedPick(j.seed, 'ad') + k * 7) % R.CLASSIFICADOS.length]);
+    const exp = ['kelly', 'tuca', 'ze', 'lourival', 'tiao', 'bene', 'neide', 'cida', 'marquinhos', 'juca', 'doutora', 'bia'].map(k => `${esc(R.EQUIPE[k].nome)} <small>(${esc(R.EQUIPE[k].cargo)})</small>`).join(' · ');
     return `<section class="jornal" aria-label="Jornal do Submundo">
-      <header class="jMast"><div class="jEars"><span>Edição ${esc(c.name)}</span><span>Dia ${num(s.day)} de ${num(MAXDAY)}</span></div>
+      <header class="jMast"><div class="jEars"><span>Edição ${esc(c.name)}</span><span>Dia ${num(s.day)} de ${num(MAXDAY)}${s.clock ? ` · o dia vira em ${dur(SB.clockInfo(s).midnight)}` : ''}</span></div>
         <h2 class="jTitle">Jornal do Submundo</h2>
         <div class="jSub"><span>${esc(j.week.name)}</span><span>O que a polícia não lê</span></div></header>
-      <article class="jLead ${lead.tone}"${go(lead.view)}${lead.view ? ' role="button" tabindex="0"' : ''}><div class="jPhoto" aria-hidden="true"></div><div class="jLeadText"><span class="jKick">${esc(lead.kick)}</span><h3>${lead.title}</h3><p>${lead.text}</p></div></article>
+      <article class="jLead ${lead.tone}"${go(lead.view)}${lead.view ? ' role="button" tabindex="0"' : ''}><figure class="jFig"><div class="jPhoto" aria-hidden="true"></div><figcaption>Foto: ${esc(R.EQUIPE.bia.nome)}</figcaption></figure><div class="jLeadText"><span class="jKick">${esc(lead.kick)}</span><h3>${lead.title}</h3>${by(lead.by)}<p>${lead.text}</p></div></article>
       <div class="jGrid">${ficha}${bicho}${shown.map(item).join('')}</div>
-      ${rest.length ? `<details class="jMore"><summary>Ler o jornal inteiro <small>${rest.length} notícia${rest.length > 1 ? 's' : ''}</small></summary><div class="jGrid">${rest.map(item).join('')}</div></details>` : ''}
+      <blockquote class="jQuote"><p>“${frase}”</p><cite>— ${quem}</cite></blockquote>
+      <details class="jMore"><summary>Ler o jornal inteiro <small>${rest.length ? `${rest.length} notícia${rest.length > 1 ? 's' : ''} e classificados` : 'classificados e expediente'}</small></summary>
+        ${rest.length ? `<div class="jGrid">${rest.map(item).join('')}</div>` : ''}
+        <section class="jAds"><span class="jKick">Classificados</span>${ads.map(t => `<p>${esc(t)}</p>`).join('')}</section>
+        <p class="jExp"><b>Expediente</b> ${exp}</p></details>
     </section>`;
   }
   /** Diário: agenda de folhas gastas, escrita à caneta. Cada fato vira uma linha; a virada do dia fica em "Madrugada"
@@ -687,7 +716,7 @@
     const s = state;
     const list = SB.MISSIONS.filter(m => missionFilter === 'todas' ? true : missionFilter === 'bairro' ? m.district === s.district : ['', 'Energia insuficiente.', 'Você está detido.', 'Você está internado.'].includes(SB.missionLock(s, m))).sort((a, b) => a.n - b.n);
     return heading('Roubar', 'Do mais fácil ao mais difícil.') + jailNotice() + resultCard() + heatCard() + `
-      ${stencil('Roubos', esc(D().spot))}<div class="robStats traits hereTraits">${SB.districtTraits(D()).map((tx, k) => `<span class="st trait t${k}">${esc(tx)}</span>`).join('')}</div>
+      ${stencil('Roubos', esc(D().name))}<div class="robStats traits hereTraits">${SB.districtTraits(D()).map((tx, k) => `<span class="st trait t${k}">${esc(tx)}</span>`).join('')}</div>
       <div class="filterbar" role="group" aria-label="Filtrar missões">${[['disponiveis', 'Disponíveis'], ['bairro', 'Desta região'], ['todas', 'Todas']].map(([id, l]) => `<button type="button" class="btn ghost ${missionFilter === id ? 'on' : ''}" data-action="filter" data-id="${id}" aria-pressed="${missionFilter === id}">${l}</button>`).join('')}</div>
       <div class="jobs">${list.length ? list.map(missionCard).join('') : '<div class="empty">Nenhum roubo neste filtro. Veja “Todas”.</div>'}</div>
       ${stencil('Treino', `hoje ${s.today.training}/3`)}
@@ -761,7 +790,7 @@
     const s = state, l = SB.leader(s, x.id), here = x.id === s.district, ds = s.dstate[x.id];
     const evs = SB.activeEvents(s).filter(e => e.district === x.id);
     const traits = SB.districtTraits(x).map((tx, k) => `<span class="st trait t${k}">${esc(tx)}</span>`).join('');
-    return `<section class="card district ${here ? 'selected' : ''}" style="--bc:${(SB.DISTRICT_VIBE[x.id] || {}).color || '#e0a040'}"><div class="miniScene">${scene(x.id)}${plate(x.name, x.spot)}${here ? '<span class="pill here">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill here">Você lidera</span>' : ''}</div>
+    return `<section class="card district ${here ? 'selected' : ''}" style="--bc:${(SB.DISTRICT_VIBE[x.id] || {}).color || '#e0a040'}"><div class="miniScene">${scene(x.id)}${plate(x.name)}${here ? '<span class="pill here">Você está aqui</span>' : SB.controlled(s, x.id) ? '<span class="pill here">Você lidera</span>' : ''}</div>
       <div class="kv"><div><span>Líder</span><strong>${SB.controlled(s, x.id) ? 'Você' : esc(F(l.id).short) + ' ' + l.value}</strong></div><div><span>Sua influência</span><strong>${s.influence[x.id]}</strong></div><div><span>Grana</span><strong>${Math.round(ds.econ * 100)}%</strong></div><div><span>Polícia na região</span><strong>${ds.vigil}</strong></div></div>
       <div class="robStats traits">${traits}</div>
       ${evs.length ? `<div class="chips">${evs.map(e => `<span class="chip warn">${esc(SB.eventTitle(e))}</span>`).join('')}</div>` : ''}

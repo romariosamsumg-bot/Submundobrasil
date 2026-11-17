@@ -696,13 +696,13 @@ Logo depois de criar o personagem (no jogo local e no online), abre uma apresent
 ### A Rua conta a história (v1.5)
 
 Pedido do autor: a Rua é o lugar da narrativa, da emoção, das decisões e dos avisos. De cima para baixo:
-1. **Placa do bairro** com a sua influência.
-2. **Cena do momento**: um parágrafo curto, em segunda pessoa, que muda com a situação (preso, na UTI, caçado, na mira, viciado, ferido, exausto, dono do bairro) e, fora disso, com a patente. São duas variações por situação, estáveis no mesmo dia.
-3. **Ação principal**: o passo do guia (um botão; "Como jogar" e "Pular guia" viraram links) ou o "E agora?".
+1. **Placa da região** com a sua influência.
+2. **Cena do momento**, como legenda da placa ("A rua agora"): um parágrafo curto, em segunda pessoa, que muda com a situação (preso, na UTI, caçado, na mira, viciado, ferido, exausto, dono do bairro) e, fora disso, com a patente. São duas variações por situação, estáveis no mesmo dia.
+3. **Primeiros passos**: o passo do guia, enquanto ele estiver ativo (o "E agora?" saiu).
 4. **Capítulo da história**, quando há um à espera, em papel de lambe-lambe: quem fala, o texto e duas decisões com o preço à vista.
 5. **Notícia com decisão** (o sistema que já existia).
 6. **Recados da rua** (até 3): caçado ou na mira, ferido, vício alto, comprador de fora no cais, plano do bando de pé, rival crescendo num bairro seu, reta final do mês. Cada recado leva à tela certa.
-7. **Dia** numa linha, com Dormir ou Ir pra casa.
+7. O **dia** e o botão **Dormir** ficam no topo (saiu a faixa do dia).
 8. **Jornal do Submundo** (substituiu o "Hoje na cidade" e a faixa de progresso; ver "Jornal do Submundo e Diário em agenda").
 9. **Diário** em forma de agenda. O rodapé ficou só no Perfil.
 
@@ -748,7 +748,7 @@ Tela própria de Ranking, sem aba nova. Abre por três caminhos: **tocar na estr
 ### Regiões e fundo com textura (v1.5, pedido do autor)
 
 - **Bairro virou região.** As cinco áreas de toda cidade agora têm nome fixo, para o jogador se localizar na hora: **Região Central** (centro), **Região Portuária** (cais), **Região Residencial** (jardim), **Região Industrial** (industrial) e **Região da Boêmia** (vila). Regras, números, cores e ids internos não mudaram, então os saves continuam valendo.
-- **O nome inventado de cada cidade virou o "ponto" dentro da região** (`d.spot`): aparece embaixo da placa ("Região Portuária · Cais da Guanabara · Rio de Janeiro"), no título de Roubar, na ajuda e nas frases da Rua. Assim a região é familiar e o lugar do crime continua fictício.
+- **Sem nome inventado de ponto** (pedido do autor, revisão seguinte): placa, Roubar, ajuda, Cidade e frases da Rua mostram só a região ("Região Portuária · Rio de Janeiro"). As frases de chegada também falam da região ("A Região Central nunca dorme…").
 - Todos os textos dizem "região" ("Desta região", "Polícia na região", "Comprar passagem e ir").
 - **Fundo com textura pintada por região**, repetida e escurecendo para baixo: paralelepípedo (Central), chapa de contêiner (Portuária), tijolo baiano (Residencial), chapa de aço com faixa zebrada (Industrial) e calçadão em ondas vinho com confete (Boêmia). As imagens ficam em `art/textura-<tipo>.webp` (512 × 512, sem emenda, cerca de 120 KB as cinco). A antiga listra vertical e o brilho colorido no topo saíram; a cor da região continua nas bordas e nos títulos.
 
@@ -779,6 +779,34 @@ As notícias saem de `SB.jornal(s)` (motor, só leitura) e o texto de `jornalNew
 **Bicho no dia seguinte:** a fezinha vira bilhete (`bicho.tickets`, até 6 por dia) e o dinheiro sai na hora. A extração é feita na virada do dia, com um sorteio para todos os bilhetes daquele dia. Quem acerta recebe 18× (Bicheiro 20×), na mesma conta de antes. O resultado (`bicho.last`) sai no jornal, nas Apostas e no resumo do dia. Sem bilhete, o jornal ainda publica o bicho que deu (sem usar o sorteio do motor). No último dia do mês não há fezinha. A simulação deu os mesmos números de antes, porque os robôs não jogam bicho.
 
 **Diário em agenda:** folha amarelada e gasta, com argolas, margem vermelha, pautas e orelha dobrada, escrita à caneta azul com a fonte **Caveat** (OFL, embutida no arquivo: `fonts/`, cerca de 49 KB, nada é baixado). Cada fato vira uma linha: a virada do dia fica em **Madrugada** e as ações em **Durante o dia**, em ordem de acontecimento (as 6 últimas visíveis e as mais cedo em "N anotações mais cedo"). Uma marca na margem mostra o tom: ✓ ganho, ✗ perda, – neutro. "Folhear os dias anteriores" abre uma página por dia.
+
+### Topo, Rua e a redação do jornal (v1.5, pedidos do autor)
+
+**Topo:** a foto ficou 20% maior (53 px). Ao lado vêm o nome, a classe (âmbar) e a patente, cada um numa linha. Procurado e Vício têm o mesmo tamanho de Energia e Saúde. O botão **Dormir** (no online, **Ir pra casa · 3 h** ou **Sair de casa**; no dia 30, **Encerrar**) fica no topo, ao lado do dia, e funciona em qualquer tela. Ele mantém a confirmação ("Dormir com 89?") e fica âmbar quando a energia acaba.
+
+**Rua:** saíram o cartão "E agora?" e a faixa do dia (o dia já está no topo; a semana está no cabeçalho do jornal; no online, "o dia vira em…" também). O texto do momento virou a **legenda da cena**, colado na moldura da região, com o rótulo "A rua agora" e aspas na cor da região.
+
+**Redação** (`src/redacao.js`): o jornal tem equipe própria (inventada), e cada notícia é assinada:
+
+| Jornalista | Cobre |
+|---|---|
+| Kelly Manchete | editora-chefe: carreira, patente, balanço do dia, feitos |
+| Tuca do Plantão | plantão: EXTRA (o que abriu agora há pouco) |
+| Zé da Pauta | polícia: prisões, cerco, esfriou, blitz, armas, duelos |
+| Lourival Pé-de-Ouvido | gangues: quem tomou o quê, o movimento da noite, bando |
+| Tião Cotação | Galpão e porto: altas, baixas, rota do dia, remessas |
+| Seu Bené da Banca | o bicho |
+| Dona Neide | fofoca: o próximo desbloqueio quando falta pouco |
+| Cida Previsão | eventos de hoje e de amanhã |
+| Marquinhos Classificado | negócios: casa lotada, compra, negócio da vez, banco |
+| Doutora Rosinha | saúde: overdose, vício alto, ferimento |
+| Juca Crônica | crônicas da cidade e decisões da história |
+| Bia Lente | a foto da manchete |
+
+- **Só publica o que aconteceu.** Cada pauta depende de um fato que o motor registra na foto da manhã: patente, desbloqueios, degrau novo, roubos, prisões, bicho, negócio comprado, arma/colete/veículo novo, duelos, bando, overdose, feitos, vendas e remessas, blitz, depósito, capítulo da história, vício e saúde, eventos, gangues, polícia (só com cerco de 35 ou mais, na mira/caçado, ou quando o Procurado esfria), Galpão (variação de 10% ou mais; rota só com 15% de margem), negócio da vez (só se couber no bolso) e fofoca (só a 15 de respeito ou menos).
+- **Muda todo dia:** cada pauta tem várias versões de título e texto, e a do dia é escolhida por uma semente (dia, temporada e vulgo). O mesmo dia mostra sempre a mesma edição.
+- **A cidade vive sem você:** em 4 de cada 5 dias sai uma **crônica** (40 histórias da vida da cidade, com região, grupo e boteco da sua cidade). Toda edição traz a **frase ouvida na rua** (40 ditados, com 10 lugares onde foram ouvidos) e, no jornal inteiro, dois **classificados** (24, de brincadeira) e o **expediente**.
+- Ao todo são mais de 250 modelos de texto. Um teste de interface monta todos e recusa texto com buraco.
 
 ### Sons (v1.5)
 

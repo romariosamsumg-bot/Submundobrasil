@@ -54,6 +54,9 @@ window.SB_ONLINE = ${online};
   <script id="sb-sound">
 ${src('sound.js')}
   </script>
+  <script id="sb-redacao">
+${src('redacao.js')}
+  </script>
   <script id="sb-ui">
 ${src('ui.js')}
   </script>
