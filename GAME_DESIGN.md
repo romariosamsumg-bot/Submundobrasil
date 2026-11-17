@@ -647,7 +647,7 @@ A fórmula da detenção passa a ser `base + Procurado × 0,2 + vigilância do b
 - **Barras são atalhos:** Energia → Noite; Saúde e Vício → Hospital; Procurado → Roubar (onde ficam a propina e o "ficar na sua").
 - **Energia acima de 100** (com doses): trecho dourado por cima da barra e borda dourada.
 - **Procurado:** marcas nas faixas 30, 60 e 85. Procurado e Vício ficam discretos quando baixos e acendem na zona de risco.
-- Patente e classe continuam em duas linhas (escolha do autor).
+- Patente e classe numa linha só (quebra em duas apenas se não couber), retrato menor e espaçamentos apertados: o topo foi de 154 para 128 px de altura no celular.
 
 ### Ajustes de tela e do Galpão (v1.5, pedidos do autor)
 

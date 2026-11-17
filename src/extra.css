@@ -807,3 +807,12 @@ button.hudBar:active{filter:brightness(1.25)}
 .hudTier.t1{background:#3a2f17;color:#f0c06e}.hudTier.t2{background:#3e2616;color:#f29b63}.hudTier.t3{background:#431d1a;color:#ff9d8f}
 .hudFoot .soundBtn{margin-left:auto;width:24px;height:24px}
 @media(min-width:701px){.hudwrap{grid-template-areas:"who bars money" "foot foot foot"}}
+/* Topo: patente e classe na mesma linha (quebra só se não couber) */
+.hudId small{display:flex!important;flex-wrap:wrap;gap:0 4px;align-items:baseline}
+.hudId small span{display:inline!important}.hudId small i{font-style:normal;opacity:.6}
+.hudAvatar{width:44px!important;height:44px!important}
+.hudwrap{padding:7px 12px 6px!important;gap:5px 8px!important}
+.hudMoney{gap:1px!important}.hudMoney strong{font-size:21px!important;line-height:1.05}
+.hudFoot{margin-top:0;gap:2px 8px}.hudFoot .soundBtn{width:22px;height:22px;padding:2px}
+.hudBar.en,.hudBar.hp{height:18px!important}.hudBar.en b,.hudBar.hp b{line-height:16px!important}
+.hudBars{gap:4px 8px!important}
