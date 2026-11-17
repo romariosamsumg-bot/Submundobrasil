@@ -636,9 +636,20 @@
   const noteTone = m => /(perdeu|preso|não saiu|enquadr|overdose|apreendid|Batida|abandonou|−R\$|-R\$|sem resposta|falhou|deu errado|desfez|não pagou|Ressaca)/i.test(m) ? 'bad'
     : /(ganhou|acertou|\+R\$|lucro|subiu|venceu|\+\d+ de respeito|Conquista|Feito do mês|agora é)/i.test(m) ? 'good' : '';
   const noteLi = m => `<li class="${noteTone(m)}">${esc(m)}</li>`;
+  /** O Diário é só o histórico do jogador: notícias da cidade (grupos se mexendo, eventos, navio no porto) ficam no jornal.
+   *  Fala de grupo só entra se for com você (retaliação, aliança, cobrança). */
+  const MINE = /\b(você|voce|sua|seu|suas|seus|te|contigo)\b/i;
+  function myNote(m) {
+    const mine = MINE.test(m.replace(/suas fileiras/gi, ''));
+    if (/^Evento:|^O comprador de fora chegou|^Uma notícia passou sem resposta/i.test(m)) return false;
+    if (/(ampliou presença|reorganizou suas fileiras|se preparou contra|entrou em choque|Agora lidera|perdeu o comando da região durante)/i.test(m) && !mine) return false;
+    const groups = SB.FACTIONS.flatMap(f => [f.name, f.short]);
+    if (groups.some(g => m.includes(g)) && !mine) return false;
+    return true;
+  }
   function agendaPage(d, msgs, today) {
-    const turn = msgs.filter(m => /^Dia \d+\./.test(m)), acts = msgs.filter(m => !/^Dia \d+\./.test(m)).reverse(); // o log vem do mais novo
-    const night = turn.flatMap(noteSplit), max = 6, hid = acts.length > max ? acts.slice(0, acts.length - max) : [], vis = acts.slice(-max);
+    const turn = msgs.filter(m => /^Dia \d+\./.test(m)), acts = msgs.filter(m => !/^Dia \d+\./.test(m)).flatMap(m => myNote(m) ? [m] : []).reverse(); // o log vem do mais novo
+    const night = turn.flatMap(noteSplit).filter(myNote), max = 6, hid = acts.length > max ? acts.slice(0, acts.length - max) : [], vis = acts.slice(-max);
     const rel = today ? 'hoje' : `${num(state.day - d)} dia${state.day - d > 1 ? 's' : ''} atrás`;
     return `<div class="agPage"><h4 class="agDay"><b>Dia ${num(d)}</b><span>${rel}</span></h4>
       ${night.length ? `<p class="agSec">Madrugada</p><ul class="agList">${night.map(noteLi).join('')}</ul>` : ''}

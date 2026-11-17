@@ -1448,7 +1448,7 @@
     const ac = arrestChance(s, m);
     let jailMsg = '';
     if (roll(ac)) { s.jail = rand(1, 3) + (s.heat >= 70 ? 1 : 0) + (gearVal(s, 'power') >= 7 ? 1 : 0); s.seasonStats.arrests++; jailMsg = ` Você foi detido por ${s.jail} dia(s) e perdeu ${loseRespect(s, .04)} de respeito.`; }
-    log(s, `${missionName(s, m)}: fracasso (${odds}%). Perda de ${money(lost)} em mãos.${wound}${jailMsg}`);
+    log(s, `${missionName(s, m)}: fracasso (${odds}%).${lost > 0 ? ` Perda de ${money(lost)} em mãos.` : ''}${wound}${jailMsg}`);
     return done(false, `${missionName(s, m)} falhou. -${money(lost)}.${wound}${jailMsg}`);
   }
 

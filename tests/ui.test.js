@@ -241,6 +241,14 @@ await page.click('[data-action=duel][data-id=marrento]');
     for (const c of R.CRONICAS) { const t = c.t(v) + c.x(v); n++; if (/undefined|NaN/.test(t)) return t; }
     return n > 250 && R.CRONICAS.length >= 40 && R.FRASES.length >= 40 && R.CLASSIFICADOS.length >= 20 ? true : 'poucos textos: ' + n; }) === true, 'redação do jornal: todos os textos montam sem buraco, com autor da equipe, e há variedade (250+ modelos, 40 crônicas, 40 frases)');
   check(await page.evaluate(() => { const t = document.querySelector('.jornal').textContent; return !/undefined|NaN|\$\{/.test(t) && /por [A-ZÁÉ]/.test(t) && !!document.querySelector('.jornal .jQuote') && !!document.querySelector('.jornal .jExp'); }), 'jornal publicado com assinaturas, frase do dia e expediente, sem texto quebrado');
+  { // Diário: só o histórico do jogador
+    await page.evaluate(() => { const k = 'submundo_brasil_v01', SB = window.SB, s = JSON.parse(localStorage.getItem(k)); SB.applyCity(s.city); const f = SB.FACTIONS[0], g = SB.FACTIONS[1];
+      s.log.unshift({ day: s.day, msg: `Dia ${s.day}. Ressaca: -5 de energia ao acordar. ${f.short} ampliou presença na Região Industrial (+3). ${g.short} reorganizou suas fileiras (força 60). Evento: Dia movimentado. Retaliação de ${f.short}: -4 de influência sua na Região Central.` });
+      s.log.unshift({ day: s.day, msg: 'Você treinou Astúcia: +2.' }); localStorage.setItem(k, JSON.stringify(s)); });
+    await page.reload(); await go('painel');
+    const ag = await page.textContent('.agenda .agPage');
+    check(ag.includes('Ressaca') && ag.includes('Retaliação') && ag.includes('Você treinou') && !ag.includes('ampliou presença') && !ag.includes('reorganizou') && !ag.includes('Evento:'), 'Diário mostra só o histórico do jogador (movimento dos grupos e eventos ficam no jornal)');
+  }
   { // bicho: aposta hoje, resultado no jornal de amanhã
     await page.evaluate(() => { const k = 'submundo_brasil_v01', SB = window.SB, s = JSON.parse(localStorage.getItem(k)); s.cash = Math.max(s.cash, 500); s.respect = Math.max(s.respect, 10); s.jail = 0; s.hospital = 0; s.today.bets = 0; s.clock = null; s.day = Math.min(s.day, SB.MAXDAY - 2);
       SB.perform(s, 'bet', 'bicho', 100, 4); SB.perform(s, 'nextDay'); localStorage.setItem(k, JSON.stringify(s)); });

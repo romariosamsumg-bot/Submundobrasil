@@ -84,6 +84,10 @@ Para pessoas e agentes de IA que continuarem o Submundo Brasil.
 - O comprador de fora nunca revela no jornal o que quer nem quanto paga. O bicho só se resolve na virada do dia (`drawBicho`).
 - **Redação** (`src/redacao.js`, só texto): equipe inventada com assinatura (`EQUIPE`), pautas com várias versões de título e texto (`P`), crônicas da cidade (`CRONICAS`), frases ouvidas na rua (`FRASES`) e classificados de brincadeira (`CLASSIFICADOS`). A versão do dia sai de `seedPick(j.seed, ...)`, nunca do sorteio do motor. **O jornal só publica o que aconteceu**: notícia nova precisa de um fato em `SB.jornal` (a crônica é a vida da cidade, que acontece sem o jogador). Pauta nova → pelo menos 3 títulos e 3 textos, com o autor certo; o teste de interface monta todos os modelos e recusa "undefined". Linguagem de rua sim; nada que ensine a fazer algo, nada de nomes reais, pessoas não são mercadoria (vale também para os classificados).
 
+## Diário
+
+- O Diário (agenda da Rua) é **só o histórico do jogador** (`myNote` em `ui.js`): notícia da cidade (grupos, eventos, porto) vai para o jornal. Mensagem nova de log sobre a cidade → mantenha o padrão de texto que o filtro reconhece ou ajuste `myNote`.
+
 ## Fontes
 
 - Fonte só embutida pelo `build.js` a partir de `fonts/` (woff2 com licença livre ao lado, como `fonts/OFL-Caveat.txt`); nunca carregue fonte da internet. A Caveat (letra de caneta) é só do Diário: o resto do jogo segue com as fontes do sistema.
