@@ -863,7 +863,13 @@ Lugar novo no menu Cidade, **só no modo online** (offline, a tela explica e nã
 
 ### Feira com foto maior (v1.5, pedido do autor)
 
-A foto do item na Feira passou de 52–64 px para 96 px (como nos roubos). O resto do cartão ficou igual. Nos itens trancados, a palavra da tábua cresceu junto.
+A foto do item na Feira passou de 52–64 px para 96 px (como nos roubos). Nos itens trancados, a palavra da tábua cresceu junto.
+
+O cartão também foi reorganizado, com as mesmas informações:
+- **EM USO** (dourado) ou **É SEU** (verde) é uma faixa na base da foto, então o nome fica sempre sozinho na primeira linha.
+- Poder, defesa, fuga e carga viraram fichas.
+- Uma linha só, alinhada com o pé da foto, mostra o preço e Comprar, "na sua mochila" e Usar, ou "equipado agora".
+- O cartão fica da altura da foto, sem vão vazio.
 
 ### Sons (v1.5)
 
