@@ -1077,10 +1077,11 @@
       ${status}
       ${stencil('Casas da noite', 'entrada paga uma vez por dia')}<div class="grid">${SB.NIGHT.map(n => { const c = SB.nightCost(s, n), own = SB.ownTermas(s, n), cl = own || s.businesses.includes(n.id) ? '' : SB.chainLock(s, 'night', n.id), lock = !!cl || (n.unlock && s.respect < n.unlock && !own), inside = false, paid = (s.today.paid || []).includes(n.id);
         const pic = window.SBArt.casa(n.id);
-        return `<section class="card shopRow ${pic ? 'withPic' : ''} ${inside ? 'here' : ''} ${lock ? 'locked' : ''}">${pic ? `<span class="itemPic" aria-hidden="true">${pic}</span>` : ''}<div><h3>${esc(n.name)}${inside ? ' <span class="pill">Você está aqui</span>' : own ? ' <span class="pill">Sua casa</span>' : lock ? ` <span class="pill">${cl ? esc(cl.replace(/\.$/, '')) : `Requer ${n.unlock} de respeito`}</span>` : ''}</h3><p class="mini">${esc(n.desc)}</p>
-          <p class="mini">${n.menu.map(id => esc(SB.doseOf(id).name)).join(' · ')}${own ? ' · <strong>sua casa: energia cheia</strong>' : ''}</p></div>
-          <div class="shopAct"><strong>${paid ? 'Entrada paga hoje' : c ? 'Entrada ' + fmt(c) : 'Entrada grátis'}</strong>${button(paid ? 'Voltar' : 'Entrar', 'night', `data-id="${n.id}"`, s.cash < c || !!blk || lock, 'small primary')}</div></section>`; }).join('')}</div>
-      <p class="mini" style="margin-top:6px">A entrada vale o dia todo: pode sair e voltar.</p>`;
+        const stampN = inside ? '<span class="fStamp use">Você está aqui</span>' : paid ? '<span class="fStamp own">Entrada paga</span>' : own ? '<span class="fStamp use">Sua casa</span>' : '';
+        const leftN = paid || inside ? '<em>pode entrar e sair hoje</em>' : `<strong><small>Entrada</small>${c ? fmt(c) : 'grátis'}</strong>`;
+        return `<section class="card shopRow nightRow ${pic ? 'withPic' : ''} ${inside ? 'here' : ''} ${lock ? 'locked' : ''}">${pic ? `<span class="itemPic" aria-hidden="true">${pic}${stampN}</span>` : ''}<div class="fBody"><h3>${esc(n.name)}${pic ? '' : stampN}</h3>${lock ? `<div class="lockline">${cl ? esc(cl) : `Requer ${n.unlock} de respeito.`}</div>` : ''}<p class="nDesc">${esc(n.desc)}</p>
+          <div class="fFx">${n.menu.map(id => `<span>${esc(SB.doseOf(id).name)}</span>`).join('')}${own ? '<span class="gold">Sua casa: energia cheia</span>' : ''}</div>
+          <div class="fRow">${leftN}${button(paid ? 'Voltar' : 'Entrar', 'night', `data-id="${n.id}"`, s.cash < c || !!blk || lock, 'small primary')}</div></div></section>`; }).join('')}</div>`;
   }
 
 

@@ -880,6 +880,15 @@ Ao voltar ao jogo online, o resumo abre como uma folha da Agenda: argolas, letra
 - **Botão:** "Bora pra rua →".
 - **Só abre quando há algo com você.** Se foi só a cidade se mexendo, o jornal da Rua já conta.
 
+### Noite organizada (v1.5, pedido do autor)
+
+As casas da noite seguem o padrão da Feira:
+- **Foto:** em retrato, com 96 px de largura e a altura toda do cartão, como o cartaz da porta da casa.
+- **Selo** na base da foto: "Entrada paga", "Você está aqui" ou "Sua casa".
+- **Texto:** a descrição vai em itálico e as bebidas da casa viram fichas.
+- **Linha de baixo:** "Entrada R$ 40" e Entrar; se já pagou, "pode entrar e sair hoje" e Voltar.
+- **Trancadas:** o motivo fica embaixo do nome, com a tábua na foto.
+
 ### Recibo de compra (v1.5, pedido do autor)
 
 Toda compra abre um **recibo** no lugar do cupom de texto: Feira do Rolo, negócio ("Contrato de compra"), esquema montado ou ampliado ("Esquema montado" / "Obra de ampliação"), mercadoria do Galpão ("Nota de carga") e mercado negro da Esquina.

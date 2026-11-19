@@ -148,7 +148,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   await page.click('[data-action=dose][data-id=pinga]');
   g7 = await st();
   check(g7.energy === e0 + 20 && g7.ressaca === 1 && g7.vicio === 3, 'pinga: +20 de energia, vício e ressaca registrados');
-  { const c1 = g7.cash; await page.click('[data-action=leave-night]'); check((await st()).today.venue === null && await page.locator('[data-action=night][data-id=pagode]').count() === 1, 'Sair volta para a lista de casas'); check((await page.textContent('.shopRow:has([data-action=night][data-id=boteco])')).includes('Entrada paga hoje'), 'a casa aparece como paga hoje'); await page.click('[data-action=night][data-id=boteco]'); check((await st()).cash === c1 && (await st()).today.venue === 'boteco', 'voltar no mesmo dia não cobra de novo'); }
+  { const c1 = g7.cash; await page.click('[data-action=leave-night]'); check((await st()).today.venue === null && await page.locator('[data-action=night][data-id=pagode]').count() === 1, 'Sair volta para a lista de casas'); check((await page.textContent('.shopRow:has([data-action=night][data-id=boteco])')).includes('Entrada paga'), 'a casa aparece como paga hoje (selo na foto)'); await page.click('[data-action=night][data-id=boteco]'); check((await st()).cash === c1 && (await st()).today.venue === 'boteco', 'voltar no mesmo dia não cobra de novo'); }
   await go('perfil');
   check((await page.textContent('.gearGrid')).includes('Cinquentinha'), 'Perfil mostra o equipamento');
   check(await page.isVisible('.mobileNav [data-view=hub].active') && await page.isVisible('.backLink'), 'Perfil fica dentro de Cidade');

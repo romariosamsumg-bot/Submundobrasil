@@ -1142,3 +1142,18 @@ button.hudBar:active{filter:brightness(1.25)}
 .receipt .rcPic>img,.receipt .rcPic>svg{border-radius:2px}
 .receipt .rcPic .rcStamp{position:absolute;right:-12px;bottom:-8px;top:auto;padding:3px 7px 2px;font-size:16px;background:#f1e8d2d9;transform:rotate(-12deg)}
 .receipt .rcStamp.solo{position:static;display:inline-block;margin-bottom:6px}
+/* Noite (pedido do autor): foto em retrato acompanhando a altura do cartão, selo na base, bebidas em fichas,
+   entrada e botão numa linha só. Usa as mesmas peças da Feira (.fBody, .fFx, .fRow, .fStamp). */
+.shopRow.nightRow,.shopRow.nightRow.withPic{grid-template-columns:96px minmax(0,1fr)!important;gap:0 12px!important;align-items:stretch!important;padding:12px!important}
+.nightRow .itemPic{position:relative;width:96px!important;height:auto!important;min-height:96px;align-self:stretch;border-radius:5px;border:2px solid #3a4a4f;box-shadow:2px 2px 0 #05080a}
+.nightRow .itemPic img,.nightRow .itemPic svg{height:100%!important;width:100%;object-fit:cover}
+.nightRow .itemPic .fStamp{position:absolute;left:0;right:0;bottom:0;z-index:3}
+.nightRow .fBody h3{margin:0;font:700 16px/1.2 Georgia,serif;color:#f5ecd9;overflow-wrap:anywhere}
+.nightRow h3 .fStamp{display:inline-block;margin-left:6px;padding:3px 6px 2px;vertical-align:2px}
+.nDesc{margin:4px 0 0;font:italic 12.5px/1.4 Georgia,serif;color:#a9b4b6}
+.nightRow .fFx{margin-top:7px}.nightRow .fFx span.gold{color:#ffd98f;border-color:#6a5a3c;background:#1f1a10}
+.nightRow .fRow strong small{display:block;font:700 10px/1.3 system-ui,sans-serif;color:#8f9c9f;letter-spacing:.05em;text-transform:uppercase}
+.nightRow.locked .fRow strong{color:#9a8a68}
+.nightRow.locked .itemPic::after{font-size:11px;letter-spacing:.1em}
+@media(max-width:390px){.shopRow.nightRow.withPic{grid-template-columns:96px minmax(0,1fr)!important}}
+.nightRow .lockline,.feiraRow .lockline{color:#e9ac7b;font-size:12px;margin-top:4px}
