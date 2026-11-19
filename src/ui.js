@@ -326,6 +326,10 @@
     if (name === 'buy' || name === 'buyGood') return { name, id: args[0], qty: args[1] };
     if (name === 'buildLab') return { name, id: args[0], lvl: state.labs[args[0]] || 0 };
     if (name === 'esquina') return args[0] ? { name, offer: args[0] } : null;
+    if (name === 'story') { const ch = SB.STORY.find(c => c.id === args[0]); return ch ? { name, ch, i: args[1] } : null; }
+    if (name === 'mission' || name === 'duel') return { name, id: args[0] };
+    if (name === 'heistRun') return state.heist ? { name, id: state.heist.id } : { name };
+    if (name === 'dose') return { name, id: args[0], stock: !!args[1], venue: state.today.venue };
     return null;
   }
   function receiptFor(rc, before) {
@@ -358,6 +362,59 @@
     }
     return null;
   }
+  /* ---------- Pop-ups com cara (pedido do autor): página do capítulo, boletim do roubo e comanda do bar ---------- */
+  const BO_HEAD = { mission: 'Boletim do roubo', duel: 'Duelo de rua', heistRun: 'Assalto do bando' };
+  const BAR_NOTES = ['Volta sempre, chefia!', 'Fiado só amanhã.', 'Aqui ninguém viu nada.', 'Bebe devagar, que a noite é longa.', 'Essa desceu redonda, hein?', 'A casa agradece a preferência.'];
+  function dressResult(name, r, rc) {
+    const s = state;
+    if (name === 'story' && rc && rc.ch) {
+      const c = rc.ch.choices[rc.i];
+      result.page = { who: rc.ch.who, n: SB.STORY.indexOf(rc.ch) + 1, total: SB.STORY.length, title: rc.ch.title, pick: c ? c.label : '', after: (r.lines || [])[0] || '' };
+      return;
+    }
+    if (BO_HEAD[name]) {
+      let pic = '', title = r.msg, again = null;
+      if (name === 'mission' && rc) { const m = SB.mission(rc.id); if (m) { pic = window.SBArt.roubo(m.id) || ''; title = SB.missionName(s, m); again = m.id; } }
+      if (name === 'duel' && rc) { const rv = SB.rival(rc.id); if (rv) { pic = window.SBArt.rival(rv.id) || ''; title = rv.name; } }
+      if (name === 'duel' && !rc) result.boHead = 'Desafio na Esquina';
+      if (name === 'heistRun' && rc && rc.id) { const h = SB.heist(rc.id); if (h) { pic = window.SBArt.heist(h.id) || ''; title = h.name; } }
+      result.bo = { head: result.boHead || BO_HEAD[name], pic, title, text: r.msg, more: (r.lines || []).slice(0, 4), again, region: D().name };
+      return;
+    }
+    if (name === 'dose' && r.good !== false && rc) {
+      const d = SB.doseOf(rc.id), v = SB.NIGHT.find(n => n.id === (rc.venue || s.today.venue));
+      result.bar = { venue: v ? v.name : 'Balcão', dose: d ? d.name : 'Dose', id: rc.id, stock: rc.stock, note: BAR_NOTES[(s.day + s.today.doses) % BAR_NOTES.length], more: (r.lines || []).slice(0, 3) };
+    }
+  }
+  const chipsHtml = ds => ds.length ? `<div class="chips">${ds.map(d => `<span class="chip ${d.good ? 'up' : 'down'}">${d.label} ${d.text}</span>`).join('')}</div>` : '';
+  function pageHtml(fresh) {
+    const c = result.page;
+    return `<section class="resultCard storyPop ${fresh ? 'fresh' : ''}" role="dialog" aria-modal="true" aria-label="${esc(c.title)}" aria-live="polite">
+      <div class="spWho"><span>${esc(c.who)}</span><span>Capítulo ${num(c.n)} de ${num(c.total)}</span></div><h3>${esc(c.title)}</h3>${c.pick ? `<span class="spPick">Você escolheu: ${esc(c.pick)}</span>` : ''}
+      ${c.after ? `<blockquote>${esc(c.after)}</blockquote>` : ''}${chipsHtml(result.deltas)}
+      <button type="button" class="btn primary block popOk" data-action="dismiss-result">Seguir em frente</button></section>`;
+  }
+  function boHtml(fresh) {
+    const c = result.bo, m = c.again ? SB.mission(c.again) : null, lock = m ? SB.missionLock(state, m) || (state.energy < SB.missionCost(state, m) ? 'Sem energia.' : '') || (state.jail > 0 ? 'Detido.' : '') : 'x';
+    return `<section class="resultCard boPop ${result.good ? '' : 'bad'} ${fresh ? 'fresh' : ''}" role="dialog" aria-modal="true" aria-label="${esc(c.head)}" aria-live="polite">
+      <div class="rcHead"><b>${esc(c.head)}</b><small>Dia ${num(state.day)} · ${esc(c.region)}</small></div>
+      <div class="rcItem">${c.pic ? `<span class="rcPic" aria-hidden="true">${c.pic}<span class="boStamp ${result.good ? '' : 'bad'}">${result.good ? 'Deu bom' : 'Deu ruim'}</span></span>` : `<span class="boStamp solo ${result.good ? '' : 'bad'}" aria-hidden="true">${result.good ? 'Deu bom' : 'Deu ruim'}</span>`}<div><h3>${esc(c.title)}</h3><p class="boTxt">${esc(c.text)}</p></div></div>
+      ${c.more.length ? `<ul class="boMore">${c.more.map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}${chipsHtml(result.deltas)}
+      <div class="rcBtns ${lock ? 'one' : ''}"><button type="button" class="b popOk" data-action="dismiss-result">${lock ? 'OK' : 'Voltar'}</button>${lock ? '' : `<button type="button" class="a" data-action="mission" data-id="${esc(c.again)}">Roubar de novo</button>`}</div></section>`;
+  }
+  function barHtml(fresh) {
+    const c = result.bar, ds = result.deltas, pick = l => ds.find(d => d.label === l), cash = pick('Caixa'), en = pick('Energia'), vc = pick('Vício');
+    const d = SB.doseOf(c.id), cost = d ? SB.doseCost(state, d) : 0, can = state.today.venue && !state.jail && !state.hospital && (c.stock ? state.goods[d && d.good] > 0 : state.cash >= cost);
+    return `<section class="resultCard barPop ${fresh ? 'fresh' : ''}" role="dialog" aria-modal="true" aria-label="Comanda: ${esc(c.venue)}" aria-live="polite">
+      <div class="barHead">${esc(c.venue)}<small>comanda nº ${num(state.day)}${String(state.today.doses).padStart(2, '0')} · balcão</small></div>
+      <div class="barLn"><span>1 × ${esc(c.dose)}</span><span>${c.stock ? 'do estoque' : cash ? esc(cash.text.replace(/^-/, '')) : '—'}</span></div>
+      ${en ? `<div class="barLn"><span>Energia</span><span class="up">${esc(en.text)}</span></div>` : ''}
+      <div class="barLn"><span>Vício</span><span class="${vc ? 'down' : ''}">${vc ? esc(vc.text) + ' · ' : ''}${num(state.vicio)}/100</span></div>
+      ${c.more.map(l => `<div class="barLn note"><span>${esc(l)}</span></div>`).join('')}
+      <div class="barLn tot"><span>Total</span><span>${c.stock ? 'R$ 0' : cash ? esc(cash.text.replace(/^-/, '')) : 'R$ 0'}</span></div>
+      <div class="barHand">${esc(c.note)}</div>
+      <div class="rcBtns"><button type="button" class="b popOk" data-action="dismiss-result">Fechar a conta</button><button type="button" class="a" data-action="dose" data-id="${esc(c.id)}" ${c.stock ? 'data-stock="1"' : ''} ${can ? '' : 'disabled'}>Pedir outra</button></div></section>`;
+  }
   function receiptHtml(fresh) {
     const c = result.receipt;
     return `<section class="resultCard receipt ${fresh ? 'fresh' : ''}" role="dialog" aria-modal="true" aria-label="${esc(c.head)}: ${esc(c.name)}" aria-live="polite">
@@ -374,6 +431,7 @@
     } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()), fresh: true, stamp: STAMPED.includes(name) };
     const rc = receiptCtx; receiptCtx = null;
     if (r.ok && rc && rc.name === name && before) { const rec = receiptFor(rc, before); if (rec) result.receipt = rec; }
+    if (r.ok && !result.receipt) dressResult(name, r, rc && rc.name === name ? rc : null);
     if (name === 'nextDay') dawn();
     save(); render(); actionSound(name, r); actionShake(name, r, before && before.health);
     $('#toast').hidden = true; // o popup já informa
@@ -399,6 +457,9 @@
   }
   function resultHtml(fresh) {
     if (result.receipt) return receiptHtml(fresh);
+    if (result.page) return pageHtml(fresh);
+    if (result.bo) return boHtml(fresh);
+    if (result.bar) return barHtml(fresh);
     if (result.away) { const a = result.away;
       return `<section class="resultCard awayAgenda agenda ${fresh ? 'fresh' : ''}" role="dialog" aria-modal="true" aria-label="${esc(result.msg)}" aria-live="polite"><span class="awClip" aria-hidden="true"></span><div class="agRings" aria-hidden="true"></div>
         <div class="agHead"><b>Enquanto você esteve fora</b><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar">×</button></div>

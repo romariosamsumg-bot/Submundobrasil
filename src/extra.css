@@ -1157,3 +1157,54 @@ button.hudBar:active{filter:brightness(1.25)}
 .nightRow.locked .itemPic::after{font-size:11px;letter-spacing:.1em}
 @media(max-width:390px){.shopRow.nightRow.withPic{grid-template-columns:96px minmax(0,1fr)!important}}
 .nightRow .lockline,.feiraRow .lockline{color:#e9ac7b;font-size:12px;margin-top:4px}
+
+/* =====================================================================
+   POP-UPS (pedido do autor): página do capítulo, boletim do roubo, comanda
+   do bar e o bilhete limpo para o resto (sem a máquina de escrever espaçada).
+   ===================================================================== */
+.resultPop .resultCard{font-family:system-ui,sans-serif}
+.resultPop .resultCard .rhead strong{font:700 18px/1.25 Georgia,serif;letter-spacing:0}
+.resultPop .resultCard>ul{font:14px/1.5 system-ui,sans-serif;color:#3a332a}
+.resultPop .resultCard .chip{font:700 12px/1.3 system-ui,sans-serif;border-radius:3px;letter-spacing:0}
+.resultPop .resultCard .popOk{font:700 13px/1 system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+/* História */
+.resultCard.storyPop{max-width:360px;background:#efe4c8;border-top:6px solid #a8231b;padding:18px 18px 16px;transform:rotate(-.6deg)}
+.storyPop .spWho{display:flex;justify-content:space-between;gap:8px;font:400 11px/1 var(--stencil);letter-spacing:.14em;text-transform:uppercase;color:#7c1711}
+.storyPop h3{margin:8px 0 2px;font:700 22px/1.15 Georgia,serif;color:#1d1a15}
+.storyPop .spPick{font:700 12px/1.3 system-ui;color:#6b5f4c;letter-spacing:.04em;text-transform:uppercase}
+.storyPop blockquote{margin:12px 0 0;padding:0 0 0 12px;border-left:3px solid #a8231b;font:italic 17px/1.45 Georgia,serif;color:#2a241b}
+/* Boletim do roubo (reaproveita as peças do recibo) */
+.resultCard.boPop{max-width:340px;background:#f1e8d2;color:#1d1a15;padding:16px 16px 20px;border-top:0;transform:rotate(.6deg)}
+.boPop .rcHead{text-align:center;border-bottom:2px dashed #1d1a1555;padding-bottom:8px}
+.boPop .rcHead b{display:block;font:400 19px/1 var(--stencil);letter-spacing:.12em;text-transform:uppercase}
+.boPop .rcHead small{font:600 11px/1.4 system-ui;color:#6b5f4c}
+.boPop .rcItem{display:grid;grid-template-columns:80px minmax(0,1fr);gap:12px;align-items:center;margin:12px 0 6px}
+.boPop .rcItem:not(:has(.rcPic)){grid-template-columns:minmax(0,1fr)}
+.boPop .rcPic{width:80px;height:80px;border:2px solid #1d1a15;border-radius:4px;overflow:hidden;background:#3a3d40}
+.boPop .rcPic img,.boPop .rcPic svg{width:100%;height:100%;object-fit:cover;display:block}
+.boPop h3{margin:0;font:700 17px/1.2 Georgia,serif;overflow-wrap:anywhere}.boPop .boTxt{margin:4px 0 0;font:13px/1.4 system-ui;color:#3a332a}
+.boPop .boMore{margin:6px 0 0;padding-left:16px;border-top:0;font:12.5px/1.45 system-ui;color:#3a332a}
+.boStamp{position:absolute;right:14px;top:56px;padding:4px 9px 3px;border:3px solid #1f6b3acc;color:#1f6b3acc;font:400 20px/1 var(--stencil);letter-spacing:.1em;text-transform:uppercase;transform:rotate(-12deg);border-radius:4px;pointer-events:none;background:#f1e8d2cc}
+.boStamp.bad{border-color:#a3261dcc;color:#a3261dcc}
+.resultCard.fresh .boStamp{animation:stamp .38s .12s cubic-bezier(.2,1.6,.4,1) both}
+.boPop .rcBtns,.barPop .rcBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.boPop .rcBtns.one{grid-template-columns:1fr}
+.boPop .rcBtns button,.barPop .rcBtns button{min-height:42px;border-radius:3px;font:700 12px/1.2 system-ui;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;padding:6px 8px;margin:0}
+.boPop .rcBtns .a,.barPop .rcBtns .a{background:#e4b266;border:0;color:#1b1712;box-shadow:0 3px 0 #1d1a15}
+.boPop .rcBtns .b,.barPop .rcBtns .b{background:transparent;border:2px solid #1d1a15;color:#1d1a15}
+.boPop .rcBtns.one .b{background:#e4b266;border:0;box-shadow:0 3px 0 #1d1a15}
+.barPop .rcBtns .a:disabled{opacity:.45;cursor:not-allowed}
+/* Comanda do bar */
+.resultCard.barPop{max-width:340px;background:#fffaf0;color:#1d1a15;border-top:0;padding:14px 16px 20px;background-image:repeating-linear-gradient(0deg,#0000 0 27px,#1d1a1512 27px 28px)}
+.barHead{text-align:center;font:800 16px/1.2 system-ui;letter-spacing:.08em;text-transform:uppercase;border-bottom:2px dashed #1d1a1555;padding-bottom:6px}
+.barHead small{display:block;font:600 11px/1.4 system-ui;color:#6b5f4c;letter-spacing:0;text-transform:none}
+.barLn{display:flex;justify-content:space-between;gap:10px;font:600 14px/28px system-ui}.barLn .up{color:#1f6b3a}.barLn .down{color:#9b2318}
+.barLn.note{font-weight:500;font-size:12.5px;line-height:1.4;padding:4px 0;color:#5d5444}
+.barLn.tot{border-top:1px solid #1d1a1544;font-weight:800}
+.barHand{margin-top:6px;font:500 21px/1.2 Caveat,"Segoe Print",cursive;color:#1f3763;transform:rotate(-2deg)}
+@media (prefers-reduced-motion:reduce){.resultCard.storyPop,.resultCard.boPop{transform:none}.resultCard.fresh .boStamp{animation:none}}
+.boPop .rcPic{position:relative;overflow:visible}
+.boPop .rcPic .boStamp{position:absolute;top:auto;right:-14px;bottom:-8px;font-size:14px;padding:3px 6px 2px}
+.boStamp.solo{position:static;display:inline-block;margin-bottom:4px}
+.resultPop .resultCard:not(.receipt):not(.awayAgenda):not(.storyPop):not(.boPop):not(.barPop){border-top:0;border-left:6px solid #e4b266}
+.resultPop .resultCard.bad:not(.boPop){border-left-color:#c0392b}
+.boStamp{white-space:nowrap}.boPop .rcPic .boStamp{right:-22px;font-size:13px}

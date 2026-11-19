@@ -889,6 +889,16 @@ As casas da noite seguem o padrão da Feira:
 - **Linha de baixo:** "Entrada R$ 40" e Entrar; se já pagou, "pode entrar e sair hoje" e Voltar.
 - **Trancadas:** o motivo fica embaixo do nome, com a tábua na foto.
 
+### Pop-ups com cara (v1.5, pedido do autor)
+
+- **Escolha da história** → página do capítulo: quem fala, "Capítulo N de 5", o título, "Você escolheu: …", a consequência em itálico com margem vermelha, o efeito em ficha e o botão "Seguir em frente".
+- **Roubo, duelo e assalto do bando** → boletim:
+  - foto com o carimbo DEU BOM (verde) ou DEU RUIM (vermelho);
+  - o que aconteceu e as fichas de ganho e perda;
+  - os botões Voltar e **Roubar de novo** (só aparece quando o mesmo roubo ainda pode ser feito).
+- **Dose na noite** → comanda do bar: a dose e o preço, a energia, o vício (até 100), o total e um recado à caneta do dono, com os botões "Fechar a conta" e **Pedir outra**.
+- **O resto** (propina, banco, treino, viagem…) → bilhete limpo com letra legível (sai a máquina de escrever espaçada), faixa âmbar à esquerda (vermelha quando deu errado) e fichas de ganho e perda.
+
 ### Recibo de compra (v1.5, pedido do autor)
 
 Toda compra abre um **recibo** no lugar do cupom de texto: Feira do Rolo, negócio ("Contrato de compra"), esquema montado ou ampliado ("Esquema montado" / "Obra de ampliação"), mercadoria do Galpão ("Nota de carga") e mercado negro da Esquina.
