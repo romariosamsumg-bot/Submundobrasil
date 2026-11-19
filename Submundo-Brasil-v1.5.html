@@ -1184,6 +1184,21 @@ button.hudBar:active{filter:brightness(1.25)}
 .fRow em{font:italic 12px/1.2 Georgia,serif;color:#a9b4b6}
 .fRow .btn{min-height:36px!important;padding:5px 16px!important;font-size:13px!important;margin:0}
 .feiraRow.locked .fRow strong{color:#9a8a68}
+/* "Enquanto você esteve fora" como folha da Agenda */
+.resultCard.awayAgenda{margin:0;max-width:420px;width:100%;transform:rotate(-1deg);padding:24px 14px 14px 42px;border:0;color:#2a241b}
+.awayAgenda .agHead{flex-wrap:nowrap;align-items:center}
+.awayAgenda .agHead b{font-size:clamp(12px,3.7vw,17px);letter-spacing:.03em;white-space:nowrap}
+.awayAgenda .close{background:none;border:0;font:700 20px/1 system-ui;color:#6b4a2a;cursor:pointer;padding:0 4px;min-height:28px}
+.awayAgenda .agDay span i{font-style:normal}.awayAgenda .agDay span i.up{color:#2f6b3a}.awayAgenda .agDay span i.down{color:#a3261d}
+.awayAgenda .agCity{margin:8px 0 0;font:italic 13px/1.4 Georgia,serif;color:#6b5b45}.awayAgenda .agCity b{color:#7a2318;font-style:normal}
+.awOk{display:block;margin:14px auto 2px;padding:9px 30px;border:2px solid #1f3763;border-radius:24px;background:transparent;font:500 22px/1 Caveat,"Segoe Print",cursive;color:#1f3763;transform:rotate(-2deg);cursor:pointer}
+.awOk:focus-visible{outline:2px solid #7a2318;outline-offset:3px}
+.awClip{position:absolute;top:-14px;right:30px;width:26px;height:44px;border:3px solid #9aa3a6;border-radius:13px;border-bottom-color:transparent;transform:rotate(12deg)}
+@media (prefers-reduced-motion:reduce){.resultCard.awayAgenda{transform:none}}
+.resultCard.awayAgenda ul{border-top:0;padding-top:0;color:inherit}
+.resultCard.awayAgenda{font-family:system-ui,sans-serif}
+.resultPop .resultCard.awayAgenda li{line-height:28px}
+.awOk:focus-visible{outline:1px dotted #1f3763;outline-offset:4px}
 
   </style>
 </head>
@@ -5121,6 +5136,14 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     const ok = box.querySelector('.popOk'); if (ok && !window.SB_POP_PASSTHROUGH) ok.focus({ preventScroll: true });
   }
   function resultHtml(fresh) {
+    if (result.away) { const a = result.away;
+      return `<section class="resultCard awayAgenda agenda ${fresh ? 'fresh' : ''}" role="dialog" aria-modal="true" aria-label="${esc(result.msg)}" aria-live="polite"><span class="awClip" aria-hidden="true"></span><div class="agRings" aria-hidden="true"></div>
+        <div class="agHead"><b>Enquanto você esteve fora</b><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar">×</button></div>
+        <div class="agPage"><h4 class="agDay"><b>Dia ${num(a.day)}</b><span>${a.deltas.length ? a.deltas.map(d => `<i class="${d.good ? 'up' : 'down'}">${esc(d.text)}</i>`).join(' · ') : 'de volta'}</span></h4>
+          <p class="agSec">Com você</p><ul class="agList">${a.mine.map(noteLi).join('')}</ul>${a.more > 0 ? `<p class="agCity">E mais ${num(a.more)} anotaç${a.more > 1 ? 'ões' : 'ão'} no Diário.</p>` : ''}
+          ${a.events.length ? `<p class="agSec">Na cidade</p><ul class="agList">${a.events.map(e => `<li>${esc(e)}</li>`).join('')}</ul>` : ''}
+          ${a.gangs ? `<p class="agCity">E mais: <b>${num(a.gangs)} movimento${a.gangs > 1 ? 's' : ''} das gangues</b>${a.regions.length ? ' na ' + a.regions.map(esc).join(' e na ') : ''}. Tudo no Jornal da Rua.</p>` : ''}
+          <button type="button" class="awOk popOk" data-action="dismiss-result">Bora pra rua →</button></div></section>`; }
     return `<section class="resultCard ${result.good ? '' : 'bad'} ${fresh ? 'fresh' : ''}" role="dialog" aria-modal="true" aria-label="Resultado" aria-live="polite"><div class="rhead"><strong>${esc(result.msg)}</strong><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar resultado">×</button></div>
       ${result.stamp ? `<span class="stamp" aria-hidden="true">${result.good ? 'DEU BOM' : 'DEU RUIM'}</span>` : ''}
       ${result.deltas.length ? `<div class="chips">${result.deltas.map(d => `<span class="chip ${d.good ? 'up' : 'down'}">${d.label} ${d.text}</span>`).join('')}</div>` : ''}
@@ -5410,7 +5433,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
    *  e as ações em "Durante o dia", em ordem de acontecimento. */
   const noteSplit = m => m.replace(/^Dia \d+\.\s*/, '').split(/(?<=[.!])\s+(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ+−-])/).map(x => x.trim()).filter(Boolean);
   const noteTone = m => /(perdeu|preso|não saiu|enquadr|overdose|apreendid|Batida|abandonou|−R\$|-R\$|sem resposta|falhou|deu errado|desfez|não pagou|Ressaca)/i.test(m) ? 'bad'
-    : /(ganhou|acertou|\+R\$|lucro|subiu|venceu|\+\d+ de respeito|Conquista|Feito do mês|agora é)/i.test(m) ? 'good' : '';
+    : /(ganhou|acertou|\+R\$|lucro|subiu|venceu|\+\d+ de respeito|Conquista|Feito do mês|agora é|saiu da cadeia|está livre|teve alta|\+\d+ ×)/i.test(m) ? 'good' : '';
   const noteLi = m => `<li class="${noteTone(m)}">${esc(m)}</li>`;
   /** O Diário é só o histórico do jogador: notícias da cidade (grupos se mexendo, eventos, navio no porto) ficam no jornal.
    *  Fala de grupo só entra se for com você (retaliação, aliança, cobrança). */
@@ -5927,6 +5950,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   /* ---------- renderização ---------- */
   function render() {
     if (!state) return;
+    if (!(result && result.away)) markSeen();
     SB.applyCity(state.city);
     { const v = SB.DISTRICT_VIBE[state.district]; document.documentElement.style.setProperty('--bairro', v ? v.color : '#e0a040'); document.body.dataset.bairro = state.district;
       // Fundo com a textura da região (art/textura-<tipo>.webp); sem a imagem, fica o fundo escuro padrão.
@@ -6205,7 +6229,37 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   function fromServer(estado) { const p = SB.parseSave(JSON.stringify(estado)); if (!p.ok) throw new Error('O servidor mandou um save ilegível.'); return p.state; }
   function onlineStatus(html) { const el = $('#onlineStatus'); if (el) el.innerHTML = html; }
   /** O que aconteceu enquanto o jogador estava fora (viradas, alta, fim do mês). */
-  const awayCard = avisos => { if (Array.isArray(avisos) && avisos.length) result = { good: true, msg: 'Enquanto você esteve fora', lines: avisos.map(String), deltas: [], fresh: true }; };
+  /* "Enquanto você esteve fora" (online): folha de agenda. Só abre se houve algo com você; a cidade vai para o jornal.
+   * O resumo compara com a última vez que você viu o jogo (guardado no aparelho). */
+  const SEEN_KEY = 'sb_ultima_vista';
+  let lastSeen = (() => { try { const v = JSON.parse(localStorage.getItem(SEEN_KEY) || 'null'); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } })();
+  function markSeen() {
+    if (!online || !state) return;
+    lastSeen = { name: state.name, season: state.season, cash: state.cash + state.bank, respect: state.respect, health: state.health };
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(lastSeen)); } catch (e) { /* sem armazenamento */ }
+  }
+  const AWAY_PRIO = [[/cadeia|preso|detido|enquadro/i, 9], [/UTI|internad|overdose/i, 9], [/Esquina: você (venceu|perdeu)/i, 8], [/comprou .* da sua banca|aposta voltaram/i, 7], [/bicho/i, 7], [/Batida|apreendid|Blitz/i, 6], [/respeito/i, 5]];
+  const awayPrio = l => (AWAY_PRIO.find(([r]) => r.test(l)) || [0, 1])[1];
+  function awayCard(avisos) {
+    if (!Array.isArray(avisos) || !avisos.length || !state) return;
+    const all = avisos.map(String).flatMap(l => l.replace(/^Dia \d+\.\s*/, '').split(/(?<=[.!])\s+(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ])/).map(x => x.trim()).filter(Boolean)).filter(l => !/^Virou o dia \d+/i.test(l) && !/^Dia \d+\.?$/.test(l));
+    const days = avisos.map(String).map(l => (l.match(/Virou o dia (\d+)/i) || [])[1]).filter(Boolean).map(Number);
+    const events = all.filter(l => /^Evento:/i.test(l)).map(l => l.replace(/^Evento:\s*/i, ''));
+    const mine = all.filter(l => !/^Evento:/i.test(l) && myNote(l));
+    const city = all.filter(l => !/^Evento:/i.test(l) && !myNote(l));
+    if (!mine.length) return; // nada com você: o jornal da Rua conta a cidade
+    const regions = [...new Set(city.map(l => (l.match(/na (Região [A-Za-zÀ-ú ]+?)(?=\s*[(.!:,]|$)/) || [])[1]).filter(Boolean))];
+    const deltas = [];
+    if (lastSeen && lastSeen.name === state.name && lastSeen.season === state.season) {
+      const dc = state.cash + state.bank - lastSeen.cash, dr = state.respect - lastSeen.respect, dh = state.health - lastSeen.health;
+      if (dc) deltas.push({ good: dc > 0, text: `${dc > 0 ? '+' : '−'}${fmt(Math.abs(dc))}` });
+      if (dr) deltas.push({ good: dr > 0, text: `${dr > 0 ? '+' : '−'}${num(Math.abs(dr))} respeito` });
+      if (dh) deltas.push({ good: dh > 0, text: `${dh > 0 ? '+' : '−'}${num(Math.abs(dh))} saúde` });
+    }
+    const top = mine.map((l, i) => [l, awayPrio(l), i]).sort((a, b) => b[1] - a[1] || a[2] - b[2]).slice(0, 5).map(x => x[0]);
+    result = { good: true, msg: 'Enquanto você esteve fora', lines: [], deltas: [], fresh: true,
+      away: { day: days.length ? Math.max(...days) : state.day, mine: top, more: mine.length - top.length, events, gangs: city.length, regions, deltas } };
+  }
   function enterOnline(estado, avisos) {
     state = fromServer(estado); online = true; pendingOnline = false; view = 'painel'; result = null; awayCard(avisos);
     $('#welcome').classList.add('hidden'); if (!setup) document.body.classList.remove('atCover'); render();
@@ -6487,7 +6541,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
   const stored = ON ? readSession() : null;
   if (stored) { showLoader(stored.email); bootOnline(true); }
   else { localStart(); bootOnline(false); }
-  window.__SB_UI = { get state() { return state; }, go: switchView }; // apoio a testes automatizados
+  window.__SB_UI = { get state() { return state; }, go: switchView, away: av => { awayCard(av); render(); return !!(result && result.away); } }; // apoio a testes automatizados
 })();
 
   </script>

@@ -1102,3 +1102,18 @@ button.hudBar:active{filter:brightness(1.25)}
 .fRow em{font:italic 12px/1.2 Georgia,serif;color:#a9b4b6}
 .fRow .btn{min-height:36px!important;padding:5px 16px!important;font-size:13px!important;margin:0}
 .feiraRow.locked .fRow strong{color:#9a8a68}
+/* "Enquanto você esteve fora" como folha da Agenda */
+.resultCard.awayAgenda{margin:0;max-width:420px;width:100%;transform:rotate(-1deg);padding:24px 14px 14px 42px;border:0;color:#2a241b}
+.awayAgenda .agHead{flex-wrap:nowrap;align-items:center}
+.awayAgenda .agHead b{font-size:clamp(12px,3.7vw,17px);letter-spacing:.03em;white-space:nowrap}
+.awayAgenda .close{background:none;border:0;font:700 20px/1 system-ui;color:#6b4a2a;cursor:pointer;padding:0 4px;min-height:28px}
+.awayAgenda .agDay span i{font-style:normal}.awayAgenda .agDay span i.up{color:#2f6b3a}.awayAgenda .agDay span i.down{color:#a3261d}
+.awayAgenda .agCity{margin:8px 0 0;font:italic 13px/1.4 Georgia,serif;color:#6b5b45}.awayAgenda .agCity b{color:#7a2318;font-style:normal}
+.awOk{display:block;margin:14px auto 2px;padding:9px 30px;border:2px solid #1f3763;border-radius:24px;background:transparent;font:500 22px/1 Caveat,"Segoe Print",cursive;color:#1f3763;transform:rotate(-2deg);cursor:pointer}
+.awOk:focus-visible{outline:2px solid #7a2318;outline-offset:3px}
+.awClip{position:absolute;top:-14px;right:30px;width:26px;height:44px;border:3px solid #9aa3a6;border-radius:13px;border-bottom-color:transparent;transform:rotate(12deg)}
+@media (prefers-reduced-motion:reduce){.resultCard.awayAgenda{transform:none}}
+.resultCard.awayAgenda ul{border-top:0;padding-top:0;color:inherit}
+.resultCard.awayAgenda{font-family:system-ui,sans-serif}
+.resultPop .resultCard.awayAgenda li{line-height:28px}
+.awOk:focus-visible{outline:1px dotted #1f3763;outline-offset:4px}

@@ -871,6 +871,15 @@ O cartão também foi reorganizado, com as mesmas informações:
 - Uma linha só, alinhada com o pé da foto, mostra o preço e Comprar, "na sua mochila" e Usar, ou "equipado agora".
 - O cartão fica da altura da foto, sem vão vazio.
 
+### "Enquanto você esteve fora" em folha de Agenda (v1.5, online, pedido do autor)
+
+Ao voltar ao jogo online, o resumo abre como uma folha da Agenda: argolas, letra de caneta, o **Dia** e, ao lado, quanto mudou desde a última vez que você viu o jogo ("+R$ 340 · +3 respeito · −10 saúde", guardado no aparelho).
+- **Com você:** no máximo 5 linhas, as mais importantes primeiro: cadeia, UTI, desafio, venda, bicho, batida e respeito. O resto fica em "E mais N anotações no Diário".
+- **Na cidade:** só os eventos.
+- **Gangues:** uma linha só ("E mais: 3 movimentos das gangues na Região Portuária e na Região Industrial. Tudo no Jornal da Rua.").
+- **Botão:** "Bora pra rua →".
+- **Só abre quando há algo com você.** Se foi só a cidade se mexendo, o jornal da Rua já conta.
+
 ### Sons (v1.5)
 
 Efeitos sintetizados pelo navegador (Web Audio, `src/sound.js`), sem arquivos de áudio e sem licença: roubo certo = caixa registradora + carimbo; roubo errado = som grave + carimbo; preso = sirene; compra, venda, banco, propina, fiança e aposta = moedas; dose = lata abrindo; entrar na noite = batida grave; treino = soco; hospital e desintoxicação = bipe de monitor; UTI = monitor apitando direto; respeito novo (faixa de influência, feito do mês, primeiros passos, conquista) = fanfarra curta; virar o dia = sino; ação recusada = bipe curto. Botão de alto-falante no topo (ao lado do dia) e volume no Perfil; a escolha fica no aparelho. O áudio só começa depois do primeiro toque (regra dos celulares).

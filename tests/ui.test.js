@@ -248,6 +248,11 @@ await page.click('[data-action=duel][data-id=marrento]');
   await go('hub'); check((await page.textContent('#content')).includes('Esquina'), 'a Esquina aparece no menu Cidade');
   await go('esquina'); check((await page.textContent('#content')).includes('só funciona no') && await page.locator('#esqMsg').count() === 0, 'fora do modo online, a Esquina explica que é só online (sem chat)');
   await go('painel');
+  { const only = await page.evaluate(() => window.__SB_UI.away(['Virou o dia 9.', 'Irmandade ampliou presença na Região Portuária (+6).', 'Evento: Temporal de verão.']));
+    const mine = await page.evaluate(() => window.__SB_UI.away(['Você saiu da cadeia.', 'Virou o dia 9. Evento: Temporal de verão. Garoa ampliou presença na Região Industrial (+5).']));
+    const txt = await page.textContent('.awayAgenda');
+    check(!only && mine && txt.includes('Com você') && txt.includes('saiu da cadeia') && txt.includes('1 movimento das gangues') && !txt.includes('ampliou'), '"Enquanto você esteve fora" vira folha da Agenda e só abre quando há algo com você');
+    await page.evaluate(() => document.querySelector('.awayAgenda [data-action=dismiss-result]').click()); }
   { // Diário: só o histórico do jogador
     await page.evaluate(() => { const k = 'submundo_brasil_v01', SB = window.SB, s = JSON.parse(localStorage.getItem(k)); SB.applyCity(s.city); const f = SB.FACTIONS[0], g = SB.FACTIONS[1];
       s.log.unshift({ day: s.day, msg: `Dia ${s.day}. Ressaca: -5 de energia ao acordar. ${f.short} ampliou presença na Região Industrial (+3). ${g.short} reorganizou suas fileiras (força 60). Evento: Dia movimentado. Retaliação de ${f.short}: -4 de influência sua na Região Central.` });
