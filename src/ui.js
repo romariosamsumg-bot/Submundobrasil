@@ -269,6 +269,7 @@
   /** Executa uma ação do motor, registra o resultado e redesenha. */
   function run(name, ...args) {
     if (!state) return null;
+    receiptCtx = receiptPre(name, args);
     if (online) return runOnline(name, args);
     const before = snap();
     let r;
@@ -315,12 +316,64 @@
     b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/>${on ? '<path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>' : '<path d="M16 9l6 6M22 9l-6 6"/>'}</svg>`;
   }
   /** Monta o cartão de resultado e redesenha (vale para o jogo local e para o online). */
+  /* ---------- Recibo de compra (Feira, Negócios, esquemas, Galpão e mercado da Esquina) ---------- */
+  let receiptCtx = null;
+  const STAT_OF = { arma: ['power', 'Poder'], protecao: ['def', 'Defesa'], veiculo: ['escape', 'Fuga'] };
+  /** O que precisa ser lembrado ANTES da compra (o que você usava, o nível do esquema). */
+  function receiptPre(name, args) {
+    if (!state) return null;
+    if (name === 'buyItem') { const it = SB.item(args[0]); return it ? { name, id: it.id, prev: SB.item(state.gear[it.slot]) } : null; }
+    if (name === 'buy' || name === 'buyGood') return { name, id: args[0], qty: args[1] };
+    if (name === 'buildLab') return { name, id: args[0], lvl: state.labs[args[0]] || 0 };
+    if (name === 'esquina') return args[0] ? { name, offer: args[0] } : null;
+    return null;
+  }
+  function receiptFor(rc, before) {
+    const s = state, paid = before.cash - s.cash; if (paid <= 0) return null;
+    const base = { day: s.day, paid, left: s.cash };
+    if (rc.name === 'buyItem') {
+      const it = SB.item(rc.id); if (!it) return null; const [k, lab] = STAT_OF[it.slot], d = it[k] - (rc.prev ? rc.prev[k] : 0);
+      return Object.assign(base, { head: 'Feira do Rolo', sub: 'sem nota, sem pergunta', pic: window.SBArt.item(it.id), name: it.name,
+        fx: `${lab} ${it[k]}`, gain: d ? `(${d > 0 ? '+' : ''}${d})` : '', note: s.gear[it.slot] === it.id ? 'Já está na sua mão.' : 'Guardado na sua mochila.', go: ['acoes', 'Ir roubar'], stay: 'Continuar na Feira' });
+    }
+    if (rc.name === 'buy') {
+      const b = SB.business(rc.id); if (!b) return null;
+      return Object.assign(base, { head: 'Contrato de compra', sub: 'firma reconhecida no boteco', pic: window.SBArt.casa(b.id) || window.SBArt.place('negocios'), name: b.name,
+        fx: `Rende cerca de ${fmt(SB.businessIncome(s, b))} por dia`, gain: b.respect ? `+${b.respect} respeito` : '', note: 'A chave já é sua.', go: ['painel', 'Voltar pra Rua'], stay: 'Continuar em Negócios' });
+    }
+    if (rc.name === 'buildLab') {
+      const l = SB.LABS.find(x => x.id === rc.id); if (!l) return null; const n = s.labs[l.id] || 0;
+      return Object.assign(base, { head: rc.lvl ? 'Obra de ampliação' : 'Esquema montado', sub: 'pago em espécie', pic: window.SBArt.esquema(l.id) || window.SBArt.place('negocios'), name: l.name,
+        fx: `Nível ${n} · ${SB.labYield(s, l)}${l.cash ? '' : ' por dia'}`, gain: '', note: 'Começa a render na virada do dia.', go: ['painel', 'Voltar pra Rua'], stay: 'Continuar em Negócios' });
+    }
+    if (rc.name === 'buyGood') {
+      const g = SB.good(rc.id); if (!g) return null;
+      return Object.assign(base, { head: 'Nota de carga', sub: `Galpão · ${D().name}`, pic: window.SBArt.place('galpao'), name: `${num(rc.qty)} × ${g.name}`,
+        fx: `Carga ${num(SB.cargoUsed(s))}/${num(SB.cargoCap(s))}`, gain: '', note: 'Venda onde pagam mais.', go: ['painel', 'Voltar pra Rua'], stay: 'Continuar no Galpão' });
+    }
+    if (rc.name === 'esquina') {
+      const o = rc.offer, g = SB.good(o.mercadoria); if (!g) return null;
+      return Object.assign(base, { head: 'Mercado negro', sub: `Esquina · de ${o.vendedor_nome}`, pic: window.SBArt.place('esquina'), name: `${num(o.qtd)} × ${g.name}`,
+        fx: `${fmt(o.preco)} por ${g.unit}`, gain: '', note: 'Já está no seu galpão.', go: ['galpao', 'Ver o Galpão'], stay: 'Continuar na Esquina' });
+    }
+    return null;
+  }
+  function receiptHtml(fresh) {
+    const c = result.receipt;
+    return `<section class="resultCard receipt ${fresh ? 'fresh' : ''}" role="dialog" aria-modal="true" aria-label="${esc(c.head)}: ${esc(c.name)}" aria-live="polite">
+      <div class="rcHead"><b>${esc(c.head)}</b><small>Recibo · Dia ${num(c.day)} · ${esc(c.sub)}</small></div>
+      <div class="rcItem">${c.pic ? `<span class="rcPic" aria-hidden="true">${c.pic}<span class="rcStamp">Pago</span></span>` : '<span class="rcStamp solo" aria-hidden="true">Pago</span>'}<div><h3>${esc(c.name)}</h3><p>${esc(c.fx)}${c.gain ? ` <span class="up">${esc(c.gain)}</span>` : ''}</p><em>${esc(c.note)}</em></div></div>
+      <div class="rcLines"><div><span>${esc(c.name)}</span><span class="neg">−${fmt(c.paid)}</span></div><div class="tot"><span>Sobrou no bolso</span><span>${fmt(c.left)}</span></div></div>
+      <div class="rcBtns"><button type="button" class="b popOk" data-action="dismiss-result">${esc(c.stay)}</button><button type="button" class="a" data-view="${c.go[0]}">${esc(c.go[1])}</button></div></section>`;
+  }
   function finish(name, r, before) {
     if (name === 'endSeason') {
       const rec = r.record;
       if (r.state) state = r.state;
       result = { good: true, msg: r.msg, lines: [`Respeito final: ${rec.score} · ${rec.title}.`, ...SB.CATEGORIES.filter(c => SB.FEAT_CATS.includes(c.id)).map(c => `${c.name}: ${SB.MEDALS[rec.medals[c.id]]}`)], deltas: [], fresh: true };
     } else result = { good: r.good, msg: r.msg, lines: r.lines || [], deltas: deltas(before, snap()), fresh: true, stamp: STAMPED.includes(name) };
+    const rc = receiptCtx; receiptCtx = null;
+    if (r.ok && rc && rc.name === name && before) { const rec = receiptFor(rc, before); if (rec) result.receipt = rec; }
     if (name === 'nextDay') dawn();
     save(); render(); actionSound(name, r); actionShake(name, r, before && before.health);
     $('#toast').hidden = true; // o popup já informa
@@ -345,6 +398,7 @@
     const ok = box.querySelector('.popOk'); if (ok && !window.SB_POP_PASSTHROUGH) ok.focus({ preventScroll: true });
   }
   function resultHtml(fresh) {
+    if (result.receipt) return receiptHtml(fresh);
     if (result.away) { const a = result.away;
       return `<section class="resultCard awayAgenda agenda ${fresh ? 'fresh' : ''}" role="dialog" aria-modal="true" aria-label="${esc(result.msg)}" aria-live="polite"><span class="awClip" aria-hidden="true"></span><div class="agRings" aria-hidden="true"></div>
         <div class="agHead"><b>Enquanto você esteve fora</b><button type="button" class="close" data-action="dismiss-result" aria-label="Fechar">×</button></div>
@@ -1204,7 +1258,7 @@
   /* ---------- eventos ---------- */
   document.addEventListener('click', e => {
     const nav = e.target.closest('[data-view]');
-    if (nav) { switchView(nav.dataset.view); return; }
+    if (nav) { if (nav.closest('#resultPop')) result = null; switchView(nav.dataset.view); return; }
     const btn = e.target.closest('[data-action]');
     if (!btn || !state || btn.disabled) return;
     const a = btn.dataset.action, id = btn.dataset.id;
@@ -1225,7 +1279,7 @@
       case 'esq-recusar': esqAct({ acao: 'responder', id: Number(id), aceitar: false }); break;
       case 'esq-cancelar': esqAct({ acao: 'cancelar_desafio', id: Number(id) }); break;
       case 'esq-vender': { const g = ($('#esqGood') || {}).value, q = Math.round(Number(($('#esqQtd') || {}).value)), p = Math.round(Number(($('#esqPreco') || {}).value)); esqAct({ acao: 'vender', mercadoria: g, qtd: q, preco: p }); break; }
-      case 'esq-comprar': esqAct({ acao: 'comprar', id: Number(id) }); break;
+      case 'esq-comprar': receiptCtx = receiptPre('esquina', [(esq.merc || []).find(m => m.id === Number(id))]); esqAct({ acao: 'comprar', id: Number(id) }); break;
       case 'esq-recolher': esqAct({ acao: 'cancelar_venda', id: Number(id) }); break;
       case 'dismiss-result': result = null; render(); break;
       case 'rank-scope': if (rank.scope !== id) { rank.scope = id; rank.rows = null; rank.me = null; render(); loadRank(true); } break;
@@ -1485,6 +1539,7 @@
   }
   async function runOnline(name, args) {
     if (busy) return null;
+    receiptCtx = receiptPre(name, args);
     busy = true; document.body.classList.add('busy');
     const before = snap();
     try {
@@ -1560,6 +1615,7 @@
         if (onOk) onOk();
         if (body.acao === 'chat') { sfx('tick'); render(); }
         else { const fin = { ok: true, good: res.good !== false && res.venceu !== false, msg: res.msg, lines: [] }; finish(body.acao === 'responder' ? 'duel' : 'esquina', fin, before); }
+        if (body.acao !== 'comprar') receiptCtx = null;
       }
     } catch (e) { notify(e.message, true); }
     finally { busy = false; document.body.classList.remove('busy'); }

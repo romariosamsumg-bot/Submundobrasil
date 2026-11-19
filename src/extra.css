@@ -1117,3 +1117,28 @@ button.hudBar:active{filter:brightness(1.25)}
 .resultCard.awayAgenda{font-family:system-ui,sans-serif}
 .resultPop .resultCard.awayAgenda li{line-height:28px}
 .awOk:focus-visible{outline:1px dotted #1f3763;outline-offset:4px}
+/* Recibo de compra (Feira, Negócios, esquemas, Galpão, mercado da Esquina) */
+.resultCard.receipt{max-width:340px;background:#f1e8d2;color:#1d1a15;padding:16px 16px 20px;font-family:system-ui,sans-serif;transform:rotate(-.8deg)}
+.receipt .rcHead{text-align:center;border-bottom:2px dashed #1d1a1555;padding-bottom:8px}
+.receipt .rcHead b{display:block;font:400 20px/1 var(--stencil);letter-spacing:.12em;text-transform:uppercase}
+.receipt .rcHead small{font:600 11px/1.4 system-ui;color:#6b5f4c;letter-spacing:.03em}
+.receipt .rcItem{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;align-items:center;margin:12px 0 10px}
+.receipt .rcPic{width:88px;height:88px;border-radius:4px;overflow:hidden;background:#3a3d40;border:2px solid #1d1a15}
+.receipt .rcPic img,.receipt .rcPic svg{width:100%;height:100%;object-fit:cover;display:block}
+.receipt .rcItem h3{margin:0;font:700 18px/1.2 Georgia,serif;overflow-wrap:anywhere}
+.receipt .rcItem p{margin:5px 0 0;font:700 13px/1.35 system-ui}.receipt .rcItem p .up{color:#1f6b3a}
+.receipt .rcItem em{display:block;margin-top:4px;font:italic 12px Georgia,serif;color:#5d5444}
+.receipt .rcLines{border-top:2px dashed #1d1a1555;padding-top:8px;font:600 14px/1.9 system-ui}
+.receipt .rcLines div{display:flex;justify-content:space-between;gap:10px}.receipt .rcLines span:first-child{overflow-wrap:anywhere}
+.receipt .rcLines .neg{color:#9b2318;white-space:nowrap}.receipt .rcLines .tot{border-top:1px solid #1d1a1533;margin-top:2px;padding-top:2px;font-weight:800}
+.receipt .rcStamp{position:absolute;right:14px;top:58px;padding:4px 10px 3px;border:3px solid #1f6b3acc;color:#1f6b3acc;font:400 22px/1 var(--stencil);letter-spacing:.12em;text-transform:uppercase;transform:rotate(-14deg);border-radius:4px;pointer-events:none}
+.resultCard.fresh.receipt .rcStamp{animation:stamp .38s .12s cubic-bezier(.2,1.6,.4,1) both}
+.receipt .rcBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.receipt .rcBtns button{min-height:42px;border-radius:3px;font:700 12px/1.2 system-ui;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;padding:6px 8px}
+.receipt .rcBtns .a{background:#e4b266;border:0;color:#1b1712;box-shadow:0 3px 0 #1d1a15}.receipt .rcBtns .b{background:transparent;border:2px solid #1d1a15;color:#1d1a15;margin:0;min-height:42px}
+@media (prefers-reduced-motion:reduce){.resultCard.receipt{transform:none}.resultCard.fresh.receipt .rcStamp{animation:none}}
+.resultCard.receipt,.resultCard.awayAgenda{border-top:0}
+.receipt .rcPic{position:relative;overflow:visible}
+.receipt .rcPic>img,.receipt .rcPic>svg{border-radius:2px}
+.receipt .rcPic .rcStamp{position:absolute;right:-12px;bottom:-8px;top:auto;padding:3px 7px 2px;font-size:16px;background:#f1e8d2d9;transform:rotate(-12deg)}
+.receipt .rcStamp.solo{position:static;display:inline-block;margin-bottom:6px}

@@ -880,6 +880,16 @@ Ao voltar ao jogo online, o resumo abre como uma folha da Agenda: argolas, letra
 - **Botão:** "Bora pra rua →".
 - **Só abre quando há algo com você.** Se foi só a cidade se mexendo, o jornal da Rua já conta.
 
+### Recibo de compra (v1.5, pedido do autor)
+
+Toda compra abre um **recibo** no lugar do cupom de texto: Feira do Rolo, negócio ("Contrato de compra"), esquema montado ou ampliado ("Esquema montado" / "Obra de ampliação"), mercadoria do Galpão ("Nota de carga") e mercado negro da Esquina.
+
+O recibo traz:
+- a foto do que você comprou, com o carimbo verde **PAGO**;
+- o que muda para você: "Poder 4 (+1)" comparado com o que você usava, a renda por dia do negócio, a produção do esquema ou a carga do galpão;
+- a conta: o valor pago e o que sobrou no bolso;
+- dois botões: **continuar ali** ou ir para a tela certa ("Ir roubar" depois de uma arma; "Voltar pra Rua" depois de negócio, esquema ou carga; "Ver o Galpão" depois do mercado negro).
+
 ### Sons (v1.5)
 
 Efeitos sintetizados pelo navegador (Web Audio, `src/sound.js`), sem arquivos de áudio e sem licença: roubo certo = caixa registradora + carimbo; roubo errado = som grave + carimbo; preso = sirene; compra, venda, banco, propina, fiança e aposta = moedas; dose = lata abrindo; entrar na noite = batida grave; treino = soco; hospital e desintoxicação = bipe de monitor; UTI = monitor apitando direto; respeito novo (faixa de influência, feito do mês, primeiros passos, conquista) = fanfarra curta; virar o dia = sino; ação recusada = bipe curto. Botão de alto-falante no topo (ao lado do dia) e volume no Perfil; a escolha fica no aparelho. O áudio só começa depois do primeiro toque (regra dos celulares).

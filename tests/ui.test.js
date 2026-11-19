@@ -123,6 +123,7 @@ const check = (cond, msg) => { console.log((cond ? '  ok  ' : '  FALHA ') + msg)
   check(await page.locator('[data-action=buy-item][data-id=porrete]').count() === 0, 'o seletor mostra uma prateleira por vez');
   check(await page.isDisabled('[data-action=buy-item][data-id=cinquentinha]') && await page.locator('.shopRow.locked:has([data-id=cinquentinha])').count() === 1 && !(await page.textContent('.shopRow:has([data-id=cinquentinha])')).includes('Primeiro compre'), 'trilha: a Cinquentinha fica bloqueada até comprar a bicicleta, sem frase explicando');
   await page.click('[data-action=buy-item][data-id=bike]');
+  { const rc = await page.textContent('#resultPop .receipt').catch(() => ''); check(rc.includes('Feira do Rolo') && rc.includes('Bicicleta cargueira') && rc.includes('Sobrou no bolso') && rc.includes('Pago'), 'compra na Feira vira recibo (item, valor pago, o que sobrou e carimbo PAGO)'); }
   await page.click('[data-action=buy-item][data-id=cinquentinha]');
   check((await st()).gear.veiculo === 'cinquentinha', 'veículo comprado na Feira do Rolo');
   check(await page.isVisible('[data-action=equip][data-id=bike]') && (await page.textContent('.shopRow:has([data-id=bike])')).includes('É seu'), 'a bicicleta continua sua, com o botão Usar');
