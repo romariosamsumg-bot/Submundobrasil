@@ -345,7 +345,7 @@ await page.click('[data-action=duel][data-id=marrento]');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-action=export]')]);
   const fpath = await dl.path();
   const payload = JSON.parse(require('fs').readFileSync(fpath, 'utf8'));
-  check(payload.game === 'Submundo Brasil' && payload.version === '1.5' && payload.checksum, 'arquivo exportado com versão e checksum');
+  check(payload.game === 'Marginalidade - O Jogo' && payload.version === '1.5' && payload.checksum, 'arquivo exportado com versão e checksum');
   check(await page.evaluate(() => !document.querySelector('#welcomeImport')), 'a tela inicial não tem mais importar salvamento');
   const cashBefore = (await st()).cash;
   await page.evaluate(() => { const k = 'submundo_brasil_v01', s = JSON.parse(localStorage.getItem(k)); s.cash = 1; localStorage.setItem(k, JSON.stringify(s)); }); await page.reload(); await go('temporada');

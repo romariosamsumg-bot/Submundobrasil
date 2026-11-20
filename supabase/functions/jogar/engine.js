@@ -885,7 +885,7 @@
   function parseSave(text) {
     let obj;
     try { obj = JSON.parse(text); } catch (e) { return { ok: false, error: 'O conteúdo não é um JSON válido (arquivo corrompido ou incompleto).' }; }
-    if (obj && obj.game === 'Submundo Brasil' && obj.save) obj = obj.save; // formato de exportação
+    if (obj && (obj.game === 'Submundo Brasil' || obj.game === 'Marginalidade - O Jogo') && obj.save) obj = obj.save; // nome antigo continua aceito // formato de exportação
     const problem = structuralProblem(obj);
     if (problem) return { ok: false, error: problem };
     try { const r = normalizeSave(obj); return { ok: true, state: r.state, notes: r.notes }; }
@@ -893,7 +893,7 @@
   }
   /** Soma de verificação simples (FNV-1a) para detectar arquivos alterados. */
   function checksum(text) { let h = 0x811c9dc5; for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16); }
-  function exportPayload(s) { const save = JSON.stringify(s); return { game: 'Submundo Brasil', version: VERSION, exportedAt: new Date().toISOString(), checksum: checksum(save), save: s }; }
+  function exportPayload(s) { const save = JSON.stringify(s); return { game: 'Marginalidade - O Jogo', version: VERSION, exportedAt: new Date().toISOString(), checksum: checksum(save), save: s }; }
 
   /* ------------------------------------------------------------------ */
   /* 4. Fórmulas derivadas                                                */

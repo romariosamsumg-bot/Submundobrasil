@@ -1208,3 +1208,6 @@ button.hudBar:active{filter:brightness(1.25)}
 .resultPop .resultCard:not(.receipt):not(.awayAgenda):not(.storyPop):not(.boPop):not(.barPop){border-top:0;border-left:6px solid #e4b266}
 .resultPop .resultCard.bad:not(.boPop){border-left-color:#c0392b}
 .boStamp{white-space:nowrap}.boPop .rcPic .boStamp{right:-22px;font-size:13px}
+/* Nome "Marginalidade - O Jogo": a palavra é longa, então o logo encolhe para caber em 360 px */
+.logoTop{font-size:clamp(30px,10.4vw,62px)!important;letter-spacing:0!important;white-space:nowrap}
+.loaderLogo{font-size:clamp(24px,8vw,34px)}

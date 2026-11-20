@@ -31,8 +31,8 @@ const html = `<!DOCTYPE html>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111b1e">
-  <meta name="description" content="Submundo Brasil — RPG urbano brasileiro de estratégia por turnos para navegador.">
-  <title>Submundo Brasil | Jogo de estratégia 1.5</title>
+  <meta name="description" content="Marginalidade - O Jogo — RPG urbano brasileiro de estratégia por turnos para navegador.">
+  <title>Marginalidade - O Jogo</title>
   <style>
 ${fontFaces}
 ${src('style.css')}

@@ -1,6 +1,8 @@
 # AGENTS.md — Regras de continuidade
 
-Para pessoas e agentes de IA que continuarem o Submundo Brasil.
+Para pessoas e agentes de IA que continuarem o **Marginalidade - O Jogo** (antes chamado Submundo Brasil).
+
+> **Nome do jogo:** na tela, só "Marginalidade - O Jogo". Nomes internos ficam como estão, porque mudar quebra saves e links: a chave `submundo_brasil_v01`, o objeto `SB`, o arquivo `Submundo-Brasil-v1.5.html`, o repositório e o endereço do site. O arquivo exportado aceita os dois nomes. O "Jornal do Submundo" é o nome do jornal dentro do jogo e continua.
 
 ## Regras obrigatórias
 

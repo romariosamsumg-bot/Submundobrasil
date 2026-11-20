@@ -909,6 +909,10 @@ O recibo traz:
 - a conta: o valor pago e o que sobrou no bolso;
 - dois botões: **continuar ali** ou ir para a tela certa ("Ir roubar" depois de uma arma; "Voltar pra Rua" depois de negócio, esquema ou carga; "Ver o Galpão" depois do mercado negro).
 
+### Nome do jogo: Marginalidade - O Jogo (v1.5, pedido do autor)
+
+Aparece no logo da entrada (MARGINALIDADE com a faixa O JOGO), na tela de carregamento, no título da aba, no menu lateral, no rodapé do Perfil e no arquivo exportado (`marginalidade-v1.5-…json`). Arquivos exportados com o nome antigo continuam sendo aceitos. Os nomes internos não mudaram (ver AGENTS.md).
+
 ### Sons (v1.5)
 
 Efeitos sintetizados pelo navegador (Web Audio, `src/sound.js`), sem arquivos de áudio e sem licença: roubo certo = caixa registradora + carimbo; roubo errado = som grave + carimbo; preso = sirene; compra, venda, banco, propina, fiança e aposta = moedas; dose = lata abrindo; entrar na noite = batida grave; treino = soco; hospital e desintoxicação = bipe de monitor; UTI = monitor apitando direto; respeito novo (faixa de influência, feito do mês, primeiros passos, conquista) = fanfarra curta; virar o dia = sino; ação recusada = bipe curto. Botão de alto-falante no topo (ao lado do dia) e volume no Perfil; a escolha fica no aparelho. O áudio só começa depois do primeiro toque (regra dos celulares).

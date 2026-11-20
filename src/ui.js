@@ -201,7 +201,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function exportSave() {
-    download(`submundo-brasil-v1.5-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
+    download(`marginalidade-v1.5-t${state.season}-d${state.day}.json`, JSON.stringify(SB.exportPayload(state), null, 2));
     notify('Cópia da carreira preparada para download.');
   }
   async function importFile(file, fromWelcome) {
@@ -1286,7 +1286,7 @@
       if (ft !== lastFoto) { lastFoto = ft; document.documentElement.style.setProperty('--foto', ft ? `url("${ft}")` : 'none'); } }
     const pages = { painel: panel, acoes: actions, hub, cidade: city, gestao: management, negocios, feira, galpao, noite, duelos, apostas, hospital, gangue: gang, assaltos, perfil, temporada: seasons, ranking: rankingView, esquina };
     try {
-      $('#content').innerHTML = (pages[view] || panel)() + (view !== 'perfil' ? '' : `<div class="footer">SUBMUNDO BRASIL • v${SB.VERSION} • 18+ • Cidades reais, pontos e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`);
+      $('#content').innerHTML = (pages[view] || panel)() + (view !== 'perfil' ? '' : `<div class="footer">MARGINALIDADE - O JOGO • v${SB.VERSION} • 18+ • Cidades reais, pontos e grupos fictícios • Jogo local, sem multiplayer, pagamentos ou conexão externa.</div>`);
     } catch (e) {
       console.error(e);
       $('#content').innerHTML = `<div class="errorBox"><h2>Algo deu errado nesta tela.</h2><p>Seu progresso continua salvo. Exporte uma cópia por segurança e volte ao início.</p><div class="btnbar">${button('Exportar carreira', 'export', '', false, 'small')}${button('Voltar ao início', 'switch', 'data-target="painel"', false, 'small primary')}</div><p class="mini">${esc(e.message)}</p></div>`;
@@ -1845,7 +1845,7 @@
   function showLoader(email) {
     let el = $('#bootLoader');
     if (!el) { el = document.createElement('div'); el.id = 'bootLoader'; el.className = 'bootLoader'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
-    el.innerHTML = `<div class="loaderBox"><b class="loaderLogo">SUBMUNDO <span>BRASIL</span></b><span class="loaderSpin" aria-hidden="true"></span><p>Carregando seu perfil…</p>${email ? `<small>${esc(email)}</small>` : ''}<button type="button" class="btn ghost small" id="loaderOther">Entrar com outra conta</button></div>`;
+    el.innerHTML = `<div class="loaderBox"><b class="loaderLogo">MARGINALIDADE <span>O JOGO</span></b><span class="loaderSpin" aria-hidden="true"></span><p>Carregando seu perfil…</p>${email ? `<small>${esc(email)}</small>` : ''}<button type="button" class="btn ghost small" id="loaderOther">Entrar com outra conta</button></div>`;
     el.hidden = false;
     $('#loaderOther').addEventListener('click', () => { bootCancelled = true; storeSession(null); hideLoader(); localStart(); });
   }
