@@ -1,0 +1,224 @@
+# Validação — Submundo Brasil v1.5
+
+Tudo abaixo foi **executado** neste ambiente (Node.js + Chromium/Playwright).
+Para reproduzir: `npm test` (build + motor + fuzz + interface), `npm run simulate`
+e `npm run careers`.
+
+Os testes de motor, fuzz e simulação carregam o motor **de dentro do HTML
+entregue** (`<script id="sb-engine">`), não de uma cópia.
+
+## 1. Testes do motor — `tests/engine.test.js`
+
+**207 de 207 passaram** (v1.5: Esquina — desafio com aposta, briga, resultado e mercado, fora de SB.act; Evolução no Perfil com faturamento de negócios e produção; jornal da manhã e bicho com resultado no dia seguinte, com bilhete, extração na virada, recusa no último dia e save adulterado limitado; ciclo do roubo do autor — 4 travas do iniciante, escada com chance pela proporção, propina, doses sem limite, desintoxicação que custa saúde, UTI e clínica com preço subindo; roubos procedurais, com a escada saindo das fórmulas, os três tipos, repetição livre e os gatilhos do Procurado; despachante várias vezes no dia, com o preço dobrando; meta removida, com a recusa sem mudar o estado e o save antigo no meio do guia; + 1 sobre roubo em sequência com equipamento básico (risco ≤ 5% por tentativa); + 2 sobre feitos do mês e respeito como placar; + 2 sobre equipamento nos roubos e veículo de fuga; + 1 sobre a conta da luta; + 3 sobre itens que são seus e a ficha da temporada; + 14 sobre o relógio do online; + 2 sobre o começo do zero e os preços da Feira; + 4 sobre a trilha de compra; v1.4: + retrato do jogador; + 4 sobre as quatro classes; + 2 sobre tolerância e teto do corpo; + 9 sobre doses, casas da noite, estoque, azia, sete esquemas, gatonet, propina, casa abastecida e pó no Navio) (v1.3; 18 novos sobre classes, casas da noite, Termas própria, vício e overdose, desintoxicação, batida, apostas, colete na trocação, respeito perdido na prisão, despachante, calendário e semanas). Cenários cobertos:
+
+| Cenário pedido | Testes |
+|---|---|
+| Personagem iniciante | estado inicial válido; chances iniciais coerentes (fácil ≥ 75%, cofre ≤ 15%); bloqueios por respeito e por bairro |
+| Jogador experiente / valores extremos | 1.000 missões seguidas com energia infinita mantêm invariantes; caixa de R$ 10¹¹ não quebra fórmulas; respeito decrescente em missões fáceis |
+| Pouco dinheiro | fiança recusada sem caixa; `maxDeposit` nunca deixa o caixa negativo (0, 1, 2, 33, 103...) |
+| Excesso de dinheiro | treino superlinear; legado entre temporadas limitado a R$ 4.500 mesmo com R$ 10⁹ |
+| Energia esgotada | ação recusada **sem alterar o estado** (comparação do JSON antes e depois) |
+| Gangue pequena e grande | chance maior com 7 do que com 2 integrantes; limite de 8; deserção com ânimo baixo; integrantes sobem de nível |
+| Rival dominante | presença 95 e força 90 reduzem a chance de confronto; facções hostis retaliam; a liderança de bairros muda ao longo das temporadas |
+| Trégua ativa | exige +35; bloqueia confronto e disputa; impede retaliação; a renovação custa mais e respeita a carência; romper pune todas as facções |
+| Aliança | requisitos, contribuição diária, hostilidade do inimigo do aliado |
+| Mudança de temporada | não encerra antes do dia 30; exatamente 29 viradas; histórico, conquistas e recordes preservados; rival histórico herdado |
+| Importação de save antigo | save 0.4 completo migra (dinheiro, 5 integrantes gerados, rival → presença, trégua, evento legado, histórico); save migrado joga uma temporada inteira; envelope de exportação da 0.4 aceito |
+| Save inválido | JSON corrompido, schema desconhecido e dia 31 recusados com motivo; valores extremos limitados com notas; campos com HTML e chaves extras descartados; ida e volta estável; checksum detecta alteração |
+| Repetição | repetir reduz chance e recompensa; vigilância local; cofre 1 vez por dia; 3 treinos por dia |
+
+Um bug foi **encontrado por estes testes e corrigido**: `nextMemberId` era
+incrementado a cada carregamento do save.
+
+## 2. Fuzz — `tests/fuzz.js`
+
+Ações aleatórias de todos os tipos com argumentos aleatórios (inclusive
+inválidos). Após cada ação verifica: valores inteiros e não negativos, energia e
+vigilância ≤ 100, influência e presença entre 0 e 100. Ao fim de cada temporada,
+faz ida e volta pelo JSON.
+
+Sementes 1, 2 e 3, com 30 ciclos cada (~17–23 temporadas completas por semente,
+milhares de ações): **0 exceções, 0 violações**.
+
+## 3. Interface — `tests/ui.test.js` (Chromium, 360×780)
+
+**173 de 173 verificações passaram** (v1.5: Esquina no menu Cidade e aviso de só online; Evolução no Perfil e Diário só com o histórico do jogador; redação do jornal com todos os modelos de texto conferidos e assinaturas; topo com Dormir; Jornal do Submundo na Rua com manchete e Coluna do respeito, resultado do bicho no jornal do dia seguinte, Diário em agenda; o resultado pula num popup inteiro dentro da tela, some do topo e fecha no OK; nos demais testes o popup deixa os toques passarem; v1.4: escolha de retrato no Perfil; topo com Procurado e Vício; Rua com a ficha da temporada) (v1.3: inclui apostar no bicho, tomar soro, usar o despachante e a semana do mês na Rua), com **0 erros de console**:
+
+- **Ranking** (v1.5): a estrela do topo abre o ranking do mês com você destacado, quanto falta para passar o de cima, a Galeria da fama, o filtro pela cidade e a sua posição na Rua (servidor simulado).
+- **Nenhum texto cortado** (v1.5): 16 telas (com o Ranking) nas 6 cidades, com nome de 22 letras, R$ 123.456 e a patente mais longa, mais as páginas de "Como jogar". O detector foi conferido contra a versão anterior, onde acusou o corte do topo.
+- 6 telas sem rolagem horizontal a 360 px (jogo novo e save migrado) e a 1280 px.
+- A missão consome energia e mostra o resultado com as variações num popup.
+- "Avançar dia" pede um segundo toque com energia ≥ 40 e mostra o resumo do dia.
+- O depósito de R$ 1.000 cobra R$ 30; valor negativo é recusado.
+- Save corrompido: tela inicial com aviso, cópia preservada.
+- **XSS**: 5 cargas `<img onerror>` (histórico, registro, nome da gangue) não executaram.
+- **Compatibilidade real**: a v0.4 original foi aberta no navegador e jogada por 6 dias; o save foi enriquecido com gangue, trégua e negócio e carregado na 0.5. Nome, dia, dinheiro, carreira, negócios, trégua, integrantes e presença foram preservados, e o backup da 0.4 foi criado.
+- Temporada levada ao dia 30 e encerrada pela interface; histórico com pontuação.
+- Exportação com versão e checksum; importação pela tela inicial restaura a carreira.
+
+Capturas em `tests/screens/` (revisadas manualmente: legibilidade, hierarquia,
+ausência de cortes).
+
+## 3b. Arte (v1.1)
+
+- Build com um arquivo de teste em `art/place-galpao.png`: o Galpão mostrou a imagem e os outros 7 lugares continuaram em SVG (verificado no navegador). O arquivo de teste foi removido depois.
+- Capturas `tests/screens/v11-*.png` revisadas a 360 px: as cenas preenchem os cartões e a lista de assaltos não espreme o texto.
+- A arte não muda regras: motor, fuzz e simulações são os mesmos da v1.0.
+
+## 3c. Imagens pintadas (v1.4)
+
+- 24 imagens de cena e adversário, 5 bairros (v1.5, 79 a 101 KB), 10 retratos do jogador, 27 itens da Feira, 18 roubos, 5 casas da noite e 7 esquemas (v1.5, cortados de grades por `tools/cortar-grade.py`, pelas bordas ou pelas faixas de fundo, com quadro vazio deduzido pelo passo da grade, 192 px), mais a cadeia e a capa (880 px) e os 18 grupos rivais (3 por cidade). São 116 imagens e o HTML está com cerca de 3,9 MB. (256 px, 9 a 17 KB) em `art/` (WebP, 880 px de largura nos lugares e assaltos, 288 px nos retratos; 10 a 91 KB cada). O HTML passou de ~0,7 MB para ~3 MB.
+- `npm test` repetido com as imagens embutidas: 136/136 no motor, fuzz sem erros, 96/96 na interface, sem rolagem horizontal a 360 px.
+- Capturas `tests/screens/v14-*.png` revisadas: Cidade, Duelos e Assaltos. As 4 últimas (Zé Marrento, Agência, Transportadora, Apostas) entraram depois e foram conferidas nas capturas de Apostas e Duelos.
+- Nenhuma regra mudou: as tabelas de simulação abaixo são as da v1.3.
+
+## 3d. Online (v1.5)
+
+- `tests/online.test.js` (10 testes; v1.5: criação com a ficha completa e troca de vulgo): o servidor usa o mesmo motor; codinome e cidade validados; ação recusada não grava; ação ou argumento estranho (`__proto__`, objeto, infinito, texto longo) é barrado; save adulterado no banco é normalizado; fim de temporada troca o estado.
+- Interface com servidor simulado (8 verificações): cadastro, criação do personagem com R$ 0, roubo calculado pelo servidor, nada salvo no aparelho, ranking no Perfil, sair e entrar de novo.
+- No projeto real: a função recusa quem não entrou (401), o ranking responde e ninguém lê a tabela de saves sem login (regras de acesso do banco).
+- **Relógio (fase 1b)**: 14 testes no motor (energia a cada 3 min, tempo que não anda para trás, Procurado e vício pelo tempo, cadeia em horas, virada à meia-noite de Brasília, ausência de dias e de meses, fim do mês, ir pra casa, argumentos forjados em Dormir e Encerrar temporada, relógio adulterado no save); `tests/online.test.js` com 8 testes (a hora é sempre a do servidor); interface com servidor simulado, incluindo ir pra casa e voltar 3 horas depois.
+- **Teste real com o relógio** (função versão 2): personagem criado no dia 13 do mês 2026-11, três roubos pelo servidor em 1,0 a 1,4 s cada (medido de fora do Brasil), faixa do dia com "O dia vira em 16 h 7 min", ir pra casa e sair, ranking do mês. Conta de teste apagada. **Não testado de verdade**: a virada da meia-noite e a do mês no servidor (só nos testes, com a hora simulada).
+- **Teste real de ponta a ponta** (confirmação de e-mail desligada pelo autor): conta criada, personagem com R$ 0, roubo calculado pelo servidor (1,2 s na primeira chamada), ranking com o jogador em 1º e continuação após recarregar a página. A conta de teste foi apagada em seguida.
+
+## 3d-2. Esquina ao vivo (v1.5)
+
+Teste com duas contas de teste no servidor de verdade, pela tela, apagadas no fim (sobra 0 conta, 0 mensagem, 0 oferta, 0 desafio): **9 de 9**.
+- A fala na sala da cidade e B vê; a mensagem colada na anterior é freada.
+- A põe 5 erva na banca e B compra por R$ 450; A recebe R$ 428 (menos 5%) ao voltar.
+- A desafia B com R$ 200; B aceita, vence e leva R$ 360 e +3 de respeito; A recebe o resultado ao voltar.
+
+Pela API (sem tela): **22 de 23**. Barrados: sala de outra cidade, link, preço fora da faixa, aposta acima do teto, compra da própria oferta, venda dupla, segundo desafio no mesmo dia contra o mesmo rival e aceite duplo. A falha foi do próprio teste: o freio de mensagens não foi acionado porque as chamadas do meio deixaram passar mais de 2,5 s. O freio foi confirmado no teste pela tela. `tests/online.test.js`: **14 de 14** (filtro do chat, salas e conferência dos pedidos).
+
+## 3e. Site no ar (GitHub Pages)
+
+- `https://romariosamsumg-bot.github.io/Submundobrasil/` responde 200 e entrega exatamente o último build.
+- Teste real pelo site: conta criada, ficha (retrato, vulgo, classe), roubo calculado pelo servidor em 1,5 s (medido de fora do Brasil), ranking com o jogador. Conta de teste apagada; o banco ficou com 0 jogadores.
+
+> **Jornal e bicho (v1.5):** `npm run simulate` rodado antes e depois da mudança deu os mesmos números (ex.: `ciclo` com patrimônio 5.080,4 e respeito 151,7; `aleatorio` 114,9). O bicho mantém a conta (1 em 25, paga 18× ou 20×); só o momento do resultado mudou, e os robôs não jogam bicho.
+
+## 4. Simulação de balanceamento — `tests/simulate.js`
+
+Bots com estratégias fixas jogam temporadas completas. Resultado do **ciclo do roubo desenhado com o autor** (escada de 13 degraus + 5 variações, chance pela proporção poder ÷ dificuldade, doses sem limite, propina pelo maior degrau, tirar vício custa saúde, UTI, Feira ajustada), em `npm run simulate` (`node tests/simulate.js 300 1`). Entre parênteses, a medição anterior (escada de 18 degraus):
+
+| Estratégia | Patrimônio | **Respeito (placar)** | Detenções |
+|---|---|---|---|
+| **Ciclo do autor (robô novo, jogador típico)** | 4.001 | **170** | 1,8 |
+| Assaltante farmando roubos | 7.496 | **145** (177) | 1,8 (1,9) |
+| Bicheiro com negócios | 8.173 | **125** (192) | 2,1 (1,7) |
+| Território (Bicheiro) | 399 | **152** (140) | 0 (0,9) |
+| Diplomacia (Bicheiro) | 283 | **122** (110) | 0 (0,8) |
+| Bonde (gangue) | 2.036 | **117** (110) | 2,0 (0,7) |
+| Comerciante sem a classe | 7.529 | **125** (147) | 1,7 (1,4) |
+| Ciclo completo: roubo, noite e arsenal | 17.416 | **251** (210) | 2,4 (1,9) |
+| Brigão (duelos) | 7.681 | **191** (173) | 1,2 (0,9) |
+| Bando de assaltos | 2.368 | **81** (91) | 1,2 (0,7) |
+| Traficante (Galpão e remessas) | 8.651 | **135** (139) | 1,6 (1,2) |
+| Dono da Noite (casas e noitadas) | 1.519 | **249** (183) | 0,4 (2,0) |
+| Império da noite | 1.434 | **249** (183) | 0,4 (1,7) |
+| Apostador | 4.395 | **107** (139) | 2,2 (1,8) |
+| Exploit: repetir a melhor e depositar tudo | 2.313 | **24** (40) | 8,8 (10,2) |
+| Aleatório | 182 | **25** (30) | 0,6 (0,6) |
+
+Influência ligada ao roubo (roubo do 4º degrau em diante soma influência; faixas com nome; dono do pedaço com propina −25% e polícia do bairro pela metade), mesma simulação: o respeito mudou de 0 a +6 pontos (ciclo 170 → 176, ciclo completo 251 → 257, território 152 → 153, bonde 117 → 124, Assaltante farmando 145 → 147). Os robôs que roubam passaram a dominar em média **0,7 a 0,9 bairro** no mês, sem desequilibrar. Nas classes, a maior mudança foi no Bonde do Assaltante (120 → 131).
+
+Respeito ligado à influência (patente limita os bairros: 0/1/2/3/5; faixa nova paga +3/+5/+10 uma vez por bairro; perder o comando custa 5; Território saiu dos feitos), mesma simulação: o respeito subiu de 8 a 21 pontos em quase todas as estratégias, porque todo mundo passa por Conhecido e Respeitado em algum bairro (ciclo 176 → 195, Assaltante farmando 147 → 167, território 153 → 161, diplomacia 122 → 133, bonde 124 → 137, bando 84 → 97, ciclo completo 257 → 273, Dono da Noite 245 → 262). A ordem entre as estratégias não mudou, e a distância do mais forte ao mais fraco (sem o Bando) caiu um pouco: de 2,4 para 2,3 vezes. Os robôs continuam dominando 0,7 a 0,9 bairro no mês. Nas classes, o Dono da Noite segue à frente em Território (194) e Diplomacia (166).
+
+Dono da Noite com +1 de respeito só na 1ª saída da noite do dia (antes a cada saída): Dono da Noite 262 → **223**, Império da noite 258 → **227**; as outras estratégias não mudaram. Agora ficam atrás do ciclo completo (273) e perto do Brigão (208). Na tabela das classes nada mudou: os robôs de território, diplomacia e bonde quase não saem à noite. A vantagem do Dono da Noite ali vem das doses baratas, que rendem mais roubos.
+
+Teto de respeito por degrau (5 × n × (n + 4): 25, 60, 105, 160, 225…), entrada da noite paga uma vez por dia e cardápio novo, mesma simulação (`npm run simulate`, 300 temporadas). Antes → agora: ciclo do autor 195 → **147**; Assaltante farmando 167 → **176**; negócios 139 → **144**; território 161 → **119**; diplomacia 133 → **77**; bonde 137 → **161**; comerciante 133 → **132**; ciclo completo 273 → **228**; Brigão 208 → **231**; bando 97 → **106**; Traficante 143 → **135**; Dono da Noite 223 → **163**; Império da noite 227 → **157**; apostador 120 → **130**; exploit de repetir 26 → **26**.
+- A simulação confirmou o problema apontado pelo autor: o robô do ciclo fazia 124 de cada 250 roubos no degrau 1, e o respeito vinha daí. Com o teto, quem não sobe de degrau para de subir no placar.
+- Primeira tentativa, 25 × degrau (25, 50, 75…): ciclo 122 e diplomacia 69. Com o teto mais folgado nos degraus de cima quase nada mudou (125 e 75), porque os robôs escolhiam o roubo só pelo dinheiro. Passei a contar o respeito na escolha do robô (1 de respeito ≈ R$ 40), como faria um jogador de olho no ranking: ciclo 147.
+- **Quem perdeu mais:** diplomacia (77) e território (119), que quase não se equipam e ficam nos degraus 1 a 3, e o Dono da Noite (163), que rendia pelo volume de roubos pequenos. **Pendente:** dar a essas estratégias um caminho de respeito que não dependa da escada (acordos, alianças, operações do bando).
+- Ritmo da Feira e maratona não mudaram (2ª arma no dia 2, Três-oitão no dia 14; 31 roubos por dia com dinheiro infinito).
+
+Bairros com identidade (saque, dificuldade, polícia e atrito por bairro; o Centro passou a pagar +8% e o Cais, +18%): o respeito mudou no máximo 5 pontos (ciclo 147 → 148, Assaltante farmando 176 → 181, Brigão 231 → 233, exploit 26 → 21). O patrimônio subiu um pouco (ciclo R$ 3.779 → R$ 4.459, Dono da Noite R$ 3.847 → R$ 5.340), porque os robôs começam no Centro, que agora paga mais. As classes ficaram a até 9 pontos de antes.
+
+UPA de graça (atendimento +25 de saúde e soro −50 de vício, sem energia, uma vez por dia cada): a maioria das estratégias ficou igual (ciclo 148 → 144, Assaltante farmando 181 → 181, território 118 → 118). Subiram as que usam a UPA: **Brigão 233 → 263** (a saúde de graça deixa duelar mais) e **Dono da Noite 164 → 179** / **Império da noite 155 → 172** (o soro de graça segura o vício e deixa tomar mais doses). Maratona igual (31 roubos por dia; o robô dela usa a clínica paga).
+
+Auditoria (economia, segurança e celular), a partir de um prompt de revisão trazido pelo autor:
+- **Crítico, corrigido — bico.** A R$ 110–170 por 28 de energia, sem risco e com Procurado −4, o bico rendia **R$ 1.691 no dia 1** girando com bebida do Boteco, contra **R$ 293 roubando** (Procurado 62). Agora paga R$ 30–45: menos por energia que o 1º degrau e sem lucro girando com dose. Teste `ECONOMIA:` trava isso.
+- **Importante, corrigido — treino.** O primeiro treino custava R$ 381–533 e travava o guia no passo "Treine um atributo". Fórmula nova: 80 + 30 × nível + 1,6 × nível² (R$ 184–318 no começo; igual à antiga perto do nível 20). Teste `INICIANTE:` trava.
+- **Polimento, corrigido —** cartão de vício da Noite com layout quebrado.
+- **Segurança:** no online, toda ação passa pela lista fechada do motor no servidor, com argumentos validados e o tempo contado só no servidor; nada crítico fica no navegador. Pendente (não explorável para ganho): dois pedidos simultâneos leem o mesmo save e o último grava por cima.
+- Simulação depois dos ajustes: ciclo 144 → 153, Assaltante farmando 181 → 186, demais a até 3 pontos; ritmo da Feira igual (2ª arma no dia 2, Três-oitão no dia 14).
+
+Esquemas sem custo por dia (pedido do autor), mesma simulação: Traficante 139 → **151** de respeito e patrimônio R$ 8.915 → **R$ 11.027**; Comerciante 133 → **140** (R$ 7.911 → R$ 9.377); as demais estratégias não mudaram (ciclo 153 → 152, Assaltante farmando 186 → 186). O Traficante segue abaixo do Assaltante e do Dono da Noite.
+
+Leitura do ciclo do autor:
+- **Travas do iniciante** (testes `INICIANTE:`): o personagem novo tem 91% no Bater carteira (94% com o Pedaço de pau); a 1ª arma sai em uns 4 roubos; nos degraus 1 a 3 a falha nunca dá cadeia nem tira caixa; no dia 1, começando do zero e bebendo cerveja e pinga, ele faz 15 roubos ou mais.
+- **Os robôs antigos não jogavam o ciclo novo**: só compravam arma quando um roubo a exigia, não usavam a noite para recuperar energia e descontavam R$ 0,40 por ponto de Procurado, que com o saque pequeno do começo os fazia parar após 1 roubo. Corrigi os três comportamentos (não as regras) e criei o robô **ciclo**, que segue exatamente o ciclo do autor e serve de jogador típico.
+- **Feira**: com o saque menor do começo, a 2ª arma (R$ 820) custava 8 roubos do degrau 3 e o robô passava o mês no degrau 3. Preço novo = antigo × (0,35 + antigo ÷ 12.000), no máximo 1. Ritmo (`npm run ritmo`): 2ª arma no dia 2, 3ª no 4, Facão no 6, Maquita no 10, Três-oitão no 15 (antes 3, 7, 11, 15, 18).
+- **Calibragem do jogador típico**: o sistema tem dois extremos. Com a escada difícil, o robô fica pobre e não sobe; com a fácil, ele dispara. Medi o robô do ciclo dia a dia e ajustei `TYPICAL` (atributos +0,3 por dia, melhor atributo +0,4, arsenal 2 + 0,55 por dia) e o Procurado típico (30, que tira 12% do poder). Resultado: o robô do ciclo chega ao degrau 4 no dia 6, ao 5 no dia 13, ao 7 no dia 21 e ao 9 no dia 28. O topo (10 a 13) fica para quem treina e se equipa mais.
+- **Respeito**: com repetição livre e energia sem teto, o robô do ciclo chegou a 351. Corrigi com respeito ~0,4 por degrau (mínimo 1) e **nenhum respeito** em roubo 3 ou mais degraus abaixo do maior já feito. O bônus de respeito do Assaltante nos assaltos voltou para +25% (com +50%, ciclo completo 276).
+- **Fora da curva**: Dono da Noite e Império da noite (249). Os roubos deles rendem o mesmo respeito que os do robô do ciclo; a diferença é o +1 de respeito a cada entrada na noite, que agora todo mundo usa. Testei o desconto de doses (40% → 20%) e o vício pela metade (→ 25% menos): nenhum resolveu e voltaram ao original. **Pendente** (decidir com o autor).
+- **Maratona** (`npm run maratona`, dinheiro infinito, sem se importar com o Procurado): 31 roubos por dia e 306 de energia em doses (antes, com o teto de 150, 14,4). O freio para quem joga normal é o Procurado com propina cada vez mais cara: um jogador só com cerveja no degrau 3 faz uns 7 roubos por dia até chegar a 60 de Procurado.
+- O jogador "da cerveja infinita" não quebra o jogo: vício 100 só reduz a dose à metade, mas o Procurado chega antes.
+
+Leitura da v1.5 (roubo em sequência e sem meta):
+- O autor jogou o 2º dia com arma, colete e veículo e não conseguia roubar em sequência sem correr muito risco de cadeia. Medido no motor: o iniciante com Pedaço de pau, Lista telefônica e Bicicleta, com Procurado 22, tinha **8% a 20% de cadeia por tentativa** nos roubos pequenos, e o equipamento somava só +2 a +4% de chance. Agora são **2% a 7%**, com +9 a +11% vindos do equipamento (Bater carteira: 74% → 83% de chance, 9% → 2% de cadeia).
+- As detenções caíram cerca de 35% em todas as estratégias. Menos dias presos deram de 0 a 26 de respeito a mais, mesmo sem os +20 da meta, que saiu. Quem rouba mais ganhou mais: ciclo completo +26, Brigão +17, Assaltante +18. Diplomacia, Bonde e Bando ficaram onde estavam, e a distância do mais forte ao mais fraco (sem o Bando) subiu de 1,49 para 1,66 vez. **Calibração pendente**: dar respeito a acordos, alianças e operações do bando.
+- Testei também um bônus de equipamento menor (+2/+1/+1) e o Procurado pesando 0,3 na chance: o respeito mudou menos de 3 pontos. O que move o placar é a cadeia, não a chance.
+- O exploit de repetir o mesmo roubo continua sem compensar (39).
+- Online, o Procurado agora esfria **60 por dia** (antes 15), porque a energia volta o dia todo (+1 a cada 3 minutos). Sem isso, quem joga várias vezes no dia ficava com Procurado alto o tempo todo.
+
+Leitura da v1.5 (respeito como placar único):
+- A tabela agora mede **respeito**, o placar do jogo e do ranking (antes media pontos). Com os feitos do mês pagando respeito, os caminhos de comércio e território subiram para perto dos de roubo: Brigão 161, Território 149, Negócios 143, Roubos 139, Comerciante 135, Império 129, Dono da Noite 125, Traficante 119.
+- **Ficaram para trás**: Diplomacia (110), Bonde (108) e Bando de assaltos (84). A distância do mais forte ao mais fraco (sem o Bando) é de 1,49 vez, quase a mesma dos pontos (1,45). Próxima calibragem: dar respeito a acordos, alianças e operações do bando.
+- O Assaltante passou para +15%; nas classes ele ainda lidera Roubos e Negócios, mas perdeu Território e Gangue.
+
+Leitura da v1.5 (equipamento nos roubos):
+- Só com o peso do equipamento, os caminhos de roubo subiram cerca de 30 pontos e o comerciante quase 40. As dificuldades subiram pela metade do equipamento esperado em cada degrau, e os robôs passaram a comprar proteção e veículo (antes só armas). O dinheiro que vira equipamento baixou o patrimônio; Fortuna e a meta Patrimônio caíram cerca de 10%.
+- Resultado: quase todos a até 11 pontos de antes; Brigão subiu de 183 para 207 (duelo é onde arma e proteção mais pesam). O ritmo da Feira (`npm run ritmo`) não mudou. Os patrimônios desta tabela já são com Fortuna nova.
+
+Leitura da v1.5 (itens são seus, sem devolução na troca):
+- Preços recalculados para o custo de subir a trilha ficar igual; o ritmo da Feira (`npm run ritmo`) ficou o mesmo, arma a arma.
+- O robô de compra passou a somar o caminho inteiro da prateleira (antes olhava só o preço da arma desejada e, sem devolução, gastava o caixa). Comparando com o motor anterior e o robô anterior: a maioria ficou igual (±5); quem rouba perdeu cerca de 12 (Assaltante 195 → 183, ciclo completo 202 → 189), porque o patrimônio conta só o que está em uso e a arma em uso agora custa menos. Contar todos os itens guardados foi testado e exagerou (+16 a +46, cruzando a meta de R$ 10.000), por isso ficou de fora.
+- Dono da Noite subiu (173 → 186); Bando de assaltos continua o mais fraco (122).
+
+Leitura e calibração da v1.5 (economia do começo):
+- **Ritmo da Feira** (`npm run ritmo`, jogador que só rouba e compra a próxima arma assim que pode, começando com R$ 0): antes, a 2ª e a 3ª arma saíam no 1º e no 2º roubo, e a 4ª no 5º (presa só pelo respeito). Agora: 1ª no roubo 1, 2ª no 3, 3ª no 8, 4ª no 14 (dia 11), Maquita no dia 18, Três-oitão no 23. Esse jogador não treina e é o caso lento; os robôs completos chegam antes.
+- Começo do zero e preços novos, cada um sozinho, tiraram de 20 a 50 pontos; juntos, o patrimônio final caiu cerca de 40% (Assaltante de R$ 16,3 mil para R$ 10 mil). As medalhas de Fortuna e Fama e a meta Patrimônio foram reduzidas na mesma proporção; o Comércio quase não caiu, por isso sua medalha mudou pouco (reduzi-la a 60% deu 266 ao Traficante).
+- O roubo armado passou a pagar +25% (antes +15%): Assaltante de 183 para 195 e ciclo completo de 184 para 202.
+- **Pendências**: Bando de assaltos caiu de 191 para 130 (fundar, recrutar e armar o líder disputam o pouco dinheiro do começo); Traficante (239) e Comerciante (238) lideram; o Assaltante lidera até na estratégia de negócios (235).
+
+Leitura e calibração da v1.5 (trilha de compra):
+- Primeiro a trilha valeu para todas as listas; o autor a reduziu à Feira e aos negócios. Na versão completa, o Assaltante caiu para 181 e precisou do "dobro de respeito na primeira vez" para voltar a 200; sem trilha nos roubos, essa compensação saiu e ele fez **215**.
+- Os robôs compram o que falta na prateleira antes do que querem. Traficante (241) e império da noite (236) subiram cerca de 15 pontos e abriram 20 sobre o terceiro (Comerciante 219). Causa provável: os negócios baratos comprados pelo caminho também dão renda e respeito. **Calibração pendente.**
+
+Leitura e calibração da v1.4:
+- **Quatro classes**: com os números propostos, o Traficante foi a 243 e o império da noite a 247 (os demais perto de 210). O Navio do Traficante caiu de +15% para +10% e a casa abastecida de +100% para +70%: **225** e **226**, 12 pontos acima do grupo seguinte. Os robôs de território e diplomacia, que eram do Articulador, jogam de Bicheiro; a diplomacia perdeu força (173), e o bonde caiu para 167.
+- **Noite com cardápio**: as estratégias que usam a noite ficaram onde estavam (ciclo completo 188, Barão 178). O vício continua sendo o freio: uma bala dá 75 de energia e 18 de vício, e acima de 70 as doses fortes podem dar overdose.
+- **Casa abastecida**: na primeira medição, o império da noite fez **241 pontos**, porque a renda dobrada somava em cima do bônus do Barão. Passou a dobrar só a renda base da casa: **227**, empatado com o Traficante (223) no topo.
+- **Comerciante sem a classe** subiu de 158 para 197 com os esquemas baratos (gelo e cigarro). Deixou de ser o caminho mais fraco.
+- **Tolerância e teto do corpo** (`node tests/maratona.js`; na v1.5, 15,5 roubos por dia com 150 de energia em doses): um jogador com dinheiro infinito, que rouba, se droga e zera o vício na clínica sem parar, fazia **84,9 roubos e 1.313 de energia em drogas por dia**; agora faz **13,6 roubos e 150**. Sem a clínica, caiu de 11,4 para 9,3 roubos por dia. Nos robôs comuns a diferença ficou no ruído (até 6 pontos), porque quase ninguém passa de 150 por dia; o império da noite foi a 233, 13 acima do Traficante.
+- A refinaria (R$ 25.000, 150 de respeito) quase não é alcançada numa temporada: é meta de fim de jogo.
+
+### Classes — `tests/careers.js` (`npm run careers`: 200 temporadas por célula, com o teto de respeito por degrau)
+
+| Estratégia (respeito) | Assaltante | Dono da Noite | Traficante | Bicheiro |
+|---|---|---|---|---|
+| Roubos | **181** | 141 | 134 | 130 |
+| Negócios | **242** | 159 | 143 | 142 |
+| Território | **156** | 147 | 120 | 118 |
+| Diplomacia | **117** | 102 | 80 | 78 |
+| Gangue | **160** | 151 | 126 | 124 |
+
+(O Traficante só brilha na estratégia de mercadoria, medida na tabela acima.)
+
+### Cidades (medido na v0.6; não refeito na v0.7)
+
+Média das cinco estratégias focadas, 120 temporadas cada (600 por cidade):
+Rio de Janeiro 200 · São Paulo 203 · Belo Horizonte 209 · Salvador 206 · Recife 202 · Porto Alegre 202.
+Nenhuma cidade é obrigatória nem ruim; a diferença máxima é de 4,5%.
+
+## 5. Limitações conhecidas (honestas)
+
+1. **O Articulador é forte na estratégia de gangue** (191 contra 172 do Operador) e bom generalista. O Operador passou a vencer no farm de missões (203 contra 192) depois do bônus de +8% em serviços grandes.
+2. O Empreendedor é fraco fora da estratégia de negócios (164–174).
+3. Os bots são heurísticos. Um humano otimizando pode encontrar linhas melhores, especialmente combinando território com negócios no mesmo bairro. [H]
+4. A estratégia de gangue termina com pouco dinheiro (cerca de R$ 540): a manutenção consome a renda. É intencional como custo, mas pode desanimar. [H] Precisa de teste com pessoas.
+5. Não houve teste com jogadores reais, nem em Safari/iOS ou Firefox; só Chromium.
+6. A acessibilidade (leitor de tela) foi tratada só no básico: `aria-live`, `aria-current` e rótulos.
+7. A sincronização entre abas recarrega o estado, mas não resolve edições simultâneas.
+8. O caso extremo em que o `localStorage` fica cheio foi tratado com aviso, mas não foi simulado.
