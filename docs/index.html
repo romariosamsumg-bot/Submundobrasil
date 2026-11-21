@@ -1293,6 +1293,8 @@ button.hudBar:active{filter:brightness(1.25)}
 /* Nome "Marginalidade - O Jogo": a palavra é longa, então o logo encolhe para caber em 360 px */
 .logoTop{font-size:clamp(30px,10.4vw,62px)!important;letter-spacing:0!important;white-space:nowrap}
 .loaderLogo{font-size:clamp(24px,8vw,34px)}
+.hudBar.ht b{white-space:nowrap;letter-spacing:.03em!important}
+@media(max-width:380px){.hudBar.ht b{font-size:10px!important}}
 
   </style>
 </head>
@@ -5137,7 +5139,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     $('#hudSleep').innerHTML = hudSleep();
     $('#hudRespect').textContent = num(s.respect);
     $('#hudEnergy').style.width = Math.min(100, s.energy) + '%'; $('#hudEnergyOver').style.width = Math.max(0, Math.min(100, s.energy - 100)) + '%'; $('#hudEnergyTxt').textContent = `Energia ${s.energy}`; $('#hudEnergyBox').classList.toggle('boost', s.energy > 100);
-    $('#hudHeat').style.width = s.heat + '%'; $('#hudHeatTxt').textContent = `Procurado ${s.heat}`;
+    $('#hudHeat').style.width = s.heat + '%'; { const ti = SB.heatTier(s); $('#hudHeatTxt').textContent = ti ? `Procurado ${s.heat} · ${SB.HEAT_TIERS[ti].name}` : `Procurado ${s.heat}`; } // a faixa vai dentro da barra (não empurra o topo)
     $('#hudEnergyBox').setAttribute('aria-label', `Energia ${s.energy}. Abrir a Noite`); $('#hudHeatBox').setAttribute('aria-label', `Procurado ${s.heat} de 100, ${SB.HEAT_TIERS[SB.heatTier(s)].name}. Abrir Roubar`);
     $('#hudVicio').style.width = s.vicio + '%'; $('#hudVicioTxt').textContent = `Vício ${s.vicio}`; $('#hudVicioBox').setAttribute('aria-label', `Vício ${s.vicio} de 100. Abrir o Hospital`); $('#hudVicioBox').classList.toggle('alert', s.vicio >= 70);
     $('#hudHeatBox').classList.toggle('alert', s.heat >= 60); $('#hudHeatBox').classList.toggle('warm', s.heat >= 30 && s.heat < 60); $('#hudVicioBox').classList.toggle('warm', s.vicio >= 40 && s.vicio < 70);
@@ -5148,7 +5150,7 @@ window.SB_ONLINE = {"url":"https://bfnketwyttblsfljbafn.supabase.co","anonKey":"
     lastCash = s.cash;
     $('#topDay').textContent = `Dia ${s.day}/${MAXDAY}`;
     $('#hudPlace').textContent = D().name;
-    { const ti = SB.heatTier(s), el = $('#hudTier'); el.hidden = ti === 0; el.textContent = SB.HEAT_TIERS[ti].name; el.className = 'hudTier t' + ti; }
+    { const ti = SB.heatTier(s), el = $('#hudTier'); el.hidden = true; el.textContent = SB.HEAT_TIERS[ti].name; el.className = 'hudTier t' + ti; }
     document.body.classList.toggle('jailed', s.jail > 0);
   }
   /** Executa uma ação do motor, registra o resultado e redesenha. */

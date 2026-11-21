@@ -1211,3 +1211,5 @@ button.hudBar:active{filter:brightness(1.25)}
 /* Nome "Marginalidade - O Jogo": a palavra é longa, então o logo encolhe para caber em 360 px */
 .logoTop{font-size:clamp(30px,10.4vw,62px)!important;letter-spacing:0!important;white-space:nowrap}
 .loaderLogo{font-size:clamp(24px,8vw,34px)}
+.hudBar.ht b{white-space:nowrap;letter-spacing:.03em!important}
+@media(max-width:380px){.hudBar.ht b{font-size:10px!important}}
